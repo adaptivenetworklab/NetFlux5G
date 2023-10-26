@@ -1,0 +1,153 @@
+version: '3'
+services: 
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: open5gs
+      # MONGO_INITDB_ROOT_USERNAME: root
+      # MONGO_INITDB_ROOT_PASSWORD: admin
+    ports:
+      - 27017:27017
+    
+  amf:
+    image: openverso/open5gs:2.6.4
+    command: 
+      - open5gs-amfd 
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  ausf:
+    image: openverso/open5gs:2.6.4
+    command: 
+      - open5gs-ausfd
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  bsf:
+    image: openverso/open5gs:2.6.4
+    command: open5gs-bsfd
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  nrf:
+    image: openverso/open5gs:2.6.4
+    command: open5gs-nrfd
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  nssf:
+    image: openverso/open5gs:2.6.4
+    command: open5gs-nssfd   
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  pcf:
+    image: openverso/open5gs:2.6.4
+    command: 
+      - open5gs-pcfd
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  pcrf:
+    image: openverso/open5gs:2.6.4
+    command: ["open5gs-pcrfd"]
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+
+  scp:
+    image: openverso/open5gs:2.6.4
+    command: open5gs-scpd
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+
+  smf:
+    image: openverso/open5gs:2.6.4
+    command: open5gs-smfd
+    restart : on-failure
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  udm:
+    image: openverso/open5gs:2.6.4
+    restart: on-failure
+    command: 
+      - open5gs-udmd
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  udr:
+    image: openverso/open5gs:2.6.4
+    restart: on-failure
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    command: 
+      - open5gs-udrd
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  upf:
+    image: openverso/open5gs:2.6.4
+    command:
+      - open5gs-upfd
+    cap_add:
+      - all
+    privileged: true
+    restart: on-failure
+    ports:
+      - 2152:2152
+    volumes:
+      - type: bind
+        source: /opt/configs/open5gs
+        target: /opt/configs/open5gs
+    
+  webui:
+    image: openverso/open5gs-webui:2.6.4
+    restart: on-failure
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+      NODE_ENV: development
+    ports:
+      - 3000:3000
+    
+  # portainer:
+  #   image: portainer/portainer-ce
+  #   ports:
+  #   - 9000:9000
+  #   volumes:
+  #   - /var/run/docker.sock:/var/run/docker.sock
