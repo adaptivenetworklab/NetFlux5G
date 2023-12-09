@@ -41,5 +41,5 @@ ENV AMF_HOSTNAME=amf
 ENV GNB_HOSTNAME=localhost
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/bin/sh"]
+CMD ["ue"]
 

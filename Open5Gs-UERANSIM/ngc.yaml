@@ -15,9 +15,7 @@ services:
       - open5gs-amfd 
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
     
   ausf:
     image: openverso/open5gs:2.6.4
@@ -25,36 +23,37 @@ services:
       - open5gs-ausfd
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#      - type: bind
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   bsf:
     image: openverso/open5gs:2.6.4
     command: open5gs-bsfd
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   nrf:
     image: openverso/open5gs:2.6.4
     command: open5gs-nrfd
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   nssf:
     image: openverso/open5gs:2.6.4
     command: open5gs-nssfd   
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   pcf:
     image: openverso/open5gs:2.6.4
@@ -64,9 +63,9 @@ services:
       DB_URI: mongodb://mongo/open5gs
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   pcrf:
     image: openverso/open5gs:2.6.4
@@ -75,9 +74,9 @@ services:
       DB_URI: mongodb://mongo/open5gs
     restart: on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
 
   scp:
     image: openverso/open5gs:2.6.4
@@ -86,18 +85,18 @@ services:
       DB_URI: mongodb://mongo/open5gs
     restart: on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
 
   smf:
     image: openverso/open5gs:2.6.4
     command: open5gs-smfd
     restart : on-failure
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   udm:
     image: openverso/open5gs:2.6.4
@@ -105,9 +104,9 @@ services:
     command: 
       - open5gs-udmd
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   udr:
     image: openverso/open5gs:2.6.4
@@ -117,9 +116,9 @@ services:
     command: 
       - open5gs-udrd
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   upf:
     image: openverso/open5gs:2.6.4
@@ -132,9 +131,9 @@ services:
     ports:
       - 2152:2152
     volumes:
-      - type: bind
-        source: /opt/configs/open5gs
-        target: /opt/configs/open5gs
+      - open5gs-config:/opt/open5gs/etc/
+#        source: /home/ubuntu/Riset_23-24_SDN/Open5Gs-UERANSIM/images/Open5Gs/configs/open5gs
+#        target: /opt/open5gs/etc/open5gs/
     
   webui:
     image: openverso/open5gs-webui:2.6.4
@@ -144,7 +143,10 @@ services:
       NODE_ENV: development
     ports:
       - 3000:3000
-    
+  
+volumes:
+  open5gs-config:
+
   # portainer:
   #   image: portainer/portainer-ce
   #   ports:

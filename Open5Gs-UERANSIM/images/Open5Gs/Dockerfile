@@ -58,10 +58,7 @@ RUN	mkdir -p /opt/open5gs && cd /tmp && git clone https://github.com/open5gs/ope
 RUN apt-get update && apt-get install -y net-tools iputils-ping iproute2 dnsutils gettext-base iptables
 
 ## Replace default config values to work in containers (use dev eth0 and reference other containers by name)
-
-# Dialihkan menggunakan Docker Volume
-
-# COPY configs/open5gs/* /opt/open5gs/etc/open5gs/
+COPY configs/open5gs/* /opt/open5gs/etc/open5gs/
 
 FROM debian:bullseye-slim
 
@@ -87,13 +84,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_ROOT=/opt/open5gs
-
-# Dialihkan menggunakan Docker Volume supaya lebih dinamis
-# COPY --from=builder /opt/open5gs ${APP_ROOT}
+COPY --from=builder /opt/open5gs ${APP_ROOT}
 
 ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
 WORKDIR ${APP_ROOT}
 COPY entrypoint.sh /entrypoint.sh
+VOLUME /opt/open5gs/
 
 # TODO: run with non-root user
 #RUN groupadd -r open5gs && useradd --no-log-init -r -g open5gs open5gs
@@ -102,7 +98,6 @@ COPY entrypoint.sh /entrypoint.sh
 
 #Default CONF values
 ENV DB_URI=mongodb://mongo/open5gs
-
 
 # Butuh tambahan konfigurasi di sini, masih static untuk IP nya. Bisa dibuat alokasi dynamic pake ENV dari Docker-Compose aja.
 # Sesuain sama deployment dari AMF & UPF
