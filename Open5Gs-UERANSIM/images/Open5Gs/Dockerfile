@@ -1,6 +1,6 @@
 FROM debian:bullseye as builder
 
-ARG version=2.0.18
+ARG version
 ENV VERSION=$version
 
 LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" \
@@ -20,7 +20,7 @@ RUN apt-get update && \
         flex \
         bison \
         git \
-        libtalloc-dev \
+        cmake \
         meson \
         libsctp-dev \
         libgnutls28-dev \
@@ -30,14 +30,15 @@ RUN apt-get update && \
         libmongoc-dev \
         libbson-dev \
         libyaml-dev \
+        libmicrohttpd-dev \
+        libcurl4-gnutls-dev \
+        libnghttp2-dev \
+        libtins-dev \
+        libtalloc-dev \
         iproute2 \
         ca-certificates \
         netbase \
         pkg-config \
-        cmake \
-        libnghttp2-dev \
-        libmicrohttpd-dev \
-        libcurl4-openssl-dev \
         wget && \
     apt-get clean
 
@@ -59,10 +60,12 @@ RUN apt-get update && apt-get install -y net-tools iputils-ping iproute2 dnsutil
 
 ## Replace default config values to work in containers (use dev eth0 and reference other containers by name)
 COPY configs/open5gs/* /opt/open5gs/etc/open5gs/
+COPY configs/freeDiameter/* /opt/open5gs/etc/freeDiameter/
+
 
 FROM debian:bullseye-slim
 
-ARG version=2.0.18
+ARG version
 ENV VERSION=$version
 
 LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" \
@@ -72,7 +75,13 @@ LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" 
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     curl \
-    libtalloc-dev \
+    libtalloc2 \
+    libgnutls30 \
+    libgcrypt20 \
+    libssl1.1 \
+    libbson-1.0-0 \
+    libtins4.0 \
+    libcurl4-gnutls-dev \
     libyaml-0-2 \
     libmongoc-1.0-0 \
     libsctp1 \
@@ -89,7 +98,6 @@ COPY --from=builder /opt/open5gs ${APP_ROOT}
 ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
 WORKDIR ${APP_ROOT}
 COPY entrypoint.sh /entrypoint.sh
-VOLUME /opt/open5gs/
 
 # TODO: run with non-root user
 #RUN groupadd -r open5gs && useradd --no-log-init -r -g open5gs open5gs
@@ -98,14 +106,6 @@ VOLUME /opt/open5gs/
 
 #Default CONF values
 ENV DB_URI=mongodb://mongo/open5gs
-
-# Butuh tambahan konfigurasi di sini, masih static untuk IP nya. Bisa dibuat alokasi dynamic pake ENV dari Docker-Compose aja.
-# Sesuain sama deployment dari AMF & UPF
-
-ENV IPV4_TUN_SUBNET="10.45.0.0/16" \
-    IPV4_TUN_ADDR="10.45.0.1/16" \
-    IPV6_TUN_ADDR="cafe::1/64" \
-    ENABLE_NAT=true
 
 
 ENTRYPOINT ["/entrypoint.sh"]
