@@ -22,7 +22,7 @@ smf:
     - dev: eth0
     client:
       upf:
-      - address: upf
+      - address: mn.upf1
         dnn: [internet, internet2]
   gtpc:
     server:
@@ -40,8 +40,8 @@ smf:
   - subnet: 10.46.0.1/16
     dnn: internet2
   dns:
+  - 1.1.1.1
   - 8.8.8.8
-  - 8.8.4.4
   # - 2001:4860:4860::8888
   # - 2001:4860:4860::8844
   mtu: 1400

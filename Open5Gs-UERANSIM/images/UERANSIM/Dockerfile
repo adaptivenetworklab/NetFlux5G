@@ -1,39 +1,43 @@
-FROM alpine:latest as builder
+FROM debian:bullseye as builder
 
-ARG version=3.1.0
+ARG version=3.2.6
 
-ENV VERSION=$version
-
-RUN apk add --no-cache \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     git \
-    cmake \
+    gcc \
     make \
     g++ \
-    libressl-dev \
-    lksctp-tools-dev \
-    linux-headers
+    libsctp-dev lksctp-tools \
+    iproute2
 
-RUN cd /tmp && git clone https://github.com/aligungr/UERANSIM.git && \
-    cd UERANSIM && git checkout tags/v$VERSION 
+RUN  DEBIAN_FRONTEND=noninteractive apt-get install -y libssl-dev
 
-    
+RUN cd /tmp && git clone https://github.com/Kitware/CMake.git
+
+RUN cd /tmp/CMake && ./bootstrap && make && make install
+
+RUN cd /tmp && git clone https://github.com/aligungr/UERANSIM.git
+
 RUN cd /tmp/UERANSIM && echo "cmake --version" && make
 
-FROM alpine:latest
+FROM debian:bullseye
 
 COPY --from=builder /tmp/UERANSIM/build/* /usr/local/bin/
 
 COPY /etc/ueransim /etc/ueransim
 COPY entrypoint.sh /entrypoint.sh
-RUN apk add --no-cache \
+
+RUN sed -i -e 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//mirror:\/\/mirrors\.ubuntu\.com\/mirrors\.txt/' /etc/apt/sources.list
+
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     bash \
-    bind-tools \
     curl \
     gettext \
     iperf3 \
     iproute2 \
-    liblksctp \
-    libstdc++
+    libsctp-dev lksctp-tools \
+    iw wireless-tools ethtool iproute2 net-tools iputils-ping traceroute tcpdump iptables dnsutils procps wireshark tshark
+    
 ENV N2_IFACE=eth0
 ENV N3_IFACE=eth0
 ENV RADIO_IFACE=eth0

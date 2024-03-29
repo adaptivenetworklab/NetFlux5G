@@ -31,7 +31,7 @@ shift
 case "$command" in
 
 ue) 
-    GNB_IP=${GNB_IP:-"$(host -4 $GNB_HOSTNAME |awk '/has.*address/{print $NF; exit}')"}
+    # GNB_IP=${GNB_IP:-"$(host -4 $GNB_HOSTNAME |awk '/has.*address/{print $NF; exit}')"}
     export GNB_IP
     echo "GNB_IP: $GNB_IP"
     envsubst < /etc/ueransim/ue.yaml > ue.yaml
@@ -44,7 +44,7 @@ gnb)
     N2_BIND_IP=${N2_BIND_IP:-"$(ip addr show ${N2_IFACE}  | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
     N3_BIND_IP=${N3_BIND_IP:-"$(ip addr show ${N3_IFACE} | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
     RADIO_BIND_IP=${RADIO_BIND_IP:-"$(ip addr show ${RADIO_IFACE} | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
-    AMF_IP=${AMF_IP:-"$(host -4 $AMF_HOSTNAME |awk '/has.*address/{print $NF; exit}')"}
+    # AMF_IP=${AMF_IP:-"$(host -4 $AMF_HOSTNAME |awk '/has.*address/{print $NF; exit}')"}
     export N2_BIND_IP N3_BIND_IP RADIO_BIND_IP AMF_IP
     echo "N2_BIND_IP: $N2_BIND_IP"
     echo "N3_BIND_IP: $N3_BIND_IP"

@@ -1,7 +1,9 @@
 FROM debian:bullseye as builder
 
 ARG version
+ARG branch=main
 ENV VERSION=$version
+ENV BRANCH=$branch
 
 LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" \
       org.opencontainers.image.vendor="Gradiant" \
@@ -45,8 +47,8 @@ RUN apt-get update && \
 RUN	mkdir -p /opt/open5gs && cd /tmp && git clone https://github.com/open5gs/open5gs && \
 	cd open5gs && \
     if [ "$VERSION" = "dev" ]; then \
-      git checkout main; \
-      wget https://api.github.com/repos/open5gs/open5gs/git/refs/heads/main -O /open5gs-ver.json; \
+      git checkout $BRANCH; \
+      wget https://api.github.com/repos/open5gs/open5gs/git/refs/heads/$BRANCH -O /open5gs-ver.json; \
     else \
       git checkout v$VERSION; \
       wget https://api.github.com/repos/open5gs/open5gs/git/refs/tags/v$VERSION -O /open5gs-ver.json; \
@@ -89,7 +91,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     libcurl4 \
     libmicrohttpd12 \
     libnghttp2-14 \
-    wondershaper iproute2 iputils-ping procps net-tools iptables iperf3 traceroute tcpdump && \
+    wondershaper iproute2 iputils-ping procps net-tools iptables iperf3 traceroute tcpdump iw wireless-tools ethtool procps wireshark tshark && \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_ROOT=/opt/open5gs
@@ -106,6 +108,13 @@ COPY entrypoint.sh /entrypoint.sh
 
 #Default CONF values
 ENV DB_URI=mongodb://mongo/open5gs
+
+# ENV IPV4_TUN_SUBNET="10.45.0.0/16" \
+#     IPV4_TUN_ADDR="10.45.0.1/16" \
+#     IPV6_TUN_ADDR="cafe::1/64" \
+#     ENABLE_NAT=true
+
+ENV ENABLE_NAT=true
 
 
 ENTRYPOINT ["/entrypoint.sh"]

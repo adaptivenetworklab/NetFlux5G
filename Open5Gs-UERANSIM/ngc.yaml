@@ -1,128 +1,161 @@
 version: '3'
-services: 
+
+services:
   mongo:
     image: mongo
     environment:
       MONGO_INITDB_DATABASE: open5gs
-      # MONGO_INITDB_ROOT_USERNAME: root
-      # MONGO_INITDB_ROOT_PASSWORD: admin
-    ports:
-      - 27017:27017
-    
+
   amf:
-    image: adaptivenetlab/open5gs:1.0
-    command: 
-      - open5gs-amfd 
-    restart : on-failure
+    image: adaptive/open5gs:1.0
+    command:
+    - open5gs-amfd
+    restart: on-failure
+    privileged: true
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/amf.yaml
+        target: /opt/open5gs/etc/open5gs/amf.yaml
+
   ausf:
-    image: adaptivenetlab/open5gs:1.0
-    command: 
-      - open5gs-ausfd
-    restart : on-failure
+    image: adaptive/open5gs:1.0
+    command:
+    - open5gs-ausfd
+    restart: on-failure
+    privileged: true
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/ausf.yaml
+        target: /opt/open5gs/etc/open5gs/ausf.yaml
+
   bsf:
-    image: adaptivenetlab/open5gs:1.0
-    command: open5gs-bsfd
-    restart : on-failure
+    image: adaptive/open5gs:1.0
+    command:
+    - open5gs-bsfd
+    restart: on-failure
+    privileged: true
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/bsf.yaml
+        target: /opt/open5gs/etc/open5gs/bsf.yaml
+
   nrf:
-    image: adaptivenetlab/open5gs:1.0
+    image: adaptive/open5gs:1.0
     command: open5gs-nrfd
-    restart : on-failure
+    restart: on-failure
+    privileged: true
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/nrf.yaml
+        target: /opt/open5gs/etc/open5gs/nrf.yaml
+
   nssf:
-    image: adaptivenetlab/open5gs:1.0
-    command: open5gs-nssfd   
-    restart : on-failure
+    image: adaptive/open5gs:1.0
+    command: open5gs-nssfd
+    restart: on-failure
+    privileged: true
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/nssf.yaml
+        target: /opt/open5gs/etc/open5gs/nssf.yaml
+
   pcf:
-    image: adaptivenetlab/open5gs:1.0
-    command: 
-      - open5gs-pcfd
-    environment:
-      DB_URI: mongodb://mongo/open5gs
-    restart : on-failure
-    volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
-  pcrf:
-    image: adaptivenetlab/open5gs:1.0
-    command: ["open5gs-pcrfd"]
+    image: adaptive/open5gs:1.0
+    command:
+    - open5gs-pcfd
+    privileged: true
     environment:
       DB_URI: mongodb://mongo/open5gs
     restart: on-failure
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
+      - type: bind
+        source: ./config/pcf.yaml
+        target: /opt/open5gs/etc/open5gs/pcf.yaml
+
+  pcrf:
+    image: adaptive/open5gs:1.0
+    command:
+    - open5gs-pcrfd
+    privileged: true
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+    restart: on-failure
+    volumes:
+      - type: bind
+        source: ./config/pcrf.yaml
+        target: /opt/open5gs/etc/open5gs/pcrf.yaml
 
   scp:
-    image: adaptivenetlab/open5gs:1.0
+    image: adaptive/open5gs:1.0
     command: open5gs-scpd
+    privileged: true
     environment:
       DB_URI: mongodb://mongo/open5gs
     restart: on-failure
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
+      - type: bind
+        source: ./config/scp.yaml
+        target: /opt/open5gs/etc/open5gs/scp.yaml
 
   smf:
-    image: adaptivenetlab/open5gs:1.0
-    command: open5gs-smfd
-    restart : on-failure
-    volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
-  udm:
-    image: adaptivenetlab/open5gs:1.0
+    image: adaptive/open5gs:1.0
     restart: on-failure
-    command: 
-      - open5gs-udmd
+    command: open5gs-smfd
+    privileged: true
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/smf.yaml
+        target: /opt/open5gs/etc/open5gs/smf.yaml
+
+  udm:
+    image: adaptive/open5gs:1.0
+    restart: on-failure
+    command:
+    - open5gs-udmd
+    privileged: true
+    volumes:
+      - type: bind
+        source: ./config/udm.yaml
+        target: /opt/open5gs/etc/open5gs/udm.yaml
+
   udr:
-    image: adaptivenetlab/open5gs:1.0
+    image: adaptive/open5gs:1.0
     restart: on-failure
     environment:
       DB_URI: mongodb://mongo/open5gs
-    command: 
-      - open5gs-udrd
-    volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
-  upf:
-    image: adaptivenetlab/open5gs:1.0
+    privileged: true      
     command:
-      - open5gs-upfd
+    - open5gs-udrd
+    volumes:
+      - type: bind
+        source: ./config/udr.yaml
+        target: /opt/open5gs/etc/open5gs/udr.yaml
+
+  upf:
+    image: adaptive/open5gs:1.0
+    command:
+    - open5gs-upfd
     cap_add:
-      - all
+    - all
     privileged: true
     restart: on-failure
+    # environment:
+    # ENABLE_NAT: "false"
     ports:
-      - 2152:2152
+    - 2152:2152
     volumes:
-      - open5gs-config:/opt/open5gs/etc/
-    
+      - type: bind
+        source: ./config/upf.yaml
+        target: /opt/open5gs/etc/open5gs/upf.yaml
+
   webui:
-    image: openverso/open5gs-webui:2.7.0
+    image: gradiant/open5gs-webui:2.7.0
     restart: on-failure
     environment:
       DB_URI: mongodb://mongo/open5gs
-      NODE_ENV: development
+      NODE_ENV: dev
     ports:
-      - 9999:9999
-  
-volumes:
-  open5gs-config:
+    - 9999:9999
 
   # portainer:
   #   image: portainer/portainer-ce
