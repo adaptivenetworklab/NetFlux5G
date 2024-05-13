@@ -1,4 +1,3 @@
-version: '3'
 services: 
   gnb1:
     image: gradiant/ueransim:3.2.6

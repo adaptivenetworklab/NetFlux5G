@@ -21,7 +21,7 @@ def topology(args):
     
     net = Mininet_wifi(topo=None,
                        build=False,
-                       link=wmediumd,
+                       link=wmediumd, wmediumd_mode=interference,
                        ipBase='10.0.0.0/8')
     
     # net2 = Containernet()
@@ -32,11 +32,11 @@ def topology(args):
 
     info( '\n*** Add APs & Switches\n')
     ap1 = net.addAccessPoint('ap1', cls=OVSKernelAP, ssid='ap1-ssid', failMode='standalone', datapath='user',
-                             channel='165', mode='a', position='700.0,335.0,0', protocols="OpenFlow14")
+                             channel='36', mode='a', position='700.0,335.0,0', protocols="OpenFlow14")
     ap2 = net.addAccessPoint('ap2', cls=OVSKernelAP, ssid='ap2-ssid', failMode='standalone', datapath='user',
-                             channel='165', mode='a', position='350.0,335.0,0', protocols="OpenFlow14")
+                             channel='36', mode='a', position='350.0,335.0,0', protocols="OpenFlow14")
     ap3 = net.addAccessPoint('ap3', cls=OVSKernelAP, ssid='ap3-ssid', failMode='standalone', datapath='user',
-                             channel='165', mode='a', position='525.0,10.0,0', protocols="OpenFlow14")
+                             channel='36', mode='a', position='525.0,10.0,0', protocols="OpenFlow14")
 
     s1 = net.addSwitch('s1', cls=OVSKernelSwitch, protocols="OpenFlow14")
     s2 = net.addSwitch('s2', cls=OVSKernelSwitch, protocols="OpenFlow14")
@@ -51,75 +51,79 @@ def topology(args):
 
     cwd = os.getcwd() # Current Working Directory
 
-    info( '\n *** Add UPF\n')                             
-    upf1 = net.addStation('upf1', network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='530.0,10.0,0', range=0, privileged=True, publish_all_ports=True,
-                          volumes=[cwd + "/config/upf.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
+    info( '\n *** Add UPF\n')
+    upf1 = net.addStation('upf1', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", privileged=True, publish_all_ports=True,
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='695.0,335.0,0', range=116,
+                          volumes=[cwd + "/config/upf1.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
+    upf2 = net.addStation('upf2', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", privileged=True, publish_all_ports=True,
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='355.0,335.0,0', range=116,
+                          volumes=[cwd + "/config/upf2.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
 
-    info( '\n *** Add AMF\n')                             
+    info( '\n *** Add AMF\n')
     amf1 = net.addStation('amf1', network_mode="open5gs-ueransim_default", cap_add=["net_admin"],  publish_all_ports=True,
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='520.0,10.0,0', range=0, 
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='520.0,10.0,0', range=116,
                           volumes=[cwd + "/config/amf.yaml:/opt/open5gs/etc/open5gs/amf.yaml"])
 
     info( '\n *** Add gNB\n')
-    gnb1 = net.addStation('gnb1', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", publish_all_ports=True,
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='705.0,335.0,0', range=116, txpower=4,
-                          environment={"AMF_IP": "10.0.0.2", "GNB_HOSTNAME": "mn.gnb1", "N2_IFACE":"gnb1-wlan0", "N3_IFACE":"gnb1-wlan0", "RADIO_IFACE":"gnb1-wlan0",
+    gnb1 = net.addStation('gnb1', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", publish_all_ports=True, 
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='705.0,335.0,0', range=116,
+                          environment={"AMF_IP": "10.0.0.3", "GNB_HOSTNAME": "mn.gnb1", "N2_IFACE":"gnb1-wlan0", "N3_IFACE":"gnb1-wlan0", "RADIO_IFACE":"gnb1-wlan0",
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1"})                               
-    gnb2 = net.addStation('gnb2', cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='345.0,335.0,0', range=116, txpower=4, publish_all_ports=True,
-                          environment={"AMF_IP": "10.0.0.2", "GNB_HOSTNAME": "mn.gnb2", "N2_IFACE":"gnb2-wlan0", "N3_IFACE":"gnb2-wlan0", "RADIO_IFACE":"gnb2-wlan0",
+    gnb2 = net.addStation('gnb2', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", publish_all_ports=True,
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='345.0,335.0,0', range=116,
+                          environment={"AMF_IP": "10.0.0.3", "GNB_HOSTNAME": "mn.gnb2", "N2_IFACE":"gnb2-wlan0", "N3_IFACE":"gnb2-wlan0", "RADIO_IFACE":"gnb2-wlan0",
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1"})                   
 
     info('\n*** Adding docker UE hosts\n')
     # Docker Host (UE) connected to ap1-ssid
-    ue1 = net.addStation('ue1', devices=["/dev/net/tun"], cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='700.0,163.0,0', range=116, 
-                          environment={"GNB_IP": "10.0.0.3", "APN": "internet", "MSISDN": '0000000001',
+    ue1 = net.addStation('ue1', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='700.0,163.0,0', 
+                          environment={"GNB_IP": "10.0.0.4", "APN": "internet", "MSISDN": '0000000001',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1", 
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue2 = net.addStation('ue2', devices=["/dev/net/tun"], cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='815.0,335.0,0', range=116, 
-                          environment={"GNB_IP": "10.0.0.3", "APN": "internet", "MSISDN": '0000000002',
+    ue2 = net.addStation('ue2', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='815.0,335.0,0', 
+                          environment={"GNB_IP": "10.0.0.4", "APN": "internet", "MSISDN": '0000000002',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue3 = net.addStation('ue3', devices=["/dev/net/tun"], cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='700.0,513.0,0', range=116, 
-                          environment={"GNB_IP": "10.0.0.3", "APN": "internet2", "MSISDN": '0000000011',
+    ue3 = net.addStation('ue3', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='700.0,513.0,0', 
+                          environment={"GNB_IP": "10.0.0.4", "APN": "internet2", "MSISDN": '0000000011',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
     
     # Docker Host (UE) connected to ap2-ssid
-    ue4 = net.addStation('ue4', devices=["/dev/net/tun"], cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='390.0,496.0,0', range=116, 
-                          environment={"GNB_IP": "10.0.0.4", "APN": "internet", "MSISDN": '0000000003',
+    ue4 = net.addStation('ue4', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='390.0,496.0,0', 
+                          environment={"GNB_IP": "10.0.0.5", "APN": "internet", "MSISDN": '0000000003',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue5 = net.addStation('ue5', devices=["/dev/net/tun"], cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='195.0,323.0,0', range=116, 
-                          environment={"GNB_IP": "10.0.0.4", "APN": "internet2", "MSISDN": '0000000012',
+    ue5 = net.addStation('ue5', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='195.0,323.0,0', 
+                          environment={"GNB_IP": "10.0.0.5", "APN": "internet2", "MSISDN": '0000000012',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue6 = net.addStation('ue6', devices=["/dev/net/tun"], cap_add=["net_admin"], network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='390.0,180.0,0', range=116, 
-                          environment={"GNB_IP": "10.0.0.4", "APN": "internet2", "MSISDN": '0000000013',
+    ue6 = net.addStation('ue6', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='390.0,180.0,0', 
+                          environment={"GNB_IP": "10.0.0.5", "APN": "internet2", "MSISDN": '0000000013',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"}) 
 
-    h1 = net.addHost('h1', cls=Host)
-    h2 = net.addHost('h2', cls=Host)
-
     info( '\n*** Connecting Docker nodes to APs\n')
-    # upf1.cmd('iw dev upf1-wlan0 connect ap3-ssid')
     # amf1.cmd('iw dev amf1-wlan0 connect ap3-ssid')
+    # upf1.cmd('iw dev upf1-wlan0 connect ap1-ssid')
+    # upf2.cmd('iw dev upf1-wlan0 connect ap2-ssid')
     # gnb1.cmd('iw dev gnb1-wlan0 connect ap1-ssid')
     # gnb2.cmd('iw dev gnb2-wlan0 connect ap2-ssid')
-    # ue1.cmd('iw dev ue1-wlan0 connect ap1-ssid')
-    # ue2.cmd('iw dev ue2-wlan0 connect ap1-ssid')
-    # ue3.cmd('iw dev ue3-wlan0 connect ap1-ssid')
-    # ue4.cmd('iw dev ue4-wlan0 connect ap2-ssid')
-    # ue5.cmd('iw dev ue5-wlan0 connect ap2-ssid')
-    # ue6.cmd('iw dev ue6-wlan0 connect ap2-ssid')
+    ue1.cmd('iw dev ue1-wlan0 connect ap1-ssid')
+    ue2.cmd('iw dev ue2-wlan0 connect ap1-ssid')
+    ue3.cmd('iw dev ue3-wlan0 connect ap1-ssid')
+    ue4.cmd('iw dev ue4-wlan0 connect ap2-ssid')
+    ue5.cmd('iw dev ue5-wlan0 connect ap2-ssid')
+    ue6.cmd('iw dev ue6-wlan0 connect ap2-ssid')
+
+    info("\n*** Configuring Propagation Model\n")
+    net.setPropagationModel(model="logDistance", exp=3)
 
     info('\n*** Configuring WiFi nodes\n')
     net.configureWifiNodes()
@@ -140,23 +144,16 @@ def topology(args):
     net.addLink(s5, s2)
     net.addLink(s7, s3)
     net.addLink(s1, ap1)
-    net.addLink(s2, ap1)
-    net.addLink(s3, ap2)
     net.addLink(s4, ap2)
     net.addLink(s10, ap3)
     net.addLink(ap3, amf1, cls=TCLink)
-    net.addLink(ap3, upf1, cls=TCLink)
     net.addLink(ap1, gnb1, cls=TCLink)
+    net.addLink(ap1, upf1, cls=TCLink)
     net.addLink(ap2, gnb2, cls=TCLink)
-    net.addLink(s10, upf1)
-    net.addLink(s10, amf1)
-    net.addLink(s1, gnb1)
-    net.addLink(s2, gnb1)
-    net.addLink(s3, gnb2)
-    net.addLink(s4, gnb2)
-    net.addLink(s10, h2)
-    net.addLink(s1, h1)
-    net.addLink(s2, h1)
+    net.addLink(ap2, upf2, cls=TCLink)
+    # net.addLink(s10, amf1, cls=TCLink)
+    net.addLink(s2, upf1, cls=TCLink)
+    net.addLink(s3, upf2, cls=TCLink)
 
     net.plotGraph(max_x=1000, max_y=1000)
 
@@ -190,14 +187,17 @@ def topology(args):
     info( '\n *** pingall for testing and flow tables update\n')
     net.pingAll()
 
+    CLI.do_sh(net, 'sleep 10')
+
     info( '\n *** Post configure Docker UPF connection to Core\n')
-    makeTerm2(upf1, cmd="/entrypoint.sh open5gs-upfd 2>&1 | tee -a /logging/upf.log")
+    makeTerm2(upf1, cmd="/entrypoint.sh open5gs-upfd 2>&1 | tee -a /logging/upf1.log")
+    makeTerm2(upf2, cmd="/entrypoint.sh open5gs-upfd 2>&1 | tee -a /logging/upf2.log")
     # amf1.cmd('open5gs-amfd | tee /logging/amf.log')
 
     info( '\n *** Post configure Docker AMF connection to Core\n')
     makeTerm2(amf1, cmd="open5gs-amfd 2>&1 | tee -a /logging/amf.log")
     # amf1.cmd('open5gs-amfd | tee /logging/amf.log')
-
+    
     CLI.do_sh(net, 'sleep 10')
 
     info( '\n*** Post configure Docker gNB connection to AMF\n')
@@ -236,8 +236,6 @@ def topology(args):
     info('*** Stopping network\n')
     net.stop()
 
-
 if __name__ == '__main__':
     setLogLevel('info')
     topology(sys.argv)
-

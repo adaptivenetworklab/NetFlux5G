@@ -22,8 +22,12 @@ smf:
     - dev: eth0
     client:
       upf:
-      - address: mn.upf1
+      - address: upf
         dnn: [internet, internet2]
+      # - address: mn.upf1
+      #   dnn: [internet]
+      # - address: mn.upf2
+      #   dnn: [internet2]
   gtpc:
     server:
     - dev: eth0

@@ -91,7 +91,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     libcurl4 \
     libmicrohttpd12 \
     libnghttp2-14 \
-    wondershaper iproute2 iputils-ping procps net-tools iptables iperf3 traceroute tcpdump iw wireless-tools ethtool procps wireshark tshark && \
+    wondershaper iproute2 iputils-ping procps net-tools iptables iperf iperf3 traceroute tcpdump iw wireless-tools ethtool procps tshark speedtest-cli && \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_ROOT=/opt/open5gs

@@ -33,10 +33,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     bash \
     curl \
     gettext \
-    iperf3 \
+    iperf3 iperf \
     iproute2 \
     libsctp-dev lksctp-tools \
-    iw wireless-tools ethtool iproute2 net-tools iputils-ping traceroute tcpdump iptables dnsutils procps wireshark tshark
+    iw wireless-tools ethtool iproute2 net-tools iputils-ping traceroute tcpdump iptables dnsutils procps tshark speedtest-cli
     
 ENV N2_IFACE=eth0
 ENV N3_IFACE=eth0
