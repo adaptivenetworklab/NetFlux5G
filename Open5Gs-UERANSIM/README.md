@@ -7,7 +7,7 @@
 deploy the ngc core (open5gs) with:
 
 ```
-docker-compose -f ngc.yaml up -d
+docker compose -f ngc.yaml up -d
 ```
 
 (DEPECRATED) Register subscribers in ngc with `/register_subscriber.sh`.
@@ -18,13 +18,13 @@ Go to http://0.0.0.0:3000 after successed deployment of Open5Gs WEBUI. Input man
 gnb1.yaml is configured to deploy 1 gnodeb (gnb1) and 3 ues:
 
 ```
-docker-compose -f gnb1.yaml up -d
+docker compose -f gnb1.yaml up -d
 ```
 
 You can use gnb2.yaml to deploy a second gnodeb (gnb2) with 3 additional ues:
 
 ```
-docker-compose -f gnb2.yaml up -d
+docker compose -f gnb2.yaml up -d
 ```
 
 
@@ -33,7 +33,7 @@ docker-compose -f gnb2.yaml up -d
 To test ue connectivity through RAN, enter the gnb1-ues container:
 
 ```
-docker-compose -f gnb1.yaml exec ues /bin/bash
+docker compose -f gnb1.yaml exec ues /bin/bash
 traceroute -i uesimtun0 google.es
 ping -I uesimtun0 google.es
 ```
@@ -48,7 +48,7 @@ If you have deployed a second genodeb (gnb2) just change the gnb1.yaml to gnb2.y
 Undeploy with:
 
 ```
-docker-compose -f gnb1.yaml down
-docker-compose -f gnb2.yaml down
-docker-compose -f epc.yaml down -v
+docker compose -f gnb1.yaml down
+docker compose -f gnb2.yaml down
+docker compose -f epc.yaml down -v
 ```
