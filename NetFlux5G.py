@@ -1,12 +1,18 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QToolBar, QAction
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QVBoxLayout, QWidget, QAction
 from PyQt5.QtCore import Qt, QMimeData, QPoint
-from PyQt5.QtGui import QDrag, QIcon, QPixmap, QKeyEvent
+from PyQt5.QtGui import QDrag, QKeyEvent
 from PyQt5 import uic
 import sys, os
 
+actions = [
+    "actionHost", "actionSTA", "actionGNB", "actionDockerHost",
+    "actionAP", "action5GCore", "actionRouter", "actionSwitch",
+    "actionLinkCable", "actionController"
+]
+
 class MovableLabel(QLabel):
     def __init__(self, text, icon=None, parent=None):
-        super().__init__(text, parent)
+        super().__init__(parent)
         self.setFixedSize(50, 50)
         self.setAttribute(Qt.WA_DeleteOnClose)
 
@@ -37,7 +43,7 @@ class MovableLabel(QLabel):
 
 class DraggableLabel(QLabel):
     def __init__(self, text, icon=None, parent=None):
-        super().__init__(text, parent)
+        super().__init__(parent)
         self.setStyleSheet("qproperty-alignment: AlignCenter;")
         self.setFixedSize(50, 50)
 
@@ -45,11 +51,13 @@ class DraggableLabel(QLabel):
             pixmap = icon.pixmap(32, 32)
             self.setPixmap(pixmap)
 
+        self.object_type = text  
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             drag = QDrag(self)
             mime_data = QMimeData()
-            mime_data.setText(self.text())  
+            mime_data.setText(self.object_type)  
             drag.setMimeData(mime_data)
             drag.exec_(Qt.MoveAction)
 
@@ -64,11 +72,16 @@ class Canvas(QWidget):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        label = MovableLabel("Host", self.window().actionHost.icon(), parent=self)
-        label.move(event.pos())  
-        label.show()
-        label.setFocus()  # Ensure the dropped object can receive key events
-        event.acceptProposedAction()
+        object_type = event.mimeData().text()
+        action_attr = f"action{object_type}"  
+        action = getattr(self.window(), action_attr, None)
+
+        if action:
+            label = MovableLabel(object_type, action.icon(), parent=self)
+            label.move(event.pos())  
+            label.show()
+            label.setFocus()  
+            event.acceptProposedAction()
 
 
 class MainWindow(QMainWindow):
@@ -76,10 +89,6 @@ class MainWindow(QMainWindow):
         super().__init__()
         uic.loadUi(os.path.join(os.path.dirname(os.path.abspath(__file__)), "GUI", "Main_Window.ui"), self)  
         
-        self.actionHost = self.findChild(QAction, "actionHost")
-        if self.actionHost:
-            self.actionHost.triggered.connect(self.add_host_to_canvas)  
-
         self.canvas = Canvas()
         central_widget = QWidget()
         layout = QVBoxLayout()
@@ -87,18 +96,14 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
 
-        self.make_host_draggable()
+        self.setup_draggable_objects()
 
-    def make_host_draggable(self):
-        host_label = DraggableLabel("Host", self.actionHost.icon(), self.toolBar)
-        self.toolBar.addWidget(host_label)
-
-    def add_host_to_canvas(self):
-        print("Adding Host to Canvas")  
-        host_label = MovableLabel("Host", self.actionHost.icon(), self.canvas)
-        host_label.move(50, 50)
-        host_label.show()
-        host_label.setFocus()  
+    def setup_draggable_objects(self):
+        for action_name in actions:
+            action = getattr(self, action_name, None)
+            if action:
+                label = DraggableLabel(action_name.replace("action", ""), action.icon(), self)
+                self.toolBar.addWidget(label)
 
 
 if __name__ == "__main__":

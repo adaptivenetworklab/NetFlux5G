@@ -115,15 +115,6 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionPickTool"/>
-   <addaction name="actionSTA"/>
-   <addaction name="actionAP"/>
-   <addaction name="actionDockerHost"/>
-   <addaction name="action5GCore"/>
-   <addaction name="actionGNB"/>
-   <addaction name="actionRouter"/>
-   <addaction name="actionSwitch"/>
-   <addaction name="actionLinkCable"/>
-   <addaction name="actionController"/>
   </widget>
   <action name="actionNew">
    <property name="text">
