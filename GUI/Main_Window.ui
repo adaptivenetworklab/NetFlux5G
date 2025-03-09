@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>809</width>
-    <height>594</height>
+    <width>873</width>
+    <height>695</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,8 +19,14 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
@@ -28,7 +34,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>809</width>
+     <width>873</width>
      <height>21</height>
     </rect>
    </property>
@@ -100,6 +106,7 @@
    <addaction name="actionAP"/>
    <addaction name="actionDockerHost"/>
    <addaction name="action5GCore"/>
+   <addaction name="actionGNB"/>
    <addaction name="actionRouter"/>
    <addaction name="actionSwitch"/>
    <addaction name="actionLinkCable"/>
@@ -108,6 +115,9 @@
   <action name="actionNew">
    <property name="text">
     <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionOpen">
@@ -173,7 +183,7 @@
   <action name="actionPickTool">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/cursor.webp</normaloff>icon netflux/cursor.webp</iconset>
+     <normaloff>../Icon/cursor.webp</normaloff>../Icon/cursor.webp</iconset>
    </property>
    <property name="text">
     <string>PickTool</string>
@@ -182,7 +192,7 @@
   <action name="actionHost">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/terminal.png</normaloff>icon netflux/terminal.png</iconset>
+     <normaloff>../Icon/host.png</normaloff>../Icon/host.png</iconset>
    </property>
    <property name="text">
     <string>Host</string>
@@ -191,7 +201,7 @@
   <action name="actionSTA">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/laptop.png</normaloff>icon netflux/laptop.png</iconset>
+     <normaloff>../Icon/sta.png</normaloff>../Icon/sta.png</iconset>
    </property>
    <property name="text">
     <string>STA</string>
@@ -200,7 +210,7 @@
   <action name="actionDockerHost">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/docker.png</normaloff>icon netflux/docker.png</iconset>
+     <normaloff>../Icon/docker.png</normaloff>../Icon/docker.png</iconset>
    </property>
    <property name="text">
     <string>DockerHost</string>
@@ -209,7 +219,7 @@
   <action name="actionAP">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/AP.png</normaloff>icon netflux/AP.png</iconset>
+     <normaloff>../Icon/AP.png</normaloff>../Icon/AP.png</iconset>
    </property>
    <property name="text">
     <string>AP</string>
@@ -218,7 +228,7 @@
   <action name="action5GCore">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/5G core.png</normaloff>icon netflux/5G core.png</iconset>
+     <normaloff>../Icon/5G core.png</normaloff>../Icon/5G core.png</iconset>
    </property>
    <property name="text">
     <string>5GCore</string>
@@ -227,7 +237,7 @@
   <action name="actionRouter">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/Router.png</normaloff>icon netflux/Router.png</iconset>
+     <normaloff>../Icon/Router.png</normaloff>../Icon/Router.png</iconset>
    </property>
    <property name="text">
     <string>Router</string>
@@ -236,7 +246,7 @@
   <action name="actionSwitch">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/swirch.png</normaloff>icon netflux/swirch.png</iconset>
+     <normaloff>../Icon/switch.png</normaloff>../Icon/switch.png</iconset>
    </property>
    <property name="text">
     <string>Switch</string>
@@ -245,7 +255,7 @@
   <action name="actionLinkCable">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/link cable.png</normaloff>icon netflux/link cable.png</iconset>
+     <normaloff>../Icon/link cable.png</normaloff>../Icon/link cable.png</iconset>
    </property>
    <property name="text">
     <string>LinkCable</string>
@@ -254,10 +264,19 @@
   <action name="actionController">
    <property name="icon">
     <iconset>
-     <normaloff>icon netflux/controller.png</normaloff>icon netflux/controller.png</iconset>
+     <normaloff>../Icon/controller.png</normaloff>../Icon/controller.png</iconset>
    </property>
    <property name="text">
     <string>Controller</string>
+   </property>
+  </action>
+  <action name="actionGNB">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/gNB.png</normaloff>../Icon/gNB.png</iconset>
+   </property>
+   <property name="text">
+    <string>GNB</string>
    </property>
   </action>
  </widget>
