@@ -1,10 +1,11 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphicsView  # Added QGraphicsView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphicsView, QVBoxLayout, QWidget, QPushButton  # Added QGraphicsView
 from PyQt5.QtCore import Qt, QPointF, QMimeData
 from PyQt5.QtGui import QDrag, QBrush, QPixmap, QPainter
 from PyQt5 import uic
 from gui.canvas import Canvas
+from gui.canvas import Canvas, MovableLabel
 
 
 # Load the UI file
@@ -27,6 +28,11 @@ class NetFlux5GApp(QMainWindow):
         self.horizontalLayout.removeWidget(self.Canvas)
         self.Canvas.deleteLater()
         self.horizontalLayout.insertWidget(index, self.canvas_view)
+        
+        # Connect QPushButton objects in ObjectLayout to startDrag
+        for button in self.ObjectLayout.findChildren(QPushButton):
+            component_type = button.objectName()  # Use the button's objectName as the component type
+            button.pressed.connect(lambda bt=component_type: self.startDrag(bt))
         
         # Connect button signals to add components
         self.Host.pressed.connect(lambda: self.startDrag("Host"))
@@ -98,8 +104,8 @@ class NetFlux5GApp(QMainWindow):
         drag.setMimeData(mime_data)
         
         # Set a pixmap for the drag appearance
-        icon_path = self.component_icon_map[component_type]
-        if os.path.exists(icon_path):
+        icon_path = self.component_icon_map.get(component_type)
+        if icon_path and os.path.exists(icon_path):
             pixmap = QPixmap(icon_path).scaled(40, 40)
             drag.setPixmap(pixmap)
             drag.setHotSpot(QPointF(20, 20))  # Set the drag hotspot to the center of the pixmap
