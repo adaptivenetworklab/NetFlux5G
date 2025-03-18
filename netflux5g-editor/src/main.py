@@ -18,12 +18,11 @@ class NetFlux5GApp(QMainWindow):
         # Load the UI file
         uic.loadUi(UI_FILE, self)
         
-        # Set up the canvas as a QGraphicsView
-        self.scene = QGraphicsScene(self)
-        self.canvas_view = QGraphicsView(self.scene)  # QGraphicsView is now properly imported
-        
-        # Replace the Canvas widget with our custom Canvas
+        # Set up the canvas as a QWidget
         self.canvas_view = Canvas(self)
+        self.canvas_view.setMinimumSize(800, 600)  # Ensure the canvas has a visible size
+        
+        # Replace the Canvas widget in the horizontal layout
         index = self.horizontalLayout.indexOf(self.Canvas)
         self.horizontalLayout.removeWidget(self.Canvas)
         self.Canvas.deleteLater()
@@ -108,7 +107,7 @@ class NetFlux5GApp(QMainWindow):
         if icon_path and os.path.exists(icon_path):
             pixmap = QPixmap(icon_path).scaled(40, 40)
             drag.setPixmap(pixmap)
-            drag.setHotSpot(QPointF(20, 20))  # Set the drag hotspot to the center of the pixmap
+            drag.setHotSpot(QPoint(20, 20))  # Set the drag hotspot to the center of the pixmap
         
         # Execute the drag
         drag.exec_(Qt.CopyAction)

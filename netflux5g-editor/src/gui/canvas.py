@@ -34,15 +34,23 @@ class MovableLabel(QLabel):
 
 
 class Canvas(QWidget):
-    def __init__(self, parent=None):  # Accept a parent argument
-        super().__init__(parent)  # Pass the parent to the QWidget constructor
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setAcceptDrops(True)
+        self.setStyleSheet("background-color: white;")  # Set a visible background color for the canvas
 
     def dragEnterEvent(self, event):
+        print("DEBUG: Drag entered canvas")  # Debug message
         if event.mimeData().hasText():
             event.acceptProposedAction()
 
     def dropEvent(self, event):
+        print("DEBUG: Drop event on canvas")  # Debug message
         object_type = event.mimeData().text()
         print(f"Dropped object type: {object_type}")  # Debug message
-        # Handle the drop event (e.g., create a new widget or object)
+        
+        # Create a label for the dropped object
+        label = MovableLabel(object_type, parent=self)
+        label.move(event.pos())
+        label.show()
+        event.acceptProposedAction()
