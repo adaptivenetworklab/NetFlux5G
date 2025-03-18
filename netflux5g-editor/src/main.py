@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphics
 from PyQt5.QtCore import Qt, QPointF, QMimeData
 from PyQt5.QtGui import QDrag, QBrush, QPixmap, QPainter
 from PyQt5 import uic
-from gui.canvas import NetworkCanvas
+from gui.canvas import Canvas
 
 
 # Load the UI file
@@ -21,7 +21,8 @@ class NetFlux5GApp(QMainWindow):
         self.scene = QGraphicsScene(self)
         self.canvas_view = QGraphicsView(self.scene)  # QGraphicsView is now properly imported
         
-        # Replace the Canvas widget with our QGraphicsView
+        # Replace the Canvas widget with our custom Canvas
+        self.canvas_view = Canvas(self)
         index = self.horizontalLayout.indexOf(self.Canvas)
         self.horizontalLayout.removeWidget(self.Canvas)
         self.Canvas.deleteLater()
@@ -60,8 +61,6 @@ class NetFlux5GApp(QMainWindow):
         
         # Set up the canvas_view for drag and drop
         self.canvas_view.setAcceptDrops(True)
-        self.canvas_view.setDragMode(QGraphicsView.NoDrag)
-        self.canvas_view.setRenderHint(QPainter.Antialiasing)
         
         # Set the current tool (pick by default)
         self.current_tool = "pick"
@@ -71,15 +70,6 @@ class NetFlux5GApp(QMainWindow):
         self.show_grid = False
         self.current_link_source = None
         self.current_file = None
-        
-        # Custom canvas view with support for drag and drop
-        self.canvas_view = NetworkCanvas(self.scene, self)
-        index = self.horizontalLayout.indexOf(self.canvas_view)
-        self.horizontalLayout.removeWidget(self.canvas_view)
-        self.horizontalLayout.insertWidget(index, self.canvas_view)
-        
-        # Initialize the scene with white background
-        self.scene.setBackgroundBrush(QBrush(Qt.white))
         
         # Initialize component mapping for icons
         self.component_icon_map = {
@@ -99,12 +89,14 @@ class NetFlux5GApp(QMainWindow):
         self.statusbar.showMessage("Ready")
         
     def startDrag(self, component_type):
-    # Create a drag object with component information
+        print(f"Starting drag for component: {component_type}")  # Debug message
+
+        # Create a drag object with component information
         drag = QDrag(self)
         mime_data = QMimeData()
         mime_data.setText(component_type)  # Pass the component type as text
         drag.setMimeData(mime_data)
-    
+        
         # Set a pixmap for the drag appearance
         icon_path = self.component_icon_map[component_type]
         if os.path.exists(icon_path):

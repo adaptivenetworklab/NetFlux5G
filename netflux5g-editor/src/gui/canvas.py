@@ -1,20 +1,21 @@
 from .components import NetworkComponent
 from .links import NetworkLink
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene
-from PyQt5.QtCore import Qt, QPointF, QMimeData, QLineF
-from PyQt5.QtGui import QDrag, QBrush, QPixmap, QPen, QColor
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import Qt, QPointF, QMimeData
+from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
-class NetworkCanvas(QGraphicsView):
-    """Custom QGraphicsView for handling network components and connections"""
+class Canvas(QWidget):  # Canvas now inherits from QWidget
+    """Custom QWidget for handling network components and connections"""
     
-    def __init__(self, scene, parent=None):
-        super().__init__(scene, parent)
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setAcceptDrops(True)
         self.parent_app = parent
         self.link_mode = False
         self.source_node = None
         self.show_grid = False
         self.grid_size = 20
+        self.scene_items = []  # Store items manually since we're not using QGraphicsScene
         
     def setLinkMode(self, enabled):
         self.link_mode = enabled
@@ -22,77 +23,77 @@ class NetworkCanvas(QGraphicsView):
         
     def setShowGrid(self, show):
         self.show_grid = show
-        self.viewport().update()
+        self.update()  # Trigger a repaint
         
     def dragEnterEvent(self, event):
+        print("DEBUG: Drag entered canvas")  # Debug message
         if event.mimeData().hasText():
             event.acceptProposedAction()
-            
+        else:
+            event.ignore()
+        
     def dragMoveEvent(self, event):
+        print("DEBUG: Drag moved over canvas")  # Debug message
         if event.mimeData().hasText():
             event.acceptProposedAction()
+        else:
+            event.ignore()
             
     def dropEvent(self, event):
+        print("DEBUG: Drop event on canvas")  # Debug message
         if event.mimeData().hasText():
             component_type = event.mimeData().text()
-            # Convert view coordinates to scene coordinates
-            position = self.mapToScene(event.pos())
-            # Add component to the scene
+            print(f"DEBUG: Dropped component type: {component_type}")  # Debug message
+            # Get the drop position
+            position = event.pos()
+            print(f"DEBUG: Drop position: {position}")  # Debug message
+            # Add component to the canvas
             self.addNetworkComponent(component_type, position)
             event.acceptProposedAction()
+        else:
+            event.ignore()
             
     def addNetworkComponent(self, component_type, position):
-        # Create a network component and add it to the scene
+        print(f"DEBUG: Adding component: {component_type} at position: {position}")  # Debug message
+        # Create a network component and add it to the canvas
         component = NetworkComponent(component_type, self.parent_app.component_icon_map)
-        component.setPos(position)
-        self.scene().addItem(component)
-        self.parent_app.statusbar.showMessage(f"Added {component_type} at position {position.x():.0f}, {position.y():.0f}")
+        component.position = position  # Store position manually
+        self.scene_items.append(component)  # Add to the list of items
+        self.update()  # Trigger a repaint
+        self.parent_app.statusbar.showMessage(f"Added {component_type} at position {position.x()}, {position.y()}")
         
-    def mousePressEvent(self, event):
-        if self.link_mode:
-            pos = self.mapToScene(event.pos())
-            item = self.scene().itemAt(pos, self.transform())
-            
-            if isinstance(item, NetworkComponent):
-                if self.source_node is None:
-                    self.source_node = item
-                    self.parent_app.statusbar.showMessage(f"Selected {item.component_type} as source. Now select destination.")
-                else:
-                    # Create a link between source_node and this item
-                    link = NetworkLink(self.source_node, item)
-                    self.scene().addItem(link)
-                    self.parent_app.statusbar.showMessage(f"Created link from {self.source_node.component_type} to {item.component_type}")
-                    # Reset source node
-                    self.source_node = None
-        elif self.parent_app.current_tool == "delete":
-            pos = self.mapToScene(event.pos())
-            item = self.scene().itemAt(pos, self.transform())
-            if item:
-                self.scene().removeItem(item)
-                self.parent_app.statusbar.showMessage("Item deleted")
-        else:
-            super().mousePressEvent(event)
-            
-    def drawBackground(self, painter, rect):
-        super().drawBackground(painter, rect)
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
         
+        # Draw grid if enabled
         if self.show_grid:
-            # Draw the grid
-            left = int(rect.left()) - (int(rect.left()) % self.grid_size)
-            top = int(rect.top()) - (int(rect.top()) % self.grid_size)
+            self.drawGrid(painter)
+        
+        # Draw all components
+        for component in self.scene_items:
+            painter.drawPixmap(component.position, component.pixmap)
+        
+    def drawGrid(self, painter):
+        # Draw the grid
+        rect = self.rect()
+        left = rect.left() - (rect.left() % self.grid_size)
+        top = rect.top() - (rect.top() % self.grid_size)
+        
+        # Create grid lines
+        grid_lines = []
+        x = left
+        while x < rect.right():
+            grid_lines.append((x, rect.top(), x, rect.bottom()))
+            x += self.grid_size
             
-            # Create grid lines
-            gridLines = []
-            x = left
-            while x < rect.right():
-                gridLines.append(QLineF(x, rect.top(), x, rect.bottom()))
-                x += self.grid_size
-                
-            y = top
-            while y < rect.bottom():
-                gridLines.append(QLineF(rect.left(), y, rect.right(), y))
-                y += self.grid_size
-                
-            # Draw the grid lines
-            painter.setPen(QPen(QColor(200, 200, 255, 125)))
-            painter.drawLines(gridLines)
+        y = top
+        while y < rect.bottom():
+            grid_lines.append((rect.left(), y, rect.right(), y))
+            y += self.grid_size
+            
+        # Draw the grid lines
+        pen = QPen(QColor(200, 200, 255, 125))
+        painter.setPen(pen)
+        for line in grid_lines:
+            painter.drawLine(*line)

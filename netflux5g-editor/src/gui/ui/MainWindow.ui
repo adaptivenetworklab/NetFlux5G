@@ -76,6 +76,15 @@ QFrame {
         <layout class="QVBoxLayout" name="ObjectLayout">
          <item>
           <widget class="QPushButton" name="Host">
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="acceptDrops">
+            <bool>true</bool>
+           </property>
+           <property name="autoFillBackground">
+            <bool>true</bool>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -289,6 +298,12 @@ QFrame {
          <height>800</height>
         </size>
        </property>
+       <property name="sizeIncrement">
+        <size>
+         <width>400</width>
+         <height>300</height>
+        </size>
+       </property>
        <property name="baseSize">
         <size>
          <width>1280</width>
@@ -301,8 +316,11 @@ QFrame {
        <property name="mouseTracking">
         <bool>true</bool>
        </property>
+       <property name="acceptDrops">
+        <bool>true</bool>
+       </property>
        <property name="autoFillBackground">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color: rgb(255, 255, 255);</string>
