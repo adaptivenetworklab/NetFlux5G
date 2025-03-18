@@ -77,17 +77,18 @@ class NetFlux5GApp(QMainWindow):
         self.current_file = None
         
         # Initialize component mapping for icons
+        icon_base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "Icon")
         self.component_icon_map = {
-            "Host": "./Icon/host.png",
-            "STA": "./Icon/sta.png",
-            "GNB": "./Icon/gNB.png",
-            "DockerHost": "./Icon/docker.png",
-            "AP": "./Icon/AP.png",
-            "VGcore": "./Icon/5G core.png",
-            "Router": "./Icon/Router.png",
-            "Switch": "./Icon/switch.png",
-            "LinkCable": "./Icon/link cable.png",
-            "Controller": "./Icon/controller.png"
+            "Host": os.path.join(icon_base_path, "host.png"),
+            "STA": os.path.join(icon_base_path, "sta.png"),
+            "GNB": os.path.join(icon_base_path, "gNB.png"),
+            "DockerHost": os.path.join(icon_base_path, "docker.png"),
+            "AP": os.path.join(icon_base_path, "AP.png"),
+            "VGcore": os.path.join(icon_base_path, "5G core.png"),
+            "Router": os.path.join(icon_base_path, "Router.png"),
+            "Switch": os.path.join(icon_base_path, "switch.png"),
+            "LinkCable": os.path.join(icon_base_path, "link cable.png"),
+            "Controller": os.path.join(icon_base_path, "controller.png")
         }
         
         # Status message

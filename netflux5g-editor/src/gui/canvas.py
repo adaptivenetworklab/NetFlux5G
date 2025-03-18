@@ -57,14 +57,18 @@ class Canvas(QWidget):
 
         # Get the icon for the dropped object
         icon_path = self.app_instance.component_icon_map.get(object_type)
-        print(f"DEBUG: Icon path: {icon_path}")  # Debug message
-
-        if icon_path and os.path.exists(icon_path):
-            icon = QPixmap(icon_path)
-            print("DEBUG: Icon loaded successfully")  # Debug message
+        if icon_path:
+            absolute_icon_path = os.path.abspath(icon_path)
+            print(f"DEBUG: Absolute icon path: {absolute_icon_path}")  # Debug message
+            if os.path.exists(absolute_icon_path):
+                icon = QPixmap(absolute_icon_path)
+                print("DEBUG: Icon loaded successfully")  # Debug message
+            else:
+                icon = None
+                print("DEBUG: Icon not found at path: {absolute_icon_path}")  # Debug message
         else:
             icon = None
-            print("DEBUG: Icon not found or invalid")  # Debug message
+            print("DEBUG: No icon path found for object type: {object_type}")  # Debug message
 
         # Create a label for the dropped object
         label = MovableLabel(object_type, icon=icon, parent=self)
