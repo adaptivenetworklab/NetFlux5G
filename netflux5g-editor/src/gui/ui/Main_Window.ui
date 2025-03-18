@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>873</width>
+    <height>695</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="Canvas" native="true">
+    <property name="geometry">
+     <rect>
+      <x>-1</x>
+      <y>-1</y>
+      <width>841</width>
+      <height>661</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>873</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="actionExport_to_Level_2_Script"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCut"/>
+    <addaction name="actionPreference"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+   </widget>
+   <widget class="QMenu" name="menuRun">
+    <property name="title">
+     <string>Run</string>
+    </property>
+    <addaction name="actionRun"/>
+    <addaction name="actionStop"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_NetFlux5G"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuRun"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LeftToRight</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>LeftToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionPickTool"/>
+  </widget>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionExport_to_Level_2_Script">
+   <property name="text">
+    <string>Export to Level 2 Script</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionPreference">
+   <property name="text">
+    <string>Preference</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionRun">
+   <property name="text">
+    <string>Run</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionAbout_NetFlux5G">
+   <property name="text">
+    <string>About NetFlux5G</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionPickTool">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/cursor.webp</normaloff>../Icon/cursor.webp</iconset>
+   </property>
+   <property name="text">
+    <string>PickTool</string>
+   </property>
+  </action>
+  <action name="actionHost">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/host.png</normaloff>../Icon/host.png</iconset>
+   </property>
+   <property name="text">
+    <string>Host</string>
+   </property>
+   <property name="shortcut">
+    <string>H</string>
+   </property>
+  </action>
+  <action name="actionSTA">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/sta.png</normaloff>../Icon/sta.png</iconset>
+   </property>
+   <property name="text">
+    <string>STA</string>
+   </property>
+  </action>
+  <action name="actionDockerHost">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/docker.png</normaloff>../Icon/docker.png</iconset>
+   </property>
+   <property name="text">
+    <string>DockerHost</string>
+   </property>
+  </action>
+  <action name="actionAP">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/AP.png</normaloff>../Icon/AP.png</iconset>
+   </property>
+   <property name="text">
+    <string>AP</string>
+   </property>
+  </action>
+  <action name="action5GCore">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/5G core.png</normaloff>../Icon/5G core.png</iconset>
+   </property>
+   <property name="text">
+    <string>5GCore</string>
+   </property>
+  </action>
+  <action name="actionRouter">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/Router.png</normaloff>../Icon/Router.png</iconset>
+   </property>
+   <property name="text">
+    <string>Router</string>
+   </property>
+  </action>
+  <action name="actionSwitch">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/switch.png</normaloff>../Icon/switch.png</iconset>
+   </property>
+   <property name="text">
+    <string>Switch</string>
+   </property>
+  </action>
+  <action name="actionLinkCable">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/link cable.png</normaloff>../Icon/link cable.png</iconset>
+   </property>
+   <property name="text">
+    <string>LinkCable</string>
+   </property>
+  </action>
+  <action name="actionController">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/controller.png</normaloff>../Icon/controller.png</iconset>
+   </property>
+   <property name="text">
+    <string>Controller</string>
+   </property>
+  </action>
+  <action name="actionGNB">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/gNB.png</normaloff>../Icon/gNB.png</iconset>
+   </property>
+   <property name="text">
+    <string>GNB</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
