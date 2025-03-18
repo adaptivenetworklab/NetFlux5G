@@ -1,7 +1,8 @@
 import os
-from PyQt5.QtWidgets import QWidget, QLabel
+from PyQt5.QtWidgets import QWidget, QLabel, QMenu, QAction
 from PyQt5.QtCore import Qt, QMimeData, QPoint
 from PyQt5.QtGui import QDrag, QPixmap
+from .widgets.Dialog import HostPropertiesDialog
 
 class MovableLabel(QLabel):
     def __init__(self, text, icon=None, parent=None):
@@ -19,6 +20,7 @@ class MovableLabel(QLabel):
 
         self.dragging = False
         self.offset = QPoint()
+        self.dialog = None # Dialog for object properties
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -36,7 +38,21 @@ class MovableLabel(QLabel):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
             self.close()
+    
+    def contextMenuEvent(self, event):
+        # Close the existing dialog if it is already open
+        if self.dialog and self.dialog.isVisible():
+            self.dialog.close()
 
+        # Create a new dialog
+        canvas = self.parent()
+        self.dialog = HostPropertiesDialog(self.text(), parent=canvas)
+
+        # Move the dialog to the cursor position relative to the canvas
+        self.dialog.move(event.globalPos() - canvas.mapToGlobal(QPoint(0, 0)))
+
+        # Show the dialog
+        self.dialog.show()
 
 class Canvas(QWidget):
     def __init__(self, app_instance, parent=None):
