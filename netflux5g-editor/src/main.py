@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphicsView, QVBoxLayout, QWidget, QPushButton  # Added QGraphicsView
-from PyQt5.QtCore import Qt, QPointF, QMimeData
+from PyQt5.QtCore import Qt, QPoint, QMimeData
 from PyQt5.QtGui import QDrag, QBrush, QPixmap, QPainter
 from PyQt5 import uic
 from gui.canvas import Canvas
@@ -19,7 +19,7 @@ class NetFlux5GApp(QMainWindow):
         uic.loadUi(UI_FILE, self)
         
         # Set up the canvas as a QWidget
-        self.canvas_view = Canvas(self)
+        self.canvas_view = Canvas(self, self)
         self.canvas_view.setMinimumSize(1828, 800)  # Ensure the canvas has a visible size
         
         # Replace the Canvas widget in the horizontal layout
@@ -78,16 +78,16 @@ class NetFlux5GApp(QMainWindow):
         
         # Initialize component mapping for icons
         self.component_icon_map = {
-            "Host": "../Icon/host.png",
-            "STA": "../Icon/sta.png",
-            "GNB": "../Icon/gNB.png",
-            "DockerHost": "../Icon/docker.png",
-            "AP": "../Icon/AP.png",
-            "VGcore": "../Icon/5G core.png",
-            "Router": "../Icon/Router.png",
-            "Switch": "../Icon/switch.png",
-            "LinkCable": "../Icon/link cable.png",
-            "Controller": "../Icon/controller.png"
+            "Host": "./Icon/host.png",
+            "STA": "./Icon/sta.png",
+            "GNB": "./Icon/gNB.png",
+            "DockerHost": "./Icon/docker.png",
+            "AP": "./Icon/AP.png",
+            "VGcore": "./Icon/5G core.png",
+            "Router": "./Icon/Router.png",
+            "Switch": "./Icon/switch.png",
+            "LinkCable": "./Icon/link cable.png",
+            "Controller": "./Icon/controller.png"
         }
         
         # Status message

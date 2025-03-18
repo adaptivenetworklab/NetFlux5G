@@ -320,7 +320,7 @@ QFrame {
         <bool>true</bool>
        </property>
        <property name="autoFillBackground">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="styleSheet">
         <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -589,6 +589,15 @@ QFrame {
    </property>
    <property name="text">
     <string>Reset Zoom</string>
+   </property>
+  </action>
+  <action name="actionHost">
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/host.png</normaloff>../Icon/host.png</iconset>
+   </property>
+   <property name="text">
+    <string>Host</string>
    </property>
   </action>
  </widget>
