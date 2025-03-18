@@ -20,7 +20,7 @@ class NetFlux5GApp(QMainWindow):
         
         # Set up the canvas as a QWidget
         self.canvas_view = Canvas(self)
-        self.canvas_view.setMinimumSize(800, 600)  # Ensure the canvas has a visible size
+        self.canvas_view.setMinimumSize(1828, 800)  # Ensure the canvas has a visible size
         
         # Replace the Canvas widget in the horizontal layout
         index = self.horizontalLayout.indexOf(self.Canvas)
