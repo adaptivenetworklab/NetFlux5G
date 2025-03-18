@@ -1,0 +1,10 @@
+/* Style for QWidget */
+QWidget#Canvas {
+    background-color: #ffffff; /* Set background color to white */
+}
+
+/* Style for QStatusBar */
+QStatusBar {
+    background-color: #e0e0e0;
+    border-top: 1px solid #ccc;
+}

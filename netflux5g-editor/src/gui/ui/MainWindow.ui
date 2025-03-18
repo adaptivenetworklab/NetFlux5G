@@ -53,6 +53,7 @@
        <property name="styleSheet">
         <string notr="true">
 QFrame {
+	background-color: rgb(236, 236, 236);
    border: 2px solid lightgrey;
 }
 </string>
@@ -279,6 +280,21 @@ QFrame {
      </item>
      <item>
       <widget class="QWidget" name="Canvas" native="true">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>1828</width>
+         <height>800</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>1280</width>
+         <height>720</height>
+        </size>
+       </property>
        <property name="cursor">
         <cursorShape>ArrowCursor</cursorShape>
        </property>
@@ -286,7 +302,10 @@ QFrame {
         <bool>true</bool>
        </property>
        <property name="autoFillBackground">
-        <bool>true</bool>
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
        </property>
       </widget>
      </item>

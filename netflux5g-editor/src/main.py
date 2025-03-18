@@ -99,18 +99,18 @@ class NetFlux5GApp(QMainWindow):
         self.statusbar.showMessage("Ready")
         
     def startDrag(self, component_type):
-        # Create a drag object with component information
+    # Create a drag object with component information
         drag = QDrag(self)
         mime_data = QMimeData()
-        mime_data.setText(component_type)
+        mime_data.setText(component_type)  # Pass the component type as text
         drag.setMimeData(mime_data)
-        
+    
         # Set a pixmap for the drag appearance
         icon_path = self.component_icon_map[component_type]
         if os.path.exists(icon_path):
             pixmap = QPixmap(icon_path).scaled(40, 40)
             drag.setPixmap(pixmap)
-            drag.setHotSpot(QPointF(20, 20))
+            drag.setHotSpot(QPointF(20, 20))  # Set the drag hotspot to the center of the pixmap
         
         # Execute the drag
         drag.exec_(Qt.CopyAction)
@@ -207,6 +207,13 @@ class NetFlux5GApp(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    # Load the QSS file
+    qss_file_path = os.path.join(os.path.dirname(__file__), "gui", "styles.qss")
+    with open(qss_file_path, "r") as file:
+        app.setStyleSheet(file.read())
+
+    
     window = NetFlux5GApp()
     window.show()
     sys.exit(app.exec_())
