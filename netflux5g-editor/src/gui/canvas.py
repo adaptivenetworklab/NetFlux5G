@@ -20,7 +20,7 @@ class MovableLabel(QLabel):
 
         self.dragging = False
         self.offset = QPoint()
-        self.dialog = None # Dialog for object properties
+        self.dialog = None  # Dialog for object properties
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -38,7 +38,7 @@ class MovableLabel(QLabel):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Delete:
             self.close()
-    
+
     def contextMenuEvent(self, event):
         # Close the existing dialog if it is already open
         if self.dialog and self.dialog.isVisible():
@@ -53,6 +53,10 @@ class MovableLabel(QLabel):
 
         # Show the dialog
         self.dialog.show()
+
+        # Notify the canvas about the currently open dialog
+        if isinstance(canvas, Canvas):
+            canvas.current_dialog = self.dialog
 
 class Canvas(QWidget):
     def __init__(self, app_instance, parent=None):
@@ -91,3 +95,10 @@ class Canvas(QWidget):
         label.move(event.pos())
         label.show()
         event.acceptProposedAction()
+    
+    def mousePressEvent(self, event):
+        # Close the currently open dialog if it exists and the click is outside the dialog
+        if self.current_dialog and not self.current_dialog.geometry().contains(event.globalPos()):
+            self.current_dialog.close()
+            self.current_dialog = None
+        super().mousePressEvent(event)
