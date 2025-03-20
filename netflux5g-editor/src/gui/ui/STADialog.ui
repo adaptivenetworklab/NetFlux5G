@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HostDialog</class>
- <widget class="QWidget" name="HostDialog">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -32,7 +32,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>Host Setting</string>
+       <string>STA Setting</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -49,7 +49,7 @@
     <item>
      <widget class="QPushButton" name="pushButton">
       <property name="text">
-       <string>Host Properties</string>
+       <string>STA Properties</string>
       </property>
      </widget>
     </item>

@@ -36,6 +36,7 @@ class NetFlux5GApp(QMainWindow):
         # Connect button signals to add components
         self.Host.pressed.connect(lambda: self.startDrag("Host"))
         self.STA.pressed.connect(lambda: self.startDrag("STA"))
+        self.UE.pressed.connect(lambda: self.startDrag("UE"))
         self.GNB.pressed.connect(lambda: self.startDrag("GNB"))
         self.DockerHost.pressed.connect(lambda: self.startDrag("DockerHost"))
         self.AP.pressed.connect(lambda: self.startDrag("AP"))
@@ -81,6 +82,7 @@ class NetFlux5GApp(QMainWindow):
         self.component_icon_map = {
             "Host": os.path.join(icon_base_path, "host.png"),
             "STA": os.path.join(icon_base_path, "sta.png"),
+            "UE": os.path.join(icon_base_path, "ue.png"),
             "GNB": os.path.join(icon_base_path, "gNB.png"),
             "DockerHost": os.path.join(icon_base_path, "docker.png"),
             "AP": os.path.join(icon_base_path, "AP.png"),

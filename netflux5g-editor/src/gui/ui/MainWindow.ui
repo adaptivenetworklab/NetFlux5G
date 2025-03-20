@@ -70,7 +70,7 @@ QFrame {
           <x>10</x>
           <y>10</y>
           <width>71</width>
-          <height>636</height>
+          <height>678</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="ObjectLayout">
@@ -111,6 +111,26 @@ QFrame {
            <property name="icon">
             <iconset>
              <normaloff>../Icon/sta.png</normaloff>../Icon/sta.png</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="shortcut">
+            <string>H</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="UE">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../Icon/ue.png</normaloff>../Icon/ue.png</iconset>
            </property>
            <property name="iconSize">
             <size>

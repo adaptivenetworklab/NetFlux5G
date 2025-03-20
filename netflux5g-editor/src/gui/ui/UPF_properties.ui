@@ -6,19 +6,62 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>230</width>
-    <height>364</height>
+    <width>465</width>
+    <height>351</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>60</y>
+      <width>441</width>
+      <height>241</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>DNN</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>New Column</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Gateway</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Dev Interface</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sessions:</string>
+    </property>
+   </widget>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>320</y>
+      <y>310</y>
       <width>168</width>
       <height>31</height>
      </rect>
@@ -40,45 +83,12 @@
      </item>
     </layout>
    </widget>
-   <widget class="QTableWidget" name="tableWidget_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>211</width>
-      <height>241</height>
-     </rect>
-    </property>
-    <column>
-     <property name="text">
-      <string>DNN</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Address</string>
-     </property>
-    </column>
-   </widget>
-   <widget class="QLabel" name="label_19">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>40</y>
-      <width>101</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>List Client to UPF:</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="formLayoutWidget_4">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>211</width>
+      <width>181</width>
       <height>27</height>
      </rect>
     </property>
@@ -93,7 +103,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_20">
        <property name="text">
-        <string>Add Client to UPF:</string>
+        <string>Add Session:</string>
        </property>
       </widget>
      </item>
