@@ -1,11 +1,12 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphicsView, QVBoxLayout, QWidget, QPushButton  # Added QGraphicsView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton  # Added QGraphicsView
 from PyQt5.QtCore import Qt, QPoint, QMimeData
-from PyQt5.QtGui import QDrag, QBrush, QPixmap, QPainter
+from PyQt5.QtGui import QDrag, QPixmap
 from PyQt5 import uic
 from gui.canvas import Canvas
 from gui.canvas import Canvas, MovableLabel
+from gui.toolbar import ToolbarFunctions
 
 
 # Load the UI file
@@ -17,6 +18,9 @@ class NetFlux5GApp(QMainWindow):
         
         # Load the UI file
         uic.loadUi(UI_FILE, self)
+
+        # Initialize the toolbar functions
+        self.toolbar_functions = ToolbarFunctions(self)
         
         # Set up the canvas as a QWidget
         self.canvas_view = Canvas(self, self)
@@ -68,14 +72,12 @@ class NetFlux5GApp(QMainWindow):
         # Set up the canvas_view for drag and drop
         self.canvas_view.setAcceptDrops(True)
         
-        # Set the current tool (pick by default)
-        self.current_tool = "pick"
-        self.actionPickTool.setChecked(True)
-        
         # Initialize attributes
         self.show_grid = False
         self.current_link_source = None
         self.current_file = None
+        self.current_tool = "pick"  # Default tool
+        self.selected_component = None  # Track the selected component for placement
         
         # Initialize component mapping for icons
         icon_base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "Icon")
@@ -204,6 +206,29 @@ class NetFlux5GApp(QMainWindow):
     def exportToScriptFile(self, filename):
         # Implement exporting to a level 2 script
         self.statusbar.showMessage(f"Exported to script: {filename}")
+    
+    def togglePlacementMode(self, component_type):
+        """Enable placement mode for the selected component."""
+        if self.current_tool == "placement" and self.selected_component == component_type:
+            # If already in placement mode for the same component, toggle off
+            self.current_tool = "pick"
+            self.selected_component = None
+            self.statusbar.showMessage("Pick tool selected (placement mode canceled).")
+        else:
+            # Enable placement mode for the selected component
+            self.current_tool = "placement"
+            self.selected_component = component_type
+            self.statusbar.showMessage(f"Placement mode enabled for {component_type}. Left-click to place. Press Esc to cancel.")
+
+    def keyPressEvent(self, event):
+        """Handle key press events."""
+        if event.key() == Qt.Key_Escape:
+            # Switch back to pick tool mode
+            self.current_tool = "pick"
+            self.selected_component = None
+            self.statusbar.showMessage("Pick tool selected (placement mode canceled).")
+        super().keyPressEvent(event)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
