@@ -38,7 +38,7 @@
       <height>991</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,20">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -305,46 +305,16 @@ QFrame {
          </item>
         </layout>
        </widget>
-      </widget>
-     </item>
-     <item>
-      <widget class="QWidget" name="Canvas" native="true">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>1828</width>
-         <height>800</height>
-        </size>
-       </property>
-       <property name="sizeIncrement">
-        <size>
-         <width>400</width>
-         <height>300</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>1280</width>
-         <height>720</height>
-        </size>
-       </property>
-       <property name="cursor">
-        <cursorShape>ArrowCursor</cursorShape>
-       </property>
-       <property name="mouseTracking">
-        <bool>true</bool>
-       </property>
-       <property name="acceptDrops">
-        <bool>true</bool>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
+       <widget class="QGraphicsView" name="Canvas">
+        <property name="geometry">
+         <rect>
+          <x>85</x>
+          <y>1</y>
+          <width>1181</width>
+          <height>801</height>
+         </rect>
+        </property>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -428,6 +398,10 @@ QFrame {
    <addaction name="actionDelete"/>
    <addaction name="actionTextBox"/>
    <addaction name="actionDrawSquare"/>
+   <addaction name="separator"/>
+   <addaction name="actionZoomIn"/>
+   <addaction name="actionZoomOut"/>
+   <addaction name="actionResetZoom"/>
    <addaction name="actionShowGrid"/>
    <addaction name="separator"/>
    <addaction name="actionRunAll"/>

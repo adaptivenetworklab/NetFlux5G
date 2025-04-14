@@ -10,7 +10,7 @@ from gui.toolbar import ToolbarFunctions
 
 
 # Load the UI file
-UI_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "ui", "MainWindow.ui")
+UI_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "ui", "Main_Window.ui")
 
 class NetFlux5GApp(QMainWindow):
     def __init__(self):
@@ -52,15 +52,16 @@ class NetFlux5GApp(QMainWindow):
         
         # Connect toolbar actions
         self.actionPickTool.triggered.connect(self.enablePickTool)
-        self.actionHandTool.triggered.connect(self.enableHandTool)
-        self.actionDelete.triggered.connect(self.enableDeleteTool)
         self.actionTextBox.triggered.connect(self.addTextBox)
         self.actionDrawSquare.triggered.connect(self.addDrawSquare)
         self.actionShowGrid.triggered.connect(self.toggleGrid)
-        self.actionZoomIn.triggered.connect(self.zoomIn)
-        self.actionZoomOut.triggered.connect(self.zoomOut)
-        self.actionResetZoom.triggered.connect(self.resetZoom)
-        
+        self.actionZoomIn.triggered.connect(self.zoomIn)  # Connect Zoom In
+        self.actionZoomOut.triggered.connect(self.zoomOut)  # Connect Zoom Out
+        self.actionResetZoom.triggered.connect(self.resetZoom)  # Connect Reset Zoom
+        self.actionDelete.triggered.connect(self.enableDeleteTool)
+        self.actionRunAll.triggered.connect(self.runAll)
+        self.actionStopAll.triggered.connect(self.stopAll)
+                
         # Connect menu actions
         self.actionNew.triggered.connect(self.newTopology)
         self.actionSave.triggered.connect(self.saveTopology)
@@ -127,18 +128,11 @@ class NetFlux5GApp(QMainWindow):
         self.canvas_view.setDragMode(QGraphicsView.NoDrag)
         self.canvas_view.setLinkMode(False)
         self.statusbar.showMessage("Pick tool selected")
-        
-    def enableHandTool(self):
-        self.current_tool = "hand"
-        self.canvas_view.setDragMode(QGraphicsView.ScrollHandDrag)
-        self.canvas_view.setLinkMode(False)
-        self.statusbar.showMessage("Hand tool selected")
-        
+    
     def enableDeleteTool(self):
-        self.current_tool = "delete"
-        self.canvas_view.setDragMode(QGraphicsView.NoDrag)
-        self.canvas_view.setLinkMode(False)
-        self.statusbar.showMessage("Delete tool selected. Click on items to delete them.")
+        """Enable the Delete Tool."""
+        self.main_window.current_tool = "delete"
+        self.main_window.statusbar.showMessage("Delete Tool selected. Click on items to delete them.")
         
     def addTextBox(self):
         self.current_tool = "text"
@@ -149,21 +143,28 @@ class NetFlux5GApp(QMainWindow):
         self.current_tool = "square"
         self.canvas_view.setDragMode(QGraphicsView.NoDrag)
         self.statusbar.showMessage("Square tool selected. Click and drag to draw a square.")
+
+    def zoomIn(self):
+        """Zoom in the canvas."""
+        self.canvas_view.zoomIn()
+        self.statusbar.showMessage("Zoomed in")
+
+    def zoomOut(self):
+        """Zoom out the canvas."""
+        self.canvas_view.zoomOut()
+        self.statusbar.showMessage("Zoomed out")
+
+    def resetZoom(self):
+        """Reset the zoom level of the canvas."""
+        self.canvas_view.resetZoom()
+        self.statusbar.showMessage("Zoom reset to default level")
         
     def toggleGrid(self):
+        """Toggle the visibility of the grid on the canvas."""
         self.show_grid = not self.show_grid
         self.canvas_view.setShowGrid(self.show_grid)
         self.statusbar.showMessage(f"Grid {'shown' if self.show_grid else 'hidden'}")
-        
-    def zoomIn(self):
-        self.canvas_view.scale(1.2, 1.2)
-        
-    def zoomOut(self):
-        self.canvas_view.scale(1/1.2, 1/1.2)
-        
-    def resetZoom(self):
-        self.canvas_view.resetTransform()
-        
+
     def newTopology(self):
         self.scene.clear()
         self.current_file = None
