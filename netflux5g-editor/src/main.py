@@ -59,8 +59,8 @@ class NetFlux5GApp(QMainWindow):
         self.actionZoomOut.triggered.connect(self.zoomOut)  # Connect Zoom Out
         self.actionResetZoom.triggered.connect(self.resetZoom)  # Connect Reset Zoom
         self.actionDelete.triggered.connect(self.enableDeleteTool)
-        self.actionRunAll.triggered.connect(self.runAll)
-        self.actionStopAll.triggered.connect(self.stopAll)
+        # self.actionRunAll.triggered.connect(self.runAll)
+        # self.actionStopAll.triggered.connect(self.stopAll)
                 
         # Connect menu actions
         self.actionNew.triggered.connect(self.newTopology)
@@ -230,7 +230,6 @@ class NetFlux5GApp(QMainWindow):
             self.statusbar.showMessage("Pick tool selected (placement mode canceled).")
         super().keyPressEvent(event)
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
@@ -239,7 +238,6 @@ if __name__ == "__main__":
     with open(qss_file_path, "r") as file:
         app.setStyleSheet(file.read())
 
-    
     window = NetFlux5GApp()
     window.show()
     sys.exit(app.exec_())

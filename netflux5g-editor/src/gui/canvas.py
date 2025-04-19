@@ -1,5 +1,5 @@
 import os
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLabel, QGraphicsSceneContextMenuEvent, QMenu
 from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect 
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen
 from .widgets.Dialog import *
@@ -103,6 +103,9 @@ class Canvas(QGraphicsView):
         # Track whether the grid is shown
         self.show_grid = False
 
+        # Track the currently open dialog
+        self.current_dialog = False
+
         # Initialize zoom level
         self.zoom_level = 1.0
 
@@ -147,9 +150,17 @@ class Canvas(QGraphicsView):
                 painter.drawLine(rect.left(), y, rect.right(), y)
 
     def dragEnterEvent(self, event):
-        """Handle drag enter events."""
         if event.mimeData().hasText():
             event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        """Handle drag move events."""
+        if event.mimeData().hasText():
+            event.acceptProposedAction()
+        else:
+            event.ignore()
 
     def dropEvent(self, event):
         """Handle drop events."""
