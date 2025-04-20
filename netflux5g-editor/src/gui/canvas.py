@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, 
 from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect 
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen
 from .widgets.Dialog import *
+from .components import NetworkComponent
 
 class MovableLabel(QLabel):
     DIALOG_MAP = {
@@ -87,6 +88,7 @@ class Canvas(QGraphicsView):
         # Create a QGraphicsScene for the canvas
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
+        self.current_dialog = None
 
         # Set a larger scene size
         self.scene.setSceneRect(-2000, -2000, 4000, 4000)  # A large virtual canvas
@@ -171,44 +173,45 @@ class Canvas(QGraphicsView):
             # Get the icon for the dropped component
             icon_path = self.app_instance.component_icon_map.get(component_type)
             if icon_path and os.path.exists(icon_path):
-                pixmap = QPixmap(icon_path).scaled(50, 50)
-                item = QGraphicsPixmapItem(pixmap)
-                item.setPos(self.mapToScene(event.pos()))
-                self.scene.addItem(item)
-                print(f"DEBUG: Component {component_type} added at position {event.pos()}")  # Debug message
+                # Create a NetworkComponent and add it to the scene
+                position = self.mapToScene(event.pos())
+                component = NetworkComponent(component_type, icon_path)
+                component.setPos(position)
+                self.scene.addItem(component)
+                print(f"DEBUG: Component {component_type} added at position {position}")  # Debug message
+            else:
+                print(f"ERROR: Icon for component type '{component_type}' not found.")
             event.acceptProposedAction()
         else:
             event.ignore()
 
     def mousePressEvent(self, event):
         """Handle mouse press events."""
-        if event.button() == Qt.LeftButton:
-            # Check if the click is outside any MovableLabel
-            clicked_on_label = False
-            for child in self.children():
-                if isinstance(child, MovableLabel) and child.geometry().contains(event.pos()):
-                    clicked_on_label = True
-                    break
+        if self.current_dialog:
+            # Close the currently open dialog
+            print("DEBUG: Closing dialog because canvas was clicked.")  # Debug message
+            self.current_dialog.close()
+            self.current_dialog = None
 
-            if not clicked_on_label and self.current_dialog:
-                print("DEBUG: Closing dialog because canvas was clicked.")  # Debug message
-                self.current_dialog.close()
-                self.current_dialog = None
-
-            # Handle delete tool or other tools
-            if self.app_instance.current_tool == "delete":
-                for child in self.children():
-                    if isinstance(child, MovableLabel) and child.geometry().contains(event.pos()):
-                        print(f"DEBUG: Deleting component {child.object_type}")  # Debug message
-                        child.deleteLater()  # Delete the component
-                        return  # Exit after deleting the component
-            else:
-                super().mousePressEvent(event)
-        else:
-            super().mousePressEvent(event)
+        super().mousePressEvent(event)
 
     def setCurrentDialog(self, dialog):
         """Close the currently open dialog and set the new dialog."""
         if self.current_dialog and self.current_dialog.isVisible():
             self.current_dialog.close()
         self.current_dialog = dialog
+
+    def keyPressEvent(self, event):
+        """Handle key press events."""
+        if event.key() == Qt.Key_Delete:
+            # Get all selected items in the scene
+            selected_items = self.scene.selectedItems()
+            if selected_items:
+                for item in selected_items:
+                    print(f"DEBUG: Deleting item {item}")  # Debug message
+                    self.scene.removeItem(item)  # Remove the item from the scene
+            else:
+                print("DEBUG: No items selected to delete.")  # Debug message
+        else:
+            # Pass other key events to the parent class
+            super().keyPressEvent(event)

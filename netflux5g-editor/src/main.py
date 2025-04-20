@@ -131,8 +131,8 @@ class NetFlux5GApp(QMainWindow):
     
     def enableDeleteTool(self):
         """Enable the Delete Tool."""
-        self.main_window.current_tool = "delete"
-        self.main_window.statusbar.showMessage("Delete Tool selected. Click on items to delete them.")
+        self.current_tool = "delete"
+        self.statusbar.showMessage("Delete Tool selected. Click on items to delete them.")
         
     def addTextBox(self):
         self.current_tool = "text"

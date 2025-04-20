@@ -8,7 +8,7 @@ class HostPropertiesDialog(QWidget):
         super().__init__(parent)
         ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "HostDialog.ui")
         uic.loadUi(ui_file, self)
-        self.setWindowTitle("Host Properties")
+        self.setWindowTitle(f"Host Properties - {label_text}")
 
         # Connect the button to open the HostPropertiesWindow
         self.pushButton.clicked.connect(self.openDetailProperties)  # Replace 'pushButton' with the actual objectName of the button
