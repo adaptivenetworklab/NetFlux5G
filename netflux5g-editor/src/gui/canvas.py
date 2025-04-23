@@ -132,24 +132,28 @@ class Canvas(QGraphicsView):
     def setShowGrid(self, show):
         """Enable or disable the grid."""
         self.show_grid = show
-        self.update()  # Trigger a repaint of the canvas
+        print(f"DEBUG: Grid visibility set to {self.show_grid}")  # Debug message
+        self.viewport().update()  # Trigger a repaint of the canvas
 
     def drawBackground(self, painter, rect):
         """Draw the grid if enabled."""
         super().drawBackground(painter, rect)
         if self.show_grid:
             pen = QPen(Qt.lightGray)
-            pen.setWidth(1)
+            pen.setWidth(0)
             painter.setPen(pen)
 
             # Draw grid lines
-            grid_size = 20  # Size of each grid cell
+            grid_size = 35  # Size of each grid cell
             left = int(rect.left()) - (int(rect.left()) % grid_size)
             top = int(rect.top()) - (int(rect.top()) % grid_size)
-            for x in range(left, int(rect.right()), grid_size):
-                painter.drawLine(x, rect.top(), x, rect.bottom())
-            for y in range(top, int(rect.bottom()), grid_size):
-                painter.drawLine(rect.left(), y, rect.right(), y)
+            right = int(rect.right())
+            bottom = int(rect.bottom())
+
+            for x in range(left, right, grid_size):
+                painter.drawLine(int(x), int(rect.top()), int(x), int(rect.bottom()))
+            for y in range(top, bottom, grid_size):
+                painter.drawLine(int(rect.left()), int(y), int(rect.right()), int(y))
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():

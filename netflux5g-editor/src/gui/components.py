@@ -82,21 +82,3 @@ class NetworkComponent(QGraphicsPixmapItem):
             canvas.setCurrentDialog(dialog)
         else:
             print(f"DEBUG: No dialog found for component type: {self.component_type}")
-    # def contextMenuEvent(self, event):
-    #     """Handle right-click context menu events."""
-    #     dialog_class = self.DIALOG_MAP.get(self.component_type)
-    #     if dialog_class:
-    #         # Close the currently open dialog if it exists
-    #         canvas = self.scene().views()[0]
-    #         if canvas.current_dialog:
-    #             canvas.current_dialog.close()
-
-    #         # Create and show the dialog
-    #         dialog = dialog_class(label_text=self.component_type, parent=canvas)
-    #         dialog.move(event.screenPos().toPoint())  # Position the dialog at the cursor
-    #         dialog.show()
-
-    #         # Track the currently open dialog in the canvas
-    #         canvas.setCurrentDialog(dialog)
-    #     else:
-    #         print(f"DEBUG: No dialog found for component type: {self.component_type}")

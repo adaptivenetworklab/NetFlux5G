@@ -74,7 +74,6 @@ class NetFlux5GApp(QMainWindow):
         self.canvas_view.setAcceptDrops(True)
         
         # Initialize attributes
-        self.show_grid = False
         self.current_link_source = None
         self.current_file = None
         self.current_tool = "pick"  # Default tool
@@ -161,9 +160,10 @@ class NetFlux5GApp(QMainWindow):
         
     def toggleGrid(self):
         """Toggle the visibility of the grid on the canvas."""
-        self.show_grid = not self.show_grid
-        self.canvas_view.setShowGrid(self.show_grid)
-        self.statusbar.showMessage(f"Grid {'shown' if self.show_grid else 'hidden'}")
+        current_state = self.canvas_view.show_grid  # Get the current grid state from Canvas
+        self.canvas_view.setShowGrid(not current_state)  # Toggle the grid state
+        self.statusbar.showMessage(f"Grid {'shown' if not current_state else 'hidden'}")
+        print(f"DEBUG: Toggling grid to {'shown' if not current_state else 'hidden'}")  # Debug message
 
     def newTopology(self):
         self.scene.clear()
