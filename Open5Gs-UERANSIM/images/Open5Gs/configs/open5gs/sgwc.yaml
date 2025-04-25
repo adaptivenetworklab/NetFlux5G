@@ -1,5 +1,6 @@
 logger:
-  file: /opt/open5gs/var/log/open5gs/sgwc.log
+  file:
+    path: /opt/open5gs/var/log/open5gs/sgwc.log
 #  level: info   # fatal|error|warn|info(default)|debug|trace
 
 global:
@@ -18,6 +19,7 @@ sgwc:
       sgwu:
       - address: sgwu
         tac: 1
+        apn: [web1, web2]
 
 ################################################################################
 # GTP-C Server

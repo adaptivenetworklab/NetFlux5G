@@ -1,5 +1,6 @@
 logger:
-  file: /opt/open5gs/var/log/open5gs/sgwu.log
+  file:
+    path: /opt/open5gs/var/log/open5gs/sgwu.log
 #  level: info   # fatal|error|warn|info(default)|debug|trace
 
 global:
@@ -11,9 +12,9 @@ sgwu:
   pfcp:
     server:
     - dev: eth0
-      #client:
-      #      sgwc:    # SGW-U PFCP Client try to associate SGW-C PFCP Server
-      #        - address: 127.0.0.3
+    # client:
+    #   sgwc:    # SGW-U PFCP Client try to associate SGW-C PFCP Server
+    #     - address: sgwc
   gtpu:
     server:
     - dev: eth0

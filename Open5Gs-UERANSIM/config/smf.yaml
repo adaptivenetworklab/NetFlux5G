@@ -1,5 +1,6 @@
 logger:
-  file: /opt/open5gs/var/log/open5gs/smf.log
+  file: 
+    path: /opt/open5gs/var/log/open5gs/smf.log
 #  level: info   # fatal|error|warn|info(default)|debug|trace
 
 global:
@@ -24,6 +25,8 @@ smf:
       upf:
       - address: upf
         dnn: [internet, internet2]
+      - address: upf2
+        dnn: [web1, web2]
       # - address: mn.upf1
       #   dnn: [internet]
       # - address: mn.upf2
@@ -39,10 +42,18 @@ smf:
     - dev: eth0
       port: 9090
   session:
-  - subnet: 10.45.0.1/16
+  - subnet: 10.100.0.0/16
+    gateway: 10.100.0.1
     dnn: internet
-  - subnet: 10.46.0.1/16
+  - subnet: 10.200.0.0/16
+    gateway: 10.200.0.1
     dnn: internet2
+  - subnet: 10.51.0.0/16
+    gateway: 10.51.0.1
+    dnn: web1
+  - subnet: 10.52.0.0/16
+    gateway: 10.52.0.1
+    dnn: web2
   dns:
   - 1.1.1.1
   - 8.8.8.8

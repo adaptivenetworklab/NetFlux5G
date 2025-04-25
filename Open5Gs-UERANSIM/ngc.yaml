@@ -1,159 +1,225 @@
 services:
-  mongo:
-    image: mongo
-    environment:
-      MONGO_INITDB_DATABASE: open5gs
-
   amf:
     image: adaptive/open5gs:1.0
+    depends_on:
+      - scp    
     command:
-    - open5gs-amfd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-amfd"
     restart: on-failure
     privileged: true
     volumes:
       - type: bind
         source: ./config/amf.yaml
         target: /opt/open5gs/etc/open5gs/amf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   ausf:
     image: adaptive/open5gs:1.0
+    depends_on:
+      - scp
     command:
-    - open5gs-ausfd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-ausfd"
     restart: on-failure
     privileged: true
     volumes:
       - type: bind
         source: ./config/ausf.yaml
         target: /opt/open5gs/etc/open5gs/ausf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   bsf:
     image: adaptive/open5gs:1.0
+    depends_on:
+      - scp
     command:
-    - open5gs-bsfd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-bsfd"
     restart: on-failure
     privileged: true
     volumes:
       - type: bind
         source: ./config/bsf.yaml
         target: /opt/open5gs/etc/open5gs/bsf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   nrf:
     image: adaptive/open5gs:1.0
-    command: open5gs-nrfd
+    command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-nrfd"
     restart: on-failure
     privileged: true
     volumes:
       - type: bind
         source: ./config/nrf.yaml
         target: /opt/open5gs/etc/open5gs/nrf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   nssf:
     image: adaptive/open5gs:1.0
-    command: open5gs-nssfd
+    depends_on:
+      - nrf
+      - scp
+    command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-nssfd"
     restart: on-failure
     privileged: true
     volumes:
       - type: bind
         source: ./config/nssf.yaml
         target: /opt/open5gs/etc/open5gs/nssf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   pcf:
     image: adaptive/open5gs:1.0
+    depends_on:
+      scp:
+        condition: service_started
     command:
-    - open5gs-pcfd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcfd"
     privileged: true
     environment:
-      DB_URI: mongodb://mongo/open5gs
+      DB_URI: mongodb://10.0.0.220/open5gs   
     restart: on-failure
     volumes:
       - type: bind
         source: ./config/pcf.yaml
         target: /opt/open5gs/etc/open5gs/pcf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   pcrf:
     image: adaptive/open5gs:1.0
     command:
-    - open5gs-pcrfd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcrfd"
     privileged: true
     environment:
-      DB_URI: mongodb://mongo/open5gs
+      DB_URI: mongodb://10.0.0.220/open5gs
     restart: on-failure
     volumes:
       - type: bind
         source: ./config/pcrf.yaml
         target: /opt/open5gs/etc/open5gs/pcrf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   scp:
     image: adaptive/open5gs:1.0
-    command: open5gs-scpd
+    depends_on:
+      - nrf
+    command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-scpd"
     privileged: true
-    environment:
-      DB_URI: mongodb://mongo/open5gs
     restart: on-failure
     volumes:
       - type: bind
         source: ./config/scp.yaml
         target: /opt/open5gs/etc/open5gs/scp.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   smf:
     image: adaptive/open5gs:1.0
+    depends_on:
+      - scp
     restart: on-failure
-    command: open5gs-smfd
+    command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-smfd"
     privileged: true
     volumes:
       - type: bind
         source: ./config/smf.yaml
         target: /opt/open5gs/etc/open5gs/smf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   udm:
     image: adaptive/open5gs:1.0
+    depends_on:
+      - scp
     restart: on-failure
     command:
-    - open5gs-udmd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-udmd"
     privileged: true
     volumes:
       - type: bind
         source: ./config/udm.yaml
         target: /opt/open5gs/etc/open5gs/udm.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   udr:
     image: adaptive/open5gs:1.0
+    depends_on:
+      scp:
+        condition: service_started
     restart: on-failure
     environment:
-      DB_URI: mongodb://mongo/open5gs
+      DB_URI: mongodb://10.0.0.220/open5gs
     privileged: true      
     command:
-    - open5gs-udrd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-udrd"
     volumes:
       - type: bind
         source: ./config/udr.yaml
         target: /opt/open5gs/etc/open5gs/udr.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   upf:
     image: adaptive/open5gs:1.0
+    depends_on:
+      - scp
     command:
-    - open5gs-upfd
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-upfd"
     cap_add:
     - all
     privileged: true
     restart: on-failure
     # environment:
     # ENABLE_NAT: "false"
-    ports:
-    - 2152:2152
+    # ports:
+    # - 2152:2152
     volumes:
       - type: bind
         source: ./config/upf.yaml
         target: /opt/open5gs/etc/open5gs/upf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
-  webui:
-    image: gradiant/open5gs-webui:2.7.0
+  upf2:
+    image: adaptive/open5gs:1.0
+    depends_on:
+      - scp
+    command:
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-upfd"
+    cap_add:
+    - all
+    privileged: true
     restart: on-failure
-    environment:
-      DB_URI: mongodb://mongo/open5gs
-      NODE_ENV: dev
-    ports:
-    - 9999:9999
+    # environment:
+    # ENABLE_NAT: "false"
+    # ports:
+    # - 2152:2152
+    volumes:
+      - type: bind
+        source: ./config/upf2.yaml
+        target: /opt/open5gs/etc/open5gs/upf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
+
 
   # portainer:
   #   image: portainer/portainer-ce

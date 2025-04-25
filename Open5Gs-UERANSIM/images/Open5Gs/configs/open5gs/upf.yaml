@@ -1,5 +1,6 @@
 logger:
-  file: /opt/open5gs/var/log/open5gs/upf.log
+  file: 
+    path: /opt/open5gs/var/log/open5gs/upf.log
 #  level: info   # fatal|error|warn|info(default)|debug|trace
 
 global:
@@ -18,10 +19,12 @@ upf:
     server:
     - dev: eth0
   session:
-  - subnet: 10.45.0.1/16
+  - subnet: 10.100.0.0/16
+    gateway: 10.100.0.1
     dnn: internet
     dev: ogstun
-  - subnet: 10.46.0.1/16
+  - subnet: 10.200.0.0/16
+    gateway: 10.200.0.1
     dnn: internet2
     dev: ogstun2
   metrics:

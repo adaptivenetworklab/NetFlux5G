@@ -19,14 +19,12 @@ upf:
     server:
     - dev: eth0
   session:
-  - subnet: 10.100.0.0/16
-    gateway: 10.100.0.1
-    dnn: internet
-    dev: ogstun
-  - subnet: 10.200.0.0/16
-    gateway: 10.200.0.1
-    dnn: internet2
-    dev: ogstun2
+  - subnet: 10.51.0.0/16
+    dnn: web1
+    dev: ogstun3
+  - subnet: 10.52.0.0/16
+    dnn: web2
+    dev: ogstun4
   metrics:
     server:
     - dev: eth0
@@ -70,19 +68,19 @@ upf:
 # 3GPP Specification
 ################################################################################
 #
-#  o Specific DNN/APN(e.g 'ims') uses 10.46.0.1/16, 2001:db8:babe::1/48
-#  $ sudo ip addr add 10.45.0.1/16 dev ogstun
+#  o Specific DNN/APN(e.g 'ims') uses 10.200.0.1/16, 2001:db8:babe::1/48
+#  $ sudo ip addr add 10.100.0.1/16 dev ogstun
 #  $ sudo ip addr add 2001:db8:cafe::1/48 dev ogstun2
-#  $ sudo ip addr add 10.46.0.1/16 dev ogstun3
+#  $ sudo ip addr add 10.200.0.1/16 dev ogstun3
 #  $ sudo ip addr add 2001:db8:babe::1/48 dev ogstun3
 #
 #  session:
-#    - subnet: 10.45.0.1/16
+#    - subnet: 10.100.0.1/16
 #      dnn: internet
 #    - subnet: 2001:db8:cafe::1/48
 #      dnn: internet
 #      dev: ogstun2
-#    - subnet: 10.46.0.1/16
+#    - subnet: 10.200.0.1/16
 #      dnn: ims
 #      dev: ogstun3
 #    - subnet: 2001:db8:babe::1/48

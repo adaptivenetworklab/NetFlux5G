@@ -18,23 +18,7 @@ apt install -y python3-pip git
 pip3 install -U pip
 pip3 install docker
 
-# Clone Mininet repository dengan branch spesifik
-git clone https://github.com/mininet/mininet
-cd mininet
-git checkout -b mininet-2.3.0 2.3.0
-cd ..
-
-# Install Mininet
-./mininet/util/install.sh -nfv
-
 # Clone Mininet-WiFi repository dan install
 git clone https://github.com/intrig-unicamp/mininet-wifi
 cd mininet-wifi
-sudo util/install.sh -Wln
-cd ..
-
-# Clone Containernet repository dan install
-git clone https://github.com/ramonfontes/containernet.git
-cd containernet
-sudo util/install.sh -W
-
+sudo util/install.sh -Wlnfv

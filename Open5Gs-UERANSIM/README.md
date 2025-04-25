@@ -1,6 +1,16 @@
-# open5gs and ueransim 
+# Build Image
+```
+cd images/Open5Gs
+docker build -t adaptive/open5gs:1.0 .
+```
 
-5G end to end communication demo with open5gs and ueransim.
+# Deployment NGC and register subscribers
+
+deploy the ngc core (open5gs) with:
+
+```
+docker compose -f webui-db.yaml up -d
+```
 
 # Deployment NGC and register subscribers
 
@@ -10,8 +20,8 @@ deploy the ngc core (open5gs) with:
 docker compose -f ngc.yaml up -d
 ```
 
-(DEPECRATED) Register subscribers in ngc with `/register_subscriber.sh`.
-Go to http://0.0.0.0:3000 after successed deployment of Open5Gs WEBUI. Input manually for every IMSCI with it's correspondent MCC, MNC, & MSISDN
+Register subscribers in ngc with `bash ./register_subscriber.sh`.
+
 
 # Deploy gnodeb
 
@@ -30,17 +40,21 @@ docker compose -f gnb2.yaml up -d
 
 # Test
 
-To test ue connectivity through RAN, enter the gnb1-ues container:
+To test ue connectivity through RAN, enter the gnb1-ues1 container:
 
 ```
-docker compose -f gnb1.yaml exec ues /bin/bash
-traceroute -i uesimtun0 google.es
-ping -I uesimtun0 google.es
+docker compose -f gnb1.yaml exec ues1 /bin/bash
+traceroute -i uesimtun0 google.com
+ping -I uesimtun0 google.com
 ```
 ues container will have multiple interfaces (one for each ue). 
 You can try each tunnel providing the flag '-i' in traceroute and '-I' in ping.
 
-If you have deployed a second genodeb (gnb2) just change the gnb1.yaml to gnb2.yaml.
+If you have deployed a second genodeb (gnb2) the command to enter in the ues container is:
+
+```
+docker compose -f gnb2.yaml exec ues2 /bin/bash
+```
 
 
 # Clean Up
@@ -50,5 +64,6 @@ Undeploy with:
 ```
 docker compose -f gnb1.yaml down
 docker compose -f gnb2.yaml down
-docker compose -f epc.yaml down -v
+docker compose -f ngc.yaml down -v
+
 ```

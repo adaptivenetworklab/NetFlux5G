@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MONGO_CONTAINER=open5gs-ueransim-mongo-1
+MONGO_CONTAINER=5g-nsa_environment-mongo-1
 
 : 'open5gs-dbctl: Open5GS Database Configuration Tool (0.10.3)
     FLAGS: --db_uri=mongodb://localhost
@@ -30,31 +30,61 @@ MONGO_CONTAINER=open5gs-ueransim-mongo-1
 docker cp open5gs-dbctl $MONGO_CONTAINER:/
 
 docker run -ti --rm \
-    --net open5gs-ueransim_default \
+    --net 5g-nsa_environment_db-network \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
-    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add 999700000000001 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA"
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000001 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet"
 
 docker run -ti --rm \
-    --net open5gs-ueransim_default \
+    --net 5g-nsa_environment_db-network \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
-    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add 999700000000002 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA"
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000002 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet"
 
 docker run -ti --rm \
-    --net open5gs-ueransim_default \
+    --net 5g-nsa_environment_db-network \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
-    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add 999700000000003 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA"
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000003 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet"
 
 docker run -ti --rm \
-    --net open5gs-ueransim_default \
+    --net 5g-nsa_environment_db-network \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
-    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add 999700000000011 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA"
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000011 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet2"
 
 docker run -ti --rm \
-    --net open5gs-ueransim_default \
+    --net 5g-nsa_environment_db-network \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
-    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add 999700000000012 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA"
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000012 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet2"
 
 docker run -ti --rm \
-    --net open5gs-ueransim_default \
+    --net 5g-nsa_environment_db-network \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
-    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add 999700000000013 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA"
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000013 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet2"
+
+docker run -ti --rm \
+    --net 5g-nsa_environment_db-network \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000021 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web1"
+
+docker run -ti --rm \
+    --net 5g-nsa_environment_db-network \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000022 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web1"
+
+docker run -ti --rm \
+    --net 5g-nsa_environment_db-network \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000023 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web1"
+
+docker run -ti --rm \
+    --net 5g-nsa_environment_db-network \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000031 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"
+
+docker run -ti --rm \
+    --net 5g-nsa_environment_db-network \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000032 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"
+
+docker run -ti --rm \
+    --net 5g-nsa_environment_db-network \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000033 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"

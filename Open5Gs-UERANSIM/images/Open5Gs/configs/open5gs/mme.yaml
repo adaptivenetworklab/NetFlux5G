@@ -1,6 +1,7 @@
 logger:
-  file: /opt/open5gs/var/log/open5gs/mme.log
-#  level: info   # fatal|error|warn|info(default)|debug|trace
+  file: 
+    path: /opt/open5gs/var/log/open5gs/mme.log
+  # level: info  # fatal|error|warn|info(default)|debug|trace
 
 global:
 # max:
@@ -9,6 +10,9 @@ global:
 
 mme:
   freeDiameter: /opt/open5gs/etc/freeDiameter/mme.conf
+  ngap:
+    server:
+      - dev: eth0
   s1ap:
     server:
     - dev: eth0
