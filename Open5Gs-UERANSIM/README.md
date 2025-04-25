@@ -4,9 +4,7 @@ cd images/Open5Gs
 docker build -t adaptive/open5gs:1.0 .
 ```
 
-# Deployment NGC and register subscribers
-
-deploy the ngc core (open5gs) with:
+# Deployment Web-Manager & Mongo
 
 ```
 docker compose -f webui-db.yaml up -d
