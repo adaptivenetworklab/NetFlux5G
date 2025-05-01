@@ -57,7 +57,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="Core5G_ComponentPropertiesButton">
+     <widget class="QPushButton" name="Core5G_Component5GPropertiesButton">
       <property name="text">
        <string>Component Properties</string>
       </property>

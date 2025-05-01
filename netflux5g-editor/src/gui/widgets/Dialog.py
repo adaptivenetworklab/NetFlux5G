@@ -11,7 +11,7 @@ class HostPropertiesDialog(QWidget):
         self.setWindowTitle(f"Host Properties - {label_text}")
 
         # Connect the button to open the HostPropertiesWindow
-        self.pushButton.clicked.connect(self.openDetailProperties)  # Replace 'pushButton' with the actual objectName of the button
+        self.Host_PropertiesButton.clicked.connect(self.openDetailProperties)  # Replace 'pushButton' with the actual objectName of the button
 
     def openDetailProperties(self):
         # Open the HostPropertiesWindow
@@ -46,7 +46,7 @@ class STAPropertiesDialog(QWidget):
         uic.loadUi(ui_file, self)
         self.setWindowTitle("STA Properties")
 
-        self.pushButton.clicked.connect(self.openDetailProperties) 
+        self.STA_PropertiesButton.clicked.connect(self.openDetailProperties) 
 
     def openDetailProperties(self):
         detail_properties_window = STAPropertiesWindow(parent=self.parent())
@@ -77,7 +77,7 @@ class APPropertiesDialog(QWidget):
         uic.loadUi(ui_file, self)
         self.setWindowTitle("AP Properties")
 
-        self.pushButton.clicked.connect(self.openDetailProperties) 
+        self.AP_PropertiesButton.clicked.connect(self.openDetailProperties) 
 
     def openDetailProperties(self):
         detail_properties_window = APPropertiesWindow(parent=self.parent())
@@ -108,7 +108,7 @@ class ControllerPropertiesDialog(QWidget):
         uic.loadUi(ui_file, self)
         self.setWindowTitle("Controller Properties")
 
-        self.pushButton.clicked.connect(self.openDetailProperties) 
+        self.Controller_PropertiesButton.clicked.connect(self.openDetailProperties) 
 
     def openDetailProperties(self):
         detail_properties_window = ControllerPropertiesWindow(parent=self.parent())
@@ -139,7 +139,7 @@ class DockerHostPropertiesDialog(QWidget):
         uic.loadUi(ui_file, self)
         self.setWindowTitle("Docker Host Properties")
 
-        self.pushButton.clicked.connect(self.openDetailProperties) 
+        self.DockerHost_PropertiesButton.clicked.connect(self.openDetailProperties) 
 
     def openDetailProperties(self):
         detail_properties_window = DockerHostPropertiesWindow(parent=self.parent())
@@ -163,83 +163,6 @@ class DockerHostPropertiesWindow(QMainWindow):
                 parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
             )
 
-class Core5GPropertiesDialog(QWidget):
-    def __init__(self, label_text, parent=None):
-        super().__init__(parent)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Core5GDialog.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle("5G Core Properties")
-
-        self.pushButton.clicked.connect(self.openDetailProperties)
-        self.pushButton_2.clicked.connect(self.SMFopenDetailProperties)
-        self.pushButton_3.clicked.connect(self.UPFopenDetailProperties)
-
-    def openDetailProperties(self):
-        detail_properties_window = Core5GPropertiesWindow(parent=self.parent())
-        detail_properties_window.show()
-
-        self.close()
-
-    def SMFopenDetailProperties(self):
-        detail_properties_window = SMFCore5GPropertiesWindow(parent=self.parent())
-        detail_properties_window.show()
-
-        self.close()
-
-    def UPFopenDetailProperties(self):
-        detail_properties_window = UPFCore5GPropertiesWindow(parent=self.parent())
-        detail_properties_window.show()
-
-        self.close()
-
-class Core5GPropertiesWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Core5G_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle("5G Core General Setting")
-
-        self.setWindowFlags(Qt.Window)
-
-        if parent:
-            parent_geometry = parent.geometry()
-            self.move(
-                parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
-                parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
-            )
-
-class SMFCore5GPropertiesWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "SMF_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle("SMF Properties")
-
-        self.setWindowFlags(Qt.Window)
-
-        if parent:
-            parent_geometry = parent.geometry()
-            self.move(
-                parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
-                parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
-            )
-
-class UPFCore5GPropertiesWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "UPF_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle("UPF Properties")
-
-        self.setWindowFlags(Qt.Window)
-
-        if parent:
-            parent_geometry = parent.geometry()
-            self.move(
-                parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
-                parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
-            )
-
 class GNBPropertiesDialog(QWidget):
     def __init__(self, label_text, parent=None):
         super().__init__(parent)
@@ -247,7 +170,7 @@ class GNBPropertiesDialog(QWidget):
         uic.loadUi(ui_file, self)
         self.setWindowTitle("gNB Properties")
 
-        self.pushButton.clicked.connect(self.openDetailProperties) 
+        self.GNB_PropertiesButton.clicked.connect(self.openDetailProperties) 
 
     def openDetailProperties(self):
         detail_properties_window = GNBPropertiesWindow(parent=self.parent())
@@ -278,7 +201,7 @@ class UEPropertiesDialog(QWidget):
         uic.loadUi(ui_file, self)
         self.setWindowTitle("UE Properties")
 
-        self.pushButton.clicked.connect(self.openDetailProperties) 
+        self.UE_PropertiesButton.clicked.connect(self.openDetailProperties) 
 
     def openDetailProperties(self):
         detail_properties_window = UEPropertiesWindow(parent=self.parent())
@@ -301,3 +224,73 @@ class UEPropertiesWindow(QMainWindow):
                 parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
                 parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
             )
+
+class Core5GPropertiesDialog(QWidget):
+    def __init__(self, label_text, parent=None):
+        super().__init__(parent)
+        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Core5GDialog.ui")
+        uic.loadUi(ui_file, self)
+        self.setWindowTitle("5G Core Properties")
+
+        self.Core5G_GeneralSettingsButton.clicked.connect(self.openDetailProperties)
+        self.Core5G_Component5GPropertiesButton.clicked.connect(self.Component5GopenDetailProperties)
+
+    def openDetailProperties(self):
+        detail_properties_window = Core5GPropertiesWindow(parent=self.parent())
+        detail_properties_window.show()
+
+        self.close()
+
+    def Component5GopenDetailProperties(self):
+        detail_properties_window = Component5GPropertiesWindow(parent=self.parent())
+        detail_properties_window.show()
+
+        self.close()
+
+class Core5GPropertiesWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Core5G_properties.ui")
+        uic.loadUi(ui_file, self)
+        self.setWindowTitle("5G Core General Setting")
+
+        self.setWindowFlags(Qt.Window)
+
+        if parent:
+            parent_geometry = parent.geometry()
+            self.move(
+                parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
+                parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
+            )
+
+class Component5GPropertiesWindow(QMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Component5G_properties.ui")
+        uic.loadUi(ui_file, self)
+        self.setWindowTitle("5G Components Properties")
+
+        self.setWindowFlags(Qt.Window)
+
+        # if parent:
+        #     parent_geometry = parent.geometry()
+        #     self.move(
+        #         parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
+        #         parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
+        #     )
+
+# class UPFCore5GPropertiesWindow(QMainWindow):
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "UPF_properties.ui")
+#         uic.loadUi(ui_file, self)
+#         self.setWindowTitle("UPF Properties")
+
+#         self.setWindowFlags(Qt.Window)
+
+#         if parent:
+#             parent_geometry = parent.geometry()
+#             self.move(
+#                 parent_geometry.x() + (parent_geometry.width() - self.width()) // 2,
+#                 parent_geometry.y() + (parent_geometry.height() - self.height()) // 2
+#             )
