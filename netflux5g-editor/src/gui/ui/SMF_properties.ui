@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(222, 222, 222);</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
@@ -25,14 +28,14 @@
     </property>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="SMF_OKButton">
        <property name="text">
         <string>OK</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QPushButton" name="pushButton_5">
+      <widget class="QPushButton" name="SMF_CancelButton">
        <property name="text">
         <string>Cancel</string>
        </property>
@@ -40,7 +43,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QTableWidget" name="tableWidget_2">
+   <widget class="QTableWidget" name="SMF_Table">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -48,6 +51,9 @@
       <width>211</width>
       <height>241</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <column>
      <property name="text">
@@ -70,7 +76,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>List Client to UPF:</string>
+     <string>List Client to SMF:</string>
     </property>
    </widget>
    <widget class="QWidget" name="formLayoutWidget_4">
@@ -84,7 +90,7 @@
     </property>
     <layout class="QFormLayout" name="formLayout_4">
      <item row="0" column="1">
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="SMF_AddButton">
        <property name="text">
         <string>add</string>
        </property>
@@ -93,7 +99,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label_20">
        <property name="text">
-        <string>Add Client to UPF:</string>
+        <string>Add Client to SMF:</string>
        </property>
       </widget>
      </item>

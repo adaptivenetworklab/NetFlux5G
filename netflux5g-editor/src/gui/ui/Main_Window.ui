@@ -70,7 +70,7 @@ QFrame {
           <x>10</x>
           <y>10</y>
           <width>71</width>
-          <height>678</height>
+          <height>700</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="ObjectLayout">
@@ -314,6 +314,9 @@ QFrame {
           <height>801</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        </property>
        </widget>
       </widget>
      </item>
@@ -326,7 +329,7 @@ QFrame {
      <x>0</x>
      <y>0</y>
      <width>1262</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -346,7 +349,6 @@ QFrame {
      <string>Edit</string>
     </property>
     <addaction name="actionCut"/>
-    <addaction name="actionPreference"/>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
    </widget>

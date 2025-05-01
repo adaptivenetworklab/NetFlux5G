@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>187</width>
-    <height>139</height>
+    <height>112</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(222, 222, 222);</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
@@ -19,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>171</width>
-     <height>121</height>
+     <height>91</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -32,7 +35,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>5G Core Setting</string>
+       <string>5G Core Settings</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -47,23 +50,16 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="Core5G_GeneralSettingsButton">
       <property name="text">
-       <string>General Setting</string>
+       <string>General Settings</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="Core5G_ComponentPropertiesButton">
       <property name="text">
-       <string>SMF Properties</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="text">
-       <string>UPF Properties</string>
+       <string>Component Properties</string>
       </property>
      </widget>
     </item>

@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>189</width>
-    <height>92</height>
+    <height>93</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(222, 222, 222);</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
@@ -47,7 +50,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="UE_PropertiesButton">
       <property name="text">
        <string>UE Properties</string>
       </property>
