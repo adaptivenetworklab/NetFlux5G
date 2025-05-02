@@ -1,6 +1,9 @@
 services:
   amf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp    
     command:
@@ -17,6 +20,9 @@ services:
 
   ausf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -33,6 +39,9 @@ services:
 
   bsf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -49,6 +58,9 @@ services:
 
   nrf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-nrfd"
     restart: on-failure
     privileged: true
@@ -62,6 +74,9 @@ services:
 
   nssf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - nrf
       - scp
@@ -78,6 +93,9 @@ services:
 
   pcf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       scp:
         condition: service_started
@@ -97,6 +115,9 @@ services:
 
   pcrf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     command:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcrfd"
     privileged: true
@@ -113,6 +134,9 @@ services:
 
   scp:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - nrf
     command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-scpd"
@@ -128,6 +152,9 @@ services:
 
   smf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     restart: on-failure
@@ -143,6 +170,9 @@ services:
 
   udm:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     restart: on-failure
@@ -159,6 +189,9 @@ services:
 
   udr:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       scp:
         condition: service_started
@@ -178,6 +211,9 @@ services:
 
   upf:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -200,6 +236,9 @@ services:
 
   upf2:
     image: adaptive/open5gs:1.0
+    environment:
+      - OPEN5GS_METRICS=1
+      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
