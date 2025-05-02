@@ -2,6 +2,9 @@ services:
   gnb2:
     image: gradiant/ueransim:3.2.6
     container_name: gnb2
+    environment:
+      - UERANSIM_METRICS=1
+      - UERANSIM_METRICS_PORT=9090
     command: 
       - gnb
     environment:
