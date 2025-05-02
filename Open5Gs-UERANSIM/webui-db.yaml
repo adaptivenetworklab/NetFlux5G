@@ -9,6 +9,18 @@ networks:
       - subnet: 172.25.0.0/24
 
 services:
+  mongodb-exporter:
+    image: percona/mongodb_exporter:latest
+    container_name: mongodb-exporter
+    command:
+      - '--mongodb.uri=mongodb://mongodb:27017'
+      - '--web.listen-address=:9216'
+    ports:
+      - "9216:9216"
+    depends_on:
+      - mongodb
+    restart: unless-stopped
+  
   mongo:
     image: mongo:latest
     restart: always
@@ -38,4 +50,4 @@ services:
       DB_URI: mongodb://mongo/open5gs
       NODE_ENV: dev
     networks:
-      db-network:
+      db-network:  
