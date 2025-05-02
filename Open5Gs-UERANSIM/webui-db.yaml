@@ -17,9 +17,12 @@ services:
       - '--web.listen-address=:9216'
     ports:
       - "9216:9216"
+    networks:
+      - default
+      - monitoring-net
+    restart: unless-stopped
     depends_on:
       - mongodb
-    restart: unless-stopped
   
   mongo:
     image: mongo:latest
