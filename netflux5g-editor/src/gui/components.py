@@ -1,13 +1,14 @@
 import os
 from .links import NetworkLink
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem
-from PyQt5.QtCore import Qt, QRectF
+from PyQt5.QtCore import pyqtSignal, QObject, Qt, QRectF
 from PyQt5.QtGui import QPixmap, QPen
 from .widgets.Dialog import *
 
 
-class NetworkComponent(QGraphicsPixmapItem):
+class NetworkComponent(QObject, QGraphicsPixmapItem):
     """Network component (node) that can be placed on the canvas"""
+    moved = pyqtSignal()  # Signal emitted when the component is moved
 
     # Map component types to their respective dialog classes
     DIALOG_MAP = {
@@ -22,9 +23,14 @@ class NetworkComponent(QGraphicsPixmapItem):
     }
     
     def __init__(self, component_type, icon_path, parent=None):
-        super().__init__(parent)
+        QObject.__init__(self, parent)  # Initialize QObject
+        QGraphicsPixmapItem.__init__(self)  # Initialize QGraphicsPixmapItem
         self.component_type = component_type
         self.icon_path = icon_path
+
+        # Validate the icon path
+        if not os.path.exists(self.icon_path):
+            raise FileNotFoundError(f"Icon file not found: {self.icon_path}")
 
         # Set the pixmap for the item
         pixmap = QPixmap(self.icon_path).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -34,6 +40,10 @@ class NetworkComponent(QGraphicsPixmapItem):
         self.setFlag(QGraphicsPixmapItem.ItemIsMovable)
         self.setFlag(QGraphicsPixmapItem.ItemIsSelectable)
 
+    def mouseMoveEvent(self, event):
+        """Handle mouse movement."""
+        super().mouseMoveEvent(event)
+        self.moved.emit()  # Emit the moved signal
         
     def boundingRect(self):
         return QRectF(0, 0, 50, 50)
@@ -49,9 +59,9 @@ class NetworkComponent(QGraphicsPixmapItem):
             painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
             painter.drawRect(self.boundingRect())
 
-        # # Draw component name below the icon
-        # painter.setPen(Qt.black)
-        # painter.drawText(QRectF(-50, 25, 100, 20), Qt.AlignHCenter, self.component_type)
+        # Draw component name below the icon
+        painter.setPen(Qt.black)
+        painter.drawText(QRectF(-50, 25, 100, 20), Qt.AlignHCenter, self.component_type)
 
 
     def contextMenuEvent(self, event):

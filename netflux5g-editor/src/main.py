@@ -121,7 +121,7 @@ class NetFlux5GApp(QMainWindow):
         self.statusbar.showMessage(f"Link mode activated. Click on source node, then destination node.")
         self.current_tool = "link"
         self.canvas_view.setLinkMode(True)
-        
+
     def enablePickTool(self):
         self.current_tool = "pick"
         self.canvas_view.setDragMode(QGraphicsView.NoDrag)
