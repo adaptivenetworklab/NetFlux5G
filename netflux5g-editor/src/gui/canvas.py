@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen
 from .widgets.Dialog import *
 from .components import NetworkComponent
-from .links import NetworkLink
 
 class MovableLabel(QLabel):
     DIALOG_MAP = {
@@ -174,19 +173,16 @@ class Canvas(QGraphicsView):
         if event.mimeData().hasText():
             component_type = event.mimeData().text()
             print(f"DEBUG: Dropped component type: {component_type}")  # Debug message
-    
+
             # Get the icon for the dropped component
             icon_path = self.app_instance.component_icon_map.get(component_type)
             if icon_path and os.path.exists(icon_path):
-                try:
-                    # Create a NetworkComponent and add it to the scene
-                    position = self.mapToScene(event.pos())
-                    component = NetworkComponent(component_type, icon_path, parent=None)
-                    component.setPos(position)
-                    self.scene.addItem(component)
-                    print(f"DEBUG: Component {component_type} added at position {position}")  # Debug message
-                except Exception as e:
-                    print(f"ERROR: Failed to add component {component_type}: {e}")
+                # Create a NetworkComponent and add it to the scene
+                position = self.mapToScene(event.pos())
+                component = NetworkComponent(component_type, icon_path)
+                component.setPos(position)
+                self.scene.addItem(component)
+                print(f"DEBUG: Component {component_type} added at position {position}")  # Debug message
             else:
                 print(f"ERROR: Icon for component type '{component_type}' not found.")
             event.acceptProposedAction()
@@ -202,31 +198,6 @@ class Canvas(QGraphicsView):
             self.current_dialog = None
 
         super().mousePressEvent(event)
-
-        if self.link_mode:
-            # Handle linking logic
-            item = self.itemAt(event.pos())
-            if item and isinstance(item, NetworkComponent):
-                if not hasattr(self, 'link_source') or self.link_source is None:
-                    # Set the source component
-                    self.link_source = item
-                    print(f"DEBUG: Link source set to {item}")
-                else:
-                    # Set the destination component and create a link
-                    link = NetworkLink(self.link_source, item)
-                    self.scene.addItem(link)
-                    print(f"DEBUG: Link created between {self.link_source} and {item}")
-                    self.link_source = None  # Reset the source component
-
-                    # Automatically switch back to pick tool
-                    self.setLinkMode(False)
-                    self.app_instance.current_tool = "pick"
-                    print("DEBUG: Switched back to pick tool")
-            else:
-                print("DEBUG: No valid component selected for linking.")
-        else:
-            # Handle other mouse press events
-            super().mousePressEvent(event)
 
     def setCurrentDialog(self, dialog):
         """Close the currently open dialog and set the new dialog."""
