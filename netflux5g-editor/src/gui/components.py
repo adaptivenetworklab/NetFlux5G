@@ -1,7 +1,7 @@
 import os
 from .links import NetworkLink
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem
-from PyQt5.QtCore import Qt, QRectF
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
+from PyQt5.QtCore import Qt, QRectF, QPoint
 from PyQt5.QtGui import QPixmap, QPen
 from .widgets.Dialog import *
 
@@ -33,6 +33,10 @@ class NetworkComponent(QGraphicsPixmapItem):
         # Make the item draggable and selectable
         self.setFlag(QGraphicsPixmapItem.ItemIsMovable)
         self.setFlag(QGraphicsPixmapItem.ItemIsSelectable)
+        self.setFlag(QGraphicsPixmapItem.ItemSendsGeometryChanges)
+        
+        # Enable handling context menu events
+        self.setAcceptedMouseButtons(Qt.LeftButton | Qt.RightButton)
 
         
     def boundingRect(self):
@@ -48,37 +52,53 @@ class NetworkComponent(QGraphicsPixmapItem):
         if self.isSelected():
             painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
             painter.drawRect(self.boundingRect())
+            
+        # If highlighted, draw a red border
+        if hasattr(self, 'highlighted') and self.highlighted:
+            painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
+            painter.drawRect(self.boundingRect())
 
-        # # Draw component name below the icon
-        # painter.setPen(Qt.black)
-        # painter.drawText(QRectF(-50, 25, 100, 20), Qt.AlignHCenter, self.component_type)
-
-
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
+        # Get the dialog class for the current component type
         dialog_class = self.DIALOG_MAP.get(self.component_type)
+        
         if dialog_class:
-            # Close the existing dialog if it is already open
-            canvas = self.scene().views()[0]
-            if canvas.current_dialog:
+            # Find the canvas (scene's parent view)
+            canvas = None
+            if self.scene() and self.scene().views():
+                canvas = self.scene().views()[0]
+            
+            # Close any existing dialog
+            if canvas and hasattr(canvas, 'current_dialog') and canvas.current_dialog:
                 canvas.current_dialog.close()
-
+            
             # Create a new dialog
-            dialog = dialog_class(label_text=self.component_type, parent=canvas)
-
-            # Get the item's position in the scene and map it to the global position
-            item_scene_pos = self.scenePos()
-            item_global_pos = canvas.viewport().mapToGlobal(canvas.mapFromScene(item_scene_pos))
-            print(f"DEBUG: Item scene position: {item_scene_pos}")
-            print(f"DEBUG: Item global position: {item_global_pos}")
-
-            # Move the dialog to the item's position
-            dialog.move(item_global_pos)
-
+            dialog = dialog_class(self.component_type, parent=canvas)
+            
+            # Position the dialog near the cursor
+            dialog.move(event.screenPos() - QPoint(20, 20))
+            
             # Show the dialog
             dialog.show()
-
+            
             # Notify the canvas about the currently open dialog
-            canvas.setCurrentDialog(dialog)
+            if canvas and hasattr(canvas, 'setCurrentDialog'):
+                canvas.setCurrentDialog(dialog)
         else:
-            print(f"DEBUG: No dialog found for component type: {self.component_type}")
+            print(f"No dialog found for component type: {self.component_type}")
+
+    def itemChange(self, change, value):
+        """Handle position changes and update connected links."""
+        if change == QGraphicsItem.ItemPositionChange and self.scene():
+            # If we have connected links, update them
+            if hasattr(self, 'connected_links'):
+                for link in self.connected_links:
+                    link.updatePosition()
+        
+        return super().itemChange(change, value)
+    
+    def setHighlighted(self, highlight=True):
+        """Set the highlight state of this component"""
+        self.highlighted = highlight
+        self.update()

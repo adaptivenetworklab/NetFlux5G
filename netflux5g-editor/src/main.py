@@ -7,6 +7,7 @@ from PyQt5 import uic
 from gui.canvas import Canvas
 from gui.canvas import Canvas, MovableLabel
 from gui.toolbar import ToolbarFunctions
+from gui.links import NetworkLink  # Import NetworkLink
 
 
 # Load the UI file
@@ -99,6 +100,10 @@ class NetFlux5GApp(QMainWindow):
         self.statusbar.showMessage("Ready")
         
     def startDrag(self, component_type):
+        """Start drag action for components."""
+        # Exit link mode if active
+        self.exitLinkMode()
+        
         print(f"Starting drag for component: {component_type}")  # Debug message
 
         # Create a drag object with component information
@@ -118,14 +123,70 @@ class NetFlux5GApp(QMainWindow):
         drag.exec_(Qt.CopyAction)
         
     def startLinkMode(self, component_type):
-        self.statusbar.showMessage(f"Link mode activated. Click on source node, then destination node.")
+        """Activate link mode."""
+        # Reset any previous source selection
+        self.current_link_source = None
+        
+        # Set current tool to link
         self.current_tool = "link"
+        
+        # Enable link mode in canvas
         self.canvas_view.setLinkMode(True)
         
+        # Update cursor to indicate link mode
+        self.canvas_view.setCursor(Qt.CrossCursor)
+        
+        # Update status bar
+        self.statusbar.showMessage("Link mode activated. Click on source object, then destination object.")
+        print("DEBUG: Link mode activated")
+        
+    def createLink(self, source, destination):
+        """Create a link between two objects."""
+        from gui.links import NetworkLink
+        
+        # Create a new NetworkLink with cable visualization
+        link = NetworkLink(source, destination)
+        
+        # Add the link to the scene
+        self.canvas_view.scene.addItem(link)
+        
+        # Update the status bar
+        source_name = source.object_type if hasattr(source, 'object_type') else 'object'
+        dest_name = destination.object_type if hasattr(destination, 'object_type') else 'object'
+        self.statusbar.showMessage(f"LinkCable created between {source_name} and {dest_name}")
+        
+        # Update view
+        self.canvas_view.viewport().update()
+        
+        return link
+
+    def updateAllLinks(self):
+        """Update all links in the scene."""
+        for item in self.canvas_view.scene.items():
+            if isinstance(item, NetworkLink):
+                item.updatePosition()
+
+    def exitLinkMode(self):
+        """Exit link mode."""
+        # Remove highlight from source if one was selected
+        if self.current_link_source and hasattr(self.current_link_source, 'setHighlighted'):
+            self.current_link_source.setHighlighted(False)
+            print("DEBUG: Removing highlight from source object")
+        
+        # Re-enable dragging for source if one was selected
+        if self.current_link_source and hasattr(self.current_link_source, 'setFlag'):
+            from PyQt5.QtWidgets import QGraphicsItem
+            self.current_link_source.setFlag(QGraphicsItem.ItemIsMovable, True)
+            
+        self.current_link_source = None
+        self.canvas_view.setLinkMode(False)
+        self.canvas_view.setCursor(Qt.ArrowCursor)
+        self.statusbar.showMessage("Pick tool selected")
+
     def enablePickTool(self):
+        self.exitLinkMode()  # Exit link mode if active
         self.current_tool = "pick"
         self.canvas_view.setDragMode(QGraphicsView.NoDrag)
-        self.canvas_view.setLinkMode(False)
         self.statusbar.showMessage("Pick tool selected")
     
     def enableDeleteTool(self):
