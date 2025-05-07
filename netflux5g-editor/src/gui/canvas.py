@@ -1,5 +1,5 @@
 import os
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLabel, QGraphicsSceneContextMenuEvent, QMenu, QGraphicsItem
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLabel, QGraphicsSceneContextMenuEvent, QMenu
 from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect 
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen
 from .widgets.Dialog import *
@@ -48,14 +48,7 @@ class MovableLabel(QLabel):
 
     def mouseMoveEvent(self, event):
         if self.dragging:
-            # Move the label
-            new_pos = self.mapToParent(event.pos() - self.offset)
-            self.move(new_pos)
-            
-            # Update connected links
-            if hasattr(self, 'connected_links'):
-                for link in self.connected_links:
-                    link.updatePosition()
+            self.move(self.mapToParent(event.pos() - self.offset))
 
     def mouseReleaseEvent(self, event):
         self.dragging = False
@@ -88,34 +81,6 @@ class MovableLabel(QLabel):
                 canvas.setCurrentDialog(self.dialog)
         else:
             print(f"No dialog found for object type: {self.object_type}")
-            
-    def setHighlighted(self, highlight=True):
-        """Set the highlight state of this label"""
-        self.highlighted = highlight
-        
-        if highlight:
-            # Store the original style
-            if not hasattr(self, 'original_style'):
-                self.original_style = self.styleSheet()
-            
-            # Apply a more visible red border style
-            self.setStyleSheet("border: 5px solid red; background-color: rgba(255, 200, 200, 100);")
-            print("DEBUG: Highlighting label with red border")
-        else:
-            # Restore original style
-            if hasattr(self, 'original_style'):
-                self.setStyleSheet(self.original_style)
-        
-        # Force redraw
-        self.update()
-
-    def paintEvent(self, event):
-        """Override paint event to draw highlight if needed"""
-        super().paintEvent(event)
-        if hasattr(self, 'highlighted') and self.highlighted:
-            painter = QPainter(self)
-            painter.setPen(QPen(Qt.red, 3))
-            painter.drawRect(self.rect().adjusted(1, 1, -1, -1))  # Draw inside the border
 
 class Canvas(QGraphicsView):
     def __init__(self, app_instance, parent=None):
@@ -146,9 +111,6 @@ class Canvas(QGraphicsView):
 
         # Initialize zoom level
         self.zoom_level = 1.0
-        
-        # Link mode support
-        self.link_mode = False
 
     def zoomIn(self):
         """Zoom in the canvas."""
@@ -286,73 +248,3 @@ class Canvas(QGraphicsView):
         else:
             # Pass other key events to the parent class
             super().keyPressEvent(event)
-
-    def setLinkMode(self, enabled):
-        """Enable or disable link mode."""
-        self.link_mode = enabled
-        print(f"DEBUG: Link mode set to {self.link_mode}")
-
-    def mousePressEvent(self, event):
-        """Handle mouse press events."""
-        # Handle link mode first
-        if self.link_mode and event.button() == Qt.LeftButton:
-            # Get item under the cursor
-            item = self.itemAt(event.pos())
-            
-            # Check if it's a component we can link
-            if item is not None and (
-                (isinstance(item, NetworkComponent)) or 
-                (hasattr(item, 'object_type'))
-            ):
-                # Process link creation
-                if self.app_instance.current_link_source is None:
-                    # First click - set source and highlight it
-                    self.app_instance.current_link_source = item
-                    
-                    # Highlight the source object
-                    if hasattr(item, 'setHighlighted'):
-                        item.setHighlighted(True)
-                    
-                    self.app_instance.statusbar.showMessage(
-                        f"Source selected: {item.object_type if hasattr(item, 'object_type') else 'component'} (highlighted in red) - now select destination"
-                    )
-                    print(f"DEBUG: Source selected: {item}")
-                    
-                    # Prevent dragging when in link mode
-                    if hasattr(item, 'setFlag'):
-                        item.setFlag(QGraphicsItem.ItemIsMovable, False)
-                        
-                    return
-                else:
-                    # Second click - create link
-                    source = self.app_instance.current_link_source
-                    destination = item
-                    
-                    # Don't link to the same object
-                    if source != destination:
-                        # Remove highlight from source
-                        if hasattr(source, 'setHighlighted'):
-                            source.setHighlighted(False)
-                        
-                        self.app_instance.createLink(source, destination)
-                        print(f"DEBUG: Link created between {source} and {destination}")
-                    else:
-                        print("DEBUG: Cannot link an object to itself")
-                    
-                    # Re-enable dragging for source
-                    if hasattr(source, 'setFlag'):
-                        source.setFlag(QGraphicsItem.ItemIsMovable, True)
-                    
-                    # Reset source for next link operation
-                    self.app_instance.current_link_source = None
-                    self.app_instance.statusbar.showMessage("Link created. Select next source or change tool.")
-                    return
-                    
-        # Handle dialog closing
-        if self.current_dialog:
-            print("DEBUG: Closing dialog because canvas was clicked.")
-            self.current_dialog.close()
-            self.current_dialog = None
-
-        # Handle normal mouse press
-        super().mousePressEvent(event)
