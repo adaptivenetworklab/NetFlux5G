@@ -19,7 +19,6 @@ services:
       - "9216:9216"
     networks:
       - default
-      - monitoring-net
     restart: unless-stopped
     depends_on:
       - mongodb
