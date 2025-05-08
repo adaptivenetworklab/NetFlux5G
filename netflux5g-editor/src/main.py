@@ -302,10 +302,10 @@ if __name__ == "__main__":
     icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
     app.setWindowIcon(QIcon(icon_path))
 
-    # Load the QSS file
-    qss_file_path = os.path.join(os.path.dirname(__file__), "gui", "styles.qss")
-    with open(qss_file_path, "r") as file:
-        app.setStyleSheet(file.read())
+    # # Load the QSS file
+    # qss_file_path = os.path.join(os.path.dirname(__file__), "gui", "styles.qss")
+    # with open(qss_file_path, "r") as file:
+    #     app.setStyleSheet(file.read())
 
     window = NetFlux5GApp()
     window.show()
