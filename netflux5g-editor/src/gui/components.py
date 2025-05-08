@@ -10,15 +10,15 @@ class NetworkComponent(QGraphicsPixmapItem):
     """Network component (node) that can be placed on the canvas"""
 
     # Map component types to their respective dialog classes
-    DIALOG_MAP = {
-        "Host": HostPropertiesDialog,
-        "STA": STAPropertiesDialog,
-        "UE": UEPropertiesDialog,
-        "GNB": GNBPropertiesDialog,
-        "DockerHost": DockerHostPropertiesDialog,
-        "AP": APPropertiesDialog,
-        "VGcore": Core5GPropertiesDialog,
-        "Controller": ControllerPropertiesDialog,
+    PROPERTIES_MAP = {
+        "Host": HostPropertiesWindow,
+        "STA": STAPropertiesWindow,
+        "UE": UEPropertiesWindow,
+        "GNB": GNBPropertiesWindow,
+        "DockerHost": DockerHostPropertiesWindow,
+        "AP": APPropertiesWindow,
+        "VGcore": Core5GPropertiesWindow,
+        "Controller": ControllerPropertiesWindow,
     }
     
     def __init__(self, component_type, icon_path, parent=None):
@@ -60,33 +60,18 @@ class NetworkComponent(QGraphicsPixmapItem):
 
     def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
-        # Get the dialog class for the current component type
-        dialog_class = self.DIALOG_MAP.get(self.component_type)
-        
+        menu = QMenu()
+        menu.addAction("Properties", self.openPropertiesDialog)
+        menu.addSeparator()
+        menu.addAction("Delete", lambda: self.scene().removeItem(self))
+        menu.exec_(event.screenPos())
+
+    def openPropertiesDialog(self):
+        """Open the properties dialog for the component."""
+        dialog_class = self.PROPERTIES_MAP.get(self.component_type)
         if dialog_class:
-            # Find the canvas (scene's parent view)
-            canvas = None
-            if self.scene() and self.scene().views():
-                canvas = self.scene().views()[0]
-            
-            # Close any existing dialog
-            if canvas and hasattr(canvas, 'current_dialog') and canvas.current_dialog:
-                canvas.current_dialog.close()
-            
-            # Create a new dialog
-            dialog = dialog_class(self.component_type, parent=canvas)
-            
-            # Position the dialog near the cursor
-            dialog.move(event.screenPos() - QPoint(20, 20))
-            
-            # Show the dialog
+            dialog = dialog_class(label_text=self.component_type, parent=self.scene().views()[0])
             dialog.show()
-            
-            # Notify the canvas about the currently open dialog
-            if canvas and hasattr(canvas, 'setCurrentDialog'):
-                canvas.setCurrentDialog(dialog)
-        else:
-            print(f"No dialog found for component type: {self.component_type}")
 
     def itemChange(self, change, value):
         """Handle position changes and update connected links."""

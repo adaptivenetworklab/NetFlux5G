@@ -6,15 +6,15 @@ from .widgets.Dialog import *
 from .components import NetworkComponent
 
 class MovableLabel(QLabel):
-    DIALOG_MAP = {
-        "Host": HostPropertiesDialog,
-        "STA": STAPropertiesDialog,
-        "UE": UEPropertiesDialog,
-        "GNB": GNBPropertiesDialog,
-        "DockerHost": DockerHostPropertiesDialog,
-        "AP": APPropertiesDialog,
-        "VGcore": Core5GPropertiesDialog,
-        "Controller": ControllerPropertiesDialog
+    PROPERTIES_MAP = {
+        "Host": HostPropertiesWindow,
+        "STA": STAPropertiesWindow,
+        "UE": UEPropertiesWindow,
+        "GNB": GNBPropertiesWindow,
+        "DockerHost": DockerHostPropertiesWindow,
+        "AP": APPropertiesWindow,
+        "VGcore": Core5GPropertiesWindow,
+        "Controller": ControllerPropertiesWindow
     }
 
     def __init__(self, text, icon=None, parent=None):
@@ -65,28 +65,18 @@ class MovableLabel(QLabel):
     
     def contextMenuEvent(self, event):
         """Handle right-click context menu events."""
-        # Get the dialog class for the current object type
-        dialog_class = self.DIALOG_MAP.get(self.object_type)
+        menu = QMenu(self)
+        menu.addAction("Properties", self.openPropertiesDialog)
+        menu.addSeparator()
+        menu.addAction("Delete", self.close)
+        menu.exec_(event.globalPos())
+
+    def openPropertiesDialog(self):
+        """Open the properties dialog for the object."""
+        dialog_class = self.PROPERTIES_MAP.get(self.object_type)
         if dialog_class:
-            # Close the existing dialog if it is already open
-            canvas = self.parent()
-            if canvas.current_dialog:
-                canvas.current_dialog.close()
-
-            # Create a new dialog
-            self.dialog = dialog_class(self.text(), parent=canvas)
-
-            # Move the dialog to the cursor position relative to the canvas
-            self.dialog.move(event.globalPos() - canvas.mapToGlobal(QPoint(0, 0)))
-
-            # Show the dialog
-            self.dialog.show()
-
-            # Notify the canvas about the currently open dialog
-            if isinstance(canvas, Canvas):
-                canvas.setCurrentDialog(self.dialog)
-        else:
-            print(f"No dialog found for object type: {self.object_type}")
+            dialog = dialog_class(label_text=self.object_type, parent=self.parent())
+            dialog.show()
             
     def setHighlighted(self, highlight=True):
         """Set the highlight state of this component"""
