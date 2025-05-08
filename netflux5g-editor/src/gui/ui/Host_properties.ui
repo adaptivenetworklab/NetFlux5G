@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>478</width>
-    <height>350</height>
+    <width>527</width>
+    <height>367</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,8 +20,8 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>310</y>
+      <x>10</x>
+      <y>320</y>
       <width>168</width>
       <height>31</height>
      </rect>
@@ -48,8 +48,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>461</width>
-      <height>291</height>
+      <width>501</width>
+      <height>301</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -224,7 +224,7 @@
        <rect>
         <x>10</x>
         <y>40</y>
-        <width>91</width>
+        <width>211</width>
         <height>16</height>
        </rect>
       </property>
@@ -295,7 +295,7 @@
        <rect>
         <x>10</x>
         <y>40</y>
-        <width>101</width>
+        <width>221</width>
         <height>16</height>
        </rect>
       </property>
@@ -308,7 +308,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>201</width>
+        <width>221</width>
         <height>27</height>
        </rect>
       </property>
@@ -352,7 +352,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>191</width>
+        <width>221</width>
         <height>27</height>
        </rect>
       </property>

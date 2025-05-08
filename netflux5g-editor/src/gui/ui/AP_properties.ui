@@ -250,7 +250,7 @@
        <rect>
         <x>240</x>
         <y>40</y>
-        <width>101</width>
+        <width>221</width>
         <height>16</height>
        </rect>
       </property>
@@ -296,6 +296,9 @@
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>200</number>
+      </attribute>
       <column>
        <property name="text">
         <string>Interface Name</string>

@@ -329,7 +329,7 @@ QFrame {
      <x>0</x>
      <y>0</y>
      <width>1262</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -398,8 +398,6 @@ QFrame {
    </attribute>
    <addaction name="actionPickTool"/>
    <addaction name="actionDelete"/>
-   <addaction name="actionTextBox"/>
-   <addaction name="actionDrawSquare"/>
    <addaction name="separator"/>
    <addaction name="actionZoomIn"/>
    <addaction name="actionZoomOut"/>
