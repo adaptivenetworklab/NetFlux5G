@@ -2,7 +2,7 @@ import sys
 import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton  # Added QGraphicsView
 from PyQt5.QtCore import Qt, QPoint, QMimeData
-from PyQt5.QtGui import QDrag, QPixmap
+from PyQt5.QtGui import QDrag, QPixmap, QIcon
 from PyQt5 import uic
 from gui.canvas import Canvas
 from gui.canvas import Canvas, MovableLabel
@@ -19,6 +19,10 @@ class NetFlux5GApp(QMainWindow):
         
         # Load the UI file
         uic.loadUi(UI_FILE, self)
+
+        # Set application icon for window and taskbar
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "Icon", "logoSquare.png")
+        self.setWindowIcon(QIcon(icon_path))
 
         # Initialize the toolbar functions
         self.toolbar_functions = ToolbarFunctions(self)
@@ -293,6 +297,10 @@ class NetFlux5GApp(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    # Set application-wide icon
+    icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
+    app.setWindowIcon(QIcon(icon_path))
 
     # Load the QSS file
     qss_file_path = os.path.join(os.path.dirname(__file__), "gui", "styles.qss")
