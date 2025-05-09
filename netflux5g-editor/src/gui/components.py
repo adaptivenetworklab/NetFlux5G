@@ -123,3 +123,24 @@ class NetworkComponent(QGraphicsPixmapItem):
         """Set the highlight state of this component"""
         self.highlighted = highlight
         self.update()
+
+    def mousePressEvent(self, event):
+        """Handle mouse press events."""
+        # Check if we're in delete mode
+        scene = self.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and view.app_instance.current_tool == "delete":
+                # Delete this component
+                if hasattr(self, 'connected_links'):
+                    # Remove any connected links first
+                    links_to_remove = self.connected_links.copy() if hasattr(self, 'connected_links') else []
+                    for link in links_to_remove:
+                        scene.removeItem(link)
+                
+                # Now remove this component
+                scene.removeItem(self)
+                return
+                
+        # If not in delete mode, call the parent handler
+        super().mousePressEvent(event)

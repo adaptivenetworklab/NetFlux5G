@@ -191,11 +191,14 @@ class NetFlux5GApp(QMainWindow):
         self.exitLinkMode()  # Exit link mode if active
         self.current_tool = "pick"
         self.canvas_view.setDragMode(QGraphicsView.NoDrag)
+        self.canvas_view.setCursor(Qt.ArrowCursor)  # Reset to arrow cursor
         self.statusbar.showMessage("Pick tool selected")
     
     def enableDeleteTool(self):
         """Enable the Delete Tool."""
+        self.exitLinkMode()  # Exit link mode if active
         self.current_tool = "delete"
+        self.canvas_view.setCursor(Qt.CrossCursor)  # Set a cross cursor for delete mode
         self.statusbar.showMessage("Delete Tool selected. Click on items to delete them.")
         
     def addTextBox(self):

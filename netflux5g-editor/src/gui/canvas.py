@@ -45,16 +45,19 @@ class MovableLabel(QLabel):
             self.setFocus()  # Set focus to the label when clicked
             print(f"DEBUG: MovableLabel mousePressEvent at {event.pos()}, current_tool: {self.parent().app_instance.current_tool}")
 
-    def mouseMoveEvent(self, event):
-        if self.dragging:
-            # Move the label
-            new_pos = self.mapToParent(event.pos() - self.offset)
-            self.move(new_pos)
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            # Check for Delete Mode
+            if self.parent().app_instance.current_tool == "delete":
+                # Delete the label
+                self.close()
+                return
             
-            # Update connected links
-            if hasattr(self, 'connected_links'):
-                for link in self.connected_links:
-                    link.updatePosition()
+            # Normal dragging behavior
+            self.dragging = True
+            self.offset = event.pos()
+            self.setFocus()  # Set focus to the label when clicked
+            print(f"DEBUG: MovableLabel mousePressEvent at {event.pos()}, current_tool: {self.parent().app_instance.current_tool}")
 
     def mouseReleaseEvent(self, event):
         self.dragging = False
@@ -232,6 +235,20 @@ class Canvas(QGraphicsView):
         
     def mousePressEvent(self, event):
         """Handle mouse press events."""
+
+        super().mousePressEvent(event)
+    
+        # Check if we're in delete mode
+        if self.app_instance.current_tool == "delete":
+            # Get the item under the cursor
+            item = self.itemAt(event.pos())
+            if item:
+                # Delete the item
+                self.scene.removeItem(item)
+                self.app_instance.statusbar.showMessage("Item deleted")
+                # If we have any links connected to this item, they should be deleted too
+                self.cleanupBrokenLinks()
+
         # Handle link mode first
         if self.link_mode and event.button() == Qt.LeftButton:
             # Get item under the cursor
@@ -299,3 +316,20 @@ class Canvas(QGraphicsView):
 
         # Handle normal mouse press
         super().mousePressEvent(event)
+
+    def cleanupBrokenLinks(self):
+        """Remove any links that have broken connections (one end was deleted)."""
+        from .links import NetworkLink
+        
+        links_to_remove = []
+        for item in self.scene.items():
+            if isinstance(item, NetworkLink):
+                # Check if both source and destination are still in the scene
+                if not item.source_item or not item.destination_item:
+                    links_to_remove.append(item)
+                elif item.source_item not in self.scene.items() or item.destination_item not in self.scene.items():
+                    links_to_remove.append(item)
+                    
+        # Remove the broken links
+        for link in links_to_remove:
+            self.scene.removeItem(link)

@@ -211,3 +211,17 @@ class NetworkLink(QGraphicsItem):
                 painter.setPen(QPen(QColor(180, 0, 0), 3, Qt.SolidLine))
                 
             painter.drawLine(source_edge, dest_edge)
+
+    def mousePressEvent(self, event):
+        """Handle mouse press events."""
+        # Check if we're in delete mode
+        scene = self.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and view.app_instance.current_tool == "delete":
+                # Delete this link
+                self.scene().removeItem(self)
+                return
+                
+        # If not in delete mode, call the parent handler
+        super().mousePressEvent(event)
