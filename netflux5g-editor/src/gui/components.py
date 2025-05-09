@@ -2,7 +2,7 @@ import os
 from .links import NetworkLink
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
 from PyQt5.QtCore import Qt, QRectF, QPoint
-from PyQt5.QtGui import QPixmap, QPen
+from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
 
 
@@ -39,18 +39,18 @@ class NetworkComponent(QGraphicsPixmapItem):
         super().__init__(parent)
         self.component_type = component_type
         self.icon_path = icon_path
-
+    
         # Increment the component count and assign a unique number
         NetworkComponent.component_counts[component_type] = NetworkComponent.component_counts.get(component_type, 0) + 1
         self.component_number = NetworkComponent.component_counts[component_type]
         
         # Set the display name (e.g., "Host #1")
         self.display_name = f"{component_type} #{self.component_number}"
-
+    
         # Set the pixmap for the item
         pixmap = QPixmap(self.icon_path).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.setPixmap(pixmap)
-
+    
         # Make the item draggable and selectable
         self.setFlag(QGraphicsPixmapItem.ItemIsMovable)
         self.setFlag(QGraphicsPixmapItem.ItemIsSelectable)
@@ -58,18 +58,48 @@ class NetworkComponent(QGraphicsPixmapItem):
         
         # Enable handling context menu events
         self.setAcceptedMouseButtons(Qt.LeftButton | Qt.RightButton)
-
         
+        # Coverage radius for wireless components - always visible
+        self.coverage_radius = 340.0 if component_type in ["AP", "GNB"] else 0
+        
+        # Set appropriate Z-value
+        if self.component_type in ["AP", "GNB"]:
+            self.setZValue(5)  # Components with coverage circles slightly higher
+        else:
+            self.setZValue(10)  # Regular components on top
+    
     def boundingRect(self):
-        # Make the bounding rectangle taller to include the text label
-        return QRectF(0, 0, 50, 65)  # Height increased to accommodate text
-        
+        # If this is an AP or GNB, make the bounding rectangle include the coverage area
+        if self.component_type in ["AP", "GNB"]:
+            radius = self.coverage_radius
+            return QRectF(-radius, -radius, radius * 2 + 50, radius * 2 + 50)
+        else:
+            # Make the bounding rectangle taller to include the text label
+            return QRectF(0, 0, 50, 65)  # Height increased to accommodate text
+    
     def paint(self, painter, option, widget):
         """Draw the component."""
+        # Draw coverage circle for wireless components
+        if self.component_type in ["AP", "GNB"]:
+            # Set up a semi-transparent fill for the coverage area
+            painter.setBrush(QColor(0, 128, 255, 40))
+            
+            # Use a thin border for the coverage area
+            painter.setPen(QPen(QColor(0, 0, 0, 80), 1, Qt.DashLine))
+            
+            # Draw the coverage circle using QRectF to handle float values
+            circle_rect = QRectF(
+                25 - self.coverage_radius,  # x (float)
+                25 - self.coverage_radius,  # y (float)
+                self.coverage_radius * 2,   # width (float)
+                self.coverage_radius * 2    # height (float)
+            )
+            painter.drawEllipse(circle_rect)
+        
         # Draw the component icon
         if not self.pixmap().isNull():
             painter.drawPixmap(0, 0, 50, 50, self.pixmap())
-
+    
         # Draw the component name below the icon
         painter.setPen(Qt.black)
         font = painter.font()
@@ -83,17 +113,17 @@ class NetworkComponent(QGraphicsPixmapItem):
             60,  # Position below the icon
             self.display_name
         )
-
+    
         # If selected, draw a selection rectangle
         if self.isSelected():
             painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
-            painter.drawRect(self.boundingRect())
+            painter.drawRect(QRectF(0, 0, 50, 65))  # Selection rectangle only around the icon
             
         # If highlighted, draw a red border
         if hasattr(self, 'highlighted') and self.highlighted:
             painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-            painter.drawRect(self.boundingRect())
-
+            painter.drawRect(QRectF(0, 0, 50, 65))  # Highlight rectangle only around the icon
+    
     def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
         menu = QMenu()
@@ -116,6 +146,11 @@ class NetworkComponent(QGraphicsPixmapItem):
             if hasattr(self, 'connected_links'):
                 for link in self.connected_links:
                     link.updatePosition()
+        
+        # For position changes, update the coverage area for AP/GNB components
+        if change == QGraphicsItem.ItemPositionHasChanged and self.scene():
+            if self.component_type in ["AP", "GNB"]:
+                self.update()  # Redraw with updated position
         
         return super().itemChange(change, value)
     
