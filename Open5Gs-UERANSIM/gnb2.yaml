@@ -5,8 +5,6 @@ services:
     command: 
       - gnb
     environment:
-      - UERANSIM_METRICS=1
-      - UERANSIM_METRICS_PORT=9090
       AMF_HOSTNAME: amf
       GNB_HOSTNAME: gnb2
       TAC: '1'
@@ -14,9 +12,6 @@ services:
       MNC: '70'
       SST: '1'
       SD: '0xffffff'
-    networks:
-      - default
-      - monitoring-net
 
   ues2:
     image: gradiant/ueransim:3.2.6
@@ -25,8 +20,6 @@ services:
       - all
     privileged: true
     environment:
-      - UERANSIM_METRICS=1
-      - UERANSIM_METRICS_PORT=9090
       GNB_HOSTNAME: gnb2
       APN: internet2
       MSISDN: '0000000011'
@@ -37,6 +30,3 @@ services:
       OP: 'E8ED289DEBA952E4283B54E88E6183CA'
       SST: '1'
       SD: '0xffffff'
-    networks:
-      - default
-      - monitoring-net

@@ -1,9 +1,6 @@
 services:
   amf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp    
     command:
@@ -17,15 +14,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   ausf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -39,15 +30,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   bsf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -61,15 +46,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   nrf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-nrfd"
     restart: on-failure
     privileged: true
@@ -80,15 +59,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   nssf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - nrf
       - scp
@@ -102,15 +75,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   pcf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       scp:
         condition: service_started
@@ -127,15 +94,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   pcrf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     command:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcrfd"
     privileged: true
@@ -149,15 +110,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   scp:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - nrf
     command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-scpd"
@@ -170,15 +125,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   smf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     restart: on-failure
@@ -191,15 +140,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   udm:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     restart: on-failure
@@ -213,15 +156,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   udr:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       scp:
         condition: service_started
@@ -238,15 +175,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   upf:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -266,15 +197,9 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
   upf2:
     image: adaptive/open5gs:1.0
-    environment:
-      - OPEN5GS_METRICS=true
-      - OPEN5GS_METRICS_PORT=9090
     depends_on:
       - scp
     command:
@@ -294,9 +219,6 @@ services:
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
-    networks:
-      - default
-      - monitoring-net
 
 
   # portainer:
