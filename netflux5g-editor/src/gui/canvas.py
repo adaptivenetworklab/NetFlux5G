@@ -224,9 +224,16 @@ class Canvas(QGraphicsView):
                     self.scene.removeItem(item)  # Remove the item from the scene
             else:
                 print("DEBUG: No items selected to delete.")  # Debug message
-        else:
-            # Pass other key events to the parent class
-            super().keyPressEvent(event)
+        elif event.key() == Qt.Key_Escape:
+            # Forward Escape key to main application
+            if hasattr(self, 'app_instance') and self.app_instance:
+                if self.app_instance.current_tool in ["delete", "link", "placement", "text", "square"]:
+                    print("DEBUG: Canvas forwarding ESC key to main application")
+                    self.app_instance.enablePickTool()
+                    return
+        
+        # Pass other key events to the parent class
+        super().keyPressEvent(event)
 
     def setLinkMode(self, enabled):
         """Enable or disable link mode."""

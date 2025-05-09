@@ -16,6 +16,7 @@ class ToolbarFunctions:
 
     def enablePickTool(self):
         self.main_window.statusbar.showMessage("Pick Tool selected")
+        self.main_window.enablePickTool()
         # Add logic for Pick Tool
 
     def enableDeleteTool(self):

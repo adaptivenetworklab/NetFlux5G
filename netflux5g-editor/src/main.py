@@ -188,11 +188,14 @@ class NetFlux5GApp(QMainWindow):
         self.statusbar.showMessage("Pick tool selected")
 
     def enablePickTool(self):
+        """Restore the pick tool state."""
         self.exitLinkMode()  # Exit link mode if active
         self.current_tool = "pick"
+        self.selected_component = None  # Reset selected component
         self.canvas_view.setDragMode(QGraphicsView.NoDrag)
         self.canvas_view.setCursor(Qt.ArrowCursor)  # Reset to arrow cursor
         self.statusbar.showMessage("Pick tool selected")
+        print("DEBUG: Switched to pick tool")
     
     def enableDeleteTool(self):
         """Enable the Delete Tool."""
@@ -292,12 +295,19 @@ class NetFlux5GApp(QMainWindow):
     def keyPressEvent(self, event):
         """Handle key press events."""
         if event.key() == Qt.Key_Escape:
-            # Switch back to pick tool mode
-            self.current_tool = "pick"
-            self.selected_component = None
-            self.statusbar.showMessage("Pick tool selected (placement mode canceled).")
+            # Check current tool and switch back to pick tool mode
+            if self.current_tool in ["delete", "link", "placement", "text", "square"]:
+                print(f"DEBUG: ESC pressed, exiting {self.current_tool} mode")
+                
+                # Exit link mode if we're in it
+                if self.current_tool == "link":
+                    self.exitLinkMode()  # This already handles link mode cleanup
+                
+                # For all modes, switch to pick tool
+                self.enablePickTool()  # Call this method instead of setting properties directly
+            
+        # Call parent implementation for other keys
         super().keyPressEvent(event)
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
