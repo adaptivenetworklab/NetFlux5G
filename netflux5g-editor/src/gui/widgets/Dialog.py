@@ -80,13 +80,13 @@ class UEPropertiesWindow(BasePropertiesWindow):
         self.setWindowTitle(f"UE Properties - {label_text}")
         self.setWindowFlags(Qt.Window)
 
-class Core5GPropertiesWindow(BasePropertiesWindow):
-    def __init__(self, label_text, parent=None):
-        super().__init__(label_text, parent)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Core5G_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle(f"5G Core Properties - {label_text}")
-        self.setWindowFlags(Qt.Window)
+# class Core5GPropertiesWindow(BasePropertiesWindow):
+#     def __init__(self, label_text, parent=None):
+#         super().__init__(label_text, parent)
+#         ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Core5G_properties.ui")
+#         uic.loadUi(ui_file, self)
+#         self.setWindowTitle(f"5G Core Properties - {label_text}")
+#         self.setWindowFlags(Qt.Window)
 
 class Component5GPropertiesWindow(BasePropertiesWindow):
     def __init__(self, label_text, parent=None):

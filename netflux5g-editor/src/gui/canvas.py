@@ -13,7 +13,7 @@ class MovableLabel(QLabel):
         "GNB": GNBPropertiesWindow,
         "DockerHost": DockerHostPropertiesWindow,
         "AP": APPropertiesWindow,
-        "VGcore": Core5GPropertiesWindow,
+        "VGcore": Component5GPropertiesWindow,
         "Controller": ControllerPropertiesWindow
     }
 
@@ -69,9 +69,12 @@ class MovableLabel(QLabel):
     def contextMenuEvent(self, event):
         """Handle right-click context menu events."""
         menu = QMenu(self)
-        menu.addAction("Properties", self.openPropertiesDialog)
-        menu.addSeparator()
-        menu.addAction("Delete", self.close)
+        if self.object_type in ["Switch", "Router"]:
+            menu.addAction("Delete", self.close)
+        else:
+            menu.addAction("Properties", self.openPropertiesDialog)
+            menu.addSeparator()
+            menu.addAction("Delete", self.close)
         menu.exec_(event.globalPos())
 
     def openPropertiesDialog(self):

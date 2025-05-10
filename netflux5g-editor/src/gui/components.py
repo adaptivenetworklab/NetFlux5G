@@ -17,7 +17,7 @@ class NetworkComponent(QGraphicsPixmapItem):
         "GNB": GNBPropertiesWindow,
         "DockerHost": DockerHostPropertiesWindow,
         "AP": APPropertiesWindow,
-        "VGcore": Core5GPropertiesWindow,
+        "VGcore": Component5GPropertiesWindow,
         "Controller": ControllerPropertiesWindow,
     }
 
@@ -127,9 +127,12 @@ class NetworkComponent(QGraphicsPixmapItem):
     def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
         menu = QMenu()
-        menu.addAction("Properties", self.openPropertiesDialog)
-        menu.addSeparator()
-        menu.addAction("Delete", lambda: self.scene().removeItem(self))
+        if self.component_type in ["Switch", "Router"]:  # Use component_type instead of object_type
+            menu.addAction("Delete", lambda: self.scene().removeItem(self))
+        else:
+            menu.addAction("Properties", self.openPropertiesDialog)
+            menu.addSeparator()
+            menu.addAction("Delete", lambda: self.scene().removeItem(self))
         menu.exec_(event.screenPos())
 
     def openPropertiesDialog(self):
