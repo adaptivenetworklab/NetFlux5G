@@ -13,48 +13,91 @@ The suite evaluates performance, security, usability, and features to help you s
 ## 📁 Repository Structure
 
 container-tech-comparison/
+
 ├── README.md                            # Main documentation (this file)
+
 ├── install.sh                           # Installation script for all technologies
+
 ├── run\_all\_tests.sh                     # Main script to run all tests
+
 ├── tests/                               # Directory containing all test scripts
+
 │   ├── container\_operations.sh
+
 │   ├── resource\_isolation.sh
+
 │   ├── container\_stress\_test.sh
+
 │   ├── performance\_test.sh
+
 │   ├── io\_performance\_test.sh
+
 │   ├── network\_performance\_test.sh
+
 │   ├── security\_comparison.sh
+
 │   ├── startup\_time\_test.sh
+
 │   ├── runtime\_overhead\_test.sh
+
 │   ├── multi\_container\_test.sh
+
 │   ├── build\_performance\_test.sh
+
 │   ├── storage\_driver\_test.sh
+
 │   ├── sysbench\_stress\_test.sh
+
 │   ├── application\_deployment\_test.sh
+
 │   ├── monitoring\_logging\_comparison.sh
+
 │   └── update\_versioning\_test.sh
+
 ├── utils/                               # Utility scripts and helpers
+
 │   ├── common\_functions.sh
+
 │   ├── generate\_report.sh
+
 │   ├── setup\_test\_environment.sh
+
 │   └── cleanup.sh
+
 ├── docs/                                # Documentation files
+
 │   ├── container\_best\_practices.md
+
 │   ├── installation\_guide.md
+
 │   ├── test\_methodology.md
+
 │   └── interpretation\_guide.md
+
 ├── templates/                           # Test templates
+
 │   ├── Dockerfile.test
+
 │   ├── docker-compose.yml
+
 │   ├── podman-pod.yml
+
 │   ├── lxd-profile.yaml
+
 │   └── app/
+
 │       ├── app.py
+
 │       └── requirements.txt
+
 └── results/                             # Generated test results
+
 ├── raw/
+
 ├── processed/
+
 ├── summary\_report.md
+
 └── index.html
 
 ## ✅ Prerequisites
