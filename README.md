@@ -1,6 +1,3 @@
-Berikut adalah **README.md** lengkap yang sudah mencakup semua informasi yang kamu minta, langsung siap pakai untuk proyek GitHub atau dokumentasi internal:
-
-```markdown
 # 🐳 Container Technology Comparison: Docker vs Containerd vs Podman vs LXD
 
 ## 📘 Overview
@@ -16,8 +13,6 @@ The suite evaluates performance, security, usability, and features to help you s
 ---
 
 ## 📁 Repository Structure
-
-```
 
 container-tech-comparison/
 ├── README.md                            # Main documentation (this file)
