@@ -10,8 +10,6 @@ This repository contains a comprehensive test suite for comparing four popular c
 
 The suite evaluates performance, security, usability, and features to help you select the right technology for your environment.
 
----
-
 ## 📁 Repository Structure
 
 container-tech-comparison/
@@ -59,10 +57,6 @@ container-tech-comparison/
 ├── summary\_report.md
 └── index.html
 
-````
-
----
-
 ## ✅ Prerequisites
 
 Ensure your system meets the following requirements:
@@ -103,7 +97,6 @@ To run the full test suite:
 
 ```bash
 ./run_all_tests.sh
-```
 
 This will:
 
