@@ -25,18 +25,21 @@ class NetFlux5GApp(QMainWindow):
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "Icon", "logoSquare.png")
         self.setWindowIcon(QIcon(icon_path))
 
-        # IMPORTANT: Resize the main window to fit the screen better
-        self.resize(1200, 800)  # Start with a reasonable size
+        # Get screen geometry for better initial sizing
+        screen = QDesktopWidget().screenGeometry()
+        
+        # Set initial size to 80% of screen size
+        initial_width = int(screen.width() * 0.8)
+        initial_height = int(screen.height() * 0.8)
+        self.resize(initial_width, initial_height)
         
         # Set window properties for better responsiveness
         self.setMinimumSize(1000, 700)
         
         # Center the window on the screen
-        screen = QDesktopWidget().screenGeometry()
-        size = self.geometry()
         self.move(
-            (screen.width() - size.width()) // 2,
-            (screen.height() - size.height()) // 2
+            (screen.width() - initial_width) // 2,
+            (screen.height() - initial_height) // 2
         )
 
         # Initialize the toolbar functions
@@ -74,13 +77,16 @@ class NetFlux5GApp(QMainWindow):
         self.setupConnections()
         
         # Status message
-        self.statusbar.showMessage("Ready - Application resized for better usability")
+        self.statusbar.showMessage("Ready - Dynamic canvas sizing enabled")
         
         # Show helpful shortcut information
         self.showShortcutHelp()
         
         # Debug canvas setup
         self.debugCanvasSetup()
+        
+        # Force initial geometry update
+        QTimer.singleShot(100, self.updateCanvasGeometry)
 
     def showShortcutHelp(self):
         """Show a brief help message about shortcuts."""
@@ -102,17 +108,16 @@ class NetFlux5GApp(QMainWindow):
             # Make sure it accepts drops
             self.canvas_view.setAcceptDrops(True)
             
-            # Find and replace the original Canvas widget
-            if hasattr(self, 'Canvas'):
-                # Replace the existing Canvas widget
-                old_geometry = self.Canvas.geometry()
-                self.Canvas.setParent(None)
-                self.canvas_view.setParent(self.centralwidget)
-                self.canvas_view.setGeometry(old_geometry)
-            else:
-                # No existing Canvas widget, create one in the central widget
-                self.canvas_view.setParent(self.centralwidget)
-                self.canvas_view.setGeometry(120, 40, 1800, 1110)
+            # Set parent to centralwidget instead of trying to replace existing Canvas
+            self.canvas_view.setParent(self.centralwidget)
+            self.canvas_view.setObjectName("CanvasView")
+            
+            # Set initial size and position
+            self.updateCanvasGeometry()
+            
+            # Ensure canvas is visible
+            self.canvas_view.setVisible(True)
+            self.canvas_view.show()
             
             # Create a custom status bar that only covers the canvas area
             self.setupCanvasStatusBar()
@@ -120,10 +125,64 @@ class NetFlux5GApp(QMainWindow):
             # Add scene reference for compatibility
             self.scene = self.canvas_view.scene
             
+            # Set focus policy so canvas can receive keyboard events
+            self.canvas_view.setFocusPolicy(Qt.StrongFocus)
+            
             print("DEBUG: Canvas setup completed successfully")
+            print(f"DEBUG: Canvas geometry after setup: {self.canvas_view.geometry()}")
+            print(f"DEBUG: Canvas parent: {self.canvas_view.parent()}")
+            print(f"DEBUG: Canvas visible: {self.canvas_view.isVisible()}")
             
         except Exception as e:
             print(f"ERROR: Failed to setup canvas: {e}")
+            traceback.print_exc()
+
+    def updateCanvasGeometry(self):
+        """Update canvas geometry based on current window size and ObjectFrame position."""
+        try:
+            if not hasattr(self, 'canvas_view'):
+                return
+                
+            # Get current window size
+            window_size = self.size()
+            
+            # Get ObjectFrame actual width from the UI
+            object_frame_width = 115  # Fixed width from the UI file
+            
+            # Account for menubar, toolbar, and statusbar heights
+            menubar_height = self.menubar.height() if hasattr(self, 'menubar') else 26
+            toolbar_height = self.toolBar.height() if hasattr(self, 'toolBar') else 30
+            statusbar_height = self.statusbar.height() if hasattr(self, 'statusbar') else 23
+            
+            # Calculate available space (be more conservative with padding)
+            available_width = window_size.width() - object_frame_width - 10  # 10px total padding
+            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10  # 10px total padding
+            
+            # Ensure minimum size
+            available_width = max(available_width, 400)
+            available_height = max(available_height, 300)
+            
+            # Set canvas geometry - position it right after the ObjectFrame
+            canvas_x = object_frame_width + 5  # 5px offset from ObjectFrame
+            canvas_y = 5  # 5px offset from top
+            
+            # Set the geometry
+            self.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
+            
+            # Ensure canvas is visible and properly configured
+            self.canvas_view.setVisible(True)
+            self.canvas_view.show()
+            
+            # Update the scene to match the new canvas size
+            if hasattr(self.canvas_view, 'updateSceneSize'):
+                self.canvas_view.updateSceneSize()
+            
+            print(f"DEBUG: Canvas geometry updated - x:{canvas_x}, y:{canvas_y}, w:{available_width}, h:{available_height}")
+            print(f"DEBUG: Canvas visible: {self.canvas_view.isVisible()}")
+            print(f"DEBUG: Canvas accepts drops: {self.canvas_view.acceptDrops()}")
+            
+        except Exception as e:
+            print(f"ERROR: Failed to update canvas geometry: {e}")
             traceback.print_exc()
 
     def setupCanvasStatusBar(self):
@@ -176,9 +235,19 @@ class NetFlux5GApp(QMainWindow):
             try:
                 canvas_rect = self.canvas_view.geometry()
                 label_width = self.canvas_status_label.sizeHint().width()
+                
+                # Position relative to canvas
                 x = (canvas_rect.width() - label_width) // 2
-                y = canvas_rect.height() - 30
+                y = canvas_rect.height() - 35  # 35px from bottom
+                
+                # Ensure label stays within canvas bounds
+                if x < 10:
+                    x = 10
+                if x + label_width > canvas_rect.width() - 10:
+                    x = canvas_rect.width() - label_width - 10
+                    
                 self.canvas_status_label.move(x, y)
+                
             except Exception as e:
                 print(f"ERROR: Failed to update canvas status bar position: {e}")
 
@@ -205,19 +274,27 @@ class NetFlux5GApp(QMainWindow):
             # Get the current window size
             window_size = self.size()
             
-            # Resize ObjectFrame to fit the window better
+            # Update ObjectFrame to be fixed width but full height
             if hasattr(self, 'ObjectFrame'):
-                self.ObjectFrame.setGeometry(0, 0, 119, window_size.height())
+                # Keep ObjectFrame at fixed width but adjust height
+                self.ObjectFrame.setGeometry(0, 0, 115, window_size.height())
             
-            # Update canvas size
-            if hasattr(self, 'canvas_view') and hasattr(self, 'ObjectFrame'):
-                canvas_width = window_size.width() - 120
-                canvas_height = window_size.height() - 80
-                self.canvas_view.setGeometry(120, 40, canvas_width, canvas_height)
-                
+            # Update canvas size dynamically
+            self.updateCanvasGeometry()
+            
+            # Update canvas status bar position
+            self.updateCanvasStatusBarPosition()
+            
+            print(f"DEBUG: Window resized to {window_size.width()}x{window_size.height()}")
+            
+            # Force canvas to update and redraw
+            if hasattr(self, 'canvas_view'):
+                self.canvas_view.update()
+                self.canvas_view.viewport().update()
+            
         except Exception as e:
             print(f"ERROR: Failed to resize window: {e}")
-
+            
     def setupConnections(self):
         """Set up all signal connections."""
         try:
@@ -286,10 +363,23 @@ class NetFlux5GApp(QMainWindow):
             print(f"Canvas view size: {self.canvas_view.size()}")
             print(f"Canvas view geometry: {self.canvas_view.geometry()}")
             print(f"Canvas view visible: {self.canvas_view.isVisible()}")
+            print(f"Canvas view parent: {self.canvas_view.parent()}")
             print(f"Canvas accepts drops: {self.canvas_view.acceptDrops()}")
+            print(f"Canvas viewport size: {self.canvas_view.viewport().size()}")
             print(f"Scene exists: {hasattr(self.canvas_view, 'scene')}")
             if hasattr(self.canvas_view, 'scene'):
                 print(f"Scene rect: {self.canvas_view.scene.sceneRect()}")
+                print(f"Scene items count: {len(self.canvas_view.scene.items())}")
+            
+            # Check if ObjectFrame overlaps with canvas
+            if hasattr(self, 'ObjectFrame'):
+                obj_frame_geom = self.ObjectFrame.geometry()
+                canvas_geom = self.canvas_view.geometry()
+                print(f"ObjectFrame geometry: {obj_frame_geom}")
+                print(f"Canvas geometry: {canvas_geom}")
+                overlap = obj_frame_geom.intersects(canvas_geom)
+                print(f"ObjectFrame and Canvas overlap: {overlap}")
+                
         print("=== END CANVAS DEBUG ===")
 
     def startDrag(self, component_type):

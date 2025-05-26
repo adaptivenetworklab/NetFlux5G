@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLabel, QGraphicsSceneContextMenuEvent, QMenu, QGraphicsItem
-from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect 
+from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect, QTimer
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen, QCursor
 from .widgets.Dialog import *
 from .components import NetworkComponent
@@ -106,14 +106,42 @@ class Canvas(QGraphicsView):
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def updateSceneSize(self):
-        if self.size().width() > 0 and self.size().height() > 0:
-            width = max(self.size().width() * 4, 4000)
-            height = max(self.size().height() * 4, 4000)
-            self.scene.setSceneRect(-width//2, -height//2, width, height)
+        """Update scene size based on canvas size with better proportions."""
+        try:
+            canvas_width = self.viewport().width()
+            canvas_height = self.viewport().height()
+            
+            print(f"DEBUG: Updating scene size - canvas viewport: {canvas_width}x{canvas_height}")
+            
+            if canvas_width > 0 and canvas_height > 0:
+                # Make scene larger than the visible area to allow panning
+                scene_width = max(canvas_width * 2, 2000)  # At least 2000px wide
+                scene_height = max(canvas_height * 2, 1500)  # At least 1500px high
+                
+                # Center the scene
+                scene_rect = QRect(-scene_width//2, -scene_height//2, scene_width, scene_height)
+                self.scene.setSceneRect(scene_rect)
+                
+                print(f"DEBUG: Scene size updated - {scene_width}x{scene_height}")
+                print(f"DEBUG: Scene rect: {scene_rect}")
+                
+            else:
+                print("WARNING: Canvas viewport has zero or negative dimensions")
+                
+        except Exception as e:
+            print(f"ERROR: Failed to update scene size: {e}")
 
     def resizeEvent(self, event):
+        """Handle canvas resize events."""
         super().resizeEvent(event)
-        self.updateSceneSize()
+        
+        print(f"DEBUG: Canvas resize event - new size: {event.size()}")
+        
+        # Update scene size when canvas is resized
+        QTimer.singleShot(100, self.updateSceneSize)  # Small delay to ensure geometry is settled
+        
+        # Force a viewport update to ensure proper rendering
+        self.viewport().update()
 
     def zoomIn(self, zoom_factor=1.2):
         self.zoom_level *= zoom_factor
