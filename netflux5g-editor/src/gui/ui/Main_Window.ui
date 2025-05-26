@@ -813,13 +813,16 @@ QFrame {
    </property>
   </action>
   <action name="actionShowGrid">
-   <property name="icon">
-    <iconset>
-     <normaloff>../Icon/grid.png</normaloff>../Icon/grid.png</iconset>
-   </property>
-   <property name="text">
-    <string>Show Grid</string>
-   </property>
+    <property name="checkable">
+      <bool>true</bool>
+    </property>
+    <property name="icon">
+      <iconset>
+        <normaloff>../Icon/grid.png</normaloff>../Icon/grid.png</iconset>
+    </property>
+    <property name="text">
+      <string>Show Grid</string>
+    </property>
   </action>
   <action name="actionZoomIn">
    <property name="icon">
