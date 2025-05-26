@@ -47,6 +47,14 @@ class NetworkComponent(QGraphicsPixmapItem):
         # Set the display name (e.g., "Host #1")
         self.display_name = f"{component_type} #{self.component_number}"
     
+        # Initialize properties dictionary to store configuration
+        self.properties = {
+            "name": self.display_name,
+            "type": self.component_type,
+            "x": 0,  # Initial x position
+            "y": 0,  # Initial y position
+        }
+    
         # Set the pixmap for the item
         pixmap = QPixmap(self.icon_path).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.setPixmap(pixmap)
@@ -67,19 +75,57 @@ class NetworkComponent(QGraphicsPixmapItem):
             self.setZValue(5)  # Components with coverage circles slightly higher
         else:
             self.setZValue(10)  # Regular components on top
-    
+
+    def setPosition(self, x, y):
+        """Set the component's position and update properties."""
+        self.setPos(x, y)
+        self.updatePositionProperties()
+        print(f"DEBUG: {self.display_name} position set to ({x}, {y})")
+
+    def updatePositionProperties(self):
+        """Update the position properties based on current position."""
+        current_pos = self.pos()
+        self.properties["x"] = current_pos.x()
+        self.properties["y"] = current_pos.y()
+        print(f"DEBUG: {self.display_name} properties updated - Position: ({self.properties['x']}, {self.properties['y']})")
+
+    def setProperties(self, properties_dict):
+        """Update the component's properties dictionary"""
+        self.properties.update(properties_dict)
+        
+        # Update the component's name if it exists in properties
+        if "name" in properties_dict:
+            self.display_name = properties_dict["name"]
+        
+        # Update position if provided in properties
+        if "x" in properties_dict and "y" in properties_dict:
+            self.setPos(properties_dict["x"], properties_dict["y"])
+        
+        print(f"DEBUG: Updated properties for {self.component_type}: {self.properties}")
+
+    def getProperties(self):
+        """Get the current properties including updated position."""
+        self.updatePositionProperties()  # Ensure position is current
+        return self.properties.copy()
+
     def boundingRect(self):
-        # If this is an AP or GNB, make the bounding rectangle include the coverage area
+        """Define the bounding rectangle for the component including text."""
         if self.component_type in ["AP", "GNB"]:
+            # For wireless components with coverage circles
             radius = self.coverage_radius
-            return QRectF(-radius, -radius, radius * 2 + 50, radius * 2 + 50)
+            # Ensure the bounding rect includes both the coverage circle and the text
+            return QRectF(-radius, -radius, radius * 2 + 50, radius * 2 + 50 + 20)
         else:
-            # Make the bounding rectangle taller to include the text label
-            return QRectF(0, 0, 50, 65)  # Height increased to accommodate text
+            # For all other components (including DockerHost and Controller)
+            # Use consistent dimensions: icon + text + extra padding
+            return QRectF(-10, -10, 70, 90)  # Extra padding and height for text with margins
     
     def paint(self, painter, option, widget):
         """Draw the component."""
-        # Draw coverage circle for wireless components
+        # Save the painter state
+        painter.save()
+        
+        # Draw coverage circle for wireless components first (so it's behind the icon)
         if self.component_type in ["AP", "GNB"]:
             # Set up a semi-transparent fill for the coverage area
             painter.setBrush(QColor(0, 128, 255, 40))
@@ -96,34 +142,108 @@ class NetworkComponent(QGraphicsPixmapItem):
             )
             painter.drawEllipse(circle_rect)
         
+        # Reset painter for icon drawing
+        painter.restore()
+        painter.save()
+        
         # Draw the component icon
         if not self.pixmap().isNull():
             painter.drawPixmap(0, 0, 50, 50, self.pixmap())
     
-        # Draw the component name below the icon
+        # Draw the component name below the icon with proper background clearing
         painter.setPen(Qt.black)
         font = painter.font()
         font.setPointSize(8)  # Smaller font size
         painter.setFont(font)
         
-        # Calculate text width to center it
+        # Calculate text metrics
         text_width = painter.fontMetrics().width(self.display_name)
+        text_height = painter.fontMetrics().height()
+        
+        # Clear the text area with white background to prevent traces
+        text_rect = QRectF(
+            (50 - text_width) / 2 - 2,  # x position with padding
+            55,  # y position
+            text_width + 4,  # width with padding
+            text_height + 4  # height with padding
+        )
+        
+        # Fill text background with white to clear any traces
+        painter.fillRect(text_rect, Qt.white)
+        
+        # Draw the text
         painter.drawText(
-            (50 - text_width) // 2,  # Center horizontally
-            60,  # Position below the icon
+            int((50 - text_width) / 2),  # Center horizontally (ensure integer)
+            65,  # Position below the icon
             self.display_name
         )
     
+        # Restore painter state
+        painter.restore()
+        painter.save()
+        
         # If selected, draw a selection rectangle
         if self.isSelected():
             painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
-            painter.drawRect(QRectF(0, 0, 50, 65))  # Selection rectangle only around the icon
+            painter.drawRect(QRectF(-2, -2, 54, 75))  # Selection rectangle around icon and text
             
         # If highlighted, draw a red border
         if hasattr(self, 'highlighted') and self.highlighted:
             painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-            painter.drawRect(QRectF(0, 0, 50, 65))  # Highlight rectangle only around the icon
-    
+            painter.drawRect(QRectF(-2, -2, 54, 75))  # Highlight rectangle around icon and text
+            
+        # Restore painter state
+        painter.restore()
+
+    def shape(self):
+        """Return the shape of the item for collision detection and repainting."""
+        from PyQt5.QtGui import QPainterPath
+        
+        path = QPainterPath()
+        if self.component_type in ["AP", "GNB"]:
+            # For wireless components, include the coverage circle
+            radius = self.coverage_radius
+            path.addEllipse(-radius, -radius, radius * 2 + 50, radius * 2 + 50)
+        else:
+            # For regular components, use just the icon area + text
+            path.addRect(0, 0, 50, 65)
+        
+        return path
+
+    def itemChange(self, change, value):
+        """Handle position changes and update connected links."""
+        if change == QGraphicsItem.ItemPositionChange and self.scene():
+            # Update position properties when position changes
+            if hasattr(value, 'x') and hasattr(value, 'y'):
+                self.properties["x"] = value.x()
+                self.properties["y"] = value.y()
+                print(f"DEBUG: {self.display_name} moved to ({value.x()}, {value.y()})")
+            
+            # If we have connected links, update them
+            if hasattr(self, 'connected_links'):
+                for link in self.connected_links:
+                    link.updatePosition()
+        
+        # For position changes, update the coverage area for AP/GNB components
+        if change == QGraphicsItem.ItemPositionHasChanged and self.scene():
+            # Final position update after the move is complete
+            self.updatePositionProperties()
+            
+            # Force a comprehensive scene update to clear any traces
+            if self.scene():
+                # Update a larger area around the component to ensure text traces are cleared
+                expanded_rect = self.sceneBoundingRect().adjusted(-20, -20, 20, 20)
+                self.scene().update(expanded_rect)
+            
+            # Force a complete repaint for this item
+            self.update()
+            
+            if self.component_type in ["AP", "GNB"]:
+                # Additional update for coverage circles
+                self.scene().update()
+        
+        return super().itemChange(change, value)
+
     def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
         menu = QMenu()
@@ -139,24 +259,10 @@ class NetworkComponent(QGraphicsPixmapItem):
         """Open the properties dialog for the component."""
         dialog_class = self.PROPERTIES_MAP.get(self.component_type)
         if dialog_class:
-            dialog = dialog_class(label_text=self.display_name, parent=self.scene().views()[0])
+            # Pass the component reference to the dialog
+            dialog = dialog_class(label_text=self.display_name, parent=self.scene().views()[0], component=self)
             dialog.show()
 
-    def itemChange(self, change, value):
-        """Handle position changes and update connected links."""
-        if change == QGraphicsItem.ItemPositionChange and self.scene():
-            # If we have connected links, update them
-            if hasattr(self, 'connected_links'):
-                for link in self.connected_links:
-                    link.updatePosition()
-        
-        # For position changes, update the coverage area for AP/GNB components
-        if change == QGraphicsItem.ItemPositionHasChanged and self.scene():
-            if self.component_type in ["AP", "GNB"]:
-                self.update()  # Redraw with updated position
-        
-        return super().itemChange(change, value)
-    
     def setHighlighted(self, highlight=True):
         """Set the highlight state of this component"""
         self.highlighted = highlight
@@ -169,13 +275,12 @@ class NetworkComponent(QGraphicsPixmapItem):
         if scene and scene.views():
             view = scene.views()[0]
             if hasattr(view, 'app_instance') and view.app_instance.current_tool == "delete":
-                # Delete this component
+                # Remove any connected links first
                 if hasattr(self, 'connected_links'):
-                    # Remove any connected links first
-                    links_to_remove = self.connected_links.copy() if hasattr(self, 'connected_links') else []
+                    # Copy the list to avoid modification during iteration
+                    links_to_remove = self.connected_links.copy()
                     for link in links_to_remove:
                         scene.removeItem(link)
-                
                 # Now remove this component
                 scene.removeItem(self)
                 return

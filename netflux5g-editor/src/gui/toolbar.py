@@ -10,7 +10,7 @@ class ToolbarFunctions:
         self.main_window.actionDelete.triggered.connect(self.enableDeleteTool)
         self.main_window.actionTextBox.triggered.connect(self.addTextBox)
         self.main_window.actionDrawSquare.triggered.connect(self.addDrawSquare)
-        self.main_window.actionShowGrid.triggered.connect(self.toggleGrid)
+        # self.main_window.actionShowGrid.triggered.connect(self.toggleGrid)
         self.main_window.actionRunAll.triggered.connect(self.runAll)
         self.main_window.actionStopAll.triggered.connect(self.stopAll)
 
@@ -33,9 +33,7 @@ class ToolbarFunctions:
 
     def toggleGrid(self):
         """Toggle the visibility of the grid on the canvas."""
-        self.main_window.show_grid = not self.main_window.show_grid
-        self.main_window.canvas_view.setShowGrid(self.main_window.show_grid)
-        self.main_window.statusbar.showMessage(f"Grid {'shown' if self.main_window.show_grid else 'hidden'}")
+        self.main_window.toggleGrid()
 
     def runAll(self):
         self.main_window.statusbar.showMessage("Run All triggered")
