@@ -59,28 +59,31 @@ class NetworkLink(QGraphicsItem):
     
     def get_center_point(self, node):
         """Get the center point of a node"""
-        if hasattr(node, 'boundingRect'):
-            # For QGraphicsItem objects like NetworkComponent
+        if hasattr(node, 'component_type') and node.component_type in ["AP", "GNB"]:
+            # Always use the icon area (50x50) for AP/GNB
+            pos = node.pos()
+            return QPointF(pos.x() + 25, pos.y() + 25)
+        elif hasattr(node, 'boundingRect'):
             rect = node.boundingRect()
             pos = node.pos()
             return QPointF(pos.x() + rect.width()/2, pos.y() + rect.height()/2)
         elif hasattr(node, 'rect'):
-            # For QLabel-based objects like MovableLabel
             rect = node.rect()
             pos = node.pos()
             return QPointF(pos.x() + rect.width()/2, pos.y() + rect.height()/2)
         elif hasattr(node, 'size'):
-            # For other objects with size() method
             size = node.size()
             pos = node.pos()
             return QPointF(pos.x() + size.width()/2, pos.y() + size.height()/2)
         else:
-            # Fallback to just the position
             return node.pos()
-    
+
     def get_object_radius(self, node):
         """Get the approximate radius of an object"""
-        if hasattr(node, 'boundingRect'):
+        if hasattr(node, 'component_type') and node.component_type in ["AP", "GNB"]:
+            # Always use the icon area (50x50) for AP/GNB
+            return 25
+        elif hasattr(node, 'boundingRect'):
             rect = node.boundingRect()
             return max(rect.width(), rect.height()) / 2
         elif hasattr(node, 'rect'):
@@ -90,8 +93,7 @@ class NetworkLink(QGraphicsItem):
             size = node.size()
             return max(size.width(), size.height()) / 2
         else:
-            # Default radius if we can't determine
-            return 25  # Assuming objects are about 50x50
+            return 25
     
     def get_intersection_point(self, center_point, target_point, radius):
         """Calculate the intersection point of a line with a circle"""

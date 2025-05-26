@@ -81,7 +81,8 @@ class MovableLabel(QLabel):
         """Open the properties dialog for the object."""
         dialog_class = self.PROPERTIES_MAP.get(self.object_type)
         if dialog_class:
-            dialog = dialog_class(label_text=self.object_type, parent=self.parent())
+            # Pass self as the component reference for MovableLabel
+            dialog = dialog_class(label_text=self.object_type, parent=self.parent(), component=self)
             dialog.show()
             
     def setHighlighted(self, highlight=True):
@@ -186,6 +187,8 @@ class Canvas(QGraphicsView):
         """Handle drag move events."""
         if event.mimeData().hasText():
             event.acceptProposedAction()
+            # Force scene update to prevent traces
+            self.scene.update()
         else:
             event.ignore()
 
@@ -201,9 +204,16 @@ class Canvas(QGraphicsView):
                 # Create a NetworkComponent and add it to the scene
                 position = self.mapToScene(event.pos())
                 component = NetworkComponent(component_type, icon_path)
-                component.setPos(position)
+                
+                # Set the initial position and update properties
+                component.setPosition(position.x(), position.y())
+                
                 self.scene.addItem(component)
-                print(f"DEBUG: Component {component_type} added at position {position}")  # Debug message
+                print(f"DEBUG: Component {component_type} added at position ({position.x()}, {position.y()})")  # Debug message
+                
+                # Log the component's properties including position
+                properties = component.getProperties()
+                print(f"DEBUG: Component properties: {properties}")
             else:
                 print(f"ERROR: Icon for component type '{component_type}' not found.")
             event.acceptProposedAction()

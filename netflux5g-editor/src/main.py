@@ -27,6 +27,9 @@ class NetFlux5GApp(QMainWindow):
         # Initialize the toolbar functions
         self.toolbar_functions = ToolbarFunctions(self)
         
+        # Initialize grid attribute
+        self.show_grid = False  # Add this line
+        
         # Set up the canvas as a QWidget
         self.canvas_view = Canvas(self, self)
         self.canvas_view.setMinimumSize(1828, 800)  # Ensure the canvas has a visible size
@@ -72,8 +75,12 @@ class NetFlux5GApp(QMainWindow):
         self.actionSave.triggered.connect(self.saveTopology)
         self.actionOpen.triggered.connect(self.openTopology)
         self.actionSave_As.triggered.connect(self.saveTopologyAs)
-        self.actionExport_to_Level_2_Script.triggered.connect(self.exportToScript)
+        self.actionExport_to_Level_2_Script.triggered.connect(self.exportToMininet)
         self.actionQuit.triggered.connect(self.close)
+        # Add export to Mininet menu action
+        self.actionExport_to_Mininet = self.findChild(type(self.actionNew), "actionExport_to_Mininet")
+        if self.actionExport_to_Mininet:
+            self.actionExport_to_Mininet.triggered.connect(self.exportToMininet)
         
         # Set up the canvas_view for drag and drop
         self.canvas_view.setAcceptDrops(True)
@@ -231,10 +238,10 @@ class NetFlux5GApp(QMainWindow):
         
     def toggleGrid(self):
         """Toggle the visibility of the grid on the canvas."""
-        current_state = self.canvas_view.show_grid  # Get the current grid state from Canvas
-        self.canvas_view.setShowGrid(not current_state)  # Toggle the grid state
-        self.statusbar.showMessage(f"Grid {'shown' if not current_state else 'hidden'}")
-        print(f"DEBUG: Toggling grid to {'shown' if not current_state else 'hidden'}")  # Debug message
+        self.show_grid = not self.show_grid
+        self.canvas_view.setShowGrid(self.show_grid)
+        status = "shown" if self.show_grid else "hidden"
+        self.statusbar.showMessage(f"Grid {status}")
 
     def newTopology(self):
         self.scene.clear()
@@ -308,6 +315,268 @@ class NetFlux5GApp(QMainWindow):
             
         # Call parent implementation for other keys
         super().keyPressEvent(event)
+        
+    def extractTopology(self):
+        """Extract all nodes and links from the canvas, including properties and positions."""
+        nodes = []
+        links = []
+        for item in self.canvas_view.scene.items():
+            # Nodes
+            if hasattr(item, "component_type"):
+                # Get updated properties including current position
+                properties = item.getProperties() if hasattr(item, 'getProperties') else {}
+                
+                nodes.append({
+                    "type": item.component_type,
+                    "name": getattr(item, "display_name", item.component_type),
+                    "pos": (item.pos().x(), item.pos().y()),
+                    "properties": properties
+                })
+            # Links
+            elif isinstance(item, NetworkLink):
+                src = getattr(item.source_node, "display_name", None)
+                dst = getattr(item.dest_node, "display_name", None)
+                if src and dst:
+                    links.append((src, dst))
+        return nodes, links
+
+    def exportToMininetScript(self, filename):
+        """Export the current topology to a Mininet Python script with component configurations."""
+        nodes, links = self.extractTopology()
+        with open(filename, "w") as f:
+            f.write("#!/usr/bin/env python\n")
+            f.write('"""\n')
+            f.write("NetFlux5G Generated Mininet Script\n")
+            f.write("Generated topology with component configurations\n")
+            f.write('"""\n\n')
+            f.write("from mininet.net import Mininet\n")
+            f.write("from mininet.node import Controller, OVSKernelSwitch, Host\n")
+            f.write("from mininet.link import TCLink\n")
+            f.write("from mininet.cli import CLI\n")
+            f.write("from mininet.log import setLogLevel\n")
+            f.write("import os\n\n")
+            
+            f.write("def customTopo():\n")
+            f.write('    """Create a custom topology with NetFlux5G configurations"""\n')
+            f.write("    net = Mininet(controller=Controller, switch=OVSKernelSwitch, link=TCLink)\n\n")
+            
+            # Add controller if present
+            controllers = [node for node in nodes if node["type"] == "Controller"]
+            if controllers:
+                f.write("    # Add controllers\n")
+                for node in controllers:
+                    var_name = self.sanitizeVariableName(node['name'])
+                    pos_x, pos_y = node["pos"]
+                    properties = node.get("properties", {})
+                    
+                    f.write(f"    # {node['name']} - Position: ({pos_x:.1f}, {pos_y:.1f})\n")
+                    
+                    # Controller configuration
+                    ip = properties.get("Controller_IPAddress", "127.0.0.1")
+                    port = properties.get("Controller_Port", "6633")
+                    f.write(f"    {var_name} = net.addController('{node['name']}', ip='{ip}', port={port})\n")
+                f.write("\n")
+            
+            # Add hosts with detailed configurations
+            f.write("    # Add hosts with configurations\n")
+            for node in nodes:
+                if node["type"] in ["Host", "STA", "UE", "DockerHost"]:
+                    var_name = self.sanitizeVariableName(node['name'])
+                    pos_x, pos_y = node["pos"]
+                    properties = node.get("properties", {})
+                    
+                    f.write(f"    # {node['name']} - Position: ({pos_x:.1f}, {pos_y:.1f})\n")
+                    
+                    # Build host options based on component type and properties
+                    opts = []
+                    
+                    # Common host properties
+                    if properties.get("STA_IPAddress") or properties.get("Host_IPAddress"):
+                        ip = properties.get("STA_IPAddress") or properties.get("Host_IPAddress")
+                        if ip and ip.strip():
+                            opts.append(f"ip='{ip}'")
+                    
+                    # Default route
+                    if properties.get("STA_DefaultRoute") or properties.get("Host_DefaultRoute"):
+                        route = properties.get("STA_DefaultRoute") or properties.get("Host_DefaultRoute")
+                        if route and route.strip():
+                            opts.append(f"defaultRoute='via {route}'")
+                    
+                    # CPU configuration
+                    if properties.get("STA_AmountCPU") or properties.get("Host_AmountCPU"):
+                        cpu = properties.get("STA_AmountCPU") or properties.get("Host_AmountCPU")
+                        if cpu and cpu.strip():
+                            opts.append(f"cpu={cpu}")
+                    
+                    # Memory configuration
+                    if properties.get("STA_Memory") or properties.get("Host_Memory"):
+                        memory = properties.get("STA_Memory") or properties.get("Host_Memory")
+                        if memory and memory.strip():
+                            opts.append(f"mem='{memory}m'")
+                    
+                    # Docker-specific configurations
+                    if node["type"] == "DockerHost":
+                        if properties.get("DockerHost_ContainerImage"):
+                            image = properties.get("DockerHost_ContainerImage")
+                            opts.append(f"image='{image}'")
+                        if properties.get("DockerHost_PortForward"):
+                            ports = properties.get("DockerHost_PortForward")
+                            opts.append(f"ports=['{ports}']")
+                    
+                    opts_str = ", " + ", ".join(opts) if opts else ""
+                    f.write(f"    {var_name} = net.addHost('{node['name']}'{opts_str})\n")
+                    
+                    # Add post-configuration commands
+                    self.writeHostPostConfig(f, var_name, node, properties)
+                    f.write("\n")
+            
+            # Add switches and APs
+            f.write("    # Add switches and access points\n")
+            for node in nodes:
+                if node["type"] in ["Switch", "Router", "AP"]:
+                    var_name = self.sanitizeVariableName(node['name'])
+                    pos_x, pos_y = node["pos"]
+                    properties = node.get("properties", {})
+                    
+                    f.write(f"    # {node['name']} - Position: ({pos_x:.1f}, {pos_y:.1f})\n")
+                    
+                    if node["type"] == "AP":
+                        # Access Point configuration
+                        opts = []
+                        if properties.get("AP_SSID"):
+                            opts.append(f"ssid='{properties['AP_SSID']}'")
+                        if properties.get("AP_Channel"):
+                            opts.append(f"channel={properties['AP_Channel']}")
+                        if properties.get("AP_Mode"):
+                            opts.append(f"mode='{properties['AP_Mode']}'")
+                        
+                        opts_str = ", " + ", ".join(opts) if opts else ""
+                        f.write(f"    {var_name} = net.addAccessPoint('{node['name']}'{opts_str})\n")
+                    else:
+                        # Regular switch
+                        opts = []
+                        if properties.get("Switch_DPID") or properties.get("Router_DPID"):
+                            dpid = properties.get("Switch_DPID") or properties.get("Router_DPID")
+                            if dpid:
+                                opts.append(f"dpid='{dpid}'")
+                        
+                        opts_str = ", " + ", ".join(opts) if opts else ""
+                        f.write(f"    {var_name} = net.addSwitch('{node['name']}'{opts_str})\n")
+                    f.write("\n")
+            
+            # Add 5G components as special hosts
+            f.write("    # Add 5G network components\n")
+            for node in nodes:
+                if node["type"] in ["GNB", "VGcore", "UE"]:
+                    var_name = self.sanitizeVariableName(node['name'])
+                    pos_x, pos_y = node["pos"]
+                    properties = node.get("properties", {})
+                    
+                    f.write(f"    # {node['name']} - Position: ({pos_x:.1f}, {pos_y:.1f})\n")
+                    f.write(f"    # 5G Component: {node['type']}\n")
+                    
+                    opts = ["cls=Host"]  # 5G components are special hosts
+                    
+                    # Add 5G specific configurations as comments for manual implementation
+                    if node["type"] == "GNB":
+                        f.write(f"    # GNB Configuration:\n")
+                        if properties.get("GNB_AMFHostName"):
+                            f.write(f"    #   AMF Hostname: {properties['GNB_AMFHostName']}\n")
+                        if properties.get("GNB_TAC"):
+                            f.write(f"    #   TAC: {properties['GNB_TAC']}\n")
+                        if properties.get("GNB_MCC"):
+                            f.write(f"    #   MCC: {properties['GNB_MCC']}\n")
+                        if properties.get("GNB_MNC"):
+                            f.write(f"    #   MNC: {properties['GNB_MNC']}\n")
+                    
+                    elif node["type"] == "UE":
+                        f.write(f"    # UE Configuration:\n")
+                        if properties.get("UE_GNBHostName"):
+                            f.write(f"    #   GNB Hostname: {properties['UE_GNBHostName']}\n")
+                        if properties.get("UE_APN"):
+                            f.write(f"    #   APN: {properties['UE_APN']}\n")
+                        if properties.get("UE_MSISDN"):
+                            f.write(f"    #   MSISDN: {properties['UE_MSISDN']}\n")
+                    
+                    opts_str = ", " + ", ".join(opts)
+                    f.write(f"    {var_name} = net.addHost('{node['name']}'{opts_str})\n")
+                    f.write("\n")
+            
+            # Add links with configurations
+            f.write("    # Add links with configurations\n")
+            for src, dst in links:
+                src_var = self.sanitizeVariableName(src)
+                dst_var = self.sanitizeVariableName(dst)
+                f.write(f"    net.addLink({src_var}, {dst_var}, cls=TCLink)\n")
+            
+            f.write("\n    # Start the network\n")
+            f.write("    net.start()\n")
+            f.write("\n    # Configure wireless if needed\n")
+            f.write("    # net.plotGraph(max_x=1000, max_y=1000)\n")
+            f.write("\n    # Start CLI\n")
+            f.write("    CLI(net)\n")
+            f.write("\n    # Stop the network\n")
+            f.write("    net.stop()\n\n")
+            
+            f.write("if __name__ == '__main__':\n")
+            f.write("    setLogLevel('info')\n")
+            f.write("    customTopo()\n")
+            
+        self.statusbar.showMessage(f"Exported topology with configurations to {filename}")
+
+    def sanitizeVariableName(self, name):
+        """Convert component name to valid Python variable name."""
+        # Replace spaces and special characters with underscores
+        import re
+        return re.sub(r'[^a-zA-Z0-9_]', '_', name.lower())
+
+    def writeHostPostConfig(self, file, var_name, node, properties):
+        """Write post-configuration commands for hosts."""
+        commands = []
+        
+        # Start commands
+        if properties.get("STA_StartCommand") or properties.get("Host_StartCommand"):
+            cmd = properties.get("STA_StartCommand") or properties.get("Host_StartCommand")
+            if cmd and cmd.strip():
+                commands.append(f"    {var_name}.cmd('{cmd}')")
+        
+        # Network interface configurations
+        if properties.get("STA_IPAddress") or properties.get("Host_IPAddress"):
+            ip = properties.get("STA_IPAddress") or properties.get("Host_IPAddress")
+            if ip and ip.strip() and "/" not in ip:  # Add subnet if not present
+                commands.append(f"    {var_name}.cmd('ifconfig {var_name}-eth0 {ip}/24')")
+        
+        # Authentication for wireless
+        if node["type"] == "STA" and properties.get("STA_AuthenticationType"):
+            auth_type = properties.get("STA_AuthenticationType")
+            if auth_type and auth_type != "none":
+                commands.append(f"    # Wireless authentication: {auth_type}")
+                if properties.get("STA_Username"):
+                    commands.append(f"    # Username: {properties['STA_Username']}")
+                if properties.get("STA_Password"):
+                    commands.append(f"    # Password: [configured]")
+        
+        if commands:
+            file.write("\n    # Post-configuration for " + node['name'] + "\n")
+            for cmd in commands:
+                file.write(cmd + "\n")
+
+    def printTopologyPositions(self):
+        """Debug method to print all component positions."""
+        print("=== Current Topology Positions ===")
+        for item in self.canvas_view.scene.items():
+            if hasattr(item, "component_type"):
+                pos = item.pos()
+                properties = item.getProperties() if hasattr(item, 'getProperties') else {}
+                print(f"{item.display_name}: Canvas({pos.x():.1f}, {pos.y():.1f}) Properties({properties.get('x', 'N/A')}, {properties.get('y', 'N/A')})")
+        print("=== End Topology Positions ===")
+
+    def exportToMininet(self):
+        from PyQt5.QtWidgets import QFileDialog
+        filename, _ = QFileDialog.getSaveFileName(self, "Export to Mininet Script", "", "Python Files (*.py);;All Files (*)")
+        if filename:
+            self.exportToMininetScript(filename)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
