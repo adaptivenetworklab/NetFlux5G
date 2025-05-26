@@ -7,29 +7,47 @@ class ToolbarFunctions:
         self.setup_tooltips()
 
     def setup_toolbar_actions(self):
-        self.main_window.actionPickTool.triggered.connect(self.enablePickTool)
-        self.main_window.actionDelete.triggered.connect(self.enableDeleteTool)
-        self.main_window.actionTextBox.triggered.connect(self.addTextBox)
-        self.main_window.actionDrawSquare.triggered.connect(self.addDrawSquare)
-        self.main_window.actionShowGrid.triggered.connect(self.toggleGrid)
-        self.main_window.actionZoomIn.triggered.connect(self.zoomIn)
-        self.main_window.actionZoomOut.triggered.connect(self.zoomOut)
-        self.main_window.actionResetZoom.triggered.connect(self.resetZoom)
-        self.main_window.actionRunAll.triggered.connect(self.runAll)
-        self.main_window.actionStopAll.triggered.connect(self.stopAll)
+        """Setup all toolbar action connections"""
+        toolbar_actions = [
+            (self.main_window.actionPickTool, self.enablePickTool),
+            (self.main_window.actionDelete, self.enableDeleteTool),
+            (self.main_window.actionTextBox, self.addTextBox),
+            (self.main_window.actionDrawSquare, self.addDrawSquare),
+            (self.main_window.actionShowGrid, self.toggleGrid),
+            (self.main_window.actionZoomIn, self.zoomIn),
+            (self.main_window.actionZoomOut, self.zoomOut),
+            (self.main_window.actionResetZoom, self.resetZoom),
+        ]
+        
+        # Only connect actions that exist
+        for action, method in toolbar_actions:
+            if hasattr(self.main_window, action.objectName()):
+                action.triggered.connect(method)
+        
+        # Connect run/stop actions if they exist
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.triggered.connect(self.runAll)
+        if hasattr(self.main_window, 'actionStopAll'):
+            self.main_window.actionStopAll.triggered.connect(self.stopAll)
 
     def setup_tooltips(self):
         """Set up helpful tooltips with keyboard shortcuts."""
-        self.main_window.actionPickTool.setToolTip("Pick Tool (P)")
-        self.main_window.actionDelete.setToolTip("Delete Tool (D)")
-        self.main_window.actionTextBox.setToolTip("Text Box Tool (T)")
-        self.main_window.actionDrawSquare.setToolTip("Draw Square Tool")
-        self.main_window.actionShowGrid.setToolTip("Toggle Grid (G)")
-        self.main_window.actionZoomIn.setToolTip("Zoom In (+)")
-        self.main_window.actionZoomOut.setToolTip("Zoom Out (-)")
-        self.main_window.actionResetZoom.setToolTip("Reset Zoom (0)")
-        self.main_window.actionRunAll.setToolTip("Run All Components")
-        self.main_window.actionStopAll.setToolTip("Stop All Components")
+        tooltips = {
+            'actionPickTool': "Pick Tool (P)",
+            'actionDelete': "Delete Tool (D)",
+            'actionTextBox': "Text Box Tool (T)",
+            'actionDrawSquare': "Draw Square Tool",
+            'actionShowGrid': "Toggle Grid (G)",
+            'actionZoomIn': "Zoom In (+)",
+            'actionZoomOut': "Zoom Out (-)",
+            'actionResetZoom': "Reset Zoom (0)",
+            'actionRunAll': "Run All Components",
+            'actionStopAll': "Stop All Components"
+        }
+        
+        for action_name, tooltip in tooltips.items():
+            if hasattr(self.main_window, action_name):
+                getattr(self.main_window, action_name).setToolTip(tooltip)
 
     def enablePickTool(self):
         self.main_window.statusbar.showMessage("Pick Tool selected (P)")
@@ -48,23 +66,19 @@ class ToolbarFunctions:
         self.main_window.addDrawSquare()
 
     def toggleGrid(self):
-        """Toggle the visibility of the grid on the canvas."""
         self.main_window.toggleGrid()
 
     def zoomIn(self):
-        """Zoom in using toolbar button."""
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.zoomIn()
             self.main_window.statusbar.showMessage(f"Zoomed in (Level: {self.main_window.canvas_view.zoom_level:.1f}x)")
 
     def zoomOut(self):
-        """Zoom out using toolbar button."""
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.zoomOut()
             self.main_window.statusbar.showMessage(f"Zoomed out (Level: {self.main_window.canvas_view.zoom_level:.1f}x)")
 
     def resetZoom(self):
-        """Reset zoom using toolbar button."""
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.resetZoom()
             self.main_window.statusbar.showMessage("Zoom reset to default level")

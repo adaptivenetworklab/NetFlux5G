@@ -23,16 +23,8 @@ class NetworkComponent(QGraphicsPixmapItem):
 
     # Track the count of each component type
     component_counts = {
-        "Host": 0,
-        "STA": 0,
-        "UE": 0,
-        "GNB": 0,
-        "DockerHost": 0,
-        "AP": 0,
-        "VGcore": 0,
-        "Controller": 0,
-        "Router": 0,
-        "Switch": 0,
+        "Host": 0, "STA": 0, "UE": 0, "GNB": 0, "DockerHost": 0,
+        "AP": 0, "VGcore": 0, "Controller": 0, "Router": 0, "Switch": 0,
     }
     
     def __init__(self, component_type, icon_path, parent=None):
@@ -80,14 +72,12 @@ class NetworkComponent(QGraphicsPixmapItem):
         """Set the component's position and update properties."""
         self.setPos(x, y)
         self.updatePositionProperties()
-        print(f"DEBUG: {self.display_name} position set to ({x}, {y})")
 
     def updatePositionProperties(self):
         """Update the position properties based on current position."""
         current_pos = self.pos()
         self.properties["x"] = current_pos.x()
         self.properties["y"] = current_pos.y()
-        print(f"DEBUG: {self.display_name} properties updated - Position: ({self.properties['x']}, {self.properties['y']})")
 
     def setProperties(self, properties_dict):
         """Update the component's properties dictionary"""
@@ -100,8 +90,6 @@ class NetworkComponent(QGraphicsPixmapItem):
         # Update position if provided in properties
         if "x" in properties_dict and "y" in properties_dict:
             self.setPos(properties_dict["x"], properties_dict["y"])
-        
-        print(f"DEBUG: Updated properties for {self.component_type}: {self.properties}")
 
     def getProperties(self):
         """Get the current properties including updated position."""
@@ -217,7 +205,6 @@ class NetworkComponent(QGraphicsPixmapItem):
             if hasattr(value, 'x') and hasattr(value, 'y'):
                 self.properties["x"] = value.x()
                 self.properties["y"] = value.y()
-                print(f"DEBUG: {self.display_name} moved to ({value.x()}, {value.y()})")
             
             # If we have connected links, update them
             if hasattr(self, 'connected_links'):
@@ -247,7 +234,7 @@ class NetworkComponent(QGraphicsPixmapItem):
     def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
         menu = QMenu()
-        if self.component_type in ["Switch", "Router"]:  # Use component_type instead of object_type
+        if self.component_type in ["Switch", "Router"]:
             menu.addAction("Delete", lambda: self.scene().removeItem(self))
         else:
             menu.addAction("Properties", self.openPropertiesDialog)

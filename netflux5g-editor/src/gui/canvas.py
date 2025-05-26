@@ -21,49 +21,39 @@ class MovableLabel(QLabel):
         super().__init__(parent)
         self.setFixedSize(50, 50)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setFocusPolicy(Qt.ClickFocus)  # Allow the label to receive focus when clicked
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setFocusPolicy(Qt.ClickFocus)
 
         if icon and not icon.isNull():
             pixmap = icon.scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.setPixmap(pixmap)
         else:
-            self.setText(text)  # Fallback to text if no icon is provided
+            self.setText(text)
 
         self.dragging = False
         self.offset = QPoint()
-        self.dialog = None  # Dialog for object properties
-        self.object_type = text  # Store the object type (e.g., "Host", "STA")
+        self.dialog = None
+        self.object_type = text
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            # Check for Delete Mode
             if self.parent().app_instance.current_tool == "delete":
-                # Delete the label
                 self.close()
                 return
             
-            # Normal dragging behavior
             self.dragging = True
             self.offset = event.pos()
-            self.setFocus()  # Set focus to the label when clicked
-            print(f"DEBUG: MovableLabel mousePressEvent at {event.pos()}, current_tool: {self.parent().app_instance.current_tool}")
+            self.setFocus()
 
     def mouseReleaseEvent(self, event):
         self.dragging = False
 
     def keyPressEvent(self, event):
-        """Handle key press events."""
         if event.key() == Qt.Key_Escape:
-            # Check current tool and switch back to pick tool mode
-            if self.current_tool in ["delete", "link", "placement", "text", "square"]:
+            if hasattr(self, 'current_tool') and self.current_tool in ["delete", "link", "placement", "text", "square"]:
                 self.enablePickTool()
-                
-        # Call parent implementation for other keys
         super().keyPressEvent(event)
     
     def contextMenuEvent(self, event):
-        """Handle right-click context menu events."""
         menu = QMenu(self)
         if self.object_type in ["Switch", "Router"]:
             menu.addAction("Delete", self.close)
@@ -74,123 +64,81 @@ class MovableLabel(QLabel):
         menu.exec_(event.globalPos())
 
     def openPropertiesDialog(self):
-        """Open the properties dialog for the object."""
         dialog_class = self.PROPERTIES_MAP.get(self.object_type)
         if dialog_class:
-            # Pass self as the component reference for MovableLabel
             dialog = dialog_class(label_text=self.object_type, parent=self.parent(), component=self)
             dialog.show()
             
     def setHighlighted(self, highlight=True):
-        """Set the highlight state of this component"""
         self.highlighted = highlight
-        
-        # Force redraw
         self.update()
 
     def paintEvent(self, event):
-        """Override paint event to draw highlight if needed"""
         super().paintEvent(event)
         if hasattr(self, 'highlighted') and self.highlighted:
             painter = QPainter(self)
             painter.setPen(QPen(Qt.red, 3))
-            painter.drawRect(self.rect().adjusted(1, 1, -1, -1))  # Draw inside the border
+            painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
 
 class Canvas(QGraphicsView):
     def __init__(self, app_instance, parent=None):
         super().__init__(parent)
         self.app_instance = app_instance
         
-        # Create a QGraphicsScene for the canvas
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.current_dialog = None
 
-        # Set a larger scene size that adapts to canvas size
         self.updateSceneSize()
-
-        # Enable drag mode for panning
         self.setDragMode(QGraphicsView.NoDrag)
-
-        # Set the background color
         self.setStyleSheet("background-color: white;")
-
-        # Enable drag-and-drop
         self.setAcceptDrops(True)
 
-        # Track whether the grid is shown
         self.show_grid = False
-
-        # Track the currently open dialog
-        self.current_dialog = False
-
-        # Initialize zoom level
         self.zoom_level = 1.0
-        
-        # Link mode support
         self.link_mode = False
         
-        # Mouse navigation state
         self.is_panning = False
         self.pan_start_point = QPoint()
         self.last_pan_point = QPoint()
         
-        # Set size policy for proper resizing
         from PyQt5.QtWidgets import QSizePolicy
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def updateSceneSize(self):
-        """Update scene size based on current canvas size."""
         if self.size().width() > 0 and self.size().height() > 0:
-            # Make scene larger than the visible area
             width = max(self.size().width() * 4, 4000)
             height = max(self.size().height() * 4, 4000)
             self.scene.setSceneRect(-width//2, -height//2, width, height)
-            print(f"DEBUG: Scene size updated to {width}x{height}")
 
     def resizeEvent(self, event):
-        """Handle canvas resize events."""
         super().resizeEvent(event)
-        
-        # Update scene size when canvas is resized
         self.updateSceneSize()
-        
-        print(f"DEBUG: Canvas resized to {self.size()}")
 
     def zoomIn(self, zoom_factor=1.2):
-        """Zoom in the canvas."""
         self.zoom_level *= zoom_factor
         self.scale(zoom_factor, zoom_factor)
-        print(f"DEBUG: Zoomed in, current zoom level: {self.zoom_level:.2f}")
 
     def zoomOut(self, zoom_factor=1.2):
-        """Zoom out the canvas."""
         self.zoom_level /= zoom_factor
         self.scale(1 / zoom_factor, 1 / zoom_factor)
-        print(f"DEBUG: Zoomed out, current zoom level: {self.zoom_level:.2f}")
 
     def resetZoom(self):
-        """Reset the zoom level to the default."""
-        self.resetTransform()  # Reset the transformation matrix
+        self.resetTransform()
         self.zoom_level = 1.0
-        print("DEBUG: Zoom reset to default level")
 
     def setShowGrid(self, show):
-        """Enable or disable the grid."""
         self.show_grid = show
-        print(f"DEBUG: Grid visibility set to {self.show_grid}")  # Debug message
-        self.viewport().update()  # Trigger a repaint of the canvas
+        self.viewport().update()
 
     def drawBackground(self, painter, rect):
-        """Draw the grid if enabled."""
         super().drawBackground(painter, rect)
         if self.show_grid:
             pen = QPen(Qt.lightGray)
             pen.setWidth(0)
             painter.setPen(pen)
 
-            # Draw grid lines
-            grid_size = 35  # Size of each grid cell
+            grid_size = 35
             left = int(rect.left()) - (int(rect.left()) % grid_size)
             top = int(rect.top()) - (int(rect.top()) % grid_size)
             right = int(rect.right())
@@ -202,31 +150,20 @@ class Canvas(QGraphicsView):
                 painter.drawLine(int(rect.left()), int(y), int(rect.right()), int(y))
 
     def wheelEvent(self, event):
-        """Handle mouse wheel events for zooming and scrolling."""
         modifiers = event.modifiers()
         
-        # Check if Ctrl is pressed for zooming
         if modifiers & Qt.ControlModifier:
-            # Ctrl + Mouse wheel = Zoom
             if event.angleDelta().y() > 0:
-                # Zoom in
                 self.zoomIn(1.15)
                 self.app_instance.showCanvasStatus(f"Zoomed in (Level: {self.zoom_level:.1f}x)")
             else:
-                # Zoom out
                 self.zoomOut(1.15)
                 self.app_instance.showCanvasStatus(f"Zoomed out (Level: {self.zoom_level:.1f}x)")
-                
-            # Don't let the event propagate
             event.accept()
         else:
-            # Normal wheel event - let parent handle scrolling
             super().wheelEvent(event)
 
     def mousePressEvent(self, event):
-        """Handle mouse press events."""
-        
-        # Middle mouse button for panning
         if event.button() == Qt.MiddleButton:
             self.is_panning = True
             self.pan_start_point = event.pos()
@@ -236,117 +173,78 @@ class Canvas(QGraphicsView):
             event.accept()
             return
 
-        # Check if we're in delete mode
         if self.app_instance.current_tool == "delete":
-            # Get the item under the cursor
             item = self.itemAt(event.pos())
             if item:
-                # Delete the item
                 self.scene.removeItem(item)
                 self.app_instance.showCanvasStatus("Item deleted")
-                # If we have any links connected to this item, they should be deleted too
                 self.cleanupBrokenLinks()
 
-        # Handle link mode first
         if self.link_mode and event.button() == Qt.LeftButton:
-            # Get item under the cursor
             item = self.itemAt(event.pos())
             
-            # Check if it's a component we can link
-            if item is not None and (
-                (isinstance(item, NetworkComponent)) or 
-                (hasattr(item, 'object_type'))
-            ):
-                # Process link creation
+            if item is not None and (isinstance(item, NetworkComponent) or hasattr(item, 'object_type')):
                 if self.app_instance.current_link_source is None:
-                    # First click - set source and highlight it
                     self.app_instance.current_link_source = item
                     
-                    # Highlight the source object
                     if hasattr(item, 'setHighlighted'):
                         item.setHighlighted(True)
-                        print("DEBUG: Highlighting source object")
                     
                     self.app_instance.showCanvasStatus(
                         f"Source selected: {item.object_type if hasattr(item, 'object_type') else 'component'} (highlighted in red) - now select destination"
                     )
-                    print(f"DEBUG: Source selected: {item}")
                     
-                    # Prevent dragging when in link mode
                     if hasattr(item, 'setFlag'):
                         item.setFlag(QGraphicsItem.ItemIsMovable, False)
                         
-                    # Force update to ensure highlight is visible
                     if hasattr(item, 'update'):
                         item.update()
                     
                     return
                 else:
-                    # Second click - create link
                     source = self.app_instance.current_link_source
                     destination = item
                     
-                    # Don't link to the same object
                     if source != destination:
-                        # Remove highlight from source
                         if hasattr(source, 'setHighlighted'):
                             source.setHighlighted(False)
                         
                         self.app_instance.createLink(source, destination)
-                        print(f"DEBUG: Link created between {source} and {destination}")
-                    else:
-                        print("DEBUG: Cannot link an object to itself")
                     
-                    # Re-enable dragging for source
                     if hasattr(source, 'setFlag'):
                         source.setFlag(QGraphicsItem.ItemIsMovable, True)
                     
-                    # Reset source for next link operation
                     self.app_instance.current_link_source = None
                     self.app_instance.showCanvasStatus("Link created. Select next source or change tool.")
                     return
                     
-        # Handle dialog closing
         if self.current_dialog:
-            print("DEBUG: Closing dialog because canvas was clicked.")
             self.current_dialog.close()
             self.current_dialog = None
 
-        # Handle normal mouse press
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        """Handle mouse move events."""
-        
-        # Handle middle mouse button panning
         if self.is_panning and event.buttons() & Qt.MiddleButton:
-            # Calculate the movement delta
             delta = event.pos() - self.last_pan_point
             self.last_pan_point = event.pos()
             
-            # Get current scrollbar values
             h_bar = self.horizontalScrollBar()
             v_bar = self.verticalScrollBar()
             
-            # Update scrollbar positions (note: we subtract because we want natural scrolling)
             h_bar.setValue(h_bar.value() - delta.x())
             v_bar.setValue(v_bar.value() - delta.y())
             
             event.accept()
             return
             
-        # Handle normal mouse move
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        """Handle mouse release events."""
-        
-        # End panning mode
         if event.button() == Qt.MiddleButton and self.is_panning:
             self.is_panning = False
             self.setCursor(QCursor(Qt.ArrowCursor))
             
-            # Calculate total pan distance for status message
             total_delta = event.pos() - self.pan_start_point
             distance = (total_delta.x() ** 2 + total_delta.y() ** 2) ** 0.5
             self.app_instance.showCanvasStatus(f"Panning completed (moved {distance:.0f} pixels)")
@@ -354,132 +252,82 @@ class Canvas(QGraphicsView):
             event.accept()
             return
             
-        # Handle normal mouse release
         super().mouseReleaseEvent(event)
 
     def dragEnterEvent(self, event):
-        """Handle drag enter events with debugging."""
-        print(f"DEBUG: Canvas dragEnterEvent - hasText: {event.mimeData().hasText()}")
         if event.mimeData().hasText():
-            text = event.mimeData().text()
-            print(f"DEBUG: Drag enter with text: '{text}'")
             event.acceptProposedAction()
         else:
-            print("DEBUG: Drag enter - no text data")
             event.ignore()
 
     def dragMoveEvent(self, event):
-        """Handle drag move events with debugging."""
         if event.mimeData().hasText():
             event.acceptProposedAction()
-            # Force scene update to prevent traces
             self.scene.update()
         else:
             event.ignore()
 
     def dropEvent(self, event):
-        """Handle drop events with enhanced debugging."""
-        print(f"DEBUG: Canvas dropEvent triggered at position {event.pos()}")
-        
         if event.mimeData().hasText():
             component_type = event.mimeData().text()
-            print(f"DEBUG: Dropped component type: '{component_type}'")
 
-            # Check if we have the icon mapping
             if not hasattr(self.app_instance, 'component_icon_map'):
-                print("ERROR: app_instance missing component_icon_map")
                 event.ignore()
                 return
 
-            # Get the icon for the dropped component
             icon_path = self.app_instance.component_icon_map.get(component_type)
-            print(f"DEBUG: Icon path for {component_type}: {icon_path}")
             
             if icon_path and os.path.exists(icon_path):
                 from .components import NetworkComponent
                 
-                # Create a NetworkComponent and add it to the scene
                 position = self.mapToScene(event.pos())
-                print(f"DEBUG: Creating component at scene position ({position.x()}, {position.y()})")
-                
                 component = NetworkComponent(component_type, icon_path)
-                
-                # Set the initial position and update properties
                 component.setPosition(position.x(), position.y())
                 
-                # Add to scene
                 self.scene.addItem(component)
-                print(f"DEBUG: Component {component_type} added to scene successfully")
-                
-                # Verify it was added
-                scene_items = self.scene.items()
-                print(f"DEBUG: Scene now has {len(scene_items)} items")
-                
-                # Force scene update
                 self.scene.update()
                 self.viewport().update()
                 
-                # Update status using the canvas status bar
                 self.app_instance.showCanvasStatus(f"{component_type} added to canvas")
-                
-                # Log the component's properties including position
-                properties = component.getProperties()
-                print(f"DEBUG: Component properties: {properties}")
             else:
-                print(f"ERROR: Icon for component type '{component_type}' not found at {icon_path}")
                 self.app_instance.showCanvasStatus(f"ERROR: Icon not found for {component_type}")
                 
             event.acceptProposedAction()
         else:
-            print("DEBUG: Drop event - no text data")
             event.ignore()
 
     def setCurrentDialog(self, dialog):
-        """Close the currently open dialog and set the new dialog."""
         if self.current_dialog and self.current_dialog.isVisible():
             self.current_dialog.close()
         self.current_dialog = dialog
 
     def keyPressEvent(self, event):
-        """Handle key press events."""
         if event.key() == Qt.Key_Delete:
-            # Get all selected items in the scene
             selected_items = self.scene.selectedItems()
             if selected_items:
                 for item in selected_items:
-                    print(f"DEBUG: Deleting item {item}")  # Debug message
-                    self.scene.removeItem(item)  # Remove the item from the scene
-            else:
-                print("DEBUG: No items selected to delete.")  # Debug message
+                    self.scene.removeItem(item)
         elif event.key() == Qt.Key_Escape:
-            # Forward Escape key to main application
             if hasattr(self, 'app_instance') and self.app_instance:
                 if self.app_instance.current_tool in ["delete", "link", "placement", "text", "square"]:
-                    print("DEBUG: Canvas forwarding ESC key to main application")
                     self.app_instance.enablePickTool()
                     return
         
-        # Pass other key events to the parent class
         super().keyPressEvent(event)
 
     def setLinkMode(self, enabled):
-        """Enable or disable link mode."""
         self.link_mode = enabled
-        print(f"DEBUG: Link mode set to {self.link_mode}")
 
     def cleanupBrokenLinks(self):
-        """Remove any links that have broken connections (one end was deleted)."""
         from .links import NetworkLink
         
         links_to_remove = []
         for item in self.scene.items():
             if isinstance(item, NetworkLink):
-                # Check if both source and destination are still in the scene
                 if not item.source_item or not item.destination_item:
                     links_to_remove.append(item)
                 elif item.source_item not in self.scene.items() or item.destination_item not in self.scene.items():
                     links_to_remove.append(item)
                     
-        # Remove the broken links
         for link in links_to_remove:
             self.scene.removeItem(link)
