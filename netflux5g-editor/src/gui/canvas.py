@@ -1,6 +1,6 @@
 import os
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLabel, QGraphicsSceneContextMenuEvent, QMenu, QGraphicsItem
-from PyQt5.QtCore import Qt, QMimeData, QPoint, QRect, QTimer
+from PyQt5.QtCore import Qt, QMimeData, QPoint, QRectF, QTimer
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen, QCursor
 from .widgets.Dialog import *
 from .components import NetworkComponent
@@ -119,7 +119,7 @@ class Canvas(QGraphicsView):
                 scene_height = max(canvas_height * 2, 1500)  # At least 1500px high
                 
                 # Center the scene
-                scene_rect = QRect(-scene_width//2, -scene_height//2, scene_width, scene_height)
+                scene_rect = QRectF(-scene_width//2, -scene_height//2, scene_width, scene_height)
                 self.scene.setSceneRect(scene_rect)
                 
                 print(f"DEBUG: Scene size updated - {scene_width}x{scene_height}")
