@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1264</width>
-    <height>1240</height>
+    <width>1316</width>
+    <height>962</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -55,9 +55,15 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1919</width>
-      <height>1151</height>
+      <width>71</width>
+      <height>1021</height>
      </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
     <property name="styleSheet">
      <string notr="true">
@@ -76,10 +82,10 @@ QFrame {
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>93</width>
-       <height>1128</height>
+       <x>0</x>
+       <y>0</y>
+       <width>71</width>
+       <height>884</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="ObjectLayout">
@@ -106,8 +112,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -117,6 +123,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
@@ -152,8 +163,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -163,6 +174,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -195,8 +211,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -206,6 +222,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -238,8 +259,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -249,6 +270,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -281,8 +307,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -292,6 +318,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_5">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -324,8 +355,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -335,6 +366,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -367,8 +403,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -378,6 +414,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -410,8 +451,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -421,6 +462,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -453,8 +499,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -464,6 +510,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_9">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -496,8 +547,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -507,6 +558,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_10">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -539,8 +595,8 @@ QFrame {
         </property>
         <property name="iconSize">
          <size>
-          <width>50</width>
-          <height>50</height>
+          <width>36</width>
+          <height>36</height>
          </size>
         </property>
         <property name="shortcut">
@@ -550,6 +606,11 @@ QFrame {
       </item>
       <item>
        <widget class="QLabel" name="label_11">
+        <property name="font">
+         <font>
+          <pointsize>7</pointsize>
+         </font>
+        </property>
         <property name="styleSheet">
          <string notr="true">border-color: rgb(222, 222, 222);</string>
         </property>
@@ -619,7 +680,6 @@ QFrame {
    <addaction name="menuRun"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
    <property name="enabled">
     <bool>true</bool>

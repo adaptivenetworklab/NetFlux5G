@@ -3,7 +3,7 @@ import os
 import json
 import re
 import traceback
-from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton, QDesktopWidget, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton, QDesktopWidget, QFileDialog, QFrame
 from PyQt5.QtCore import Qt, QPoint, QMimeData, QTimer
 from PyQt5.QtGui import QDrag, QPixmap, QIcon, QFont
 from PyQt5 import uic
@@ -77,7 +77,7 @@ class NetFlux5GApp(QMainWindow):
         self.setupConnections()
         
         # Status message
-        self.statusbar.showMessage("Ready - Dynamic canvas sizing enabled")
+        # self.statusbar.showMessage("Ready - Dynamic canvas sizing enabled")
         
         # Show helpful shortcut information
         self.showShortcutHelp()
@@ -142,45 +142,36 @@ class NetFlux5GApp(QMainWindow):
         try:
             if not hasattr(self, 'canvas_view'):
                 return
-                
-            # Get current window size
+
             window_size = self.size()
-            
-            # Get ObjectFrame actual width from the UI
-            object_frame_width = 115  # Fixed width from the UI file
-            
-            # Account for menubar, toolbar, and statusbar heights
+
+            # Get ObjectFrame width from the actual widget
+            object_frame_width = self.ObjectFrame.width() if hasattr(self, 'ObjectFrame') else 71
+
             menubar_height = self.menubar.height() if hasattr(self, 'menubar') else 26
             toolbar_height = self.toolBar.height() if hasattr(self, 'toolBar') else 30
             statusbar_height = self.statusbar.height() if hasattr(self, 'statusbar') else 23
-            
-            # Calculate available space (be more conservative with padding)
-            available_width = window_size.width() - object_frame_width - 10  # 10px total padding
-            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10  # 10px total padding
-            
-            # Ensure minimum size
+
+            available_width = window_size.width() - object_frame_width - 10
+            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10
+
             available_width = max(available_width, 400)
             available_height = max(available_height, 300)
-            
-            # Set canvas geometry - position it right after the ObjectFrame
-            canvas_x = object_frame_width + 5  # 5px offset from ObjectFrame
-            canvas_y = 5  # 5px offset from top
-            
-            # Set the geometry
+
+            canvas_x = object_frame_width + 5
+            canvas_y = 5
+
             self.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
-            
-            # Ensure canvas is visible and properly configured
             self.canvas_view.setVisible(True)
             self.canvas_view.show()
-            
-            # Update the scene to match the new canvas size
+
             if hasattr(self.canvas_view, 'updateSceneSize'):
                 self.canvas_view.updateSceneSize()
-            
+
             print(f"DEBUG: Canvas geometry updated - x:{canvas_x}, y:{canvas_y}, w:{available_width}, h:{available_height}")
             print(f"DEBUG: Canvas visible: {self.canvas_view.isVisible()}")
             print(f"DEBUG: Canvas accepts drops: {self.canvas_view.acceptDrops()}")
-            
+
         except Exception as e:
             print(f"ERROR: Failed to update canvas geometry: {e}")
             traceback.print_exc()
@@ -253,45 +244,32 @@ class NetFlux5GApp(QMainWindow):
 
     def showCanvasStatus(self, message, timeout=0):
         """Show a status message on the canvas status bar."""
-        if hasattr(self, 'canvas_status_label'):
-            self.canvas_status_label.setText(message)
-            self.canvas_status_label.adjustSize()
-            self.updateCanvasStatusBarPosition()
-            
-            # If timeout is specified, clear the message after the timeout
-            if timeout > 0:
-                QTimer.singleShot(timeout, lambda: self.canvas_status_label.setText("Ready"))
-        else:
-            # Fallback to main status bar if canvas status bar doesn't exist
-            if hasattr(self, 'statusbar'):
-                self.statusbar.showMessage(message, timeout)
+        self.canvas_status_label.setText(message)
+        self.canvas_status_label.adjustSize()
+        self.updateCanvasStatusBarPosition()
+        
+        # If timeout is specified, clear the message after the timeout
+        if timeout > 0:
+            QTimer.singleShot(timeout, lambda: self.canvas_status_label.setText("Ready"))
                     
     def resizeEvent(self, event):
         """Handle window resize events to update canvas and component layout size."""
         super().resizeEvent(event)
-        
         try:
-            # Get the current window size
             window_size = self.size()
-            
             # Update ObjectFrame to be fixed width but full height
             if hasattr(self, 'ObjectFrame'):
-                # Keep ObjectFrame at fixed width but adjust height
-                self.ObjectFrame.setGeometry(0, 0, 115, window_size.height())
-            
-            # Update canvas size dynamically
+                self.ObjectFrame.setGeometry(
+                    0, 0,
+                    self.ObjectFrame.width(),
+                    window_size.height()
+                )
             self.updateCanvasGeometry()
-            
-            # Update canvas status bar position
             self.updateCanvasStatusBarPosition()
-            
             print(f"DEBUG: Window resized to {window_size.width()}x{window_size.height()}")
-            
-            # Force canvas to update and redraw
             if hasattr(self, 'canvas_view'):
                 self.canvas_view.update()
                 self.canvas_view.viewport().update()
-            
         except Exception as e:
             print(f"ERROR: Failed to resize window: {e}")
             
