@@ -38,7 +38,7 @@
       <height>1071</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>0</number>
      </property>
@@ -570,19 +570,6 @@ QFrame {
       </item>
      </layout>
     </widget>
-    <widget class="QGraphicsView" name="Canvas">
-     <property name="geometry">
-      <rect>
-       <x>105</x>
-       <y>1</y>
-       <width>1161</width>
-       <height>1151</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -591,7 +578,7 @@ QFrame {
      <x>0</x>
      <y>0</y>
      <width>1264</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -813,16 +800,16 @@ QFrame {
    </property>
   </action>
   <action name="actionShowGrid">
-    <property name="checkable">
-      <bool>true</bool>
-    </property>
-    <property name="icon">
-      <iconset>
-        <normaloff>../Icon/grid.png</normaloff>../Icon/grid.png</iconset>
-    </property>
-    <property name="text">
-      <string>Show Grid</string>
-    </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../Icon/grid.png</normaloff>../Icon/grid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Grid</string>
+   </property>
   </action>
   <action name="actionZoomIn">
    <property name="icon">
