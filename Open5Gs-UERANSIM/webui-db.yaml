@@ -1,12 +1,12 @@
 volumes:
   mongo:
 
-networks:
-  db-network:
-    driver: bridge
-    ipam:
-      config:
-      - subnet: 172.25.0.0/24
+# networks:
+#   db-network:
+#     driver: bridge
+#     ipam:
+#       config:
+#       - subnet: 172.25.0.0/24
 
 services:
   mongo:
@@ -23,8 +23,8 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
-    networks:
-      db-network:
+    # networks:
+    #   db-network:
 
   webui:
     image: gradiant/open5gs-webui:2.7.1
@@ -37,5 +37,5 @@ services:
     environment:
       DB_URI: mongodb://mongo/open5gs
       NODE_ENV: dev
-    networks:
-      db-network:
+    # networks:
+    #   db-network:

@@ -85,7 +85,7 @@ services:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcfd"
     privileged: true
     environment:
-      DB_URI: mongodb://10.0.0.220/open5gs   
+      DB_URI: mongodb://mongo/open5gs   
     restart: on-failure
     volumes:
       - type: bind
@@ -101,7 +101,7 @@ services:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcrfd"
     privileged: true
     environment:
-      DB_URI: mongodb://10.0.0.220/open5gs
+      DB_URI: mongodb://mongo/open5gs
     restart: on-failure
     volumes:
       - type: bind
@@ -164,7 +164,7 @@ services:
         condition: service_started
     restart: on-failure
     environment:
-      DB_URI: mongodb://10.0.0.220/open5gs
+      DB_URI: mongodb://mongo/open5gs
     privileged: true      
     command:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-udrd"
