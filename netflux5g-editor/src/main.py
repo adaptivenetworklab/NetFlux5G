@@ -1,10 +1,10 @@
 import os
 import sys
 import json
-import re
 import traceback
+import re
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton, QDesktopWidget, QFileDialog, QFrame
-from PyQt5.QtCore import Qt, QPoint, QMimeData, QTimer
+from PyQt5.QtCore import Qt, QPoint, QMimeData, QTimer, QDateTime
 from PyQt5.QtGui import QDrag, QPixmap, QIcon, QFont
 from PyQt5 import uic
 from gui.canvas import Canvas, MovableLabel
@@ -80,7 +80,10 @@ class NetFlux5GApp(QMainWindow):
         
         # Setup all connections
         self.setupConnections()
-        
+
+        # Debug menu actions
+        self.debugMenuActions()
+
         # Show helpful shortcut information
         self.showShortcutHelp()
         
@@ -184,42 +187,47 @@ class NetFlux5GApp(QMainWindow):
             from PyQt5.QtWidgets import QLabel
             
             # Create a custom status label that will float over the canvas
-            self.canvas_status_label = QLabel(self.canvas_view)
+            self.canvas_status_label = QLabel(self.centralwidget)  # Parent to centralwidget instead of canvas_view
             
-            # Style the canvas status label
+            # Style the canvas status label with better appearance
             self.canvas_status_label.setStyleSheet("""
                 QLabel {
-                    background-color: rgba(240, 240, 240, 220);
-                    border: 1px solid #cccccc;
-                    border-radius: 3px;
-                    padding: 4px 8px;
-                    color: #333333;
+                    background-color: rgba(50, 50, 50, 200);
+                    color: white;
+                    border: 1px solid rgba(255, 255, 255, 100);
+                    border-radius: 5px;
+                    padding: 6px 12px;
                     font-size: 11px;
+                    font-weight: bold;
                 }
             """)
             
             # Set font
             font = QFont()
             font.setPointSize(9)
+            font.setBold(True)
             self.canvas_status_label.setFont(font)
             
-            # Set initial text
+            # Set initial text and size
             self.canvas_status_label.setText("Ready")
+            self.canvas_status_label.adjustSize()
             
-            # Position it at the bottom of the canvas area
+            # Position it at the bottom-center of the canvas area
             self.updateCanvasStatusBarPosition()
             
             # Make it stay on top but not interfere with canvas interaction
             self.canvas_status_label.setWindowFlags(Qt.Widget)
-            self.canvas_status_label.setAttribute(Qt.WA_TransparentForMouseEvents, False)
+            self.canvas_status_label.setAttribute(Qt.WA_TransparentForMouseEvents, True)  # Allow clicks to pass through
             
             # Show the canvas status bar
             self.canvas_status_label.show()
+            self.canvas_status_label.raise_()  # Bring to front
             
             print("DEBUG: Canvas status bar created successfully")
             
         except Exception as e:
             print(f"ERROR: Failed to create canvas status bar: {e}")
+            import traceback
             traceback.print_exc()
 
     def updateCanvasStatusBarPosition(self):
@@ -227,32 +235,38 @@ class NetFlux5GApp(QMainWindow):
         if hasattr(self, 'canvas_status_label') and hasattr(self, 'canvas_view'):
             try:
                 canvas_rect = self.canvas_view.geometry()
-                label_width = self.canvas_status_label.sizeHint().width()
+                label_width = self.canvas_status_label.width()
+                label_height = self.canvas_status_label.height()
                 
-                # Position relative to canvas
-                x = (canvas_rect.width() - label_width) // 2
-                y = canvas_rect.height() - 35  # 35px from bottom
+                # Position at bottom-center of canvas, slightly up from the bottom
+                center_x = canvas_rect.x() + (canvas_rect.width() - label_width) // 2
+                bottom_y = canvas_rect.y() + canvas_rect.height() - label_height - 30  # 30px up from bottom
                 
-                # Ensure label stays within canvas bounds
-                if x < 10:
-                    x = 10
-                if x + label_width > canvas_rect.width() - 10:
-                    x = canvas_rect.width() - label_width - 10
-                    
-                self.canvas_status_label.move(x, y)
+                self.canvas_status_label.move(center_x, bottom_y)
+                
+                print(f"DEBUG: Status bar positioned at ({center_x}, {bottom_y})")
+                print(f"DEBUG: Canvas rect: {canvas_rect}")
+                print(f"DEBUG: Label size: {label_width}x{label_height}")
                 
             except Exception as e:
                 print(f"ERROR: Failed to update canvas status bar position: {e}")
 
     def showCanvasStatus(self, message, timeout=0):
         """Show a status message on the canvas status bar."""
-        self.canvas_status_label.setText(message)
-        self.canvas_status_label.adjustSize()
-        self.updateCanvasStatusBarPosition()
-        
-        # If timeout is specified, clear the message after the timeout
-        if timeout > 0:
-            QTimer.singleShot(timeout, lambda: self.canvas_status_label.setText("Ready"))
+        if hasattr(self, 'canvas_status_label'):
+            self.canvas_status_label.setText(message)
+            self.canvas_status_label.adjustSize()  # Resize label to fit content
+            self.updateCanvasStatusBarPosition()   # Reposition after resizing
+            
+            # Ensure the label is visible
+            self.canvas_status_label.show()
+            self.canvas_status_label.raise_()  # Bring to front
+            
+            # If timeout is specified, clear the message after the timeout
+            if timeout > 0:
+                QTimer.singleShot(timeout, lambda: self.showCanvasStatus("Ready"))
+        else:
+            print(f"DEBUG: Canvas status message: {message}") 
                     
     def resizeEvent(self, event):
         """Handle window resize events to update canvas and component layout size."""
@@ -261,17 +275,16 @@ class NetFlux5GApp(QMainWindow):
             window_size = self.size()
             # Update ObjectFrame to be fixed width but full height
             if hasattr(self, 'ObjectFrame'):
-                self.ObjectFrame.setGeometry(
-                    0, 0,
-                    self.ObjectFrame.width(),
-                    window_size.height()
-                )
+                self.ObjectFrame.setGeometry(0, 0, 71, window_size.height() - 26 - 30 - 23)  # Account for menu, toolbar, status
+            
             self.updateCanvasGeometry()
-            self.updateCanvasStatusBarPosition()
+            
+            # Update status bar position after canvas geometry changes
+            QTimer.singleShot(100, self.updateCanvasStatusBarPosition)  # Small delay to ensure canvas is positioned
+            
             print(f"DEBUG: Window resized to {window_size.width()}x{window_size.height()}")
             if hasattr(self, 'canvas_view'):
-                self.canvas_view.update()
-                self.canvas_view.viewport().update()
+                print(f"DEBUG: Canvas size after resize: {self.canvas_view.size()}")
         except Exception as e:
             print(f"ERROR: Failed to resize window: {e}")
             
@@ -314,24 +327,35 @@ class NetFlux5GApp(QMainWindow):
             ]
             
             for action, method in toolbar_connections:
-                action.disconnect()
-                action.triggered.connect(method)
+                try:
+                    action.disconnect()  # Clear any existing connections
+                    action.triggered.connect(method)
+                    print(f"DEBUG: Connected toolbar action {action.objectName()}")
+                except Exception as e:
+                    print(f"WARNING: Failed to connect toolbar action {action.objectName()}: {e}")
             
-            # Connect menu actions
+            # Connect menu actions - FIX THE ISSUE HERE
             menu_connections = [
-                (self.actionNew, self.newTopology),
-                (self.actionSave, self.saveTopology),
-                (self.actionOpen, self.openTopology),
-                (self.actionSave_As, self.saveTopologyAs),
-                (self.actionExport_to_Level_2_Script, self.exportToMininet),
-                (self.actionExport_to_Docker_Compose, self.exportToDockerCompose),
-                (self.actionQuit, self.close)
+                ('actionNew', self.newTopology),
+                ('actionSave', self.saveTopology),
+                ('actionOpen', self.openTopology),
+                ('actionSave_As', self.saveTopologyAs),
+                ('actionExport_to_Level_2_Script', self.exportToMininet),
+                ('actionExport_to_Docker_Compose', self.exportToDockerCompose),
+                ('actionQuit', self.close)
             ]
             
-            for action, method in menu_connections:
-                if hasattr(self, action.objectName()):
-                    action.disconnect()
-                    action.triggered.connect(method)
+            for action_name, method in menu_connections:
+                if hasattr(self, action_name):
+                    action = getattr(self, action_name)
+                    try:
+                        action.disconnect()  # Clear any existing connections
+                        action.triggered.connect(method)
+                        print(f"DEBUG: Connected menu action {action_name} to {method.__name__}")
+                    except Exception as e:
+                        print(f"WARNING: Failed to connect menu action {action_name}: {e}")
+                else:
+                    print(f"WARNING: Menu action {action_name} not found")
             
             # Add export to docker-compose action if it doesn't exist
             if not hasattr(self, 'actionExport_to_Docker_Compose'):
@@ -361,6 +385,7 @@ class NetFlux5GApp(QMainWindow):
             
         except Exception as e:
             print(f"ERROR: Failed to setup connections: {e}")
+            import traceback
             traceback.print_exc()
 
     def debugCanvasSetup(self):
@@ -619,6 +644,7 @@ class NetFlux5GApp(QMainWindow):
                 "type": "NetFlux5G_Topology",
                 "metadata": {
                     "created_with": "NetFlux5G Editor",
+                    "created_date": QDateTime.currentDateTime().toString(),
                     "canvas_size": {
                         "width": self.canvas_view.size().width() if hasattr(self, 'canvas_view') else 1161,
                         "height": self.canvas_view.size().height() if hasattr(self, 'canvas_view') else 1151
@@ -629,17 +655,20 @@ class NetFlux5GApp(QMainWindow):
             }
             
             # Save to JSON file
+            import json
             with open(filename, 'w') as f:
-                json.dump(topology_data, f, indent=2)
+                json.dump(topology_data, f, indent=2, ensure_ascii=False)
                 
             self.current_file = filename
             self.showCanvasStatus(f"Topology saved to {os.path.basename(filename)}")
             print(f"DEBUG: Topology saved successfully to {filename}")
+            print(f"DEBUG: Saved {len(nodes)} nodes and {len(links)} links")
             
         except Exception as e:
             error_msg = f"Error saving topology: {str(e)}"
             self.showCanvasStatus(error_msg)
             print(f"ERROR: {error_msg}")
+            import traceback
             traceback.print_exc()
         
     def saveTopologyAs(self):
@@ -651,9 +680,6 @@ class NetFlux5GApp(QMainWindow):
             "NetFlux5G Files (*.nf5g);;JSON Files (*.json);;All Files (*)"
         )
         if filename:
-            # Add .nf5g extension if no extension provided
-            if not os.path.splitext(filename)[1]:
-                filename += ".nf5g"
             self.saveTopologyToFile(filename)
             
     def openTopology(self):
@@ -670,50 +696,42 @@ class NetFlux5GApp(QMainWindow):
     def loadTopologyFromFile(self, filename):
         """Load topology from file."""
         try:
-            from gui.components import NetworkComponent
+            import json
             
-            # Clear current topology
-            if hasattr(self, 'canvas_view') and hasattr(self.canvas_view, 'scene'):
-                self.canvas_view.scene.clear()
-            
-            # Load topology data
             with open(filename, 'r') as f:
                 topology_data = json.load(f)
             
-            nodes = topology_data.get("nodes", [])
-            links = topology_data.get("links", [])
+            # Validate the file format
+            if not isinstance(topology_data, dict) or 'nodes' not in topology_data:
+                raise ValueError("Invalid topology file format")
             
-            # Dictionary to store created components for linking
-            created_components = {}
+            # Clear current canvas
+            if hasattr(self, 'canvas_view') and hasattr(self.canvas_view, 'scene'):
+                self.canvas_view.scene.clear()
             
-            # Create nodes
+            # Load nodes
+            nodes = topology_data.get('nodes', [])
+            node_map = {}  # Map to store created components for linking
+            
             for node_data in nodes:
-                component_type = node_data["type"]
-                icon_path = self.component_icon_map.get(component_type)
-                if icon_path and os.path.exists(icon_path):
-                    component = NetworkComponent(component_type, icon_path)
-                    component.setPosition(node_data["x"], node_data["y"])
-                    component.setProperties(node_data.get("properties", {}))
-                    self.canvas_view.scene.addItem(component)
-                    created_components[node_data["id"]] = component
+                component = self.createComponentFromData(node_data)
+                if component:
+                    node_map[node_data['name']] = component
             
-            # Create links
+            # Load links
+            links = topology_data.get('links', [])
             for link_data in links:
-                source_id = link_data["source"]
-                dest_id = link_data["destination"]
-                if source_id in created_components and dest_id in created_components:
-                    source = created_components[source_id]
-                    dest = created_components[dest_id]
-                    link = NetworkLink(source, dest)
-                    self.canvas_view.scene.addItem(link)
+                self.createLinkFromData(link_data, node_map)
             
             # Update canvas
-            self.canvas_view.scene.update()
-            self.canvas_view.viewport().update()
+            if hasattr(self, 'canvas_view'):
+                self.canvas_view.scene.update()
+                self.canvas_view.viewport().update()
             
             # Set current file
             self.current_file = filename
-            self.showCanvasStatus(f"Loaded topology from {os.path.basename(filename)}")
+            
+            self.showCanvasStatus(f"Topology loaded: {len(nodes)} components, {len(links)} links")
             print(f"DEBUG: Topology loaded successfully from {filename}")
             
         except Exception as e:
@@ -721,7 +739,77 @@ class NetFlux5GApp(QMainWindow):
             self.showCanvasStatus(error_msg)
             print(f"ERROR: {error_msg}")
             traceback.print_exc()
-    
+
+    def createComponentFromData(self, node_data):
+        """Create a component from saved node data."""
+        try:
+            component_type = node_data.get('type')
+            name = node_data.get('name')
+            x = node_data.get('x', 0)
+            y = node_data.get('y', 0)
+            properties = node_data.get('properties', {})
+            
+            # Get the icon path for this component type
+            icon_path = self.component_icon_map.get(component_type)
+            if not icon_path or not os.path.exists(icon_path):
+                print(f"WARNING: Icon not found for {component_type}")
+                return None
+            
+            # Create the component
+            from .gui.components import NetworkComponent
+            component = NetworkComponent(component_type, icon_path)
+            
+            # Set position
+            component.setPosition(x, y)
+            
+            # Set display name
+            component.display_name = name
+            
+            # Set properties (this will include all 5G configurations)
+            component.setProperties(properties)
+            
+            # Add to scene
+            self.canvas_view.scene.addItem(component)
+            
+            print(f"DEBUG: Created component {name} of type {component_type} at ({x}, {y})")
+            return component
+            
+        except Exception as e:
+            print(f"ERROR: Failed to create component from data: {e}")
+            return None
+
+    def createLinkFromData(self, link_data, node_map):
+        """Create a link from saved link data."""
+        try:
+            source_name = link_data.get('source')
+            dest_name = link_data.get('destination')
+            link_type = link_data.get('type', 'ethernet')
+            properties = link_data.get('properties', {})
+            
+            # Find source and destination components
+            source_component = node_map.get(source_name)
+            dest_component = node_map.get(dest_name)
+            
+            if not source_component or not dest_component:
+                print(f"WARNING: Could not find components for link {source_name} -> {dest_name}")
+                return None
+            
+            # Create the link
+            from gui.links import NetworkLink
+            link = NetworkLink(source_component, dest_component)
+            link.link_type = link_type
+            link.properties = properties
+            
+            # Add to scene
+            self.canvas_view.scene.addItem(link)
+            
+            print(f"DEBUG: Created link from {source_name} to {dest_name}")
+            return link
+            
+        except Exception as e:
+            print(f"ERROR: Failed to create link from data: {e}")
+            return None
+
     def keyPressEvent(self, event):
         """Handle key press events with improved shortcuts."""
         
@@ -792,33 +880,37 @@ class NetFlux5GApp(QMainWindow):
             return nodes, links
         
         for item in self.canvas_view.scene.items():
-            if hasattr(item, 'component_type'):  # This is a NetworkComponent
-                # Get all properties from the component
-                properties = item.getProperties()
-                
-                # Create node data structure
-                node_data = {
-                    'name': properties.get('name', item.display_name),
-                    'type': item.component_type,
-                    'x': properties.get('x', item.pos().x()),
-                    'y': properties.get('y', item.pos().y()),
-                    'properties': properties
-                }
-                nodes.append(node_data)
-                print(f"DEBUG: Extracted node: {node_data['name']} ({node_data['type']}) at ({node_data['x']}, {node_data['y']})")
-                
-            elif hasattr(item, 'source_node') and hasattr(item, 'dest_node'):  # This is a NetworkLink
-                # Get source and destination names
-                source_name = getattr(item.source_node, 'display_name', 'Unknown')
-                dest_name = getattr(item.dest_node, 'display_name', 'Unknown')
-                
-                link_data = {
-                    'source': source_name,
-                    'destination': dest_name,
-                    'type': getattr(item, 'link_type', 'ethernet')
-                }
-                links.append(link_data)
-                print(f"DEBUG: Extracted link: {source_name} -> {dest_name}")
+            if hasattr(item, 'component_type'):  # Network component
+                from gui.components import NetworkComponent
+                if isinstance(item, NetworkComponent):
+                    # Get all properties including imported configurations
+                    properties = item.getProperties()
+                    
+                    node_data = {
+                        'name': item.display_name,
+                        'type': item.component_type,
+                        'x': item.pos().x(),
+                        'y': item.pos().y(),
+                        'properties': properties  # This now includes all the 5G configurations
+                    }
+                    nodes.append(node_data)
+                    print(f"DEBUG: Extracted component {item.display_name} with {len(properties)} properties")
+                    
+            elif hasattr(item, 'source_node') and hasattr(item, 'dest_node'):  # Network link
+                from gui.links import NetworkLink
+                if isinstance(item, NetworkLink):
+                    # Extract link information
+                    source_name = getattr(item.source_node, 'display_name', 'Unknown')
+                    dest_name = getattr(item.dest_node, 'display_name', 'Unknown')
+                    
+                    link_data = {
+                        'source': source_name,
+                        'destination': dest_name,
+                        'type': getattr(item, 'link_type', 'ethernet'),
+                        'properties': getattr(item, 'properties', {})
+                    }
+                    links.append(link_data)
+                    print(f"DEBUG: Extracted link from {source_name} to {dest_name}")
         
         print(f"DEBUG: Total extracted - {len(nodes)} nodes, {len(links)} links")
         return nodes, links
@@ -1190,6 +1282,28 @@ class NetFlux5GApp(QMainWindow):
         """Convert component name to valid Python variable name."""
         # Replace spaces and special characters with underscores
         return re.sub(r'[^a-zA-Z0-9_]', '_', name.lower())
+    
+    def debugMenuActions(self):
+        """Debug method to check available menu actions."""
+        print("=== DEBUG: Menu Actions ===")
+        
+        # Check if File menu exists
+        if hasattr(self, 'menuFile'):
+            print(f"menuFile found: {self.menuFile}")
+            print("Actions in File menu:")
+            for action in self.menuFile.actions():
+                print(f"  - {action.objectName()}: {action.text()}")
+        
+        # Check specific actions
+        menu_actions = ['actionNew', 'actionSave', 'actionOpen', 'actionSave_As', 'actionQuit']
+        for action_name in menu_actions:
+            if hasattr(self, action_name):
+                action = getattr(self, action_name)
+                print(f"{action_name}: Found - {action.text()}")
+            else:
+                print(f"{action_name}: NOT FOUND")
+        
+        print("=== END DEBUG ===")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

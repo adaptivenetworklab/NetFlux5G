@@ -281,7 +281,9 @@ class DockerComposeExporter:
             component_configs = self.extract_5g_component_configurations(core5g_components)
             
             # Base path for template configurations
-            template_config_path = "./5g-configs"
+            # Dynamically determine the path to the 5g-configs directory relative to this script
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            template_config_path = os.path.join(script_dir, "5g-configs")
             
             for component_type, instances in component_configs.items():
                 for instance in instances:
@@ -526,7 +528,9 @@ class DockerComposeExporter:
     def copy_entrypoint_script(self, config_dir):
         """Copy the entrypoint.sh script to the config directory."""
         try:
-            source_entrypoint = "./5g-configs/entrypoint.sh"
+            # Dynamically determine the path to the 5g-configs/entrypoint.sh relative to this script
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            source_entrypoint = os.path.join(script_dir, "5g-configs", "entrypoint.sh")
             dest_entrypoint = os.path.join(config_dir, "entrypoint.sh")
             
             if os.path.exists(source_entrypoint):
