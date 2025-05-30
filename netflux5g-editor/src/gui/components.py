@@ -263,14 +263,29 @@ class NetworkComponent(QGraphicsPixmapItem):
             view = scene.views()[0]
             if hasattr(view, 'app_instance') and view.app_instance.current_tool == "delete":
                 # Remove any connected links first
-                if hasattr(self, 'connected_links'):
+                if hasattr(self, 'connected_links') and self.connected_links:
                     # Copy the list to avoid modification during iteration
                     links_to_remove = self.connected_links.copy()
                     for link in links_to_remove:
-                        scene.removeItem(link)
+                        # Remove the link from both connected nodes
+                        if hasattr(link, 'source_node') and hasattr(link.source_node, 'connected_links'):
+                            if link in link.source_node.connected_links:
+                                link.source_node.connected_links.remove(link)
+                        if hasattr(link, 'dest_node') and hasattr(link.dest_node, 'connected_links'):
+                            if link in link.dest_node.connected_links:
+                                link.dest_node.connected_links.remove(link)
+                        # Remove the link from the scene
+                        if link.scene():
+                            scene.removeItem(link)
+                
                 # Now remove this component
                 scene.removeItem(self)
+                
+                # Show status message
+                if hasattr(view, 'app_instance'):
+                    num_links = len(self.connected_links) if hasattr(self, 'connected_links') and self.connected_links else 0
+                    view.app_instance.showCanvasStatus(f"Deleted component and {num_links} connected link(s)")
                 return
                 
-        # If not in delete mode, call the parent handler
+        # If not in delete mode, call the parent handler for other functionality
         super().mousePressEvent(event)

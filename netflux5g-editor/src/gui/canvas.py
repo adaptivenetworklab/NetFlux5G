@@ -47,10 +47,24 @@ class MovableLabel(QLabel):
     def mouseReleaseEvent(self, event):
         self.dragging = False
 
+
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            if hasattr(self, 'current_tool') and self.current_tool in ["delete", "link", "placement", "text", "square"]:
-                self.enablePickTool()
+        if event.key() == Qt.Key_Delete:
+            # Find the parent canvas to handle deletion properly
+            parent_widget = self.parent()
+            while parent_widget and not isinstance(parent_widget, Canvas):
+                parent_widget = parent_widget.parent()
+            
+            if parent_widget:
+                # Let the canvas handle the deletion to ensure proper link cleanup
+                parent_widget.keyPressEvent(event)
+            else:
+                # Fallback: just delete this label
+                self.deleteLater()
+                
+        elif event.key() == Qt.Key_Escape:
+            self.clearFocus()
+        
         super().keyPressEvent(event)
     
     def contextMenuEvent(self, event):
@@ -334,7 +348,41 @@ class Canvas(QGraphicsView):
             selected_items = self.scene.selectedItems()
             if selected_items:
                 for item in selected_items:
-                    self.scene.removeItem(item)
+                    # If it's a NetworkComponent with connected links, remove those links first
+                    if hasattr(item, 'connected_links') and item.connected_links:
+                        # Copy the list to avoid modification during iteration
+                        links_to_remove = item.connected_links.copy()
+                        for link in links_to_remove:
+                            # Remove the link from both connected nodes
+                            if hasattr(link, 'source_node') and hasattr(link.source_node, 'connected_links'):
+                                if link in link.source_node.connected_links:
+                                    link.source_node.connected_links.remove(link)
+                            if hasattr(link, 'dest_node') and hasattr(link.dest_node, 'connected_links'):
+                                if link in link.dest_node.connected_links:
+                                    link.dest_node.connected_links.remove(link)
+                            # Remove the link from the scene
+                            if link.scene():
+                                self.scene.removeItem(link)
+                    
+                    # If it's a NetworkLink, remove it from connected nodes
+                    elif hasattr(item, 'source_node') and hasattr(item, 'dest_node'):
+                        # This is a link itself being deleted
+                        if hasattr(item.source_node, 'connected_links') and item in item.source_node.connected_links:
+                            item.source_node.connected_links.remove(item)
+                        if hasattr(item.dest_node, 'connected_links') and item in item.dest_node.connected_links:
+                            item.dest_node.connected_links.remove(item)
+                    
+                    # Remove the item itself from the scene
+                    if item.scene():
+                        self.scene.removeItem(item)
+                
+                # Clean up any remaining broken links
+                self.cleanupBrokenLinks()
+                
+                # Show status message
+                if hasattr(self, 'app_instance') and self.app_instance:
+                    self.app_instance.showCanvasStatus(f"Deleted {len(selected_items)} selected item(s)")
+                    
         elif event.key() == Qt.Key_Escape:
             if hasattr(self, 'app_instance') and self.app_instance:
                 if self.app_instance.current_tool in ["delete", "link", "placement", "text", "square"]:
@@ -347,15 +395,32 @@ class Canvas(QGraphicsView):
         self.link_mode = enabled
 
     def cleanupBrokenLinks(self):
+        """Clean up any broken links whose source or destination nodes no longer exist."""
         from .links import NetworkLink
         
         links_to_remove = []
-        for item in self.scene.items():
+        scene_items = self.scene.items()
+        
+        for item in scene_items:
             if isinstance(item, NetworkLink):
-                if not item.source_item or not item.destination_item:
-                    links_to_remove.append(item)
-                elif item.source_item not in self.scene.items() or item.destination_item not in self.scene.items():
+                # Check if source or destination nodes are missing or not in scene
+                if (not hasattr(item, 'source_node') or not hasattr(item, 'dest_node') or
+                    item.source_node is None or item.dest_node is None or
+                    item.source_node not in scene_items or item.dest_node not in scene_items):
                     links_to_remove.append(item)
                     
         for link in links_to_remove:
-            self.scene.removeItem(link)
+            # Clean up the link from connected nodes if they still exist
+            if hasattr(link, 'source_node') and link.source_node and hasattr(link.source_node, 'connected_links'):
+                if link in link.source_node.connected_links:
+                    link.source_node.connected_links.remove(link)
+            if hasattr(link, 'dest_node') and link.dest_node and hasattr(link.dest_node, 'connected_links'):
+                if link in link.dest_node.connected_links:
+                    link.dest_node.connected_links.remove(link)
+            
+            # Remove from scene
+            if link.scene():
+                self.scene.removeItem(link)
+        
+        if links_to_remove:
+            print(f"DEBUG: Cleaned up {len(links_to_remove)} broken links")
