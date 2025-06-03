@@ -3,6 +3,7 @@ import yaml
 import shutil
 import traceback
 from PyQt5.QtWidgets import QFileDialog
+from .debug_manager import debug_print, error_print, warning_print
 
 class DockerComposeExporter:
     """Handler for exporting 5G Core components to Docker Compose configuration."""
@@ -51,12 +52,12 @@ class DockerComposeExporter:
             self.copy_entrypoint_script(config_dir)
             
             self.main_window.showCanvasStatus(f"Docker Compose files exported to {export_dir}")
-            print(f"DEBUG: Docker Compose export completed to {export_dir}")
+            debug_print(f"DEBUG: Docker Compose export completed to {export_dir}")
             
         except Exception as e:
             error_msg = f"Error exporting Docker Compose: {str(e)}"
             self.main_window.showCanvasStatus(error_msg)
-            print(f"ERROR: {error_msg}")
+            error_print(f"ERROR: {error_msg}")
             traceback.print_exc()
 
     def generate_docker_compose_config(self, core5g_components):
@@ -295,12 +296,12 @@ class DockerComposeExporter:
                     if instance.get('imported', False) and instance.get('config_content'):
                         # Use the imported configuration
                         self.write_imported_config_file(config_file_path, instance, component_type)
-                        print(f"DEBUG: Used imported config for {service_name}")
+                        debug_print(f"DEBUG: Used imported config for {service_name}")
                     elif instance.get('config_file_path') and os.path.exists(instance['config_file_path']):
                         # Copy from the imported file path
                         shutil.copy2(instance['config_file_path'], config_file_path)
                         self.customize_config_file(config_file_path, instance, component_type)
-                        print(f"DEBUG: Copied imported config from {instance['config_file_path']}")
+                        debug_print(f"DEBUG: Copied imported config from {instance['config_file_path']}")
                     else:
                         # Try to copy from template or create default config
                         template_file = os.path.join(template_config_path, f"{component_type.lower()}.yaml")
@@ -309,14 +310,14 @@ class DockerComposeExporter:
                             # Copy and modify template file
                             shutil.copy2(template_file, config_file_path)
                             self.customize_config_file(config_file_path, instance, component_type)
-                            print(f"DEBUG: Copied and customized config from template: {config_file_path}")
+                            debug_print(f"DEBUG: Copied and customized config from template: {config_file_path}")
                         else:
                             # Create default configuration
                             self.create_default_config_file(config_file_path, instance, component_type)
-                            print(f"DEBUG: Created default config file: {config_file_path}")
+                            debug_print(f"DEBUG: Created default config file: {config_file_path}")
             
         except Exception as e:
-            print(f"ERROR: Failed to generate configuration files: {e}")
+            error_print(f"ERROR: Failed to generate configuration files: {e}")
             traceback.print_exc()
 
     def write_imported_config_file(self, config_file_path, instance_config, component_type):
@@ -332,10 +333,10 @@ class DockerComposeExporter:
             with open(config_file_path, 'w') as f:
                 yaml.dump(config_data, f, default_flow_style=False, sort_keys=False)
                 
-            print(f"DEBUG: Wrote imported configuration to {config_file_path}")
+            debug_print(f"DEBUG: Wrote imported configuration to {config_file_path}")
             
         except Exception as e:
-            print(f"ERROR: Failed to write imported config file {config_file_path}: {e}")
+            error_print(f"ERROR: Failed to write imported config file {config_file_path}: {e}")
 
     def apply_instance_customizations(self, config_data, instance_config, component_type):
         """Apply instance-specific customizations to imported configuration."""
@@ -380,7 +381,7 @@ class DockerComposeExporter:
             # Add any additional customizations based on component type and instance settings
             
         except Exception as e:
-            print(f"ERROR: Failed to apply customizations to {component_type}: {e}")
+            error_print(f"ERROR: Failed to apply customizations to {component_type}: {e}")
 
     def customize_config_file(self, config_file_path, instance_config, component_type):
         """Customize a configuration file based on instance-specific settings."""
@@ -423,7 +424,7 @@ class DockerComposeExporter:
                 yaml.dump(config_data, f, default_flow_style=False)
                 
         except Exception as e:
-            print(f"ERROR: Failed to customize config file {config_file_path}: {e}")
+            error_print(f"ERROR: Failed to customize config file {config_file_path}: {e}")
 
     def create_default_config_file(self, config_file_path, instance_config, component_type):
         """Create a default configuration file for a component type."""
@@ -523,7 +524,7 @@ class DockerComposeExporter:
             with open(config_file_path, 'w') as f:
                 yaml.dump(config_data, f, default_flow_style=False)
         except Exception as e:
-            print(f"ERROR: Failed to create default config file {config_file_path}: {e}")
+            error_print(f"ERROR: Failed to create default config file {config_file_path}: {e}")
 
     def copy_entrypoint_script(self, config_dir):
         """Copy the entrypoint.sh script to the config directory."""
@@ -537,13 +538,13 @@ class DockerComposeExporter:
                 shutil.copy2(source_entrypoint, dest_entrypoint)
                 # Make sure it's executable
                 os.chmod(dest_entrypoint, 0o755)
-                print(f"DEBUG: Copied entrypoint.sh to {dest_entrypoint}")
+                debug_print(f"DEBUG: Copied entrypoint.sh to {dest_entrypoint}")
             else:
                 # Create a basic entrypoint script
                 self.create_default_entrypoint_script(dest_entrypoint)
                 
         except Exception as e:
-            print(f"ERROR: Failed to copy entrypoint script: {e}")
+            error_print(f"ERROR: Failed to copy entrypoint script: {e}")
 
     def create_default_entrypoint_script(self, script_path):
         """Create a default entrypoint.sh script."""
@@ -590,6 +591,6 @@ exit 1
             with open(script_path, 'w') as f:
                 f.write(entrypoint_content)
             os.chmod(script_path, 0o755)
-            print(f"DEBUG: Created default entrypoint.sh at {script_path}")
+            debug_print(f"DEBUG: Created default entrypoint.sh at {script_path}")
         except Exception as e:
-            print(f"ERROR: Failed to create default entrypoint script: {e}")
+            error_print(f"ERROR: Failed to create default entrypoint script: {e}")

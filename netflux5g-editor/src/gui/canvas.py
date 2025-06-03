@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QMimeData, QPoint, QRectF, QTimer
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen, QCursor
 from .widgets.Dialog import *
 from .components import NetworkComponent
+from .debug_manager import debug_print, error_print, warning_print
 
 class MovableLabel(QLabel):
     PROPERTIES_MAP = {
@@ -125,7 +126,7 @@ class Canvas(QGraphicsView):
             canvas_width = self.viewport().width()
             canvas_height = self.viewport().height()
             
-            print(f"DEBUG: Updating scene size - canvas viewport: {canvas_width}x{canvas_height}")
+            debug_print(f"Updating scene size - canvas viewport: {canvas_width}x{canvas_height}")
             
             if canvas_width > 0 and canvas_height > 0:
                 # Make scene larger than the visible area to allow panning
@@ -136,20 +137,20 @@ class Canvas(QGraphicsView):
                 scene_rect = QRectF(-scene_width//2, -scene_height//2, scene_width, scene_height)
                 self.scene.setSceneRect(scene_rect)
                 
-                print(f"DEBUG: Scene size updated - {scene_width}x{scene_height}")
-                print(f"DEBUG: Scene rect: {scene_rect}")
+                debug_print(f"Scene size updated - {scene_width}x{scene_height}")
+                debug_print(f"Scene rect: {scene_rect}")
                 
             else:
-                print("WARNING: Canvas viewport has zero or negative dimensions")
+                warning_print("Canvas viewport has zero or negative dimensions")
                 
         except Exception as e:
-            print(f"ERROR: Failed to update scene size: {e}")
+            error_print(f"Failed to update scene size: {e}")
 
     def resizeEvent(self, event):
         """Handle canvas resize events."""
         super().resizeEvent(event)
         
-        print(f"DEBUG: Canvas resize event - new size: {event.size()}")
+        debug_print(f"Canvas resize event - new size: {event.size()}")
         
         # Update scene size when canvas is resized
         QTimer.singleShot(100, self.updateSceneSize)  # Small delay to ensure geometry is settled
@@ -423,4 +424,4 @@ class Canvas(QGraphicsView):
                 self.scene.removeItem(link)
         
         if links_to_remove:
-            print(f"DEBUG: Cleaned up {len(links_to_remove)} broken links")
+            debug_print(f"Cleaned up {len(links_to_remove)} broken links")

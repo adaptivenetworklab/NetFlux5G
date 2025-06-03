@@ -3,6 +3,7 @@ import math
 from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5.QtCore import Qt, QRectF, QPointF, QLineF
 from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor
+from .debug_manager import debug_print, error_print, warning_print
 
 class NetworkLink(QGraphicsItem):
     """Link/connection between two network components using a cable image"""
@@ -46,9 +47,9 @@ class NetworkLink(QGraphicsItem):
         
         if os.path.exists(cable_path):
             self.cable_pixmap = QPixmap(cable_path)
-            print(f"DEBUG: Cable image loaded from {cable_path}")
+            debug_print(f"DEBUG: Cable image loaded from {cable_path}")
         else:
-            print(f"ERROR: Cable image not found at {cable_path}")
+            error_print(f"ERROR: Cable image not found at {cable_path}")
             
         # Create cable segments
         self.cable_segments = []
@@ -169,7 +170,7 @@ class NetworkLink(QGraphicsItem):
         dest_edge = self.get_intersection_point(dest_center, source_center, dest_radius)
         
         # Debug output
-        print(f"DEBUG: Link from {source_edge.x():.1f},{source_edge.y():.1f} to {dest_edge.x():.1f},{dest_edge.y():.1f}")
+        debug_print(f"DEBUG: Link from {source_edge.x():.1f},{source_edge.y():.1f} to {dest_edge.x():.1f},{dest_edge.y():.1f}")
         
         # Calculate angle and distance between edge points
         line = QLineF(source_edge, dest_edge)

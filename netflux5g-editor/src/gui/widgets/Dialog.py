@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 import yaml
+from gui.debug_manager import debug_print, error_print, warning_print
 
 class BasePropertiesWindow(QMainWindow):
     """Base class for all properties windows that automatically sets the icon."""
@@ -33,7 +34,7 @@ class BasePropertiesWindow(QMainWindow):
     def saveProperties(self):
         """Save all UI values to the component's properties, including 5G component tables."""
         if not self.component:
-            print("Warning: No component reference to save properties to")
+            warning_print("WARNING: No component reference to save properties to")
             return
             
         properties = {}
@@ -86,7 +87,7 @@ class BasePropertiesWindow(QMainWindow):
         
         # Save to component
         self.component.setProperties(properties)
-        print(f"DEBUG: Saved properties for {self.component_name}: {len(properties)} properties")
+        debug_print(f"DEBUG: Saved properties for {self.component_name}: {len(properties)} properties")
 
     def save5GComponentTableData(self, properties):
         """Save data from all 5G component tables."""
@@ -163,7 +164,7 @@ class BasePropertiesWindow(QMainWindow):
                 config_key = f"{component_type}_configs"
                 properties[config_key] = table_data
                 
-                print(f"DEBUG: Saved {len(table_data)} {component_type} configurations")
+                debug_print(f"DEBUG: Saved {len(table_data)} {component_type} configurations")
 
     def loadProperties(self):
         """Load component properties into UI widgets, including 5G component tables."""
@@ -288,7 +289,7 @@ class BasePropertiesWindow(QMainWindow):
                     settings_item.setToolTip("Double-click to edit component settings")
                     table.setItem(i, 2, settings_item)
             
-            print(f"DEBUG: Loaded {len(table_data)} {component_type} configurations into table")
+            debug_print(f"DEBUG: Loaded {len(table_data)} {component_type} configurations into table")
 
 class HostPropertiesWindow(BasePropertiesWindow):
     def __init__(self, label_text, parent=None, component=None):
@@ -563,7 +564,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
 
     def addComponentType(self, component_type):
         """Add a new component instance to the corresponding table."""
-        print(f"DEBUG: Adding {component_type} component...")
+        debug_print(f"DEBUG: Adding {component_type} component...")
         
         # Try different possible table name patterns
         possible_table_names = [
@@ -582,21 +583,21 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             if hasattr(self, name):
                 table = getattr(self, name)
                 table_name = name
-                print(f"DEBUG: Found table with name: {name}")
+                debug_print(f"DEBUG: Found table with name: {name}")
                 break
         
         if not table:
-            # Debug: print all available attributes that contain 'table' or the component type
-            print(f"DEBUG: Could not find table for {component_type}. Available attributes:")
+            # Debug: # print all available attributes that contain 'table' or the component type
+            debug_print(f"DEBUG: Could not find table for {component_type}. Available attributes:")
             for attr_name in dir(self):
                 if 'table' in attr_name.lower() or component_type.lower() in attr_name.lower():
-                    print(f"  - {attr_name}")
+                    debug_print(f"  - {attr_name}")
             return
         
         # Verify it's actually a QTableWidget
         from PyQt5.QtWidgets import QTableWidget
         if not isinstance(table, QTableWidget):
-            print(f"ERROR: Found object {table_name} but it's not a QTableWidget: {type(table)}")
+            error_print(f"ERROR: Found object {table_name} but it's not a QTableWidget: {type(table)}")
             return
         
         row_position = table.rowCount()
@@ -618,7 +619,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             settings_item.setToolTip("Double-click to edit component settings")
             table.setItem(row_position, 2, settings_item)
         
-        print(f"DEBUG: Successfully added {component_type} component: {default_name} at row {row_position}")
+        debug_print(f"DEBUG: Successfully added {component_type} component: {default_name} at row {row_position}")
 
     def removeComponentType(self, component_type):
         """Remove selected component instance from the corresponding table."""
@@ -654,13 +655,13 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                                 self.component.setProperties(properties)
                     
                     table.removeRow(current_row)
-                    print(f"DEBUG: Removed {component_type} component at row {current_row}")
+                    debug_print(f"DEBUG: Removed {component_type} component at row {current_row}")
                 else:
-                    print(f"DEBUG: No row selected for {component_type} table")
+                    debug_print(f"DEBUG: No row selected for {component_type} table")
             else:
-                print(f"ERROR: Found object but it's not a QTableWidget: {type(table)}")
+                error_print(f"ERROR: Found object but it's not a QTableWidget: {type(table)}")
         else:
-            print(f"DEBUG: Could not find table for {component_type}")
+            debug_print(f"DEBUG: Could not find table for {component_type}")
 
     def clearComponentConfiguration(self, component_type, row):
         """Clear the imported configuration for a component."""
@@ -725,7 +726,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 
                 # Remove from table
                 table.removeRow(row)
-                print(f"DEBUG: Removed {component_type} component '{component_name}' at row {row}")
+                debug_print(f"DEBUG: Removed {component_type} component '{component_name}' at row {row}")
 
     def importYamlForComponent(self, component_type, row):
         """Import YAML configuration file for a specific component."""
@@ -741,7 +742,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     break
         
         if not table:
-            print(f"ERROR: Could not find table for {component_type}")
+            error_print(f"ERROR: Could not find table for {component_type}")
             return
             
         # Get the component name from the first column
@@ -805,7 +806,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 config_item.config_file_path = file_path
                 config_item.config_filename = os.path.basename(file_path)
                 
-                print(f"DEBUG: Successfully imported {file_path} for {component_name}")
+                debug_print(f"DEBUG: Successfully imported {file_path} for {component_name}")
                 QMessageBox.information(
                     self,
                     "Import Successful",
@@ -1019,11 +1020,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 settings_item.setToolTip("Double-click to edit component settings")
                 table.setItem(row_position, 2, settings_item)
         
-        print(f"DEBUG: Loaded {len(table_data)} items into {component_type} table")
+        debug_print(f"DEBUG: Loaded {len(table_data)} items into {component_type} table")
         
     def debug_ui_elements(self):
-        """Debug method to print all UI elements - call this in __init__ to see what's available"""
-        print("=== DEBUG: All UI elements ===")
+        """Debug method to # print all UI elements - call this in __init__ to see what's available"""
+        debug_print("=== DEBUG: All UI elements ===")
         from PyQt5.QtWidgets import QTableWidget, QPushButton
         
         for attr_name in dir(self):
@@ -1031,12 +1032,12 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 try:
                     attr_obj = getattr(self, attr_name)
                     if isinstance(attr_obj, QTableWidget):
-                        print(f"TABLE: {attr_name} (rows: {attr_obj.rowCount()}, cols: {attr_obj.columnCount()})")
+                        debug_print(f"TABLE: {attr_name} (rows: {attr_obj.rowCount()}, cols: {attr_obj.columnCount()})")
                     elif isinstance(attr_obj, QPushButton):
-                        print(f"BUTTON: {attr_name} (text: '{attr_obj.text()}')")
+                        debug_print(f"BUTTON: {attr_name} (text: '{attr_obj.text()}')")
                 except:
                     pass
-        print("=== END DEBUG ===")
+        debug_print("=== END DEBUG ===")
         
     def onOK(self):
         self.saveProperties()

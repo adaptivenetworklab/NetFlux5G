@@ -5,6 +5,7 @@ import traceback
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtCore import QDateTime
 from .config_mapping import ConfigurationMapper
+from .debug_manager import debug_print, error_print, warning_print
 
 class MininetExporter:
     """Handler for exporting network topology to Mininet scripts."""
@@ -55,12 +56,12 @@ class MininetExporter:
                 })
             
             self.main_window.showCanvasStatus(f"Exported topology with configurations to {os.path.basename(filename)}")
-            print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with configurations to {filename}")
+            debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with configurations to {filename}")
             
         except Exception as e:
             error_msg = f"Error exporting to Mininet: {str(e)}"
             self.main_window.showCanvasStatus(error_msg)
-            print(f"ERROR: {error_msg}")
+            error_print(f"ERROR: {error_msg}")
             traceback.print_exc()
 
     def write_mininet_script(self, f, nodes, links, categorized_nodes):
