@@ -25,10 +25,10 @@ class ToolbarFunctions:
                 action.triggered.connect(method)
         
         # Connect run/stop actions if they exist
-        # if hasattr(self.main_window, 'actionRunAll'):
-        #     self.main_window.actionRunAll.triggered.connect(self.runAll)
-        # if hasattr(self.main_window, 'actionStopAll'):
-        #     self.main_window.actionStopAll.triggered.connect(self.stopAll)
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.triggered.connect(self.runAll)
+        if hasattr(self.main_window, 'actionStopAll'):
+            self.main_window.actionStopAll.triggered.connect(self.stopAll)
 
     def setup_tooltips(self):
         """Set up helpful tooltips with keyboard shortcuts."""
@@ -41,8 +41,8 @@ class ToolbarFunctions:
             'actionZoomIn': "Zoom In (+)",
             'actionZoomOut': "Zoom Out (-)",
             'actionResetZoom': "Reset Zoom (0)",
-            'actionRunAll': "Run All Components",
-            'actionStopAll': "Stop All Components"
+            'actionRunAll': "Run All - Deploy and start all components",
+            'actionStopAll': "Stop All - Stop all running services"
         }
         
         for action_name, tooltip in tooltips.items():
@@ -50,19 +50,15 @@ class ToolbarFunctions:
                 getattr(self.main_window, action_name).setToolTip(tooltip)
 
     def enablePickTool(self):
-        # self.main_window.statusBar.showMessage("Pick Tool selected (P)")
         self.main_window.enablePickTool()
 
     def enableDeleteTool(self):
-        # self.main_window.statusBar.showMessage("Delete Tool selected (D). Click on items to delete them.")
         self.main_window.current_tool = "delete"
 
     def addTextBox(self):
-        # self.main_window.statusBar.showMessage("Text Box Tool selected (T)")
         self.main_window.addTextBox()
 
     def addDrawSquare(self):
-        # self.main_window.statusBar.showMessage("Draw Square Tool selected")
         self.main_window.addDrawSquare()
 
     def toggleGrid(self):
@@ -71,22 +67,19 @@ class ToolbarFunctions:
     def zoomIn(self):
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.zoomIn()
-            # self.main_window.statusBar.showMessage(f"Zoomed in (Level: {self.main_window.canvas_view.zoom_level:.1f}x)")
 
     def zoomOut(self):
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.zoomOut()
-            # self.main_window.statusBar.showMessage(f"Zoomed out (Level: {self.main_window.canvas_view.zoom_level:.1f}x)")
 
     def resetZoom(self):
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.resetZoom()
-            # self.main_window.statusBar.showMessage("Zoom reset to default level")
 
-    # def runAll(self):
-        # self.main_window.statusBar.showMessage("Run All triggered")
-        # Add logic for running all components
+    def runAll(self):
+        """Run All - Deploy and start all components"""
+        self.main_window.runAllComponents()
 
-    # def stopAll(self):
-        # self.main_window.statusBar.showMessage("Stop All triggered")
-        # Add logic for stopping all components
+    def stopAll(self):
+        """Stop All - Stop all running services"""
+        self.main_window.stopAllComponents()

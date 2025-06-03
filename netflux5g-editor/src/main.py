@@ -12,6 +12,7 @@ from gui.links import NetworkLink
 from gui.compose_export import DockerComposeExporter
 from gui.mininet_export import MininetExporter
 from gui.debug_manager import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
+from gui.automation_runner import AutomationRunner
 
 # Load the UI file
 UI_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "ui", "Main_Window.ui")
@@ -51,6 +52,9 @@ class NetFlux5GApp(QMainWindow):
         self.docker_compose_exporter = DockerComposeExporter(self)
         self.mininet_exporter = MininetExporter(self)
         
+        # Initialize automation runner
+        self.automation_runner = AutomationRunner(self)
+
         # Initialize grid attribute
         self.show_grid = False
         
@@ -135,7 +139,7 @@ class NetFlux5GApp(QMainWindow):
             self.menuDebug.addAction(self.actionClearDebug)
             self.menuDebug.addAction(self.actionShowDebugInfo)
             
-            debug_print("Debug menu created successfully", force=True)
+            debug_print("Debug menu created successfully")
             
         except Exception as e:
             error_print(f"Failed to setup debug menu: {e}")
@@ -458,9 +462,19 @@ class NetFlux5GApp(QMainWindow):
             
             debug_print("All connections setup completed")
             
+            # Connect RunAll and StopAll actions
+            if hasattr(self, 'actionRunAll'):
+                self.actionRunAll.triggered.connect(self.runAllComponents)
+            if hasattr(self, 'actionStopAll'):
+                self.actionStopAll.triggered.connect(self.stopAllComponents)
+                # Initially disable StopAll
+                self.actionStopAll.setEnabled(False)
+            
+            # Connect automation runner signals
+            self.automation_runner.execution_finished.connect(self.onAutomationFinished)
+            
         except Exception as e:
-            error_print(f"Failed to setup connections: {e}")
-            traceback.print_exc()
+            error_print(f"ERROR: Failed to setup connections: {e}")
 
     def debugCanvasSetup(self):
         """Debug method to verify canvas setup."""
@@ -918,6 +932,13 @@ class NetFlux5GApp(QMainWindow):
                 self.newTopology()
             elif event.key() == Qt.Key_O:
                 self.openTopology()
+        # Add shortcuts for RunAll and StopAll
+        elif event.key() == Qt.Key_R and event.modifiers() & Qt.ControlModifier:
+            if hasattr(self, 'actionRunAll') and self.actionRunAll.isEnabled():
+                self.runAllComponents()
+        elif event.key() == Qt.Key_S and event.modifiers() & Qt.ControlModifier and event.modifiers() & Qt.ShiftModifier:
+            if hasattr(self, 'actionStopAll') and self.actionStopAll.isEnabled():
+                self.stopAllComponents()
         
         # Call parent implementation for other keys
         super().keyPressEvent(event)
@@ -967,6 +988,89 @@ class NetFlux5GApp(QMainWindow):
         debug_print(f"DEBUG: Total extracted - {len(nodes)} nodes, {len(links)} links")
         return nodes, links
     
+    def runAllComponents(self):
+        """Run All - Deploy and start all components"""
+        debug_print("DEBUG: RunAll triggered")
+        
+        # Check if already running
+        if self.automation_runner.is_deployment_running():
+            from PyQt5.QtWidgets import QMessageBox
+            reply = QMessageBox.question(
+                self,
+                "Already Running",
+                "Deployment is already running. Do you want to stop it first?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                self.stopAllComponents()
+                # Wait a moment for cleanup
+                QTimer.singleShot(2000, self.automation_runner.run_all)
+            return
+        
+        # Start the automation
+        self.automation_runner.run_all()
+        
+        # Update UI state
+        if hasattr(self, 'actionRunAll'):
+            self.actionRunAll.setEnabled(False)
+        if hasattr(self, 'actionStopAll'):
+            self.actionStopAll.setEnabled(True)
+
+    def stopAllComponents(self):
+        """Stop All - Stop all running services"""
+        debug_print("DEBUG: StopAll triggered")
+        
+        if not self.automation_runner.is_deployment_running():
+            self.showCanvasStatus("No services are currently running")
+            return
+        
+        # Show confirmation dialog
+        from PyQt5.QtWidgets import QMessageBox
+        reply = QMessageBox.question(
+            self,
+            "Stop All Services",
+            "Are you sure you want to stop all running services?\n\nThis will:\n- Stop Docker containers\n- Clean up Mininet\n- Terminate all processes",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            self.automation_runner.stop_all()
+            
+            # Update UI state
+            if hasattr(self, 'actionRunAll'):
+                self.actionRunAll.setEnabled(True)
+            if hasattr(self, 'actionStopAll'):
+                self.actionStopAll.setEnabled(False)    
+
+    def onAutomationFinished(self, success, message):
+        """Handle automation completion."""
+        if success:
+            from PyQt5.QtWidgets import QMessageBox
+            
+            deployment_info = self.automation_runner.get_deployment_info()
+            info_text = f"Deployment completed successfully!\n\n"
+            
+            if deployment_info:
+                info_text += f"Working directory: {deployment_info['export_dir']}\n"
+                info_text += f"Docker Compose: {os.path.basename(deployment_info['docker_compose_file'])}\n"
+                info_text += f"Mininet Script: {os.path.basename(deployment_info['mininet_script'])}\n\n"
+            
+            info_text += "Services are now running. Use 'Stop All' to terminate when done."
+            
+            QMessageBox.information(self, "Deployment Successful", info_text)
+        else:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.critical(self, "Deployment Failed", f"Deployment failed:\n\n{message}")
+            
+            # Re-enable RunAll button
+            if hasattr(self, 'actionRunAll'):
+                self.actionRunAll.setEnabled(True)
+            if hasattr(self, 'actionStopAll'):
+                self.actionStopAll.setEnabled(False)
+
     def debugMenuActions(self):
         """Debug method to check available menu actions."""
         debug_print("=== DEBUG: Menu Actions ===")
