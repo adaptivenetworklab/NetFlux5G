@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QLabel
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QFont
 from manager.debug import debug_print, error_print
-import traceback
 
 class StatusManager:
     def __init__(self, main_window):
@@ -10,108 +10,125 @@ class StatusManager:
         self._status_timer = None
         
     def setupCanvasStatusBar(self):
-        """Create a custom status bar that only appears over the canvas area."""
+        """Set up the canvas status bar."""
         try:
-            # Remove existing status label if it exists
-            if hasattr(self, 'canvas_status_label') and self.canvas_status_label:
-                try:
-                    if not self.canvas_status_label.isHidden():
-                        self.canvas_status_label.hide()
-                    self.canvas_status_label.deleteLater()
-                except RuntimeError:
-                    pass
-                finally:
-                    self.canvas_status_label = None
+            if not hasattr(self.main_window, 'canvas_view'):
+                error_print("ERROR: Canvas view not found when setting up status bar")
+                return
+                
+            if self.canvas_status_label:
+                self.canvas_status_label.deleteLater()
+                self.canvas_status_label = None
             
-            # Cancel any pending status timers
-            if self._status_timer:
-                self._status_timer.stop()
-                self._status_timer = None
+            self.canvas_status_label = QLabel(self.main_window.canvas_view)
+            self.canvas_status_label.setStyleSheet("""
+                QLabel {
+                    background-color: rgba(0, 0, 0, 180);
+                    color: white;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-weight: 500;
+                    border: 1px solid rgba(255, 255, 255, 50);
+                }
+            """)
             
-            # Create new status label
-            if hasattr(self.main_window, 'canvas_view') and self.main_window.canvas_view:
-                self.canvas_status_label = QLabel(self.main_window.canvas_view)
-                self.canvas_status_label.setStyleSheet("""
-                    QLabel {
-                        background-color: rgba(255, 255, 255, 200);
-                        border: 1px solid gray;
-                        border-radius: 3px;
-                        padding: 2px 6px;
-                        font-size: 11px;
-                        color: black;
-                    }
-                """)
-                self.canvas_status_label.hide()
-                self.updateCanvasStatusBarPosition()
-                debug_print("Canvas status bar created successfully")
+            font = QFont("Segoe UI", 9)
+            self.canvas_status_label.setFont(font)
+            self.canvas_status_label.setAlignment(Qt.AlignCenter)
+            self.canvas_status_label.hide()
+            
+            # Position at bottom middle of canvas
+            self.updateCanvasStatusBarPosition()
+            
+            debug_print("DEBUG: Canvas status bar setup complete - positioned at bottom middle")
             
         except Exception as e:
-            error_print(f"Failed to setup canvas status bar: {e}")
+            error_print(f"ERROR: Failed to setup canvas status bar: {e}")
 
     def updateCanvasStatusBarPosition(self):
-        """Update the position of the canvas status bar."""
+        """Update the position of the canvas status bar to bottom middle with slight upward offset."""
         try:
-            if (self.canvas_status_label and 
-                hasattr(self.main_window, 'canvas_view') and 
-                self.main_window.canvas_view):
+            if not self.canvas_status_label or not hasattr(self.main_window, 'canvas_view'):
+                return
                 
-                try:
-                    _ = self.canvas_status_label.isVisible()
-                except RuntimeError:
-                    self.setupCanvasStatusBar()
-                    return
-                
-                canvas_rect = self.main_window.canvas_view.geometry()
-                x = 10
-                y = canvas_rect.height() - 30
-                self.canvas_status_label.move(x, y)
-                
+            canvas = self.main_window.canvas_view
+            canvas_rect = canvas.geometry()
+            
+            # Get the current text to calculate proper size
+            text = self.canvas_status_label.text()
+            if not text:
+                text = "Ready"  # Default text for sizing
+            
+            # Calculate text metrics
+            font_metrics = self.canvas_status_label.fontMetrics()
+            text_width = font_metrics.width(text)
+            text_height = font_metrics.height()
+            
+            # Add padding (matching the stylesheet padding: 8px 16px)
+            label_width = text_width + 32  # 16px padding on each side
+            label_height = text_height + 16  # 8px padding on top and bottom
+            
+            # Calculate bottom middle position with upward offset
+            center_x = (canvas.width() - label_width) // 2
+            # Position near bottom but with 40px offset from the very bottom
+            bottom_y = canvas.height() - label_height - 40
+            
+            # Ensure the label doesn't go outside canvas bounds
+            center_x = max(10, min(center_x, canvas.width() - label_width - 10))
+            bottom_y = max(10, min(bottom_y, canvas.height() - label_height - 10))
+            
+            self.canvas_status_label.setGeometry(center_x, bottom_y, label_width, label_height)
+            
+            debug_print(f"DEBUG: Status bar positioned at bottom middle: ({center_x}, {bottom_y}), size: ({label_width}, {label_height})")
+            
         except Exception as e:
-            error_print(f"Failed to update canvas status bar position: {e}")
+            error_print(f"ERROR: Failed to update canvas status bar position: {e}")
 
-    def showCanvasStatus(self, message, timeout=0):
-        """Show a status message on the canvas status bar."""
+    def showCanvasStatus(self, message, timeout=2000):
+        """Show a status message on the canvas at the bottom middle."""
         try:
             if not self.canvas_status_label:
                 self.setupCanvasStatusBar()
             
-            if self.canvas_status_label:
-                try:
-                    _ = self.canvas_status_label.isVisible()
-                    self.canvas_status_label.setText(message)
-                    self.canvas_status_label.adjustSize()
-                    self.canvas_status_label.show()
-                    
-                    if self._status_timer:
-                        self._status_timer.stop()
-                    
-                    if timeout > 0:
-                        self._status_timer = QTimer()
-                        self._status_timer.setSingleShot(True)
-                        self._status_timer.timeout.connect(self._hideCanvasStatus)
-                        self._status_timer.start(timeout)
-                    
-                    debug_print(f"Canvas status updated: {message}")
-                    
-                except RuntimeError:
-                    self.setupCanvasStatusBar()
-                    if self.canvas_status_label:
-                        self.canvas_status_label.setText(message)
-                        self.canvas_status_label.adjustSize()
-                        self.canvas_status_label.show()
+            if not self.canvas_status_label:
+                debug_print(f"Status (fallback): {message}")
+                return
+            
+            self.canvas_status_label.setText(message)
+            
+            # Update position based on new text content
+            self.updateCanvasStatusBarPosition()
+            
+            self.canvas_status_label.show()
+            self.canvas_status_label.raise_()  # Bring to front
+            
+            # Stop existing timer
+            if self._status_timer and self._status_timer.isActive():
+                self._status_timer.stop()
+            
+            # Set up auto-hide timer if timeout is specified
+            if timeout > 0:
+                if not self._status_timer:
+                    self._status_timer = QTimer()
+                    self._status_timer.setSingleShot(True)
+                    self._status_timer.timeout.connect(self._hideCanvasStatus)
+                
+                self._status_timer.start(timeout)
+            
+            debug_print(f"DEBUG: Canvas status shown at bottom middle: {message}")
             
         except Exception as e:
-            error_print(f"Failed to show canvas status: {e}")
-            debug_print(f"STATUS: {message}", force=True)
+            error_print(f"ERROR: Failed to show canvas status: {e}")
 
     def _hideCanvasStatus(self):
-        """Hide the canvas status label safely."""
+        """Hide the canvas status label."""
         try:
             if self.canvas_status_label:
-                try:
-                    self.canvas_status_label.hide()
-                    self.canvas_status_label.setText("Ready")
-                except RuntimeError:
-                    pass
+                self.canvas_status_label.hide()
+                debug_print("DEBUG: Canvas status hidden")
         except Exception as e:
-            error_print(f"Failed to hide canvas status: {e}")
+            error_print(f"ERROR: Failed to hide canvas status: {e}")
+
+    def hideCanvasStatus(self):
+        """Manually hide the canvas status."""
+        self._hideCanvasStatus()
