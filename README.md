@@ -1,20 +1,39 @@
-# NetFlux5G Editor
+# NetFlux5G
 
-This repository contains a PyQt5-based GUI application for building and deploying 5G network topologies.
+NetFlux5G is a PyQt5-based GUI application for designing, deploying, and testing 5G network topologies using Mininet-WiFi and Dockerized 5G core/RAN components.
 
-## Setup
+---
 
-1. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
+## Features
+
+- **Visual Topology Editor:** Drag-and-drop interface for building 5G/SDN topologies.
+- **Mininet-WiFi Integration:** Export and run topologies as Mininet scripts.
+- **Docker Compose Integration:** Deploy 5G core and RAN components using Docker Compose.
+- **Automation:** One-click deployment and teardown of your entire network.
+
+---
+
+## Project Structure
+
+- `netflux5g-editor/` — Main GUI application (PyQt5)
+- `mininet-scenarios/` — Example and exported Mininet topology scripts
+- `docker/` — Docker images, compose files, and entrypoints
+- `docs/` — Additional documentation and tutorials
+- `install.sh` — Automated installation script for dependencies
+- `requirements.txt` — Python dependencies
+
+---
+
+## Quick Start
+
+### 1. Install System Dependencies
+
+```sh
+sudo apt-get update
+sudo apt-get install -y python3-pip git libxcb-xinerama0
    ```
 
-2. If running in a headless environment (e.g. server without a display) the application will automatically fall back to the `offscreen` Qt platform plugin. Ensure the `libxcb-xinerama0` package is installed on Ubuntu:
-   ```bash
-   sudo apt-get update && sudo apt-get install -y libxcb-xinerama0
-   ```
-
-## Running
+## 2. Running
 
 Navigate to the `netflux5g-editor/src` folder and start the application:
 

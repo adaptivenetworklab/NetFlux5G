@@ -3,7 +3,7 @@ import yaml
 import shutil
 import traceback
 from PyQt5.QtWidgets import QFileDialog
-from manager.debug_manager import debug_print, error_print, warning_print
+from manager.debug import debug_print, error_print, warning_print
 
 class DockerComposeExporter:
     """Handler for exporting 5G Core components to Docker Compose configuration."""

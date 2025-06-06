@@ -10,34 +10,36 @@ class ToolbarFunctions:
 
     def setup_toolbar_actions(self):
         """Setup all toolbar action connections"""
-        toolbar_actions = [
-            (self.main_window.actionPickTool, self.enablePickTool),
-            (self.main_window.actionLinkTool, self.enableLinkTool),  # Add this line
-            (self.main_window.actionDelete, self.enableDeleteTool),
-            (self.main_window.actionTextBox, self.addTextBox),
-            (self.main_window.actionDrawSquare, self.addDrawSquare),
-            (self.main_window.actionShowGrid, self.toggleGrid),
-            (self.main_window.actionZoomIn, self.zoomIn),
-            (self.main_window.actionZoomOut, self.zoomOut),
-            (self.main_window.actionResetZoom, self.resetZoom),
-        ]
-        
-        # Only connect actions that exist
-        for action, method in toolbar_actions:
-            if hasattr(self.main_window, action.objectName()):
+        action_methods = {
+            'actionPickTool': self.enablePickTool,
+            'actionLinkTool': self.enableLinkTool,
+            'actionDelete': self.enableDeleteTool,
+            'actionTextBox': self.addTextBox,
+            'actionDrawSquare': self.addDrawSquare,
+            'actionShowGrid': self.toggleGrid,
+            'actionZoomIn': self.zoomIn,
+            'actionZoomOut': self.zoomOut,
+            'actionResetZoom': self.resetZoom,
+        }
+
+        for action_name, method in action_methods.items():
+            action = getattr(self.main_window, action_name, None)
+            if action is not None:
                 action.triggered.connect(method)
-        
+
         # Connect run/stop actions if they exist
-        if hasattr(self.main_window, 'actionRunAll'):
-            self.main_window.actionRunAll.triggered.connect(self.runAll)
-        if hasattr(self.main_window, 'actionStopAll'):
-            self.main_window.actionStopAll.triggered.connect(self.stopAll)
+        run_action = getattr(self.main_window, 'actionRunAll', None)
+        if run_action is not None:
+            run_action.triggered.connect(self.runAll)
+        stop_action = getattr(self.main_window, 'actionStopAll', None)
+        if stop_action is not None:
+            stop_action.triggered.connect(self.stopAll)
 
     def setup_tooltips(self):
         """Set up helpful tooltips with keyboard shortcuts."""
         tooltips = {
             'actionPickTool': "Pick Tool (P)",
-            'actionLinkTool': "Link Tool - Connect components (L)",  # Add this line
+            'actionLinkTool': "Link Tool - Connect components (L)",
             'actionDelete': "Delete Tool (D)",
             'actionTextBox': "Text Box Tool (T)",
             'actionDrawSquare': "Draw Square Tool",
@@ -48,57 +50,62 @@ class ToolbarFunctions:
             'actionRunAll': "Run All - Deploy and start all components",
             'actionStopAll': "Stop All - Stop all running services"
         }
-        
+
         for action_name, tooltip in tooltips.items():
-            if hasattr(self.main_window, action_name):
-                getattr(self.main_window, action_name).setToolTip(tooltip)
+            action = getattr(self.main_window, action_name, None)
+            if action is not None:
+                action.setToolTip(tooltip)
 
     def enablePickTool(self):
-        """Enable pick tool and reset cursor."""
-        self.main_window.enablePickTool()
+        if hasattr(self.main_window, 'enablePickTool'):
+            self.main_window.enablePickTool()
 
-    def enableLinkTool(self): 
-        """Enable link tool and set crosshair cursor."""
-        self.main_window.enableLinkTool()
+    def enableLinkTool(self):
+        if hasattr(self.main_window, 'enableLinkTool'):
+            self.main_window.enableLinkTool()
 
     def enableDeleteTool(self):
-        """Enable delete tool and set appropriate cursor."""
-        self.main_window.current_tool = "delete"
-        
-        # Set cursor for delete mode
-        if hasattr(self.main_window, 'canvas_view'):
-            self.main_window.canvas_view.setCursor(QCursor(Qt.PointingHandCursor))
-        
-        # Update toolbar button states
-        self.main_window.updateToolbarButtonStates()
-        
-        self.main_window.showCanvasStatus("Delete Tool selected. Click on items to delete them.")
+        if hasattr(self.main_window, 'current_tool'):
+            self.main_window.current_tool = "delete"
+        canvas_view = getattr(self.main_window, 'canvas_view', None)
+        if canvas_view is not None:
+            canvas_view.setCursor(QCursor(Qt.PointingHandCursor))
+        if hasattr(self.main_window, 'updateToolbarButtonStates'):
+            self.main_window.updateToolbarButtonStates()
+        if hasattr(self.main_window, 'showCanvasStatus'):
+            self.main_window.showCanvasStatus("Delete Tool selected. Click on items to delete them.")
 
     def addTextBox(self):
-        self.main_window.addTextBox()
+        if hasattr(self.main_window, 'addTextBox'):
+            self.main_window.addTextBox()
 
     def addDrawSquare(self):
-        self.main_window.addDrawSquare()
+        if hasattr(self.main_window, 'addDrawSquare'):
+            self.main_window.addDrawSquare()
 
     def toggleGrid(self):
-        self.main_window.toggleGrid()
+        if hasattr(self.main_window, 'toggleGrid'):
+            self.main_window.toggleGrid()
 
     def zoomIn(self):
-        if hasattr(self.main_window, 'canvas_view'):
-            self.main_window.canvas_view.zoomIn()
+        canvas_view = getattr(self.main_window, 'canvas_view', None)
+        if canvas_view is not None and hasattr(canvas_view, 'zoomIn'):
+            canvas_view.zoomIn()
 
     def zoomOut(self):
-        if hasattr(self.main_window, 'canvas_view'):
-            self.main_window.canvas_view.zoomOut()
+        canvas_view = getattr(self.main_window, 'canvas_view', None)
+        if canvas_view is not None and hasattr(canvas_view, 'zoomOut'):
+            canvas_view.zoomOut()
 
     def resetZoom(self):
-        if hasattr(self.main_window, 'canvas_view'):
-            self.main_window.canvas_view.resetZoom()
+        canvas_view = getattr(self.main_window, 'canvas_view', None)
+        if canvas_view is not None and hasattr(canvas_view, 'resetZoom'):
+            canvas_view.resetZoom()
 
     def runAll(self):
-        """Run All - Deploy and start all components"""
-        self.main_window.runAllComponents()
+        if hasattr(self.main_window, 'runAllComponents'):
+            self.main_window.runAllComponents()
 
     def stopAll(self):
-        """Stop All - Stop all running services"""
-        self.main_window.stopAllComponents()
+        if hasattr(self.main_window, 'stopAllComponents'):
+            self.main_window.stopAllComponents()

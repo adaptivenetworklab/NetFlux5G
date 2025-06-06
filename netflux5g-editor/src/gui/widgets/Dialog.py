@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 import yaml
-from manager.debug_manager import debug_print, error_print, warning_print
+from manager.debug import debug_print, error_print, warning_print
 
 class BasePropertiesWindow(QMainWindow):
     """Base class for all properties windows that automatically sets the icon."""

@@ -8,8 +8,8 @@ from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
 from export.compose_export import DockerComposeExporter
 from export.mininet_export import MininetExporter
-from manager.debug_manager import debug_print, error_print, warning_print
-from prerequisites.prerequisites_checker import PrerequisitesChecker
+from manager.debug import debug_print, error_print, warning_print
+from prerequisites.checker import PrerequisitesChecker
 
 class AutomationRunner(QObject):
     """Handler for running automated deployment of Docker Compose and Mininet scripts."""
