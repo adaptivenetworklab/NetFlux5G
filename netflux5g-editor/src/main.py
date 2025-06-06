@@ -2,9 +2,9 @@ import os
 import sys
 import json
 import traceback
-from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton, QDesktopWidget, QFileDialog, QFrame, QMenuBar, QMenu, QAction
+from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsView, QPushButton, QDesktopWidget, QFileDialog, QFrame, QMenuBar, QMenu, QAction, QSplitter
 from PyQt5.QtCore import Qt, QPoint, QMimeData, QTimer, QDateTime
-from PyQt5.QtGui import QDrag, QPixmap, QIcon, QFont, QKeySequence
+from PyQt5.QtGui import QDrag, QPixmap, QIcon, QFont, QKeySequence, QCursor
 from PyQt5 import uic
 from gui.canvas import Canvas, MovableLabel
 from gui.toolbar import ToolbarFunctions
@@ -80,6 +80,12 @@ class NetFlux5GApp(QMainWindow):
         # Set up the canvas first
         self.setupCanvas()
         
+        # Setup component panel responsiveness
+        self.setupComponentPanel()
+        
+        # Optional: Add toggle button
+        self.setupComponentPanelToggle()
+        
         # Initialize attributes
         self.current_link_source = None
         self.current_file = None
@@ -100,6 +106,46 @@ class NetFlux5GApp(QMainWindow):
         
         # Force initial geometry update
         QTimer.singleShot(100, self.updateCanvasGeometry)
+
+    def updateCanvasGeometry(self):
+        """Update canvas geometry based on current window size and ObjectFrame position."""
+        try:
+            if not hasattr(self, 'canvas_view'):
+                warning_print("Canvas view not found during geometry update")
+                return
+
+            window_size = self.size()
+
+            # Get ObjectFrame width from the actual widget
+            object_frame_width = self.ObjectFrame.width() if hasattr(self, 'ObjectFrame') else 71
+
+            menubar_height = self.menubar.height() if hasattr(self, 'menubar') else 26
+            toolbar_height = self.toolBar.height() if hasattr(self, 'toolBar') else 30
+            statusbar_height = self.statusbar.height() if hasattr(self, 'statusbar') else 23
+
+            available_width = window_size.width() - object_frame_width - 10
+            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10
+
+            available_width = max(available_width, 400)
+            available_height = max(available_height, 300)
+
+            canvas_x = object_frame_width + 5
+            canvas_y = 5
+
+            self.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
+            self.canvas_view.setVisible(True)
+            self.canvas_view.show()
+
+            if hasattr(self.canvas_view, 'updateSceneSize'):
+                self.canvas_view.updateSceneSize()
+
+            debug_print(f"Canvas geometry updated - x:{canvas_x}, y:{canvas_y}, w:{available_width}, h:{available_height}")
+            debug_print(f"Canvas visible: {self.canvas_view.isVisible()}")
+            debug_print(f"Canvas accepts drops: {self.canvas_view.acceptDrops()}")
+
+        except Exception as e:
+            error_print(f"Failed to update canvas geometry: {e}")
+            traceback.print_exc()
 
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""
@@ -211,270 +257,599 @@ class NetFlux5GApp(QMainWindow):
     def setupCanvas(self):
         """Set up the canvas with proper error handling and dynamic sizing."""
         try:
-            debug_print("Setting up canvas...")
+            # Remove the existing horizontalLayoutWidget if it exists
+            if hasattr(self, 'horizontalLayoutWidget'):
+                self.horizontalLayoutWidget.deleteLater()
             
-            # Create the canvas
-            self.canvas_view = Canvas(self, self)
+            # Create a splitter to allow resizing between component panel and canvas
+            self.main_splitter = QSplitter(Qt.Horizontal)
             
-            # Make sure it accepts drops
-            self.canvas_view.setAcceptDrops(True)
+            # Set the ObjectFrame as the left widget in the splitter
+            if hasattr(self, 'ObjectFrame'):
+                # Remove ObjectFrame from its current parent
+                self.ObjectFrame.setParent(None)
+                self.main_splitter.addWidget(self.ObjectFrame)
+                
+                # Set minimum and maximum widths for the component panel
+                self.ObjectFrame.setMinimumWidth(45)   # Minimum width to keep icons visible with minimal text
+                self.ObjectFrame.setMaximumWidth(150)  # Maximum width to prevent it from taking too much space
             
-            # Set parent to centralwidget instead of trying to replace existing Canvas
-            self.canvas_view.setParent(self.centralwidget)
-            self.canvas_view.setObjectName("CanvasView")
+            # Create the canvas view
+            self.canvas_view = Canvas(self)
+            self.canvas_view.setMinimumWidth(400)  # Ensure canvas has minimum space
+            self.main_splitter.addWidget(self.canvas_view)
             
-            # Set initial size and position
-            self.updateCanvasGeometry()
+            # Set splitter proportions - component panel takes less space
+            self.main_splitter.setSizes([80, 800])  # Roughly 1:10 ratio
             
-            # Ensure canvas is visible
-            self.canvas_view.setVisible(True)
-            self.canvas_view.show()
+            # Set the splitter as the central widget
+            self.setCentralWidget(self.main_splitter)
             
-            # Create a custom status bar that only covers the canvas area
-            self.setupCanvasStatusBar()
+            # Allow the component panel to be collapsible (optional)
+            self.main_splitter.setCollapsible(0, True)  # Component panel can be collapsed
+            self.main_splitter.setCollapsible(1, False)  # Canvas cannot be collapsed
             
-            # Add scene reference for compatibility
-            self.scene = self.canvas_view.scene
+            # Connect splitter resize events to update component sizes
+            self.main_splitter.splitterMoved.connect(self.onSplitterMoved)
             
-            # Set focus policy so canvas can receive keyboard events
-            self.canvas_view.setFocusPolicy(Qt.StrongFocus)
+            # Set up canvas status bar with delay to ensure canvas is ready
+            QTimer.singleShot(200, self.setupCanvasStatusBar)
             
-            debug_print("Canvas setup completed successfully")
-            debug_print(f"Canvas geometry after setup: {self.canvas_view.geometry()}")
-            debug_print(f"Canvas parent: {self.canvas_view.parent()}")
-            debug_print(f"Canvas visible: {self.canvas_view.isVisible()}")
+            debug_print("DEBUG: Canvas and component panel setup with dynamic resizing")
             
         except Exception as e:
-            error_print(f"Failed to setup canvas: {e}")
-            traceback.print_exc()
+            error_print(f"ERROR: Failed to setup canvas: {e}")
+            # Fallback to original setup if there's an error
+            self.canvas_view = Canvas(self)
+            self.setCentralWidget(self.canvas_view)
 
-    def updateCanvasGeometry(self):
-        """Update canvas geometry based on current window size and ObjectFrame position."""
+    def onSplitterMoved(self, pos, index):
+        """Handle splitter movement to update component panel layout."""
+        debug_print(f"DEBUG: Splitter moved to position {pos}, index {index}")
+        
+        # Update component button and label sizes when splitter moves
+        QTimer.singleShot(50, self.updateComponentButtonSizes)
+
+    def closeEvent(self, event):
+        """Handle application close event to clean up resources."""
         try:
-            if not hasattr(self, 'canvas_view'):
-                warning_print("Canvas view not found during geometry update")
-                return
-
-            window_size = self.size()
-
-            # Get ObjectFrame width from the actual widget
-            object_frame_width = self.ObjectFrame.width() if hasattr(self, 'ObjectFrame') else 71
-
-            menubar_height = self.menubar.height() if hasattr(self, 'menubar') else 26
-            toolbar_height = self.toolBar.height() if hasattr(self, 'toolBar') else 30
-            statusbar_height = self.statusbar.height() if hasattr(self, 'statusbar') else 23
-
-            available_width = window_size.width() - object_frame_width - 10
-            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10
-
-            available_width = max(available_width, 400)
-            available_height = max(available_height, 300)
-
-            canvas_x = object_frame_width + 5
-            canvas_y = 5
-
-            self.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
-            self.canvas_view.setVisible(True)
-            self.canvas_view.show()
-
-            if hasattr(self.canvas_view, 'updateSceneSize'):
-                self.canvas_view.updateSceneSize()
-
-            debug_print(f"Canvas geometry updated - x:{canvas_x}, y:{canvas_y}, w:{available_width}, h:{available_height}")
-            debug_print(f"Canvas visible: {self.canvas_view.isVisible()}")
-            debug_print(f"Canvas accepts drops: {self.canvas_view.acceptDrops()}")
-
+            # Stop any running automation
+            if hasattr(self, 'automation_runner'):
+                self.automation_runner.stop_all()
+            
+            # Clean up status timer
+            if hasattr(self, '_status_timer') and self._status_timer:
+                self._status_timer.stop()
+                self._status_timer = None
+            
+            # Clean up status label
+            if hasattr(self, 'canvas_status_label') and self.canvas_status_label:
+                try:
+                    self.canvas_status_label.hide()
+                    self.canvas_status_label.deleteLater()
+                except RuntimeError:
+                    pass  # Already deleted
+                finally:
+                    self.canvas_status_label = None
+            
+            debug_print("Application cleanup completed")
+            
         except Exception as e:
-            error_print(f"Failed to update canvas geometry: {e}")
-            traceback.print_exc()
+            error_print(f"Error during application cleanup: {e}")
+        
+        # Accept the close event
+        event.accept()
+
+    def setupComponentPanel(self):
+        """Setup the component panel with responsive layout."""
+        if not hasattr(self, 'ObjectFrame'):
+            error_print("ERROR: ObjectFrame not found in UI")
+            return
+        
+        # Store original layout widget reference
+        if hasattr(self, 'verticalLayoutWidget'):
+            self.original_layout_widget = self.verticalLayoutWidget
+            self.original_layout = self.verticalLayoutWidget.layout()
+        
+        # Create a new responsive layout system
+        self.createResponsiveComponentLayout()
+        
+        # Update button and label sizes to be responsive
+        self.updateComponentButtonSizes()
+
+    def toggleComponentPanel(self):
+        """Toggle the visibility of the component panel."""
+        if not hasattr(self, 'main_splitter') or not hasattr(self, 'ObjectFrame'):
+            return
+        
+        if self.ObjectFrame.isVisible():
+            # Hide the panel
+            self.ObjectFrame.hide()
+            if hasattr(self, 'panel_toggle_button'):
+                self.panel_toggle_button.setText("▶")  # Right arrow when panel is hidden
+            self.showCanvasStatus("Component panel hidden")
+        else:
+            # Show the panel
+            self.ObjectFrame.show()
+            if hasattr(self, 'panel_toggle_button'):
+                self.panel_toggle_button.setText("◀")  # Left arrow when panel is visible
+            # Update sizes after showing
+            QTimer.singleShot(100, self.updateComponentButtonSizes)
+            self.showCanvasStatus("Component panel shown")
+
+    def setupComponentPanelToggle(self):
+        """Add a toggle button to show/hide the component panel."""
+        from PyQt5.QtWidgets import QToolButton
+        
+        # Create toggle button
+        self.panel_toggle_button = QToolButton()
+        self.panel_toggle_button.setText("◀")  # Left arrow when panel is visible
+        self.panel_toggle_button.setToolTip("Toggle Component Panel")
+        self.panel_toggle_button.setFixedSize(20, 30)
+        self.panel_toggle_button.clicked.connect(self.toggleComponentPanel)
+        
+        # Add to the main splitter or toolbar
+        if hasattr(self, 'toolBar'):
+            self.toolBar.addWidget(self.panel_toggle_button)
+
+    def createResponsiveComponentLayout(self):
+        """Create a responsive layout that switches between 1 and 2 columns."""
+        from PyQt5.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QSizePolicy
+        
+        # Create main container widget
+        self.responsive_widget = QWidget(self.ObjectFrame)
+        self.responsive_widget.setGeometry(0, 0, self.ObjectFrame.width(), self.ObjectFrame.height())
+        
+        # Create main vertical layout
+        self.main_vertical_layout = QVBoxLayout(self.responsive_widget)
+        self.main_vertical_layout.setContentsMargins(2, 2, 2, 2)
+        self.main_vertical_layout.setSpacing(2)
+        
+        # Create grid layout for components
+        self.component_grid_layout = QGridLayout()
+        self.component_grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.component_grid_layout.setSpacing(2)
+        
+        # Add grid layout to main layout
+        self.main_vertical_layout.addLayout(self.component_grid_layout)
+        self.main_vertical_layout.addStretch()  # Add stretch to push components to top
+        
+        # Store component data for responsive layout
+        self.component_data = [
+            ('Host', 'label', 'Host'),
+            ('STA', 'label_2', 'Station'), 
+            ('UE', 'label_3', 'User Equipment'),
+            ('GNB', 'label_4', 'gNodeB'),
+            ('DockerHost', 'label_5', 'Docker'),
+            ('AP', 'label_6', 'Access Point'),
+            ('VGcore', 'label_7', '5G Cores'),
+            ('Router', 'label_8', 'Legacy Router'),
+            ('Switch', 'label_9', 'SDN Switch'),
+            ('Controller', 'label_11', 'Controller')
+        ]
+        
+        # Create component widgets
+        self.component_widgets = []
+        for i, (button_name, label_name, display_text) in enumerate(self.component_data):
+            widget_container = self.createComponentWidget(button_name, label_name, display_text)
+            self.component_widgets.append(widget_container)
+        
+        # Initial layout arrangement
+        self.arrangeComponentsInGrid()
+        
+        # Set size policy for responsive behavior
+        self.responsive_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+    def createComponentWidget(self, button_name, label_name, display_text):
+        """Create a single component widget (button + label)."""
+        from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel, QSizePolicy
+        from PyQt5.QtCore import Qt
+        from PyQt5.QtGui import QPixmap
+        
+        # Create container widget
+        container = QWidget()
+        container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        
+        # Create vertical layout for button and label
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(2)
+        layout.setAlignment(Qt.AlignCenter)
+        
+        # Create button
+        button = QPushButton()
+        button.setObjectName(button_name)
+        button.setFixedSize(40, 40)  # Initial size, will be updated
+        button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        
+        # Set button icon if available
+        icon_path = self.component_icon_map.get(button_name)
+        if icon_path and os.path.exists(icon_path):
+            pixmap = QPixmap(icon_path)
+            scaled_pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            button.setIcon(QIcon(scaled_pixmap))
+        
+        # Connect button to drag function
+        button.mousePressEvent = lambda event, comp_type=button_name: self.onComponentButtonPress(event, comp_type)
+        
+        # Create label
+        label = QLabel(display_text)
+        label.setObjectName(label_name)
+        label.setAlignment(Qt.AlignCenter)
+        label.setWordWrap(True)
+        label.setMaximumHeight(40)  # Limit label height
+    
+        # Set font size
+        font = label.font()
+        font.setPointSize(7)
+        label.setFont(font)
+        
+        # Add to layout
+        layout.addWidget(button, 0, Qt.AlignCenter)
+        layout.addWidget(label, 0, Qt.AlignCenter)
+        
+        # Store references
+        container.button = button
+        container.label = label
+        container.button_name = button_name
+        container.label_name = label_name
+        container.display_text = display_text
+        
+        return container
+
+    def onComponentButtonPress(self, event, component_type):
+        """Handle component button press to start drag operation."""
+        from PyQt5.QtCore import Qt
+        
+        if event.button() == Qt.LeftButton:
+            debug_print(f"DEBUG: Component button pressed: {component_type}")
+            self.startDrag(component_type)
+
+    def arrangeComponentsInGrid(self):
+        """Arrange components in grid based on available width."""
+        if not hasattr(self, 'component_widgets') or not hasattr(self, 'component_grid_layout'):
+            return
+        
+        # Clear existing layout items
+        for i in reversed(range(self.component_grid_layout.count())):
+            item = self.component_grid_layout.itemAt(i)
+            if item:
+                widget = item.widget()
+                if widget:
+                    self.component_grid_layout.removeWidget(widget)
+        
+        # Calculate number of columns based on panel width
+        panel_width = self.ObjectFrame.width()
+        debug_print(f"DEBUG: Arranging components for panel width: {panel_width}")
+        
+        # Determine number of columns
+        if panel_width >= 120:  # Wide enough for 2 columns
+            num_columns = 2
+            debug_print("DEBUG: Using 2-column layout")
+        else:  # Too narrow, use 1 column
+            num_columns = 1
+            debug_print("DEBUG: Using 1-column layout")
+        
+        # Arrange widgets in grid
+        for i, widget in enumerate(self.component_widgets):
+            row = i // num_columns
+            col = i % num_columns
+            self.component_grid_layout.addWidget(widget, row, col)
+            debug_print(f"DEBUG: Placed {widget.button_name} at row {row}, col {col}")
+        
+        # Update component sizes
+        self.updateComponentSizesForLayout(num_columns, panel_width)
+
+    def updateComponentSizesForLayout(self, num_columns, panel_width):
+        """Update component button and label sizes based on layout."""
+        if not hasattr(self, 'component_widgets'):
+            return
+        
+        # Calculate button size based on available space
+        available_width = panel_width - 20  # Account for margins and spacing
+        if num_columns == 2:
+            button_width = max(30, min(45, (available_width - 10) // 2))  # Split width, account for spacing
+        else:
+            button_width = max(35, min(50, available_width - 10))
+        
+        button_size = button_width  # Keep square buttons
+        
+        # Calculate font size
+        if panel_width < 60:
+            font_size = 6
+            text_mode = 'minimal'
+        elif panel_width < 100:
+            font_size = 7
+            text_mode = 'abbreviated'
+        else:
+            font_size = 8
+            text_mode = 'full'
+        
+        debug_print(f"DEBUG: Updating sizes - button: {button_size}x{button_size}, font: {font_size}, text: {text_mode}")
+        
+        # Text mappings for different modes
+        text_mappings = {
+            'full': {
+                'Host': 'Host', 'STA': 'Station', 'UE': 'User Equipment', 'GNB': 'gNodeB',
+                'DockerHost': 'Docker', 'AP': 'Access Point', 'VGcore': '5G Cores',
+                'Router': 'Legacy Router', 'Switch': 'SDN Switch', 'Controller': 'Controller'
+            },
+            'abbreviated': {
+                'Host': 'Host', 'STA': 'STA', 'UE': 'UE', 'GNB': 'gNB',
+                'DockerHost': 'Docker', 'AP': 'AP', 'VGcore': '5GC',
+                'Router': 'Router', 'Switch': 'Switch', 'Controller': 'Control'
+            },
+            'minimal': {
+                'Host': 'H', 'STA': 'S', 'UE': 'U', 'GNB': 'G',
+                'DockerHost': 'D', 'AP': 'A', 'VGcore': '5G',
+                'Router': 'R', 'Switch': 'Sw', 'Controller': 'C'
+            }
+        }
+        
+        # Update each component
+        for widget in self.component_widgets:
+            # Update button size
+            widget.button.setFixedSize(button_size, button_size)
+            
+            # Update button icon
+            icon_path = self.component_icon_map.get(widget.button_name)
+            if icon_path and os.path.exists(icon_path):
+                pixmap = QPixmap(icon_path)
+                icon_size = max(16, button_size - 8)  # Leave some margin
+                scaled_pixmap = pixmap.scaled(icon_size, icon_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                widget.button.setIcon(QIcon(scaled_pixmap))
+            
+            # Update label text and font
+            text = text_mappings[text_mode].get(widget.button_name, widget.display_text)
+            widget.label.setText(text)
+            
+            font = widget.label.font()
+            font.setPointSize(font_size)
+            widget.label.setFont(font)
+
+    def updateComponentButtonSizes(self):
+        """Update component button sizes and label fonts based on panel width."""
+        if not hasattr(self, 'ObjectFrame'):
+            return
+        
+        # Use the new responsive layout system
+        self.arrangeComponentsInGrid()
 
     def setupCanvasStatusBar(self):
         """Create a custom status bar that only appears over the canvas area."""
         try:
             from PyQt5.QtWidgets import QLabel
+            from PyQt5.QtCore import QTimer
             
-            # Create a custom status label that will float over the canvas
-            self.canvas_status_label = QLabel(self.centralwidget)  # Parent to centralwidget instead of canvas_view
+            # Remove existing status label if it exists
+            if hasattr(self, 'canvas_status_label'):
+                try:
+                    if self.canvas_status_label and not self.canvas_status_label.isHidden():
+                        self.canvas_status_label.hide()
+                    self.canvas_status_label.deleteLater()
+                except RuntimeError:
+                    pass  # Object already deleted
+                finally:
+                    self.canvas_status_label = None
             
-            # Style the canvas status label with better appearance
-            self.canvas_status_label.setStyleSheet("""
-                QLabel {
-                    background-color: rgba(50, 50, 50, 200);
-                    color: white;
-                    border: 1px solid rgba(255, 255, 255, 100);
-                    border-radius: 5px;
-                    padding: 6px 12px;
-                    font-size: 11px;
-                    font-weight: bold;
-                }
-            """)
+            # Cancel any pending status timers
+            if hasattr(self, '_status_timer'):
+                self._status_timer.stop()
+                self._status_timer = None
             
-            # Set font
-            font = QFont()
-            font.setPointSize(9)
-            font.setBold(True)
-            self.canvas_status_label.setFont(font)
-            
-            # Set initial text and size
-            self.canvas_status_label.setText("Ready")
-            self.canvas_status_label.adjustSize()
-            
-            # Position it at the bottom-center of the canvas area
-            self.updateCanvasStatusBarPosition()
-            
-            # Make it stay on top but not interfere with canvas interaction
-            self.canvas_status_label.setWindowFlags(Qt.Widget)
-            self.canvas_status_label.setAttribute(Qt.WA_TransparentForMouseEvents, True)  # Allow clicks to pass through
-            
-            # Show the canvas status bar
-            self.canvas_status_label.show()
-            self.canvas_status_label.raise_()  # Bring to front
-            
-            debug_print("DEBUG: Canvas status bar created successfully")
+            # Create new status label
+            if hasattr(self, 'canvas_view') and self.canvas_view:
+                self.canvas_status_label = QLabel(self.canvas_view)
+                self.canvas_status_label.setStyleSheet("""
+                    QLabel {
+                        background-color: rgba(255, 255, 255, 200);
+                        border: 1px solid gray;
+                        border-radius: 3px;
+                        padding: 2px 6px;
+                        font-size: 11px;
+                        color: black;
+                    }
+                """)
+                self.canvas_status_label.hide()  # Initially hidden
+                
+                # Position the status label
+                self.updateCanvasStatusBarPosition()
+                
+                debug_print("Canvas status bar created successfully")
             
         except Exception as e:
-            error_print(f"Failed to create canvas status bar: {e}")
-            error_print(f"ERROR: Failed to create canvas status bar: {e}")
-            import traceback
-            traceback.print_exc()
+            error_print(f"Failed to setup canvas status bar: {e}")
 
     def updateCanvasStatusBarPosition(self):
         """Update the position of the canvas status bar."""
-        if hasattr(self, 'canvas_status_label') and hasattr(self, 'canvas_view'):
-            try:
+        try:
+            if (hasattr(self, 'canvas_status_label') and 
+                self.canvas_status_label and 
+                hasattr(self, 'canvas_view') and 
+                self.canvas_view):
+                
+                # Check if the object is still valid
+                try:
+                    # Test if we can access the object
+                    _ = self.canvas_status_label.isVisible()
+                except RuntimeError:
+                    # Object has been deleted, recreate it
+                    self.setupCanvasStatusBar()
+                    return
+                
+                # Get canvas view geometry
                 canvas_rect = self.canvas_view.geometry()
-                label_width = self.canvas_status_label.width()
-                label_height = self.canvas_status_label.height()
                 
-                # Position at bottom-center of canvas, slightly up from the bottom
-                center_x = canvas_rect.x() + (canvas_rect.width() - label_width) // 2
-                bottom_y = canvas_rect.y() + canvas_rect.height() - label_height - 30  # 30px up from bottom
+                # Position at bottom-left of canvas view
+                x = 10
+                y = canvas_rect.height() - 30
                 
-                self.canvas_status_label.move(center_x, bottom_y)
+                self.canvas_status_label.move(x, y)
                 
-                debug_print(f"Canvas status bar positioned at ({center_x}, {bottom_y})")
-                debug_print(f"Canvas rect: {canvas_rect}")
-                debug_print(f"Label size: {label_width}x{label_height}")
-                debug_print(f"DEBUG: Status bar positioned at ({center_x}, {bottom_y})")
-                debug_print(f"DEBUG: Canvas rect: {canvas_rect}")
-                debug_print(f"DEBUG: Label size: {label_width}x{label_height}")
-                
-            except Exception as e:
-                error_print(f"ERROR: Failed to update canvas status bar position: {e}")
+        except Exception as e:
+            error_print(f"Failed to update canvas status bar position: {e}")
 
     def showCanvasStatus(self, message, timeout=0):
-        """Show a status message on the canvas status bar."""
-        if hasattr(self, 'canvas_status_label'):
-            self.canvas_status_label.setText(message)
-            self.canvas_status_label.adjustSize()  # Resize label to fit content
-            self.updateCanvasStatusBarPosition()   # Reposition after resizing
+        """Show a status message on the canvas status bar with better error handling."""
+        try:
+            # Check if we have a valid status label
+            if not hasattr(self, 'canvas_status_label') or not self.canvas_status_label:
+                self.setupCanvasStatusBar()
             
-            # Ensure the label is visible
-            self.canvas_status_label.show()
-            self.canvas_status_label.raise_()  # Bring to front
-            
-            # If timeout is specified, clear the message after the timeout
-            if timeout > 0:
-                QTimer.singleShot(timeout, lambda: self.showCanvasStatus("Ready"))
-        else:
-            debug_print("DEBUG: Canvas status message: {message}")
-            debug_print(f"DEBUG: Canvas status message: {message}") 
+            # Verify the object is still valid
+            if self.canvas_status_label:
+                try:
+                    # Test access to the object
+                    _ = self.canvas_status_label.isVisible()
                     
+                    # Set the message
+                    self.canvas_status_label.setText(message)
+                    self.canvas_status_label.adjustSize()
+                    self.canvas_status_label.show()
+                    
+                    # Cancel any existing timer
+                    if hasattr(self, '_status_timer') and self._status_timer:
+                        self._status_timer.stop()
+                    
+                    # Set up auto-hide timer if timeout is specified
+                    if timeout > 0:
+                        self._status_timer = QTimer()
+                        self._status_timer.setSingleShot(True)
+                        self._status_timer.timeout.connect(self._hideCanvasStatus)
+                        self._status_timer.start(timeout)
+                    
+                    debug_print(f"Canvas status updated: {message}")
+                    
+                except RuntimeError:
+                    # Object was deleted, recreate and try again
+                    self.setupCanvasStatusBar()
+                    if self.canvas_status_label:
+                        self.canvas_status_label.setText(message)
+                        self.canvas_status_label.adjustSize()
+                        self.canvas_status_label.show()
+            
+        except Exception as e:
+            error_print(f"Failed to show canvas status: {e}")
+            # Fallback to debug print
+            debug_print(f"STATUS: {message}", force=True)
+
+    def _hideCanvasStatus(self):
+        """Hide the canvas status label safely."""
+        try:
+            if (hasattr(self, 'canvas_status_label') and 
+                self.canvas_status_label):
+                try:
+                    self.canvas_status_label.hide()
+                    self.canvas_status_label.setText("Ready")
+                except RuntimeError:
+                    # Object was deleted, ignore
+                    pass
+        except Exception as e:
+            error_print(f"Failed to hide canvas status: {e}")
+
     def resizeEvent(self, event):
         """Handle window resize events to update canvas and component layout size."""
         super().resizeEvent(event)
         try:
-            window_size = self.size()
-            # Update ObjectFrame to be fixed width but full height
-            if hasattr(self, 'ObjectFrame'):
-                self.ObjectFrame.setGeometry(0, 0, 71, window_size.height() - 26 - 30 - 23)  # Account for menu, toolbar, status
+            # Update canvas geometry
+            QTimer.singleShot(50, self.updateCanvasGeometry)
             
-            self.updateCanvasGeometry()
+            # Update component panel layout
+            QTimer.singleShot(100, self.updateComponentPanelLayout)
             
-            # Update status bar position after canvas geometry changes
-            QTimer.singleShot(100, self.updateCanvasStatusBarPosition)  # Small delay to ensure canvas is positioned
+            # Update canvas status bar position
+            if hasattr(self, 'canvas_status_label'):
+                QTimer.singleShot(150, self.updateCanvasStatusBarPosition)
             
-            debug_print(f"DEBUG: Window resized to {window_size.width()}x{window_size.height()}")
-            if hasattr(self, 'canvas_view'):
-                debug_print(f"DEBUG: Canvas size after resize: {self.canvas_view.size()}")
         except Exception as e:
-            debug_print(f"Failed to resize window: {e}")
-            error_print(f"ERROR: Failed to resize window: {e}")
+            error_print(f"ERROR in resizeEvent: {e}")
+
+    def updateComponentPanelLayout(self):
+        """Update component panel layout after resize."""
+        if hasattr(self, 'ObjectFrame') and hasattr(self, 'responsive_widget'):
+            # Update responsive widget size
+            self.responsive_widget.setGeometry(0, 0, self.ObjectFrame.width(), self.ObjectFrame.height())
             
+            # Rearrange components
+            self.arrangeComponentsInGrid()
+            
+            debug_print(f"DEBUG: Component panel layout updated for width: {self.ObjectFrame.width()}")
+
     def setupConnections(self):
         """Set up all signal connections."""
         try:
-            debug_print("Setting up connections...")
+            # Menu connections
+            if hasattr(self, 'actionNew'):
+                self.actionNew.triggered.connect(self.newTopology)
+            if hasattr(self, 'actionOpen'):
+                self.actionOpen.triggered.connect(self.openTopology)
+            if hasattr(self, 'actionSave'):
+                self.actionSave.triggered.connect(self.saveTopology)
+            if hasattr(self, 'actionSaveAs'):
+                self.actionSaveAs.triggered.connect(self.saveTopologyAs)
+            if hasattr(self, 'actionExportToDockerCompose'):
+                self.actionExportToDockerCompose.triggered.connect(self.exportToDockerCompose)
+            if hasattr(self, 'actionExportToMininet'):
+                self.actionExportToMininet.triggered.connect(self.exportToMininet)
+
+            # Component button connections - use the new responsive layout
+            if hasattr(self, 'component_widgets'):
+                for widget in self.component_widgets:
+                    if hasattr(widget, 'button') and hasattr(widget, 'button_name'):
+                        button = widget.button
+                        component_type = widget.button_name
+                        
+                        # Create a proper closure to capture the component_type
+                        def make_mouse_press_handler(comp_type):
+                            def handle_mouse_press(event):
+                                self.onComponentButtonPress(event, comp_type)
+                            return handle_mouse_press
+                        
+                        # Apply the handler to the button
+                        button.mousePressEvent = make_mouse_press_handler(component_type)
+                        debug_print(f"DEBUG: Connected {component_type} button")
             
-            # Connect component buttons
-            button_connections = [
-                (self.Host, "Host"),
-                (self.STA, "STA"),
-                (self.UE, "UE"),
-                (self.GNB, "GNB"),
-                (self.DockerHost, "DockerHost"),
-                (self.AP, "AP"),
-                (self.VGcore, "VGcore"),
-                (self.Router, "Router"),
-                (self.Switch, "Switch"),
-                (self.Controller, "Controller")
+            # Fallback: try to connect original UI buttons if they exist
+            component_buttons = [
+                ('Host', 'Host'),
+                ('STA', 'STA'), 
+                ('UE', 'UE'),
+                ('GNB', 'GNB'),
+                ('DockerHost', 'DockerHost'),
+                ('AP', 'AP'),
+                ('VGcore', 'VGcore'),
+                ('Router', 'Router'),
+                ('Switch', 'Switch'),
+                ('Controller', 'Controller')
             ]
             
-            for button, comp_type in button_connections:
-                button.clicked.connect(lambda checked, ct=comp_type: self.startDrag(ct))
-            
-            # Connect LinkCable separately
-            if hasattr(self, 'LinkCable'):
-                self.LinkCable.clicked.connect(lambda: self.startLinkMode("LinkCable"))
-            
-            # Connect toolbar actions with explicit disconnect first
-            toolbar_connections = [
-                (self.actionPickTool, self.enablePickTool),
-                (self.actionTextBox, self.addTextBox),
-                (self.actionDrawSquare, self.addDrawSquare),
-                (self.actionShowGrid, self.toggleGrid),
-                (self.actionZoomIn, self.zoomIn),
-                (self.actionZoomOut, self.zoomOut),
-                (self.actionResetZoom, self.resetZoom),
-                (self.actionDelete, self.enableDeleteTool)
-            ]
-            
-            for action, method in toolbar_connections:
-                action.disconnect()  # Disconnect any existing connections
-                action.triggered.connect(method)
-            
-            # Connect menu actions - use the new exporter methods
-            menu_connections = [
-                ('actionNew', self.newTopology),
-                ('actionSave', self.saveTopology),
-                ('actionOpen', self.openTopology),
-                ('actionSave_As', self.saveTopologyAs),
-                ('actionExport_to_Level_2_Script', self.exportToMininet),
-                ('actionExport_to_Docker_Compose', self.exportToDockerCompose),
-                ('actionQuit', self.close)
-            ]
-            
-            for action_name, method in menu_connections:
-                if hasattr(self, action_name):
-                    action = getattr(self, action_name)
-                    action.disconnect()  # Disconnect existing connections
-                    action.triggered.connect(method)
-            
-            debug_print("All connections setup completed")
-            
-            # Connect RunAll and StopAll actions
-            if hasattr(self, 'actionRunAll'):
-                self.actionRunAll.triggered.connect(self.runAllComponents)
-            if hasattr(self, 'actionStopAll'):
-                self.actionStopAll.triggered.connect(self.stopAllComponents)
-                # Initially disable StopAll
-                self.actionStopAll.setEnabled(False)
-            
-            # Connect automation runner signals
-            self.automation_runner.execution_finished.connect(self.onAutomationFinished)
+            for button_name, component_type in component_buttons:
+                if hasattr(self, button_name):
+                    button = getattr(self, button_name)
+                    if hasattr(button, 'mousePressEvent'):
+                        def make_fallback_handler(comp_type):
+                            def handle_fallback_mouse_press(event):
+                                self.onComponentButtonPress(event, comp_type)
+                            return handle_fallback_mouse_press
+                        
+                        button.mousePressEvent = make_fallback_handler(component_type)
+                        debug_print(f"DEBUG: Connected fallback {component_type} button")
+
+            # Keyboard shortcuts
+            if hasattr(self, 'actionPickTool'):
+                self.actionPickTool.setShortcut(QKeySequence('P'))
+            if hasattr(self, 'actionLinkTool'):
+                self.actionLinkTool.setShortcut(QKeySequence('L'))
+            if hasattr(self, 'actionDelete'):
+                self.actionDelete.setShortcut(QKeySequence('D'))
+            if hasattr(self, 'actionShowGrid'):
+                self.actionShowGrid.setShortcut(QKeySequence('G'))
+
+            debug_print("DEBUG: All connections setup successfully")
             
         except Exception as e:
             error_print(f"ERROR: Failed to setup connections: {e}")
+            # Continue execution even if some connections fail
 
     def debugCanvasSetup(self):
         """Debug method to verify canvas setup."""
@@ -607,7 +982,8 @@ class NetFlux5GApp(QMainWindow):
         
         if hasattr(self, 'canvas_view'):
             self.canvas_view.setLinkMode(False)
-            self.canvas_view.setCursor(Qt.ArrowCursor)
+            # Reset cursor to default
+            self.canvas_view.setCursor(QCursor(Qt.ArrowCursor))
             
         self.showCanvasStatus("Pick tool selected")
 
@@ -626,10 +1002,36 @@ class NetFlux5GApp(QMainWindow):
         self.selected_component = None  # Reset selected component
         
         if hasattr(self, 'canvas_view'):
-            self.canvas_view.setDragMode(QGraphicsView.NoDrag)
-            self.canvas_view.setCursor(Qt.ArrowCursor)  # Reset to arrow cursor
-            
+            self.canvas_view.setLinkMode(False)
+            # Reset cursor to default arrow
+            self.canvas_view.setCursor(QCursor(Qt.ArrowCursor))
+        
+        # Update toolbar button states
+        self.updateToolbarButtonStates()
+        
         self.showCanvasStatus("Pick tool selected")
+
+    def enableLinkTool(self):
+        """Enable the Link Tool from toolbar."""
+        debug_print("DEBUG: Enabling link tool from toolbar")
+        
+        # Exit other modes
+        self.current_tool = "link"
+        
+        # Reset any previous source selection
+        self.current_link_source = None
+        
+        # Enable link mode in canvas
+        if hasattr(self, 'canvas_view'):
+            self.canvas_view.setLinkMode(True)
+            # Set cursor to plus sign for link mode
+            self.canvas_view.setCursor(QCursor(Qt.CrossCursor))
+        
+        # Update toolbar button states
+        self.updateToolbarButtonStates()
+        
+        # Update status bar
+        self.showCanvasStatus("Link Tool active. Click on source component, then destination component.")
 
     def enableDeleteTool(self):
         """Enable the Delete Tool."""
@@ -638,9 +1040,23 @@ class NetFlux5GApp(QMainWindow):
         self.current_tool = "delete"
         
         if hasattr(self, 'canvas_view'):
-            self.canvas_view.setCursor(Qt.CrossCursor)  # Set a cross cursor for delete mode
-            
+            self.canvas_view.setLinkMode(False)
+            # Set cursor to a different cursor for delete mode (optional)
+            self.canvas_view.setCursor(QCursor(Qt.PointingHandCursor))
+        
+        # Update toolbar button states
+        self.updateToolbarButtonStates()
+        
         self.showCanvasStatus("Delete Tool selected. Click on items to delete them.")
+
+    def updateToolbarButtonStates(self):
+        """Update the checked state of toolbar buttons based on current tool."""
+        if hasattr(self, 'actionPickTool'):
+            self.actionPickTool.setChecked(self.current_tool == "pick")
+        if hasattr(self, 'actionLinkTool'):
+            self.actionLinkTool.setChecked(self.current_tool == "link")
+        if hasattr(self, 'actionDelete'):
+            self.actionDelete.setChecked(self.current_tool == "delete")
 
     def addTextBox(self):
         self.current_tool = "text"
@@ -921,8 +1337,8 @@ class NetFlux5GApp(QMainWindow):
             else:
                 # Just D for delete tool
                 self.enableDeleteTool()
-        elif event.key() == Qt.Key_L:
-            self.startLinkMode("LinkCable")
+        elif event.key() == Qt.Key_L: 
+            self.enableLinkTool()
         elif event.key() == Qt.Key_T:
             self.addTextBox()
         elif event.modifiers() & Qt.ControlModifier:

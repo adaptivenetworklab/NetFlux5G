@@ -1,4 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
 
 class ToolbarFunctions:
     def __init__(self, main_window: QMainWindow):
@@ -10,6 +12,7 @@ class ToolbarFunctions:
         """Setup all toolbar action connections"""
         toolbar_actions = [
             (self.main_window.actionPickTool, self.enablePickTool),
+            (self.main_window.actionLinkTool, self.enableLinkTool),  # Add this line
             (self.main_window.actionDelete, self.enableDeleteTool),
             (self.main_window.actionTextBox, self.addTextBox),
             (self.main_window.actionDrawSquare, self.addDrawSquare),
@@ -34,6 +37,7 @@ class ToolbarFunctions:
         """Set up helpful tooltips with keyboard shortcuts."""
         tooltips = {
             'actionPickTool': "Pick Tool (P)",
+            'actionLinkTool': "Link Tool - Connect components (L)",  # Add this line
             'actionDelete': "Delete Tool (D)",
             'actionTextBox': "Text Box Tool (T)",
             'actionDrawSquare': "Draw Square Tool",
@@ -50,10 +54,25 @@ class ToolbarFunctions:
                 getattr(self.main_window, action_name).setToolTip(tooltip)
 
     def enablePickTool(self):
+        """Enable pick tool and reset cursor."""
         self.main_window.enablePickTool()
 
+    def enableLinkTool(self): 
+        """Enable link tool and set crosshair cursor."""
+        self.main_window.enableLinkTool()
+
     def enableDeleteTool(self):
+        """Enable delete tool and set appropriate cursor."""
         self.main_window.current_tool = "delete"
+        
+        # Set cursor for delete mode
+        if hasattr(self.main_window, 'canvas_view'):
+            self.main_window.canvas_view.setCursor(QCursor(Qt.PointingHandCursor))
+        
+        # Update toolbar button states
+        self.main_window.updateToolbarButtonStates()
+        
+        self.main_window.showCanvasStatus("Delete Tool selected. Click on items to delete them.")
 
     def addTextBox(self):
         self.main_window.addTextBox()

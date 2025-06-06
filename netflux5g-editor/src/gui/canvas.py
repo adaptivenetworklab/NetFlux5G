@@ -242,8 +242,7 @@ class Canvas(QGraphicsView):
                         
                     if hasattr(item, 'update'):
                         item.update()
-                    
-                    return
+                
                 else:
                     source = self.app_instance.current_link_source
                     destination = item
@@ -253,7 +252,7 @@ class Canvas(QGraphicsView):
                             source.setHighlighted(False)
                         
                         self.app_instance.createLink(source, destination)
-                    
+                
                     if hasattr(source, 'setFlag'):
                         source.setFlag(QGraphicsItem.ItemIsMovable, True)
                     
@@ -286,7 +285,14 @@ class Canvas(QGraphicsView):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MiddleButton and self.is_panning:
             self.is_panning = False
-            self.setCursor(QCursor(Qt.ArrowCursor))
+            
+            # Restore appropriate cursor based on current tool
+            if self.link_mode:
+                self.setCursor(QCursor(Qt.CrossCursor))
+            elif self.app_instance.current_tool == "delete":
+                self.setCursor(QCursor(Qt.PointingHandCursor))
+            else:
+                self.setCursor(QCursor(Qt.ArrowCursor))
             
             total_delta = event.pos() - self.pan_start_point
             distance = (total_delta.x() ** 2 + total_delta.y() ** 2) ** 0.5
@@ -393,35 +399,147 @@ class Canvas(QGraphicsView):
         super().keyPressEvent(event)
 
     def setLinkMode(self, enabled):
+        """Set link mode and update cursor accordingly."""
         self.link_mode = enabled
+        
+        if enabled:
+            # Set cursor to crosshair (plus sign) when in link mode
+            self.setCursor(QCursor(Qt.CrossCursor))
+            debug_print("DEBUG: Link mode enabled, cursor set to crosshair")
+        else:
+            # Reset cursor to default arrow when not in link mode
+            self.setCursor(QCursor(Qt.ArrowCursor))
+            debug_print("DEBUG: Link mode disabled, cursor reset to arrow")
 
-    def cleanupBrokenLinks(self):
-        """Clean up any broken links whose source or destination nodes no longer exist."""
-        from .links import NetworkLink
-        
-        links_to_remove = []
-        scene_items = self.scene.items()
-        
-        for item in scene_items:
-            if isinstance(item, NetworkLink):
-                # Check if source or destination nodes are missing or not in scene
-                if (not hasattr(item, 'source_node') or not hasattr(item, 'dest_node') or
-                    item.source_node is None or item.dest_node is None or
-                    item.source_node not in scene_items or item.dest_node not in scene_items):
-                    links_to_remove.append(item)
-                    
-        for link in links_to_remove:
-            # Clean up the link from connected nodes if they still exist
-            if hasattr(link, 'source_node') and link.source_node and hasattr(link.source_node, 'connected_links'):
-                if link in link.source_node.connected_links:
-                    link.source_node.connected_links.remove(link)
-            if hasattr(link, 'dest_node') and link.dest_node and hasattr(link.dest_node, 'connected_links'):
-                if link in link.dest_node.connected_links:
-                    link.dest_node.connected_links.remove(link)
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MiddleButton:
+            self.is_panning = True
+            self.pan_start_point = event.pos()
+            self.last_pan_point = event.pos()
+            self.setCursor(QCursor(Qt.ClosedHandCursor))
+            self.app_instance.showCanvasStatus("Panning mode - drag to navigate")
+            event.accept()
+            return
+
+        if self.app_instance.current_tool == "delete":
+            item = self.itemAt(event.pos())
+            if item:
+                self.scene.removeItem(item)
+                self.app_instance.showCanvasStatus("Item deleted")
+                self.cleanupBrokenLinks()
+
+        if self.link_mode and event.button() == Qt.LeftButton:
+            item = self.itemAt(event.pos())
             
-            # Remove from scene
-            if link.scene():
-                self.scene.removeItem(link)
-        
-        if links_to_remove:
-            debug_print(f"Cleaned up {len(links_to_remove)} broken links")
+            if item is not None and (isinstance(item, NetworkComponent) or hasattr(item, 'object_type')):
+                if self.app_instance.current_link_source is None:
+                    self.app_instance.current_link_source = item
+                    
+                    if hasattr(item, 'setHighlighted'):
+                        item.setHighlighted(True)
+                    
+                    self.app_instance.showCanvasStatus(
+                        f"Source selected: {item.object_type if hasattr(item, 'object_type') else 'component'} (highlighted in red) - now select destination"
+                    )
+                    
+                    if hasattr(item, 'setFlag'):
+                        item.setFlag(QGraphicsItem.ItemIsMovable, False)
+                        
+                    if hasattr(item, 'update'):
+                        item.update()
+                
+                else:
+                    source = self.app_instance.current_link_source
+                    destination = item
+                    
+                    if source != destination:
+                        if hasattr(source, 'setHighlighted'):
+                            source.setHighlighted(False)
+                        
+                        self.app_instance.createLink(source, destination)
+                
+                    if hasattr(source, 'setFlag'):
+                        source.setFlag(QGraphicsItem.ItemIsMovable, True)
+                    
+                    self.app_instance.current_link_source = None
+                    
+                    # Keep the crosshair cursor for continued linking
+                    self.setCursor(QCursor(Qt.CrossCursor))
+                    
+                    self.app_instance.showCanvasStatus("Link created. Select next source or change tool.")
+                    return
+                    
+        if self.current_dialog:
+            self.current_dialog.close()
+            self.current_dialog = None
+
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MiddleButton and self.is_panning:
+            self.is_panning = False
+            
+            # Restore appropriate cursor based on current tool
+            if self.link_mode:
+                self.setCursor(QCursor(Qt.CrossCursor))
+            elif self.app_instance.current_tool == "delete":
+                self.setCursor(QCursor(Qt.PointingHandCursor))
+            else:
+                self.setCursor(QCursor(Qt.ArrowCursor))
+            
+            total_delta = event.pos() - self.pan_start_point
+            distance = (total_delta.x() ** 2 + total_delta.y() ** 2) ** 0.5
+            self.app_instance.showCanvasStatus(f"Panning completed (moved {distance:.0f} pixels)")
+            
+            event.accept()
+            return
+            
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            selected_items = self.scene.selectedItems()
+            if selected_items:
+                for item in selected_items:
+                    # If it's a NetworkComponent with connected links, remove those links first
+                    if hasattr(item, 'connected_links') and item.connected_links:
+                        # Copy the list to avoid modification during iteration
+                        links_to_remove = item.connected_links.copy()
+                        for link in links_to_remove:
+                            # Remove the link from both connected nodes
+                            if hasattr(link, 'source_node') and hasattr(link.source_node, 'connected_links'):
+                                if link in link.source_node.connected_links:
+                                    link.source_node.connected_links.remove(link)
+                            if hasattr(link, 'dest_node') and hasattr(link.dest_node, 'connected_links'):
+                                if link in link.dest_node.connected_links:
+                                    link.dest_node.connected_links.remove(link)
+                            # Remove the link from the scene
+                            if link.scene():
+                                self.scene.removeItem(link)
+                    
+                    # If it's a NetworkLink, remove it from connected nodes
+                    elif hasattr(item, 'source_node') and hasattr(item, 'dest_node'):
+                        # This is a link itself being deleted
+                        if hasattr(item.source_node, 'connected_links') and item in item.source_node.connected_links:
+                            item.source_node.connected_links.remove(item)
+                        if hasattr(item.dest_node, 'connected_links') and item in item.dest_node.connected_links:
+                            item.dest_node.connected_links.remove(item)
+                    
+                    # Remove the item itself from the scene
+                    if item.scene():
+                        self.scene.removeItem(item)
+                
+                # Clean up any remaining broken links
+                self.cleanupBrokenLinks()
+                
+                # Show status message
+                if hasattr(self, 'app_instance') and self.app_instance:
+                    self.app_instance.showCanvasStatus(f"Deleted {len(selected_items)} selected item(s)")
+                    
+        elif event.key() == Qt.Key_Escape:
+            if hasattr(self, 'app_instance') and self.app_instance:
+                if self.app_instance.current_tool in ["delete", "link", "placement", "text", "square"]:
+                    self.app_instance.enablePickTool()
+                    return
+    
+        super().keyPressEvent(event)
