@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1314</width>
-    <height>962</height>
+    <height>935</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,10 +32,10 @@
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>-30</x>
+      <x>60</x>
       <y>0</y>
-      <width>1921</width>
-      <height>1071</height>
+      <width>1251</width>
+      <height>871</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
@@ -56,7 +56,7 @@
       <x>0</x>
       <y>0</y>
       <width>61</width>
-      <height>1021</height>
+      <height>871</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -85,7 +85,7 @@ QFrame {
        <x>0</x>
        <y>0</y>
        <width>61</width>
-       <height>884</height>
+       <height>871</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="ObjectLayout"/>

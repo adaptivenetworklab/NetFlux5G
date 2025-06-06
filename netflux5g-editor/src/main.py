@@ -113,8 +113,8 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'ObjectFrame'):
                 self.ObjectFrame.setParent(None)
                 self.main_splitter.addWidget(self.ObjectFrame)
-                self.ObjectFrame.setMinimumWidth(45)
-                self.ObjectFrame.setMaximumWidth(150)
+                self.ObjectFrame.setMinimumWidth(100)
+                self.ObjectFrame.setMaximumWidth(200)
             
             self.canvas_view = Canvas(self)
             self.canvas_view.setMinimumWidth(400)

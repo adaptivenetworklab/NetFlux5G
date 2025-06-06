@@ -1,276 +1,417 @@
 from PyQt5.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QPushButton, 
-                           QLabel, QSizePolicy, QSplitter, QToolButton, QFrame)
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPixmap, QIcon, QFont
+                           QLabel, QSizePolicy, QSplitter, QToolButton, QFrame,
+                           QHBoxLayout, QScrollArea, QGraphicsDropShadowEffect)
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QRect
+from PyQt5.QtGui import QPixmap, QIcon, QFont, QPalette, QColor, QPainter, QLinearGradient
 from manager.debug import debug_print, error_print
 import os
+
+class ModernComponentWidget(QFrame):
+    """A modern, stylish component widget with hover effects and animations."""
+    
+    clicked = pyqtSignal(str)  # Signal emitted when clicked
+    
+    def __init__(self, component_type, icon_path, display_text, parent=None):
+        super().__init__(parent)
+        self.component_type = component_type
+        self.icon_path = icon_path
+        self.display_text = display_text
+        self.is_hovered = False
+        
+        self.setupUI()
+        self.setupAnimations()
+        self.setupShadowEffect()
+        
+    def setupUI(self):
+        """Setup the UI components with modern styling."""
+        self.setFixedSize(80, 95)
+        self.setFrameStyle(QFrame.NoFrame)
+        self.setCursor(Qt.PointingHandCursor)
+        
+        # Main layout
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
+        layout.setAlignment(Qt.AlignCenter)
+        
+        # Icon container
+        self.icon_container = QFrame()
+        self.icon_container.setFixedSize(48, 48)
+        self.icon_container.setStyleSheet("""
+            QFrame {
+                background-color: #ffffff;
+                border: 2px solid #e0e0e0;
+                border-radius: 24px;
+            }
+        """)
+        
+        # Icon label
+        self.icon_label = QLabel(self.icon_container)
+        self.icon_label.setAlignment(Qt.AlignCenter)
+        self.icon_label.setGeometry(4, 4, 40, 40)
+        
+        # Set icon
+        if self.icon_path and os.path.exists(self.icon_path):
+            pixmap = QPixmap(self.icon_path)
+            scaled_pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.icon_label.setPixmap(scaled_pixmap)
+        
+        # Text label
+        self.text_label = QLabel(self.display_text)
+        self.text_label.setAlignment(Qt.AlignCenter)
+        self.text_label.setWordWrap(True)
+        
+        # Set font
+        font = QFont("Segoe UI", 8)
+        font.setWeight(QFont.Medium)
+        self.text_label.setFont(font)
+        
+        # Add to layout
+        layout.addWidget(self.icon_container, 0, Qt.AlignCenter)
+        layout.addWidget(self.text_label, 0, Qt.AlignCenter)
+        
+        # Setup shadow effect before initial styling
+        self.setupShadowEffect()
+        # Initial styling
+        self.updateStyling(False)
+        
+    def setupAnimations(self):
+        """Setup hover animations."""
+        self.hover_animation = QPropertyAnimation(self, b"geometry")
+        self.hover_animation.setDuration(150)
+        self.hover_animation.setEasingCurve(QEasingCurve.OutCubic)
+        
+    def setupShadowEffect(self):
+        """Add subtle shadow effect."""
+        self.shadow_effect = QGraphicsDropShadowEffect()
+        self.shadow_effect.setBlurRadius(8)
+        self.shadow_effect.setXOffset(0)
+        self.shadow_effect.setYOffset(2)
+        self.shadow_effect.setColor(QColor(0, 0, 0, 30))
+        self.setGraphicsEffect(self.shadow_effect)
+        
+    def updateStyling(self, hovered):
+        """Update styling based on hover state."""
+        if hovered:
+            self.setStyleSheet("""
+                ModernComponentWidget {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                              stop:0 #f8f9ff, stop:1 #e6f2ff);
+                    border: 2px solid #4a90e2;
+                    border-radius: 12px;
+                }
+            """)
+            self.icon_container.setStyleSheet("""
+                QFrame {
+                    background-color: #ffffff;
+                    border: 2px solid #4a90e2;
+                    border-radius: 24px;
+                }
+            """)
+            self.text_label.setStyleSheet("color: #2c5282; font-weight: 600;")
+            
+            # Update shadow for hover
+            self.shadow_effect.setBlurRadius(12)
+            self.shadow_effect.setYOffset(4)
+            self.shadow_effect.setColor(QColor(74, 144, 226, 40))
+            
+        else:
+            self.setStyleSheet("""
+                ModernComponentWidget {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                              stop:0 #ffffff, stop:1 #f8f9fa);
+                    border: 1px solid #e9ecef;
+                    border-radius: 12px;
+                }
+            """)
+            self.icon_container.setStyleSheet("""
+                QFrame {
+                    background-color: #ffffff;
+                    border: 2px solid #e0e0e0;
+                    border-radius: 24px;
+                }
+            """)
+            self.text_label.setStyleSheet("color: #495057;")
+            
+            # Reset shadow
+            self.shadow_effect.setBlurRadius(8)
+            self.shadow_effect.setYOffset(2)
+            self.shadow_effect.setColor(QColor(0, 0, 0, 30))
+    
+    def enterEvent(self, event):
+        """Handle mouse enter event."""
+        self.is_hovered = True
+        self.updateStyling(True)
+        super().enterEvent(event)
+        
+    def leaveEvent(self, event):
+        """Handle mouse leave event."""
+        self.is_hovered = False
+        self.updateStyling(False)
+        super().leaveEvent(event)
+        
+    def mousePressEvent(self, event):
+        """Handle mouse press event."""
+        if event.button() == Qt.LeftButton:
+            # Add click animation
+            self.setStyleSheet("""
+                ModernComponentWidget {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                              stop:0 #e6f2ff, stop:1 #cce7ff);
+                    border: 2px solid #2c5282;
+                    border-radius: 12px;
+                }
+            """)
+            
+            # Emit signal and delegate to parent
+            self.clicked.emit(self.component_type)
+            
+            # Find main window and call drag handler
+            parent = self.parent()
+            while parent and not hasattr(parent, 'onComponentButtonPress'):
+                parent = parent.parent()
+            
+            if parent and hasattr(parent, 'onComponentButtonPress'):
+                parent.onComponentButtonPress(event, self.component_type)
+                
+        super().mousePressEvent(event)
+        
+    def mouseReleaseEvent(self, event):
+        """Handle mouse release event."""
+        if self.is_hovered:
+            self.updateStyling(True)
+        else:
+            self.updateStyling(False)
+        super().mouseReleaseEvent(event)
 
 class ComponentPanelManager:
     def __init__(self, main_window):
         self.main_window = main_window
         self.component_widgets = []
         self.component_data = [
-            ('Host', 'label', 'Host'),
-            ('STA', 'label_2', 'Station'), 
-            ('UE', 'label_3', 'User Equipment'),
-            ('GNB', 'label_4', 'gNodeB'),
-            ('DockerHost', 'label_5', 'Docker'),
-            ('AP', 'label_6', 'Access Point'),
-            ('VGcore', 'label_7', '5G Cores'),
-            ('Router', 'label_8', 'Legacy Router'),
-            ('Switch', 'label_9', 'SDN Switch'),
-            ('Controller', 'label_11', 'Controller')
+            ('Host', 'host.png', 'Host', 'Basic network host'),
+            ('STA', 'sta.png', 'Station', 'WiFi station device'),
+            ('UE', 'ue.png', 'User Equipment', '5G user device'), 
+            ('GNB', 'gNB.png', 'gNodeB', '5G base station'),
+            ('DockerHost', 'docker.png', 'Docker', 'Containerized host'),
+            ('AP', 'AP.png', 'Access Point', 'WiFi access point'),
+            ('VGcore', '5G core.png', '5G Core', '5G core network'),
+            ('Router', 'Router.png', 'Router', 'Network router'),
+            ('Switch', 'switch.png', 'Switch', 'Network switch'),
+            ('Controller', 'controller.png', 'Controller', 'SDN controller')
         ]
         
     def setupComponentPanel(self):
-        """Setup the component panel with clean, organized layout."""
+        """Setup the component panel with modern, beautiful styling."""
         if not hasattr(self.main_window, 'ObjectFrame'):
             error_print("ERROR: ObjectFrame not found in UI")
             return
         
-        # Clear the ObjectFrame and create a clean layout
-        self.createCleanComponentLayout()
-        
-        # Initial layout arrangement
+        self.createModernComponentLayout()
         self.arrangeComponentsInGrid()
 
-    def createCleanComponentLayout(self):
-        """Create a clean, organized layout for components."""
+    def createModernComponentLayout(self):
+        """Create a modern, beautiful layout for components."""
         # Clear existing layout
         if hasattr(self.main_window, 'ObjectFrame'):
-            # Remove any existing widgets
             for child in self.main_window.ObjectFrame.findChildren(QWidget):
                 child.deleteLater()
         
-        # Create main container widget that fills the ObjectFrame
-        self.responsive_widget = QWidget(self.main_window.ObjectFrame)
+        # Create main scroll area for better organization
+        self.scroll_area = QScrollArea(self.main_window.ObjectFrame)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.scroll_area.setFrameStyle(QFrame.NoFrame)
         
-        # Create main vertical layout with proper margins
-        self.main_vertical_layout = QVBoxLayout(self.responsive_widget)
-        self.main_vertical_layout.setContentsMargins(5, 5, 5, 5)
-        self.main_vertical_layout.setSpacing(3)
+        # Style the scroll area
+        self.scroll_area.setStyleSheet("""
+            QScrollArea {
+                background-color: #f8f9fa;
+                border: none;
+            }
+            QScrollBar:vertical {
+                background-color: #e9ecef;
+                width: 8px;
+                border-radius: 4px;
+                margin: 0;
+            }
+            QScrollBar::handle:vertical {
+                background-color: #adb5bd;
+                border-radius: 4px;
+                min-height: 20px;
+            }
+            QScrollBar::handle:vertical:hover {
+                background-color: #6c757d;
+            }
+        """)
         
-        # Create a titled frame for components
-        title_frame = QFrame()
-        title_frame.setFrameStyle(QFrame.StyledPanel)
-        title_frame.setLineWidth(1)
+        # Create main container widget
+        self.container_widget = QWidget()
+        self.container_widget.setStyleSheet("""
+            QWidget {
+                background-color: #f8f9fa;
+            }
+        """)
         
-        title_layout = QVBoxLayout(title_frame)
-        title_layout.setContentsMargins(3, 3, 3, 3)
-        title_layout.setSpacing(2)
+        # Create main vertical layout
+        self.main_layout = QVBoxLayout(self.container_widget)
+        self.main_layout.setContentsMargins(6, 8, 6, 8)
+        self.main_layout.setSpacing(8)
         
-        # Add title label
-        title_label = QLabel("Network Components")
-        title_font = QFont()
-        title_font.setBold(True)
-        title_font.setPointSize(9)
-        title_label.setFont(title_font)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("color: #333; padding: 2px;")
-        title_layout.addWidget(title_label)
+        # Create header section
+        self.createHeaderSection()
         
-        # Create grid layout for components
-        self.component_grid_layout = QGridLayout()
-        self.component_grid_layout.setContentsMargins(2, 2, 2, 2)
-        self.component_grid_layout.setSpacing(3)
-        self.component_grid_layout.setAlignment(Qt.AlignTop)
+        # Create component sections
+        self.createComponentSections()
         
-        # Add grid layout to title frame
-        title_layout.addLayout(self.component_grid_layout)
+        # Add stretch at the end
+        self.main_layout.addStretch()
         
-        # Add title frame to main layout
-        self.main_vertical_layout.addWidget(title_frame)
-        self.main_vertical_layout.addStretch()
+        # Set up the scroll area
+        self.scroll_area.setWidget(self.container_widget)
         
-        # Create component widgets
-        self.component_widgets = []
-        for i, (button_name, label_name, display_text) in enumerate(self.component_data):
-            widget_container = self.createCleanComponentWidget(button_name, label_name, display_text)
-            self.component_widgets.append(widget_container)
+        # Position scroll area to fill ObjectFrame
+        self.updateScrollAreaGeometry()
         
-        # Set size policy for responsive behavior
-        self.responsive_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        
-        # Position the responsive widget to fill the ObjectFrame
-        self.updateResponsiveWidgetGeometry()
-
-    def createCleanComponentWidget(self, button_name, label_name, display_text):
-        """Create a clean, well-organized component widget."""
-        # Create container frame with border
-        container = QFrame()
-        container.setFrameStyle(QFrame.Box)
-        container.setLineWidth(1)
-        container.setStyleSheet("""
+    def createHeaderSection(self):
+        """Create a beautiful header section with readable font sizes."""
+        header_frame = QFrame()
+        header_frame.setStyleSheet("""
             QFrame {
-                border: 1px solid #ccc;
-                border-radius: 4px;
-                background-color: #f9f9f9;
-            }
-            QFrame:hover {
-                border: 2px solid #0078d4;
-                background-color: #fff;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #4a90e2, stop:1 #357abd);
+                border-radius: 8px;
+                /* Remove padding here, let layout handle it */
             }
         """)
-        container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        # Increase height to fit font and margins
+        header_frame.setMinimumHeight(50)
+        header_frame.setMaximumHeight(100)
         
-        # Create vertical layout for button and label
-        layout = QVBoxLayout(container)
-        layout.setContentsMargins(3, 3, 3, 3)
-        layout.setSpacing(2)
-        layout.setAlignment(Qt.AlignCenter)
+        header_layout = QVBoxLayout(header_frame)
+        header_layout.setContentsMargins(8, 12, 8, 12)  # More vertical space
+        header_layout.setSpacing(4)
         
-        # Create button with consistent size
-        button = QPushButton()
-        button.setObjectName(button_name)
-        button.setFixedSize(48, 48)
-        button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        button.setStyleSheet("""
-            QPushButton {
-                border: 1px solid #999;
-                border-radius: 4px;
-                background-color: white;
-                padding: 2px;
-            }
-            QPushButton:hover {
-                border: 2px solid #0078d4;
-                background-color: #e6f3ff;
-            }
-            QPushButton:pressed {
-                background-color: #cce6ff;
-            }
-        """)
+        # Title
+        title_label = QLabel("Components")
+        title_font = QFont("Segoe UI", 0, QFont.Bold)
+        title_font.setPointSize(20)  # Larger for visibility
+        title_label.setFont(title_font)
+        title_label.setStyleSheet("color: white;")
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
-        # Set button icon with proper scaling
-        icon_path = self.main_window.component_icon_map.get(button_name)
-        if icon_path and os.path.exists(icon_path):
-            pixmap = QPixmap(icon_path)
-            # Scale to fit button with padding
-            scaled_pixmap = pixmap.scaled(40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            button.setIcon(QIcon(scaled_pixmap))
-            button.setIconSize(scaled_pixmap.size())
+        # Subtitle
+        subtitle_label = QLabel("Drag to canvas")
+        subtitle_font = QFont("Segoe UI", 0)
+        subtitle_font.setPointSize(12)
+        subtitle_label.setFont(subtitle_font)
+        subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
+        subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
-        # Connect button to drag function
-        button.mousePressEvent = lambda event, comp_type=button_name: self.main_window.onComponentButtonPress(event, comp_type)
+        header_layout.addWidget(title_label)
+        header_layout.addWidget(subtitle_label)
+        header_layout.addStretch(1)  # Push content to top if extra space
         
-        # Create label with proper text wrapping
-        label = QLabel(display_text)
-        label.setObjectName(label_name)
-        label.setAlignment(Qt.AlignCenter)
-        label.setWordWrap(True)
-        label.setMinimumHeight(15)
-        label.setMaximumHeight(25)
-        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        
-        # Set label font
-        font = QFont()
-        font.setPointSize(7)
-        font.setBold(False)
-        label.setFont(font)
-        label.setStyleSheet("color: #333; background: transparent; border: none;")
-        
-        # Add widgets to layout
-        layout.addWidget(button, 0, Qt.AlignCenter)
-        layout.addWidget(label, 0, Qt.AlignCenter)
-        
-        # Store references
-        container.button = button
-        container.label = label
-        container.button_name = button_name
-        container.label_name = label_name
-        container.display_text = display_text
-        
-        return container
+        self.main_layout.addWidget(header_frame)
 
-    def arrangeComponentsInGrid(self):
-        """Arrange components in a clean grid layout."""
-        if not self.component_widgets or not hasattr(self, 'component_grid_layout'):
-            return
-        
-        # Clear existing layout items
-        while self.component_grid_layout.count():
-            item = self.component_grid_layout.takeAt(0)
-            if item and item.widget():
-                item.widget().setParent(None)
-        
-        # Calculate optimal grid layout
-        panel_width = self.main_window.ObjectFrame.width()
-        debug_print(f"DEBUG: Arranging components for panel width: {panel_width}")
-        
-        # Determine number of columns based on available width
-        if panel_width >= 180:
-            num_columns = 2
-            widget_width = 85
-        else:
-            num_columns = 1
-            widget_width = min(panel_width - 15, 120)
-        
-        # Set consistent widget heights
-        widget_height = 80
-        
-        # Arrange widgets in grid
-        for i, widget in enumerate(self.component_widgets):
-            row = i // num_columns
-            col = i % num_columns
-            
-            # Set consistent size for all widgets
-            widget.setFixedSize(widget_width, widget_height)
-            
-            # Add to grid with proper alignment
-            self.component_grid_layout.addWidget(widget, row, col, Qt.AlignCenter)
-        
-        # Update text based on available space
-        self.updateComponentTextForLayout(panel_width)
-
-    def updateComponentTextForLayout(self, panel_width):
-        """Update component text based on available space."""
-        if not self.component_widgets:
-            return
-        
-        # Determine text style based on panel width
-        if panel_width < 80:
-            text_mode = 'minimal'
-            font_size = 6
-        elif panel_width < 140:
-            text_mode = 'abbreviated'
-            font_size = 7
-        else:
-            text_mode = 'full'
-            font_size = 8
-        
-        # Text mappings for different modes
-        text_mappings = {
-            'full': {
-                'Host': 'Host', 'STA': 'Station', 'UE': 'User Equipment', 'GNB': 'gNodeB',
-                'DockerHost': 'Docker', 'AP': 'Access Point', 'VGcore': '5G Cores',
-                'Router': 'Router', 'Switch': 'Switch', 'Controller': 'Controller'
-            },
-            'abbreviated': {
-                'Host': 'Host', 'STA': 'STA', 'UE': 'UE', 'GNB': 'gNB',
-                'DockerHost': 'Docker', 'AP': 'AP', 'VGcore': '5GC',
-                'Router': 'Router', 'Switch': 'Switch', 'Controller': 'Control'
-            },
-            'minimal': {
-                'Host': 'H', 'STA': 'S', 'UE': 'U', 'GNB': 'G',
-                'DockerHost': 'D', 'AP': 'A', 'VGcore': '5G',
-                'Router': 'R', 'Switch': 'Sw', 'Controller': 'C'
-            }
+    def createComponentSections(self):
+        """Create organized sections for different component types."""
+        # Group components by category
+        categories = {
+            "Network Devices": [
+                ('Host', 'host.png', 'Host'),
+                ('Router', 'Router.png', 'Router'),
+                ('Switch', 'switch.png', 'Switch'),
+                ('Controller', 'controller.png', 'Controller')
+            ],
+            "Wireless & 5G": [
+                ('STA', 'sta.png', 'Station'),
+                ('AP', 'AP.png', 'Access Point'),
+                ('UE', 'ue.png', 'User Equipment'),
+                ('GNB', 'gNB.png', 'gNodeB'),
+                ('VGcore', '5G core.png', '5G Core')
+            ],
+            "Containers": [
+                ('DockerHost', 'docker.png', 'Docker')
+            ]
         }
         
-        # Update each component's text
-        for widget in self.component_widgets:
-            text = text_mappings[text_mode].get(widget.button_name, widget.display_text)
-            widget.label.setText(text)
-            
-            # Update font size
-            font = widget.label.font()
-            font.setPointSize(font_size)
-            widget.label.setFont(font)
+        self.component_widgets = []
+        
+        for category_name, components in categories.items():
+            if components:  # Only create section if it has components
+                self.createCategorySection(category_name, components)
 
-    def updateResponsiveWidgetGeometry(self):
-        """Update the geometry of the responsive widget to fill ObjectFrame."""
-        if hasattr(self, 'responsive_widget') and hasattr(self.main_window, 'ObjectFrame'):
+    def createCategorySection(self, category_name, components):
+        """Create a category section with components."""
+        # Category header
+        category_frame = QFrame()
+        category_frame.setStyleSheet("""
+            QFrame {
+                background-color: #e9ecef;
+                border-radius: 6px;
+                margin: 2px 0px;
+                /* Remove border if present */
+            }
+        """)
+        category_frame.setFixedHeight(42)  # Increased height for better font fit
+        
+        category_layout = QHBoxLayout(category_frame)
+        category_layout.setContentsMargins(12, 6, 12, 6)  # More vertical space
+        category_layout.setAlignment(Qt.AlignCenter)
+        
+        category_label = QLabel(category_name)
+        category_font = QFont("Segoe UI", 13, QFont.DemiBold)
+        category_label.setFont(category_font)
+        category_label.setStyleSheet("color: #495057;")
+        
+        category_layout.addWidget(category_label)
+        category_layout.addStretch()
+        
+        self.main_layout.addWidget(category_frame)
+        
+        # Components grid for this category
+        components_frame = QFrame()
+        components_frame.setStyleSheet("""
+            QFrame {
+                background-color: transparent;
+                border: none;
+            }
+        """)
+        
+        components_layout = QGridLayout(components_frame)
+        components_layout.setContentsMargins(4, 4, 4, 8)
+        components_layout.setSpacing(8)
+        
+        # Add components to grid
+        for i, (comp_type, icon_file, display_text) in enumerate(components):
+            row = i // 2
+            col = i % 2
+            
+            # Get full icon path
+            icon_path = self.main_window.component_icon_map.get(comp_type)
+            
+            # Create modern component widget
+            component_widget = ModernComponentWidget(comp_type, icon_path, display_text)
+            self.component_widgets.append(component_widget)
+            
+            components_layout.addWidget(component_widget, row, col, Qt.AlignCenter)
+        
+        self.main_layout.addWidget(components_frame)
+
+    def arrangeComponentsInGrid(self):
+        """Components are now arranged within their category sections."""
+        # This method is kept for compatibility but logic moved to createCategorySection
+        self.updateScrollAreaGeometry()
+
+    def updateScrollAreaGeometry(self):
+        """Update the geometry of the scroll area to fill ObjectFrame."""
+        if hasattr(self, 'scroll_area') and hasattr(self.main_window, 'ObjectFrame'):
             frame_rect = self.main_window.ObjectFrame.geometry()
-            self.responsive_widget.setGeometry(0, 0, frame_rect.width(), frame_rect.height())
+            self.scroll_area.setGeometry(0, 0, frame_rect.width(), frame_rect.height())
 
     def updateComponentButtonSizes(self):
         """Update component layout with debouncing."""
@@ -285,32 +426,57 @@ class ComponentPanelManager:
 
     def _performComponentUpdate(self):
         """Perform the actual component update."""
-        self.updateResponsiveWidgetGeometry()
-        self.arrangeComponentsInGrid()
+        self.updateScrollAreaGeometry()
 
     def toggleComponentPanel(self):
-        """Toggle the visibility of the component panel."""
+        """Toggle the visibility of the component panel with smooth animation."""
         if not hasattr(self.main_window, 'main_splitter') or not hasattr(self.main_window, 'ObjectFrame'):
             return
         
         if self.main_window.ObjectFrame.isVisible():
+            # Hide panel
             self.main_window.ObjectFrame.hide()
             if hasattr(self.main_window, 'panel_toggle_button'):
                 self.main_window.panel_toggle_button.setText("▶")
+                self.main_window.panel_toggle_button.setToolTip("Show Component Panel")
             self.main_window.status_manager.showCanvasStatus("Component panel hidden")
         else:
+            # Show panel
             self.main_window.ObjectFrame.show()
             if hasattr(self.main_window, 'panel_toggle_button'):
                 self.main_window.panel_toggle_button.setText("◀")
+                self.main_window.panel_toggle_button.setToolTip("Hide Component Panel")
             QTimer.singleShot(100, self.updateComponentButtonSizes)
             self.main_window.status_manager.showCanvasStatus("Component panel shown")
 
     def setupComponentPanelToggle(self):
-        """Add a toggle button to show/hide the component panel."""
+        """Add a modern toggle button to show/hide the component panel."""
         self.main_window.panel_toggle_button = QToolButton()
         self.main_window.panel_toggle_button.setText("◀")
-        self.main_window.panel_toggle_button.setToolTip("Toggle Component Panel")
-        self.main_window.panel_toggle_button.setFixedSize(20, 30)
+        self.main_window.panel_toggle_button.setToolTip("Hide Component Panel")
+        self.main_window.panel_toggle_button.setFixedSize(24, 32)
+        
+        # Style the toggle button
+        self.main_window.panel_toggle_button.setStyleSheet("""
+            QToolButton {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #f8f9fa, stop:1 #e9ecef);
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                font-weight: bold;
+                color: #495057;
+            }
+            QToolButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #e9ecef, stop:1 #dee2e6);
+                border-color: #adb5bd;
+            }
+            QToolButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                          stop:0 #dee2e6, stop:1 #ced4da);
+            }
+        """)
+        
         self.main_window.panel_toggle_button.clicked.connect(self.toggleComponentPanel)
         
         if hasattr(self.main_window, 'toolBar'):
