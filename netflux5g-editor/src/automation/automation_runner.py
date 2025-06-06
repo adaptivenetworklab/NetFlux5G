@@ -6,9 +6,10 @@ import signal
 import yaml
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
-from .compose_export import DockerComposeExporter
-from .mininet_export import MininetExporter
-from .debug_manager import debug_print, error_print, warning_print
+from export.compose_export import DockerComposeExporter
+from export.mininet_export import MininetExporter
+from manager.debug_manager import debug_print, error_print, warning_print
+from prerequisites.prerequisites_checker import PrerequisitesChecker
 
 class AutomationRunner(QObject):
     """Handler for running automated deployment of Docker Compose and Mininet scripts."""
@@ -43,9 +44,6 @@ class AutomationRunner(QObject):
                 "Automation is already running. Please stop it first."
             )
             return
-
-        # Check prerequisites first
-        from .prerequisites_checker import PrerequisitesChecker
         
         all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
         if not all_ok:
@@ -153,7 +151,7 @@ class AutomationRunner(QObject):
         # Create a timestamped directory in the project root or temp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        export_dir = os.path.join(base_dir, "deployments", f"netflux5g_deploy_{timestamp}")
+        export_dir = os.path.join(base_dir, "..", "export", "started", f"netflux5g_deploy_{timestamp}")
         
         os.makedirs(export_dir, exist_ok=True)
         debug_print(f"Created working directory: {export_dir}")

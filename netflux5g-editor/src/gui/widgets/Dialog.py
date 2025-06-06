@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 import yaml
-from gui.debug_manager import debug_print, error_print, warning_print
+from manager.debug_manager import debug_print, error_print, warning_print
 
 class BasePropertiesWindow(QMainWindow):
     """Base class for all properties windows that automatically sets the icon."""
@@ -758,7 +758,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         
         # Open file dialog to select YAML file
         # Dynamically find the 5g-configs directory relative to this script
-        config_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "5g-configs"))
+        config_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "export", "5g-configs"))
         initial_dir = config_dir if os.path.exists(config_dir) else ""
         
         # Suggest a default filename based on component type

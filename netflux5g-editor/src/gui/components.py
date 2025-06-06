@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphics
 from PyQt5.QtCore import Qt, QRectF, QPoint
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
-from .debug_manager import debug_print, error_print, warning_print
+from manager.debug_manager import debug_print, error_print, warning_print
 
 
 class NetworkComponent(QGraphicsPixmapItem):

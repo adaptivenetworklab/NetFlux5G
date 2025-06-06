@@ -1,6 +1,6 @@
 import subprocess
 import shutil
-from .debug_manager import debug_print, error_print, warning_print
+from manager.debug_manager import debug_print, error_print, warning_print
 
 class PrerequisitesChecker:
     """Check if all required tools are installed and accessible."""

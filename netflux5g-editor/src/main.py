@@ -9,10 +9,10 @@ from PyQt5 import uic
 from gui.canvas import Canvas, MovableLabel
 from gui.toolbar import ToolbarFunctions
 from gui.links import NetworkLink
-from gui.compose_export import DockerComposeExporter
-from gui.mininet_export import MininetExporter
-from gui.debug_manager import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
-from gui.automation_runner import AutomationRunner
+from export.compose_export import DockerComposeExporter
+from export.mininet_export import MininetExporter
+from manager.debug_manager import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
+from automation.automation_runner import AutomationRunner
 
 # Load the UI file
 UI_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "ui", "Main_Window.ui")

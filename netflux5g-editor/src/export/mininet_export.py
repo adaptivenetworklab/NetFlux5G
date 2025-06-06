@@ -4,8 +4,8 @@ import json
 import traceback
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtCore import QDateTime
-from .config_mapping import ConfigurationMapper
-from .debug_manager import debug_print, error_print, warning_print
+from manager.config_mapping import ConfigurationMapper
+from manager.debug_manager import debug_print, error_print, warning_print
 
 class MininetExporter:
     """Handler for exporting network topology to Mininet scripts."""

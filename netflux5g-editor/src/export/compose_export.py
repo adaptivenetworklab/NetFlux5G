@@ -3,7 +3,7 @@ import yaml
 import shutil
 import traceback
 from PyQt5.QtWidgets import QFileDialog
-from .debug_manager import debug_print, error_print, warning_print
+from manager.debug_manager import debug_print, error_print, warning_print
 
 class DockerComposeExporter:
     """Handler for exporting 5G Core components to Docker Compose configuration."""
@@ -282,9 +282,7 @@ class DockerComposeExporter:
             component_configs = self.extract_5g_component_configurations(core5g_components)
             
             # Base path for template configurations
-            # Dynamically determine the path to the 5g-configs directory relative to this script
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            template_config_path = os.path.join(script_dir, "5g-configs")
+            template_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "export", "5g-configs")
             
             for component_type, instances in component_configs.items():
                 for instance in instances:
@@ -529,9 +527,8 @@ class DockerComposeExporter:
     def copy_entrypoint_script(self, config_dir):
         """Copy the entrypoint.sh script to the config directory."""
         try:
-            # Dynamically determine the path to the 5g-configs/entrypoint.sh relative to this script
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            source_entrypoint = os.path.join(script_dir, "5g-configs", "entrypoint.sh")
+            # Dynamically determine the path
+            source_entrypoint = os.path.join(os.path.dirname(os.path.abspath(__file__)), "export", "5g-configs", "entrypoint.sh")
             dest_entrypoint = os.path.join(config_dir, "entrypoint.sh")
             
             if os.path.exists(source_entrypoint):
