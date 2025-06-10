@@ -16,18 +16,36 @@ RUN apt-get update \
         python3-setuptools \
         python3-dev \
         python3-pip \
-	    python3-venv \
-    	pyflakes3 \
-    	tcpdump \
-    	wpan-tools \
-    	software-properties-common \
-    	ansible \
-    	curl \
-    	iptables \
-    	iputils-ping \
-    	sudo \
+        python3-venv \
+        pyflakes3 \
+        tcpdump \
+        wpan-tools \
+        software-properties-common \
+        ansible \
+        curl \
+        iptables \
+        iputils-ping \
+        traceroute \
+        nano \
+        sudo \
         x11-apps \
         xauth \
+        xorg \
+        openbox \
+        libx11-xcb1 \
+        libxcb1 \
+        libxcb-xinerama0 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render0 \
+        libxcb-render-util0 \
+        libxcb-shape0 \
+        libxcb-shm0 \
+        libxcb-sync1 \
+        libxcb-xfixes0 \
+        libxcb-xkb1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -41,7 +59,7 @@ WORKDIR /app/neflux5g/containernet/ansible
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-RUN pip install --upgrade pip 
+RUN pip install --upgrade pip ansible
 RUN ansible-playbook -i "localhost," -c local --skip-tags "notindocker" install.yml
 
 WORKDIR /app/neflux5g/containernet
