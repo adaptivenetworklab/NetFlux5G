@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>457</height>
+    <width>870</width>
+    <height>460</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,7 +69,7 @@
         <font>
          <family>Poppins Medium</family>
          <pointsize>18</pointsize>
-         <underline>true</underline>
+         <underline>false</underline>
         </font>
        </property>
        <property name="text">
@@ -83,7 +83,7 @@
         <font>
          <family>Poppins Medium</family>
          <pointsize>18</pointsize>
-         <underline>true</underline>
+         <underline>false</underline>
          <kerning>true</kerning>
         </font>
        </property>
@@ -111,7 +111,7 @@
    <widget class="QLabel" name="NetFluxLogo">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>450</x>
       <y>60</y>
       <width>371</width>
       <height>81</height>
@@ -130,7 +130,7 @@
    <widget class="QLabel" name="Description">
     <property name="geometry">
      <rect>
-      <x>390</x>
+      <x>470</x>
       <y>160</y>
       <width>351</width>
       <height>121</height>
@@ -152,10 +152,10 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="Start">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>490</x>
       <y>270</y>
       <width>291</width>
       <height>41</height>
@@ -165,6 +165,8 @@
      <font>
       <family>Poppins Medium</family>
       <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
      </font>
     </property>
     <property name="text">
@@ -274,9 +276,9 @@
    <widget class="QLabel" name="Legal">
     <property name="geometry">
      <rect>
-      <x>420</x>
-      <y>390</y>
-      <width>331</width>
+      <x>30</x>
+      <y>400</y>
+      <width>381</width>
       <height>41</height>
      </rect>
     </property>
@@ -284,7 +286,7 @@
      <string>™ 2025 Adaptive Network Lab. Created by Arga Valen Lazuardi, Muhammad Litfan Rahmansyah, and Salman Alfarizi Novel Bajri.</string>
     </property>
     <property name="alignment">
-     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -293,9 +295,9 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>320</y>
-      <width>301</width>
+      <x>470</x>
+      <y>400</y>
+      <width>361</width>
       <height>31</height>
      </rect>
     </property>
@@ -303,17 +305,17 @@
      <string>For documentation, source code, and updates, visit our GitHub</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="linkRepo">
     <property name="geometry">
      <rect>
-      <x>470</x>
-      <y>340</y>
-      <width>281</width>
+      <x>420</x>
+      <y>420</y>
+      <width>411</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>https://github.com/adaptivenetworklab/Riset_23-24_SDN</string>
+     <string>https://github.com/adaptivenetworklab/Riset_23-24_SDN/tree/netflux5g</string>
     </property>
    </widget>
   </widget>

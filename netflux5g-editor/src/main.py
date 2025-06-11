@@ -16,6 +16,7 @@ from manager.canvas import CanvasManager
 from manager.automation import AutomationManager
 from manager.keyboard import KeyboardManager
 from manager.debug import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
+from manager.welcome import WelcomeScreenManager
 
 # Import existing modules
 from gui.canvas import Canvas, MovableLabel
@@ -28,7 +29,7 @@ from automation.automation_runner import AutomationRunner
 UI_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui", "ui", "Main_Window.ui")
 
 class NetFlux5GApp(QMainWindow):
-    def __init__(self):
+    def __init__(self, show_welcome=True):
         super().__init__()
         
         # Load the UI file
@@ -46,6 +47,7 @@ class NetFlux5GApp(QMainWindow):
         self.canvas_manager = CanvasManager(self)
         self.automation_manager = AutomationManager(self)
         self.keyboard_manager = KeyboardManager(self)
+        self.welcome_manager = WelcomeScreenManager(self)
         
         # Initialize other components
         self.toolbar_functions = ToolbarFunctions(self)
@@ -81,6 +83,11 @@ class NetFlux5GApp(QMainWindow):
 
         # Show helpful shortcut information
         self.showShortcutHelp()
+
+        # Don't show main window immediately if showing welcome screen
+        if show_welcome:
+            # Hide main window initially
+            self.hide()
         
         # Force initial geometry update
         QTimer.singleShot(100, self.window_manager.updateCanvasGeometry)
@@ -453,7 +460,18 @@ if __name__ == "__main__":
     icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
     app.setWindowIcon(QIcon(icon_path))
 
-    window = NetFlux5GApp()
-    window.show()
+    # Check for command line arguments to skip welcome screen
+    show_welcome = "--no-welcome" not in sys.argv
+    
+    window = NetFlux5GApp(show_welcome)
+    
+    if show_welcome:
+        # Show welcome screen first
+        if not window.welcome_manager.showWelcomeScreen():
+            # If welcome screen fails, show main window directly
+            window.show()
+    else:
+        # Show main window directly
+        window.show()
     
     sys.exit(app.exec_())
