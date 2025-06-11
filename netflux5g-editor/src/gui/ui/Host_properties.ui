@@ -13,9 +13,6 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">background-color: rgb(218, 218, 218);</string>
-  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
@@ -77,11 +74,7 @@
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit"/>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_2">
@@ -91,11 +84,7 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit_2">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit_2"/>
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_3">
@@ -105,11 +94,7 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_3">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit_3"/>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_4">
@@ -119,11 +104,7 @@
         </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="lineEdit_4">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit_4"/>
        </item>
        <item row="6" column="0">
         <widget class="QLabel" name="label_5">
@@ -133,11 +114,7 @@
         </widget>
        </item>
        <item row="6" column="1">
-        <widget class="QLineEdit" name="lineEdit_5">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit_5"/>
        </item>
        <item row="7" column="0">
         <widget class="QLabel" name="label_6">
@@ -147,11 +124,7 @@
         </widget>
        </item>
        <item row="7" column="1">
-        <widget class="QLineEdit" name="lineEdit_6">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit_6"/>
        </item>
        <item row="8" column="0">
         <widget class="QLabel" name="label_7">
@@ -161,17 +134,10 @@
         </widget>
        </item>
        <item row="8" column="1">
-        <widget class="QLineEdit" name="lineEdit_7">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
-        </widget>
+        <widget class="QLineEdit" name="lineEdit_7"/>
        </item>
        <item row="5" column="1">
         <widget class="QComboBox" name="comboBox">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
-         </property>
          <item>
           <property name="text">
            <string>Host</string>
@@ -204,9 +170,6 @@
         <width>211</width>
         <height>181</height>
        </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <column>
        <property name="text">
@@ -278,9 +241,6 @@
         <height>191</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 255);</string>
-      </property>
       <column>
        <property name="text">
         <string>Interface Name</string>
@@ -306,7 +266,7 @@
         <x>10</x>
         <y>10</y>
         <width>231</width>
-        <height>25</height>
+        <height>21</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_2">
@@ -385,20 +345,17 @@
         <height>181</height>
        </rect>
       </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 255);</string>
-      </property>
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
       </attribute>
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>false</bool>
       </attribute>
-      <attribute name="horizontalHeaderHighlightSections">
-       <bool>false</bool>
-      </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
        <number>46</number>
+      </attribute>
+      <attribute name="horizontalHeaderHighlightSections">
+       <bool>false</bool>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>true</bool>
