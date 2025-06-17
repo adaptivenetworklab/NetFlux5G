@@ -110,7 +110,6 @@ class Canvas(QGraphicsView):
             QGraphicsView.DontAdjustForAntialiasing
         )
         self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
-        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform, False)
         self.setCacheMode(QGraphicsView.CacheBackground)
         
         # Reduce update frequency during scrolling
