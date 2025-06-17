@@ -195,6 +195,380 @@ class AutomationRunner(QObject):
         """Extract topology from main window."""
         return self.main_window.file_manager.extractTopology()
     
+    def _generate_test_configurations(self):
+        """Generate test configurations for end-to-end testing."""
+        try:
+            # Extract topology to analyze components
+            nodes, links = self.main_window.file_manager.extractTopology()
+            
+            # Find 5G Core components for testing
+            core5g_components = [n for n in nodes if n['type'] == 'VGcore']
+            gnb_components = [n for n in nodes if n['type'] == 'GNB']
+            ue_components = [n for n in nodes if n['type'] == 'UE']
+            
+            if not core5g_components:
+                # Create default test configuration if no VGcore components found
+                debug_print("No VGcore components found, creating default test configuration")
+                self._create_default_test_configuration()
+                return
+            
+            # Generate Docker Compose for 5G Core
+            self.docker_compose_exporter.export_docker_compose_files(self.export_dir)
+            
+            # Generate enhanced test configurations for UERANSIM
+            self._generate_ueransim_test_configs(gnb_components, ue_components)
+            
+            debug_print("Test configurations generated successfully")
+            
+        except Exception as e:
+            error_print(f"Failed to generate test configurations: {e}")
+            raise
+    
+    def _create_default_test_configuration(self):
+        """Create a default test configuration for basic 5G testing."""
+        try:
+            # Create a minimal docker-compose.yaml for testing
+            config_dir = os.path.join(self.export_dir, "config")
+            os.makedirs(config_dir, exist_ok=True)
+            
+            # Use the pre-built UERANSIM configuration from the manual implementation
+            self._copy_reference_implementation()
+            
+            debug_print("Default test configuration created")
+            
+        except Exception as e:
+            error_print(f"Failed to create default test configuration: {e}")
+            raise
+    
+    def _copy_reference_implementation(self):
+        """Copy the reference Open5GS-UERANSIM implementation for testing."""
+        try:
+            # Get the path to the manual implementation
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+            manual_impl_dir = os.path.join(base_dir, "manual-implementation", "Open5Gs-UERANSIM")
+            
+            if not os.path.exists(manual_impl_dir):
+                debug_print(f"Manual implementation not found at {manual_impl_dir}, creating basic config")
+                self._create_basic_test_compose()
+                return
+            
+            # Copy the working docker-compose files
+            import shutil
+            
+            compose_files = ["ngc.yaml", "gnb1.yaml", "webui-db.yaml"]
+            
+            for compose_file in compose_files:
+                src = os.path.join(manual_impl_dir, compose_file)
+                if os.path.exists(src):
+                    dst = os.path.join(self.export_dir, compose_file)
+                    shutil.copy2(src, dst)
+                    debug_print(f"Copied {compose_file} to test directory")
+            
+            # Copy the registration script
+            reg_script_src = os.path.join(manual_impl_dir, "register_subscriber.sh")
+            if os.path.exists(reg_script_src):
+                reg_script_dst = os.path.join(self.export_dir, "register_subscriber.sh")
+                shutil.copy2(reg_script_src, reg_script_dst)
+                os.chmod(reg_script_dst, 0o755)
+            
+            # Create a master docker-compose.yaml that combines the services
+            self._create_combined_test_compose()
+            
+        except Exception as e:
+            error_print(f"Failed to copy reference implementation: {e}")
+            self._create_basic_test_compose()
+    
+    def _create_basic_test_compose(self):
+        """Create a basic docker-compose.yaml for testing."""
+        import yaml
+        
+        compose_config = {
+            'services': {
+                'mongo': {
+                    'image': 'mongo:latest',
+                    'restart': 'unless-stopped',
+                    'environment': {
+                        'MONGO_INITDB_ROOT_USERNAME': 'root',
+                        'MONGO_INITDB_ROOT_PASSWORD': 'example',
+                        'MONGO_INITDB_DATABASE': 'open5gs'
+                    },
+                    'volumes': ['mongodb_data:/data/db'],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'webui': {
+                    'image': 'adaptive/open5gs:1.0',
+                    'depends_on': ['mongo'],
+                    'restart': 'unless-stopped',
+                    'environment': {
+                        'DB_URI': 'mongodb://mongo/open5gs',
+                        'NODE_ENV': 'development'
+                    },
+                    'volumes': ['./config/webui.yaml:/opt/open5gs/etc/open5gs/webui.yaml'],
+                    'ports': ['9999:9999'],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'nrf': {
+                    'image': 'adaptive/open5gs:1.0',
+                    'command': '/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-nrfd',
+                    'restart': 'on-failure',
+                    'volumes': [
+                        './config/nrf.yaml:/opt/open5gs/etc/open5gs/nrf.yaml',
+                        './config/entrypoint.sh:/opt/open5gs/etc/open5gs/entrypoint.sh'
+                    ],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'amf': {
+                    'image': 'adaptive/open5gs:1.0',
+                    'command': '/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-amfd',
+                    'restart': 'on-failure',
+                    'depends_on': ['nrf'],
+                    'volumes': [
+                        './config/amf.yaml:/opt/open5gs/etc/open5gs/amf.yaml',
+                        './config/entrypoint.sh:/opt/open5gs/etc/open5gs/entrypoint.sh'
+                    ],
+                    'cap_add': ['net_admin'],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'smf': {
+                    'image': 'adaptive/open5gs:1.0',
+                    'command': '/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-smfd',
+                    'restart': 'on-failure',
+                    'depends_on': ['nrf'],
+                    'volumes': [
+                        './config/smf.yaml:/opt/open5gs/etc/open5gs/smf.yaml',
+                        './config/entrypoint.sh:/opt/open5gs/etc/open5gs/entrypoint.sh'
+                    ],
+                    'cap_add': ['net_admin'],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'upf': {
+                    'image': 'adaptive/open5gs:1.0',
+                    'command': '/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-upfd',
+                    'restart': 'on-failure',
+                    'privileged': True,
+                    'volumes': [
+                        './config/upf.yaml:/opt/open5gs/etc/open5gs/upf.yaml',
+                        './config/entrypoint.sh:/opt/open5gs/etc/open5gs/entrypoint.sh'
+                    ],
+                    'cap_add': ['net_admin'],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'gnb1': {
+                    'image': 'adaptive/ueransim:1.0',
+                    'command': 'sleep infinity',
+                    'restart': 'unless-stopped',
+                    'privileged': True,
+                    'volumes': [
+                        './config/gnb1.yaml:/ueransim/config/gnb1.yaml',
+                        './config/ue1.yaml:/ueransim/config/ue1.yaml',
+                        './config/ue2.yaml:/ueransim/config/ue2.yaml',
+                        './config/ue3.yaml:/ueransim/config/ue3.yaml'
+                    ],
+                    'cap_add': ['net_admin'],
+                    'devices': ['/dev/net/tun'],
+                    'networks': ['open5gs-ueransim_default']
+                },
+                'ues1': {
+                    'image': 'adaptive/ueransim:1.0',
+                    'command': 'sleep infinity',
+                    'restart': 'unless-stopped',
+                    'privileged': True,
+                    'volumes': [
+                        './config/ue1.yaml:/ueransim/config/ue1.yaml',
+                        './config/ue2.yaml:/ueransim/config/ue2.yaml',
+                        './config/ue3.yaml:/ueransim/config/ue3.yaml'
+                    ],
+                    'cap_add': ['net_admin'],
+                    'devices': ['/dev/net/tun'],
+                    'networks': ['open5gs-ueransim_default']
+                }
+            },
+            'networks': {
+                'open5gs-ueransim_default': {
+                    'driver': 'bridge',
+                    'driver_opts': {
+                        'com.docker.network.bridge.name': 'br-open5gs'
+                    },
+                    'ipam': {
+                        'driver': 'default',
+                        'config': [
+                            {'subnet': '172.22.0.0/24'}
+                        ]
+                    }
+                }
+            },
+            'volumes': {
+                'mongodb_data': {}
+            }
+        }
+        
+        compose_file = os.path.join(self.export_dir, "docker-compose.yaml")
+        with open(compose_file, 'w') as f:
+            yaml.dump(compose_config, f, default_flow_style=False, sort_keys=False)
+        
+        debug_print(f"Created basic test docker-compose.yaml at {compose_file}")
+    
+    def _create_combined_test_compose(self):
+        """Create a combined docker-compose.yaml from separate files."""
+        import yaml
+        
+        # Start with webui-db.yaml as base
+        combined_config = {'services': {}, 'networks': {}, 'volumes': {}}
+        
+        compose_files = ["webui-db.yaml", "ngc.yaml", "gnb1.yaml"]
+        
+        for compose_file in compose_files:
+            file_path = os.path.join(self.export_dir, compose_file)
+            if os.path.exists(file_path):
+                try:
+                    with open(file_path, 'r') as f:
+                        config = yaml.safe_load(f)
+                    
+                    if config:
+                        if 'services' in config:
+                            combined_config['services'].update(config['services'])
+                        if 'networks' in config:
+                            combined_config['networks'].update(config['networks'])
+                        if 'volumes' in config:
+                            combined_config['volumes'].update(config['volumes'])
+                            
+                except Exception as e:
+                    warning_print(f"Failed to parse {compose_file}: {e}")
+        
+        # Write combined configuration
+        if combined_config['services']:
+            compose_file = os.path.join(self.export_dir, "docker-compose.yaml")
+            with open(compose_file, 'w') as f:
+                yaml.dump(combined_config, f, default_flow_style=False, sort_keys=False)
+            debug_print("Created combined docker-compose.yaml for testing")
+        else:
+            debug_print("No services found in compose files, creating basic configuration")
+            self._create_basic_test_compose()
+    
+    def _generate_ueransim_test_configs(self, gnb_components, ue_components):
+        """Generate UERANSIM configuration files for gNB and UE components."""
+        try:
+            config_dir = os.path.join(self.export_dir, "config")
+            os.makedirs(config_dir, exist_ok=True)
+            
+            # Generate gNB configurations
+            for i, gnb in enumerate(gnb_components, 1):
+                self._create_gnb_config(gnb, config_dir, f"gnb{i}")
+            
+            # Generate UE configurations  
+            for i, ue in enumerate(ue_components, 1):
+                self._create_ue_config(ue, config_dir, f"ue{i}")
+            
+            # Copy entrypoint script
+            self.docker_compose_exporter.copy_entrypoint_script(config_dir)
+            
+        except Exception as e:
+            error_print(f"Failed to generate UERANSIM configs: {e}")
+            raise
+    
+    def _create_gnb_config(self, gnb_component, config_dir, gnb_name):
+        """Create gNB configuration file."""
+        import yaml
+        
+        props = gnb_component.get('properties', {})
+        
+        gnb_config = {
+            'mcc': props.get('GNB_MCC', '999'),
+            'mnc': props.get('GNB_MNC', '70'),
+            'nci': '0x000000010',
+            'idLength': 32,
+            'tac': int(props.get('GNB_TAC', '1')),
+            'linkIp': '127.0.0.1',
+            'ngapIp': '127.0.0.1',
+            'gtpIp': '127.0.0.1',
+            'amfConfigs': [
+                {
+                    'address': props.get('GNB_AMF_IP', '127.0.0.1'),
+                    'port': 38412
+                }
+            ],
+            'slices': [
+                {
+                    'sst': int(props.get('GNB_SST', '1')),
+                    'sd': props.get('GNB_SD', '0x010203')
+                }
+            ],
+            'ignoreStreamIds': True
+        }
+        
+        config_file = os.path.join(config_dir, f"{gnb_name}.yaml")
+        with open(config_file, 'w') as f:
+            yaml.dump(gnb_config, f, default_flow_style=False)
+        
+        debug_print(f"Created gNB config: {config_file}")
+    
+    def _create_ue_config(self, ue_component, config_dir, ue_name):
+        """Create UE configuration file."""
+        import yaml
+        
+        props = ue_component.get('properties', {})
+        
+        ue_config = {
+            'supi': f"imsi-{props.get('UE_MCC', '999')}{props.get('UE_MNC', '70')}{props.get('UE_MSISDN', '0000000001')}",
+            'mcc': props.get('UE_MCC', '999'),
+            'mnc': props.get('UE_MNC', '70'),
+            'routingIndicator': '0000',
+            'protectionScheme': 0,
+            'homeNetworkPublicKey': '5a8d38864820197c3394b92613b20b76b976d0036da1df8a48130b8e7cfc61',
+            'homeNetworkPrivateKey': 'f2fae229c98c9de5a6bb3395a0a2b75f8b5e1e5e1e5e1e5e1e5e1e5e1e5e1e5e',
+            'key': props.get('UE_Key', '465B5CE8B199B49FAA5F0A2EE238A6BC'),
+            'op': props.get('UE_OP', 'E8ED289DEBA952E4283B54E88E6183CA'),
+            'opType': props.get('UE_OP_Type', 'OPC'),
+            'amf': '8000',
+            'imei': '356938035643803',
+            'imeiSv': '4370816125816151',
+            'gnbSearchList': [props.get('UE_GNB_IP', '127.0.0.1')],
+            'uacAic': {
+                'mps': False,
+                'mcs': False
+            },
+            'uacAcc': {
+                'normalClass': 0,
+                'class11': False,
+                'class12': False,
+                'class13': False,
+                'class14': False,
+                'class15': False
+            },
+            'sessions': [
+                {
+                    'apn': props.get('UE_APN', 'internet'),
+                    'slice': {
+                        's-nssai': {
+                            'sst': int(props.get('UE_SST', '1')),
+                            'sd': props.get('UE_SD', '0x010203')
+                        }
+                    }
+                }
+            ],
+            'configured-nssai': [
+                {
+                    'sst': int(props.get('UE_SST', '1')),
+                    'sd': props.get('UE_SD', '0x010203')
+                }
+            ],
+            'default-nssai': [
+                {
+                    'sst': int(props.get('UE_SST', '1')),
+                    'sd': props.get('UE_SD', '0x010203')
+                }
+            ],
+            'integrity': '2',
+            'ciphering': '0'
+        }
+        
+        config_file = os.path.join(config_dir, f"{ue_name}.yaml")
+        with open(config_file, 'w') as f:
+            yaml.dump(ue_config, f, default_flow_style=False)
+        
+        debug_print(f"Created UE config: {config_file}")
+
     def _start_docker_compose(self):
         """Start Docker Compose services."""
         compose_file = os.path.join(self.export_dir, "docker-compose.yaml")
