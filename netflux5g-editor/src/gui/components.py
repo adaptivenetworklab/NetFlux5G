@@ -232,7 +232,7 @@ class NetworkComponent(QGraphicsPixmapItem):
             if self.scene():
                 # Update only the necessary area
                 update_rect = self.sceneBoundingRect().adjusted(-10, -10, 10, 10)
-                self.scene.update(update_rect)
+                self.scene().update(update_rect)
         
         return super().itemChange(change, value)
 
