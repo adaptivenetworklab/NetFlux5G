@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QPixmap, QIcon, QCursor
 from PyQt5 import uic
 from manager.debug import debug_print, error_print, warning_print
+from prerequisites.checker import PrerequisitesChecker
 import os
 import webbrowser 
 
@@ -45,19 +46,34 @@ class WelcomeScreenManager:
                 # If it's the basic topology, offer to run end-to-end test
                 if data == "basic_gnb_core":
                     from PyQt5.QtWidgets import QMessageBox
-                    reply = QMessageBox.question(
-                        self.main_window,
-                        "Run End-to-End Test?",
-                        "Would you like to run the automated end-to-end test for this topology?\n\n"
-                        "This will:\n"
-                        "• Deploy the 5G network\n" 
-                        "• Start all components\n"
-                        "• Run connectivity tests\n"
-                        "• Generate test reports\n\n"
-                        "Make sure Docker and Mininet are installed.",
-                        QMessageBox.Yes | QMessageBox.No,
-                        QMessageBox.No
-                    )
+                    
+                    # Check prerequisites before offering test
+                    all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
+                    if not all_ok:
+                        missing = [tool for tool, ok in checks.items() if not ok]
+                        reply = QMessageBox.question(
+                            self.main_window,
+                            "Missing Prerequisites",
+                            f"Some prerequisites are missing: {', '.join(missing)}\n\n"
+                            "Would you still like to run the end-to-end test?\n"
+                            "(The test may fail without all prerequisites)",
+                            QMessageBox.Yes | QMessageBox.No,
+                            QMessageBox.No
+                        )
+                    else:
+                        reply = QMessageBox.question(
+                            self.main_window,
+                            "Run End-to-End Test?",
+                            "Would you like to run the automated end-to-end test for this topology?\n\n"
+                            "This will:\n"
+                            "• Deploy the 5G network\n" 
+                            "• Start all components\n"
+                            "• Run connectivity tests\n"
+                            "• Generate test reports\n\n"
+                            "Make sure Docker and Mininet are installed.",
+                            QMessageBox.Yes | QMessageBox.No,
+                            QMessageBox.No
+                        )
                     
                     if reply == QMessageBox.Yes:
                         # Start the end-to-end test

@@ -36,7 +36,7 @@ class PrerequisitesChecker:
     @staticmethod
     def check_docker_compose():
         """Check if Docker Compose is available."""
-        # Check for docker-compose command
+        # Check for docker-compose command (legacy)
         if shutil.which("docker-compose"):
             try:
                 result = subprocess.run(
@@ -61,7 +61,39 @@ class PrerequisitesChecker:
             return result.returncode == 0
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
             return False
-    
+
+    @staticmethod
+    def get_docker_compose_command():
+        """Get the correct Docker Compose command to use."""
+        # Check for docker-compose command (legacy)
+        if shutil.which("docker-compose"):
+            try:
+                result = subprocess.run(
+                    ["docker-compose", "--version"], 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=10
+                )
+                if result.returncode == 0:
+                    return ["docker-compose"]
+            except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+                pass
+        
+        # Check for docker compose (newer syntax)
+        try:
+            result = subprocess.run(
+                ["docker", "compose", "version"], 
+                capture_output=True, 
+                text=True, 
+                timeout=10
+            )
+            if result.returncode == 0:
+                return ["docker", "compose"]
+        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+            pass
+        
+        return None
+
     @staticmethod
     def check_mininet():
         """Check if Mininet is available."""

@@ -1,6 +1,7 @@
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
 from manager.debug import debug_print
+from prerequisites.checker import PrerequisitesChecker
 import os
 
 class AutomationManager:
@@ -10,6 +11,23 @@ class AutomationManager:
     def runAllComponents(self):
         """Run All - Deploy and start all components"""
         debug_print("DEBUG: RunAll triggered")
+        
+        # Check prerequisites first
+        all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
+        if not all_ok:
+            missing = [tool for tool, ok in checks.items() if not ok]
+            instructions = PrerequisitesChecker.get_installation_instructions()
+            
+            error_msg = f"Missing prerequisites: {', '.join(missing)}\n\n"
+            for tool in missing:
+                error_msg += f"{tool.upper()}:\n{instructions[tool]}\n"
+            
+            QMessageBox.critical(
+                self.main_window,
+                "Missing Prerequisites",
+                error_msg
+            )
+            return
         
         # Check if already running
         if self.main_window.automation_runner.is_deployment_running():
@@ -39,6 +57,23 @@ class AutomationManager:
     def runEndToEndTest(self):
         """Run complete end-to-end testing sequence."""
         debug_print("DEBUG: End-to-end test triggered")
+        
+        # Check prerequisites first
+        all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
+        if not all_ok:
+            missing = [tool for tool, ok in checks.items() if not ok]
+            instructions = PrerequisitesChecker.get_installation_instructions()
+            
+            error_msg = f"Missing prerequisites for testing: {', '.join(missing)}\n\n"
+            for tool in missing:
+                error_msg += f"{tool.upper()}:\n{instructions[tool]}\n"
+            
+            QMessageBox.critical(
+                self.main_window,
+                "Missing Prerequisites",
+                error_msg
+            )
+            return
         
         if self.main_window.automation_runner.is_deployment_running():
             QMessageBox.warning(

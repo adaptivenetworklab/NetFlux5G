@@ -33,10 +33,17 @@ class AutomationRunner(QObject):
         self.export_dir = None
         self.mininet_script_path = None
         self.test_mode = False
+        self.docker_compose_cmd = None  # Store the correct Docker Compose command
         
         # Connect signals
         self.status_updated.connect(self.main_window.showCanvasStatus)
-        
+
+    def _get_docker_compose_command(self):
+        """Get the correct Docker Compose command."""
+        if self.docker_compose_cmd is None:
+            self.docker_compose_cmd = PrerequisitesChecker.get_docker_compose_command()
+        return self.docker_compose_cmd
+
     def run_all(self):
         """Main entry point for RunAll functionality."""
         if self.is_running:
@@ -198,18 +205,13 @@ class AutomationRunner(QObject):
         except (subprocess.CalledProcessError, FileNotFoundError):
             raise Exception("Docker is not installed or not accessible")
         
-        # Check if docker-compose is available
-        try:
-            subprocess.run(["docker-compose", "--version"], capture_output=True, check=True)
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            # Try docker compose (newer syntax)
-            try:
-                subprocess.run(["docker", "compose", "version"], capture_output=True, check=True)
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                raise Exception("Docker Compose is not installed or not accessible")
+        # Get the correct Docker Compose command
+        compose_cmd = self._get_docker_compose_command()
+        if not compose_cmd:
+            raise Exception("Docker Compose is not installed or not accessible. Please install Docker Compose or use Docker Desktop.")
         
         # Start Docker Compose services
-        cmd = ["docker-compose", "-f", compose_file, "up", "-d"]
+        cmd = compose_cmd + ["-f", compose_file, "up", "-d"]
         debug_print(f"Starting Docker Compose with command: {' '.join(cmd)}")
         
         self.docker_process = subprocess.Popen(
@@ -227,7 +229,7 @@ class AutomationRunner(QObject):
             raise Exception(f"Docker Compose failed: {stderr}")
             
         debug_print(f"Docker Compose started successfully: {stdout}")
-    
+
     def _wait_for_services(self):
         """Wait for Docker services to be ready."""
         # Simple wait - in a real implementation, you might want to check service health
@@ -235,16 +237,18 @@ class AutomationRunner(QObject):
         
         # Check if services are running
         try:
-            result = subprocess.run(
-                ["docker-compose", "-f", os.path.join(self.export_dir, "docker-compose.yaml"), "ps"],
-                capture_output=True,
-                text=True,
-                cwd=self.export_dir
-            )
-            debug_print(f"Docker services status: {result.stdout}")
+            compose_cmd = self._get_docker_compose_command()
+            if compose_cmd:
+                result = subprocess.run(
+                    compose_cmd + ["-f", os.path.join(self.export_dir, "docker-compose.yaml"), "ps"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.export_dir
+                )
+                debug_print(f"Docker services status: {result.stdout}")
         except Exception as e:
             warning_print(f"Could not check service status: {e}")
-    
+
     def _start_mininet(self):
         """Start Mininet in a new terminal."""
         if not self.mininet_script_path:
@@ -334,11 +338,13 @@ read
                 compose_file = os.path.join(self.export_dir, "docker-compose.yaml")
                 if os.path.exists(compose_file):
                     debug_print("Stopping Docker Compose...")
-                    subprocess.run(
-                        ["docker-compose", "-f", compose_file, "down"],
-                        cwd=self.export_dir,
-                        capture_output=True
-                    )
+                    compose_cmd = self._get_docker_compose_command()
+                    if compose_cmd:
+                        subprocess.run(
+                            compose_cmd + ["-f", compose_file, "down"],
+                            cwd=self.export_dir,
+                            capture_output=True
+                        )
             
             self.status_updated.emit("All services stopped")
             
@@ -671,7 +677,11 @@ fi
             # Start Docker Compose services
             compose_file = os.path.join(self.export_dir, "docker-compose.yaml")
             
-            cmd = ["docker-compose", "-f", compose_file, "up", "-d"]
+            compose_cmd = self._get_docker_compose_command()
+            if not compose_cmd:
+                raise Exception("Docker Compose is not available")
+            
+            cmd = compose_cmd + ["-f", compose_file, "up", "-d"]
             debug_print(f"Starting test infrastructure: {' '.join(cmd)}")
             
             result = subprocess.run(
@@ -700,7 +710,7 @@ fi
         except Exception as e:
             error_print(f"Infrastructure deployment failed: {e}")
             return False
-    
+
     def _wait_for_services_ready(self):
         """Wait for all services to be ready."""
         # Wait for Docker services
@@ -709,18 +719,20 @@ fi
         
         while wait_time < max_wait:
             try:
-                result = subprocess.run(
-                    ["docker-compose", "-f", os.path.join(self.export_dir, "docker-compose.yaml"), "ps"],
-                    capture_output=True,
-                    text=True,
-                    cwd=self.export_dir
-                )
-                
-                # Check if all services are running
-                if "Up" in result.stdout:
-                    debug_print("Docker services are ready")
-                    break
+                compose_cmd = self._get_docker_compose_command()
+                if compose_cmd:
+                    result = subprocess.run(
+                        compose_cmd + ["-f", os.path.join(self.export_dir, "docker-compose.yaml"), "ps"],
+                        capture_output=True,
+                        text=True,
+                        cwd=self.export_dir
+                    )
                     
+                    # Check if all services are running
+                    if "Up" in result.stdout:
+                        debug_print("Docker services are ready")
+                        break
+                        
             except Exception as e:
                 debug_print(f"Waiting for services: {e}")
             
