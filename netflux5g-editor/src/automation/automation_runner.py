@@ -38,6 +38,10 @@ class AutomationRunner(QObject):
         # Connect signals
         self.status_updated.connect(self.main_window.showCanvasStatus)
 
+    def is_deployment_running(self):
+        """Check if a deployment is currently running."""
+        return self.is_running
+
     def _get_docker_compose_command(self):
         """Get the correct Docker Compose command."""
         if self.docker_compose_cmd is None:
@@ -817,3 +821,8 @@ read
         # Create a timestamped directory
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        test_dir = os.path.join(base_dir, "..", "export", "stopped", f"netflux5g_test_{timestamp}")
+        
+        os.makedirs(test_dir, exist_ok=True)
+        debug_print(f"Created test directory: {test_dir}")
+        return test_dir
