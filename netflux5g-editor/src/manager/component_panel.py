@@ -258,7 +258,7 @@ class ComponentPanelManager:
         
         # Create main vertical layout
         self.main_layout = QVBoxLayout(self.container_widget)
-        self.main_layout.setContentsMargins(1, 1, 1, 1)  # Ultra minimal margins
+        self.main_layout.setContentsMargins(1, 1, 1, 15)  # Increased bottom margin from 1 to 15
         self.main_layout.setSpacing(2)  # Ultra compact spacing
         
         # Create header section
@@ -351,28 +351,29 @@ class ComponentPanelManager:
         if self._category_count > 1:
             # Add spacing between categories
             spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(8)  # Spacing between categories
+            spacer_frame.setFixedHeight(3)  # Slightly more spacing
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
-        # Category header without gray background frame - just text
+        # Category header - MUCH LARGER
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
-                background-color: transparent;
-                border: none;
+                background-color: #e9ecef;
+                border-radius: 4px;
+                margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(32)  # Height for text
+        category_frame.setFixedHeight(36)  # Increased height from 32 to 36
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 4, 8, 4)  # Keep margins for text positioning
+        category_layout.setContentsMargins(8, 6, 8, 6)  # Increased vertical margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Keep font size
+        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Increased from 12 to 13
         category_label.setFont(category_font)
-        category_label.setStyleSheet("color: #495057;")  # Keep text color
+        category_label.setStyleSheet("color: #495057;")
         
         category_layout.addWidget(category_label)
         
@@ -388,7 +389,7 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(3, 4, 3, 5)  # Reduced side margins for tighter layout
+        components_layout.setContentsMargins(3, 4, 3, 12)  # Increased bottom margin from 5 to 12
         components_layout.setSpacing(1)  # Much reduced spacing between components
         components_layout.setHorizontalSpacing(1)  # Specifically reduce horizontal spacing
         components_layout.setVerticalSpacing(3)  # Keep some vertical spacing
