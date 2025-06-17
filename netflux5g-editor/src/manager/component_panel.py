@@ -283,6 +283,7 @@ class ComponentPanelManager:
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                         stop:0 #4a90e2, stop:1 #357abd);
+                border: none;
                 border-radius: 6px;
             }
         """)
@@ -351,28 +352,30 @@ class ComponentPanelManager:
         if self._category_count > 1:
             # Add spacing between categories
             spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(8)  # Increased spacing since no frame
+            spacer_frame.setFixedHeight(3)  # Slightly more spacing
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
-        # Category header without gray background frame - just text
+        # Category header with gray background
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
-                background-color: transparent;
+                background-color: #e9ecef;
                 border: none;
+                border-radius: 4px;
+                margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(32)  # Reduced height since no background frame
+        category_frame.setFixedHeight(36)  # Increased height
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 4, 8, 4)  # Keep margins for text positioning
+        category_layout.setContentsMargins(8, 6, 8, 6)  # Increased vertical margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Keep font size
+        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Font size
         category_label.setFont(category_font)
-        category_label.setStyleSheet("color: #495057;")  # Keep text color
+        category_label.setStyleSheet("color: #495057;")
         
         category_layout.addWidget(category_label)
         
@@ -489,8 +492,6 @@ class ComponentPanelManager:
         self.main_window.panel_toggle_button.clicked.connect(self.toggleComponentPanel)
         
         if hasattr(self.main_window, 'toolBar'):
-            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
-            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
