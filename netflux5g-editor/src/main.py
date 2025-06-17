@@ -1,6 +1,23 @@
 import os
 import sys
+import warnings
 import traceback
+
+# Comprehensive warning suppression
+warnings.filterwarnings("ignore")
+os.environ["PYTHONWARNINGS"] = "ignore"
+
+# Handle Qt and display warnings before importing PyQt5
+os.environ["QT_LOGGING_RULES"] = "*=false"
+os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = ""
+
+# Handle Wayland warning - force X11 to avoid the warning
+if os.environ.get("XDG_SESSION_TYPE") == "wayland":
+    os.environ["QT_QPA_PLATFORM"] = "xcb"  # Force X11 instead of wayland
+    
+# Suppress all Qt warnings
+os.environ["QT_ASSUME_STDERR_HAS_CONSOLE"] = "1"
+
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QMenuBar, QMenu, QAction
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence
@@ -127,7 +144,7 @@ class NetFlux5GApp(QMainWindow):
             self.canvas_view.setMinimumWidth(400)
             self.main_splitter.addWidget(self.canvas_view)
             
-            self.main_splitter.setSizes([80, 800])
+            self.main_splitter.setSizes([200, 800])
             self.setCentralWidget(self.main_splitter)
             
             self.main_splitter.setCollapsible(0, True)
@@ -455,7 +472,19 @@ class NetFlux5GApp(QMainWindow):
         debug_print("=== END DEBUG ===")
 
 if __name__ == "__main__":
+    # Additional Qt environment setup
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+    
+    # Redirect stderr to suppress warnings at runtime
+    import io
+    original_stderr = sys.stderr
+    sys.stderr = io.StringIO()
+    
     app = QApplication(sys.argv)
+    
+    # Restore stderr after QApplication creation
+    sys.stderr = original_stderr
 
     icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
     app.setWindowIcon(QIcon(icon_path))
