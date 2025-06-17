@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QDialog, QVBoxLayout, QTextEdit, QPushButton, QHBoxLayout, QLabel
 from manager.debug import debug_print
 from prerequisites.checker import PrerequisitesChecker
 import os
@@ -7,6 +7,9 @@ import os
 class AutomationManager:
     def __init__(self, main_window):
         self.main_window = main_window
+        # Connect test results signal
+        if hasattr(self.main_window, 'automation_runner'):
+            self.main_window.automation_runner.test_results_ready.connect(self.showTestResults)
         
     def runAllComponents(self):
         """Run All - Deploy and start all components"""
@@ -163,3 +166,123 @@ class AutomationManager:
     def exportToMininet(self):
         """Export the current topology to a Mininet script."""
         self.main_window.mininet_exporter.export_to_mininet()
+
+    def showTestResults(self, test_results):
+        """Display end-to-end test results in a dialog."""
+        dialog = QDialog(self.main_window)
+        dialog.setWindowTitle("End-to-End Test Results")
+        dialog.setMinimumSize(600, 400)
+        
+        layout = QVBoxLayout()
+        
+        # Summary
+        summary = test_results.get('summary', {})
+        summary_text = f"Test Summary: {summary.get('passed', 0)} passed, {summary.get('failed', 0)} failed, {summary.get('total', 0)} total"
+        summary_label = QLabel(summary_text)
+        layout.addWidget(summary_label)
+        
+        # Detailed results
+        results_text = QTextEdit()
+        results_content = "DETAILED TEST RESULTS\n" + "="*50 + "\n\n"
+        
+        for test in test_results.get('tests', []):
+            results_content += f"Test: {test.get('name', 'Unknown')}\n"
+            results_content += f"Result: {test.get('result', 'UNKNOWN')}\n"
+            results_content += f"Message: {test.get('message', 'No message')}\n"
+            results_content += f"Duration: {test.get('duration', 0):.2f}s\n"
+            results_content += "-" * 30 + "\n\n"
+        
+        # Add deployment info
+        deployment_info = self.main_window.automation_runner.get_deployment_info()
+        if deployment_info:
+            results_content += "\nDEPLOYMENT INFORMATION\n" + "="*50 + "\n"
+            results_content += f"Export Directory: {deployment_info.get('export_dir', 'Unknown')}\n"
+            results_content += f"Docker Compose: {deployment_info.get('docker_compose_file', 'Unknown')}\n"
+            results_content += f"Results saved to: {deployment_info.get('export_dir', 'Unknown')}/test_results.json\n"
+        
+        results_text.setPlainText(results_content)
+        results_text.setReadOnly(True)
+        layout.addWidget(results_text)
+        
+        # Buttons
+        button_layout = QHBoxLayout()
+        
+        save_button = QPushButton("Save Results")
+        save_button.clicked.connect(lambda: self._saveTestResults(test_results))
+        button_layout.addWidget(save_button)
+        
+        open_dir_button = QPushButton("Open Test Directory")
+        open_dir_button.clicked.connect(self._openTestDirectory)
+        button_layout.addWidget(open_dir_button)
+        
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(dialog.accept)
+        button_layout.addWidget(close_button)
+        
+        layout.addLayout(button_layout)
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+    def _saveTestResults(self, test_results):
+        """Save test results to a file."""
+        try:
+            deployment_info = self.main_window.automation_runner.get_deployment_info()
+            if deployment_info and deployment_info.get('export_dir'):
+                import json
+                from datetime import datetime
+                
+                results_file = os.path.join(deployment_info['export_dir'], "test_results.json")
+                
+                # Add timestamp if not present
+                if 'timestamp' not in test_results:
+                    test_results['timestamp'] = datetime.now().isoformat()
+                
+                with open(results_file, 'w') as f:
+                    json.dump(test_results, f, indent=2)
+                
+                QMessageBox.information(
+                    self.main_window,
+                    "Results Saved",
+                    f"Test results saved to:\n{results_file}"
+                )
+            else:
+                QMessageBox.warning(
+                    self.main_window,
+                    "Save Failed",
+                    "Could not determine test directory location."
+                )
+        except Exception as e:
+            QMessageBox.critical(
+                self.main_window,
+                "Save Error",
+                f"Failed to save test results:\n{str(e)}"
+            )
+
+    def _openTestDirectory(self):
+        """Open the test directory in file explorer."""
+        try:
+            deployment_info = self.main_window.automation_runner.get_deployment_info()
+            if deployment_info and deployment_info.get('export_dir'):
+                import subprocess
+                import platform
+                
+                export_dir = deployment_info['export_dir']
+                
+                if platform.system() == "Windows":
+                    os.startfile(export_dir)
+                elif platform.system() == "Darwin":  # macOS
+                    subprocess.run(["open", export_dir])
+                else:  # Linux
+                    subprocess.run(["xdg-open", export_dir])
+            else:
+                QMessageBox.warning(
+                    self.main_window,
+                    "Directory Not Found",
+                    "Test directory location not available."
+                )
+        except Exception as e:
+            QMessageBox.warning(
+                self.main_window,
+                "Open Failed",
+                f"Could not open directory:\n{str(e)}"
+            )
