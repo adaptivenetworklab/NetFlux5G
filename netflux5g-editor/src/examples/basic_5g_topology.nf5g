@@ -3,13 +3,13 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "template_name": "Basic 5G Topology",
-    "template_description": "Simple 5G network with core components, one gNB, and three UEs",
+    "template_name": "Basic 5G Topology - Testing Ready",
+    "template_description": "Complete 5G network with core components, gNB, and UEs ready for end-to-end testing",
     "created_date": "2024-12-17T10:00:00",
     "saved_date": "2024-12-17T10:00:00",
     "canvas_size": {
-      "width": 800,
-      "height": 600
+      "width": 1000,
+      "height": 700
     },
     "component_counts": {
       "Host": 0,
@@ -18,10 +18,10 @@
       "GNB": 1,
       "DockerHost": 0,
       "AP": 1,
-      "VGcore": 1,
+      "VGcore": 3,
       "Controller": 1,
       "Router": 0,
-      "Switch": 3
+      "Switch": 5
     },
     "editor_version": "2.0"
   },
@@ -42,90 +42,333 @@
       "component_id": 1001
     },
     {
-      "name": "5G Core #1",
+      "name": "5G Core AMF",
       "type": "VGcore",
-      "x": 400,
-      "y": 150,
+      "x": 300,
+      "y": 100,
       "properties": {
-        "name": "5G Core #1",
+        "name": "5G Core AMF",
         "type": "VGcore",
         "Component5G_Type": "AMF",
         "Component5G_NetworkMode": "open5gs-ueransim_default",
         "Component5G_Image": "adaptive/open5gs:1.0",
-        "Component5G_ConfigFile": "core_config.yaml"
+        "Component5G_ConfigFile": "amf.yaml",
+        "AMF_configs": [
+          {
+            "name": "amf1",
+            "image": "adaptive/open5gs:1.0",
+            "config_file": "amf.yaml",
+            "imported": true,
+            "config_content": {
+              "logger": {
+                "file": {
+                  "path": "/opt/open5gs/var/log/open5gs/amf.log"
+                }
+              },
+              "amf": {
+                "sbi": {
+                  "server": [{"dev": "eth0", "port": 7777}],
+                  "client": {
+                    "scp": [{"uri": "http://scp:7777"}]
+                  }
+                },
+                "ngap": {
+                  "server": [{"dev": "eth0"}]
+                },
+                "metrics": {
+                  "server": [{"dev": "eth0", "port": 9090}]
+                },
+                "guami": [
+                  {
+                    "plmn_id": {"mcc": "999", "mnc": "70"},
+                    "amf_id": {"region": 2, "set": 1}
+                  }
+                ],
+                "tai": [
+                  {
+                    "plmn_id": {"mcc": "999", "mnc": "70"},
+                    "tac": 1
+                  }
+                ],
+                "plmn_support": [
+                  {
+                    "plmn_id": {"mcc": "999", "mnc": "70"},
+                    "s_nssai": [{"sst": 1}]
+                  }
+                ],
+                "security": {
+                  "integrity_order": ["NIA2", "NIA1", "NIA0"],
+                  "ciphering_order": ["NEA0", "NEA1", "NEA2"]
+                },
+                "network_name": {
+                  "full": "NetFlux5G Test Network",
+                  "short": "NF5G"
+                },
+                "amf_name": "netflux5g-amf"
+              }
+            },
+            "config_file_path": "",
+            "settings": ""
+          }
+        ]
       },
       "created_date": "2024-12-17T10:00:00",
       "component_id": 1002
     },
     {
-      "name": "Switch #1",
-      "type": "Switch",
-      "x": 250,
-      "y": 150,
+      "name": "5G Core UPF",
+      "type": "VGcore",
+      "x": 600,
+      "y": 200,
       "properties": {
-        "name": "Switch #1",
-        "type": "Switch",
-        "Switch_DPID": "0000000000000001",
-        "Switch_Protocol": "OpenFlow14"
+        "name": "5G Core UPF",
+        "type": "VGcore",
+        "Component5G_Type": "UPF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "upf.yaml",
+        "UPF_configs": [
+          {
+            "name": "upf1",
+            "image": "adaptive/open5gs:1.0",
+            "config_file": "upf.yaml",
+            "imported": true,
+            "config_content": {
+              "logger": {
+                "file": {
+                  "path": "/opt/open5gs/var/log/open5gs/upf.log"
+                }
+              },
+              "upf": {
+                "pfcp": {
+                  "server": [{"dev": "eth0"}]
+                },
+                "gtpu": {
+                  "server": [{"dev": "eth0"}]
+                },
+                "session": [
+                  {
+                    "subnet": "10.100.0.0/16",
+                    "gateway": "10.100.0.1",
+                    "dnn": "internet",
+                    "dev": "ogstun"
+                  },
+                  {
+                    "subnet": "10.200.0.0/16",
+                    "gateway": "10.200.0.1",
+                    "dnn": "internet2",
+                    "dev": "ogstun2"
+                  }
+                ],
+                "metrics": {
+                  "server": [{"dev": "eth0", "port": 9090}]
+                }
+              }
+            },
+            "config_file_path": "",
+            "settings": ""
+          }
+        ]
       },
       "created_date": "2024-12-17T10:00:00",
       "component_id": 1003
     },
     {
-      "name": "Switch #2",
-      "type": "Switch",
-      "x": 550,
-      "y": 250,
+      "name": "5G Core Services",
+      "type": "VGcore",
+      "x": 450,
+      "y": 50,
       "properties": {
-        "name": "Switch #2",
-        "type": "Switch",
-        "Switch_DPID": "0000000000000002",
-        "Switch_Protocol": "OpenFlow14"
+        "name": "5G Core Services",
+        "type": "VGcore",
+        "Component5G_Type": "NRF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "nrf.yaml",
+        "NRF_configs": [
+          {
+            "name": "nrf",
+            "image": "adaptive/open5gs:1.0",
+            "config_file": "nrf.yaml",
+            "imported": true,
+            "config_content": {
+              "logger": {
+                "file": {
+                  "path": "/opt/open5gs/var/log/open5gs/nrf.log"
+                }
+              },
+              "nrf": {
+                "serving": [
+                  {
+                    "plmn_id": {"mcc": "999", "mnc": "70"}
+                  }
+                ],
+                "sbi": {
+                  "server": [{"dev": "eth0", "port": 7777}]
+                }
+              }
+            },
+            "config_file_path": "",
+            "settings": ""
+          }
+        ],
+        "SCP_configs": [
+          {
+            "name": "scp",
+            "image": "adaptive/open5gs:1.0",
+            "config_file": "scp.yaml",
+            "imported": true,
+            "config_content": {
+              "logger": {
+                "file": {
+                  "path": "/opt/open5gs/var/log/open5gs/scp.log"
+                }
+              },
+              "scp": {
+                "sbi": {
+                  "server": [{"dev": "eth0", "port": 7777}],
+                  "client": {
+                    "nrf": [{"uri": "http://nrf:7777"}]
+                  }
+                }
+              }
+            },
+            "config_file_path": "",
+            "settings": ""
+          }
+        ],
+        "SMF_configs": [
+          {
+            "name": "smf",
+            "image": "adaptive/open5gs:1.0",
+            "config_file": "smf.yaml",
+            "imported": true,
+            "config_content": {
+              "logger": {
+                "file": {
+                  "path": "/opt/open5gs/var/log/open5gs/smf.log"
+                }
+              },
+              "smf": {
+                "sbi": {
+                  "server": [{"dev": "eth0", "port": 7777}],
+                  "client": {
+                    "scp": [{"uri": "http://scp:7777"}]
+                  }
+                },
+                "pfcp": {
+                  "server": [{"dev": "eth0"}],
+                  "client": {
+                    "upf": [
+                      {
+                        "address": "upf1",
+                        "dnn": ["internet", "internet2"]
+                      }
+                    ]
+                  }
+                },
+                "gtpc": {
+                  "server": [{"dev": "eth0"}]
+                },
+                "gtpu": {
+                  "server": [{"dev": "eth0"}]
+                },
+                "metrics": {
+                  "server": [{"dev": "eth0", "port": 9090}]
+                },
+                "session": [
+                  {
+                    "subnet": "10.100.0.0/16",
+                    "gateway": "10.100.0.1",
+                    "dnn": "internet"
+                  },
+                  {
+                    "subnet": "10.200.0.0/16",
+                    "gateway": "10.200.0.1",
+                    "dnn": "internet2"
+                  }
+                ],
+                "dns": ["1.1.1.1", "8.8.8.8"],
+                "mtu": 1400
+              }
+            },
+            "config_file_path": "",
+            "settings": ""
+          }
+        ]
       },
       "created_date": "2024-12-17T10:00:00",
       "component_id": 1004
     },
     {
-      "name": "Switch #3",
+      "name": "Switch Core",
       "type": "Switch",
-      "x": 550,
-      "y": 350,
+      "x": 150,
+      "y": 150,
       "properties": {
-        "name": "Switch #3",
+        "name": "Switch Core",
         "type": "Switch",
-        "Switch_DPID": "0000000000000003",
+        "Switch_DPID": "0000000000000001",
         "Switch_Protocol": "OpenFlow14"
       },
       "created_date": "2024-12-17T10:00:00",
       "component_id": 1005
     },
     {
-      "name": "AP #1",
-      "type": "AP",
+      "name": "Switch Access",
+      "type": "Switch",
+      "x": 500,
+      "y": 250,
+      "properties": {
+        "name": "Switch Access",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000002",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 1006
+    },
+    {
+      "name": "Switch Edge",
+      "type": "Switch",
       "x": 700,
+      "y": 350,
+      "properties": {
+        "name": "Switch Edge",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000003",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 1007
+    },
+    {
+      "name": "AP WiFi",
+      "type": "AP",
+      "x": 850,
       "y": 300,
       "properties": {
-        "name": "AP #1",
+        "name": "AP WiFi",
         "type": "AP",
-        "AP_SSID": "5g-network",
+        "AP_SSID": "netflux5g-test",
         "AP_Channel": "36",
         "AP_Mode": "a",
         "AP_Range": 200,
         "AP_WirelessProtocol": "OpenFlow14"
       },
       "created_date": "2024-12-17T10:00:00",
-      "component_id": 1006
+      "component_id": 1008
     },
     {
-      "name": "GNB #1",
+      "name": "gNB Test",
       "type": "GNB",
-      "x": 700,
-      "y": 300,
+      "x": 850,
+      "y": 200,
       "properties": {
-        "name": "GNB #1",
+        "name": "gNB Test",
         "type": "GNB",
         "GNB_AMF_IP": "10.0.0.3",
-        "GNB_Hostname": "gnb1",
+        "GNB_Hostname": "gnb-test",
         "GNB_MCC": "999",
         "GNB_MNC": "70",
         "GNB_SST": "1",
@@ -135,15 +378,15 @@
         "GNB_Band": "n78"
       },
       "created_date": "2024-12-17T10:00:00",
-      "component_id": 1007
+      "component_id": 1009
     },
     {
-      "name": "UE #1",
+      "name": "UE Test 1",
       "type": "UE",
-      "x": 650,
-      "y": 200,
+      "x": 750,
+      "y": 150,
       "properties": {
-        "name": "UE #1",
+        "name": "UE Test 1",
         "type": "UE",
         "UE_GNB_IP": "10.0.0.4",
         "UE_APN": "internet",
@@ -158,15 +401,15 @@
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
       },
       "created_date": "2024-12-17T10:00:00",
-      "component_id": 1008
+      "component_id": 1010
     },
     {
-      "name": "UE #2",
+      "name": "UE Test 2",
       "type": "UE",
-      "x": 750,
-      "y": 200,
+      "x": 950,
+      "y": 150,
       "properties": {
-        "name": "UE #2",
+        "name": "UE Test 2",
         "type": "UE",
         "UE_GNB_IP": "10.0.0.4",
         "UE_APN": "internet",
@@ -181,18 +424,18 @@
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
       },
       "created_date": "2024-12-17T10:00:00",
-      "component_id": 1009
+      "component_id": 1011
     },
     {
-      "name": "UE #3",
+      "name": "UE Test 3",
       "type": "UE",
-      "x": 700,
-      "y": 400,
+      "x": 850,
+      "y": 450,
       "properties": {
-        "name": "UE #3",
+        "name": "UE Test 3",
         "type": "UE",
         "UE_GNB_IP": "10.0.0.4",
-        "UE_APN": "internet",
+        "UE_APN": "internet2",
         "UE_MSISDN": "0000000003",
         "UE_MCC": "999",
         "UE_MNC": "70",
@@ -204,73 +447,99 @@
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
       },
       "created_date": "2024-12-17T10:00:00",
-      "component_id": 1010
+      "component_id": 1012
     }
   ],
   "links": [
     {
-      "source": "Switch #1",
-      "destination": "5G Core #1",
+      "source": "Switch Core",
+      "destination": "5G Core AMF",
       "type": "ethernet",
       "properties": {
-        "name": "link_s1_core",
+        "name": "link_core_amf",
         "type": "ethernet",
         "bandwidth": "1000",
         "delay": "1ms"
       },
-      "name": "link_s1_core",
+      "name": "link_core_amf",
       "created_date": "2024-12-17T10:00:00"
     },
     {
-      "source": "Switch #1",
-      "destination": "Switch #2",
+      "source": "Switch Core",
+      "destination": "5G Core Services",
       "type": "ethernet",
       "properties": {
-        "name": "link_s1_s2",
+        "name": "link_core_services",
         "type": "ethernet",
         "bandwidth": "1000",
         "delay": "1ms"
       },
-      "name": "link_s1_s2",
+      "name": "link_core_services",
       "created_date": "2024-12-17T10:00:00"
     },
     {
-      "source": "Switch #2",
-      "destination": "Switch #3",
+      "source": "Switch Core",
+      "destination": "Switch Access",
       "type": "ethernet",
       "properties": {
-        "name": "link_s2_s3",
+        "name": "link_core_access",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "2ms"
+      },
+      "name": "link_core_access",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Switch Access",
+      "destination": "5G Core UPF",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_access_upf",
         "type": "ethernet",
         "bandwidth": "1000",
         "delay": "1ms"
       },
-      "name": "link_s2_s3",
+      "name": "link_access_upf",
       "created_date": "2024-12-17T10:00:00"
     },
     {
-      "source": "Switch #3",
-      "destination": "AP #1",
+      "source": "Switch Access",
+      "destination": "Switch Edge",
       "type": "ethernet",
       "properties": {
-        "name": "link_s3_ap1",
+        "name": "link_access_edge",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "2ms"
+      },
+      "name": "link_access_edge",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Switch Edge",
+      "destination": "AP WiFi",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_edge_ap",
         "type": "ethernet",
         "bandwidth": "1000",
         "delay": "1ms"
       },
-      "name": "link_s3_ap1",
+      "name": "link_edge_ap",
       "created_date": "2024-12-17T10:00:00"
     },
     {
-      "source": "AP #1",
-      "destination": "GNB #1",
+      "source": "AP WiFi",
+      "destination": "gNB Test",
       "type": "TCLink",
       "properties": {
-        "name": "link_ap1_gnb1",
+        "name": "link_ap_gnb",
         "type": "TCLink",
         "bandwidth": "1000",
         "delay": "1ms"
       },
-      "name": "link_ap1_gnb1",
+      "name": "link_ap_gnb",
       "created_date": "2024-12-17T10:00:00"
     }
   ],

@@ -36,6 +36,39 @@ class AutomationManager:
         if hasattr(self.main_window, 'actionStopAll'):
             self.main_window.actionStopAll.setEnabled(True)
 
+    def runEndToEndTest(self):
+        """Run complete end-to-end testing sequence."""
+        debug_print("DEBUG: End-to-end test triggered")
+        
+        if self.main_window.automation_runner.is_deployment_running():
+            QMessageBox.warning(
+                self.main_window,
+                "Already Running",
+                "A deployment is already running. Please stop it first."
+            )
+            return
+        
+        # Verify topology has required components
+        nodes, links = self.main_window.extractTopology()
+        required_components = ['VGcore', 'GNB', 'UE']
+        found_components = set(node['type'] for node in nodes)
+        
+        missing = [comp for comp in required_components if comp not in found_components]
+        if missing:
+            QMessageBox.warning(
+                self.main_window,
+                "Incomplete Topology",
+                f"Missing required components for testing: {', '.join(missing)}\n\n"
+                "Please ensure your topology includes:\n"
+                "• 5G Core components (VGcore)\n"
+                "• gNodeB (GNB)\n"
+                "• User Equipment (UE)"
+            )
+            return
+        
+        # Start end-to-end test
+        self.main_window.automation_runner.run_end_to_end_test()
+
     def stopAllComponents(self):
         """Stop All - Stop all running services"""
         debug_print("DEBUG: StopAll triggered")

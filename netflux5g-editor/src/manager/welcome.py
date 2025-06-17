@@ -40,7 +40,28 @@ class WelcomeScreenManager:
         elif action == "load_example":
             self.welcome_window.close()
             self.main_window.show()
-            self.loadExampleTopology(data)
+            # Load the example and optionally start testing
+            if self.loadExampleTopology(data):
+                # If it's the basic topology, offer to run end-to-end test
+                if data == "basic_gnb_core":
+                    from PyQt5.QtWidgets import QMessageBox
+                    reply = QMessageBox.question(
+                        self.main_window,
+                        "Run End-to-End Test?",
+                        "Would you like to run the automated end-to-end test for this topology?\n\n"
+                        "This will:\n"
+                        "• Deploy the 5G network\n" 
+                        "• Start all components\n"
+                        "• Run connectivity tests\n"
+                        "• Generate test reports\n\n"
+                        "Make sure Docker and Mininet are installed.",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No
+                    )
+                    
+                    if reply == QMessageBox.Yes:
+                        # Start the end-to-end test
+                        QTimer.singleShot(1000, self.main_window.automation_manager.runEndToEndTest)
         
         elif action == "open_link":  
             self.openWebLink(data) 
@@ -72,12 +93,15 @@ class WelcomeScreenManager:
             
             if self.main_window.file_manager.loadExampleTemplate(template_name):
                 self.main_window.status_manager.showCanvasStatus(f"Loaded example: {example_name}")
+                return True
             else:
                 warning_print(f"Failed to load example: {example_name}")
+                return False
                 
         except Exception as e:
             error_print(f"Failed to load example topology: {e}")
             self.main_window.status_manager.showCanvasStatus(f"Error loading example: {str(e)}")
+            return False
 
 class WelcomeScreen(QMainWindow):
     """Welcome screen window that loads the UI file and handles interactions."""

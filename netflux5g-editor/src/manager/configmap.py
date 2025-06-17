@@ -199,7 +199,7 @@ class ConfigurationMapper:
     
     @staticmethod
     def map_controller_config(properties):
-        """Map Controller properties to Mininet controller parameters"""
+        """Map Controller properties to Mininet controller parameters."""
         opts = []
         
         # IP Address
@@ -216,13 +216,8 @@ class ConfigurationMapper:
         for field in port_fields:
             if properties.get(field):
                 port = str(properties[field]).strip()
-                if port:
-                    try:
-                        port_val = int(port)
-                        if port_val != 6633:  # Only add if different from default
-                            opts.append(f"port={port_val}")
-                    except ValueError:
-                        pass
+                if port and port != "6633":
+                    opts.append(f"port={port}")
                     break
         
         # Controller type
@@ -230,61 +225,55 @@ class ConfigurationMapper:
         for field in type_fields:
             if properties.get(field):
                 ctrl_type = properties[field].strip()
-                if ctrl_type and ctrl_type != "default":
-                    opts.append(f"controller='{ctrl_type}'")
+                if ctrl_type and ctrl_type != "RemoteController":
+                    opts.append(f"controller={ctrl_type}")
                     break
         
         return opts
     
     @staticmethod
     def map_docker_config(properties):
-        """Map Docker Host properties to configuration parameters"""
+        """Map Docker Host properties to container parameters."""
         opts = []
         
         # Container Image
-        image_fields = ["DockerHost_ContainerImage", "lineEdit_10"]
+        image_fields = ["DockerHost_ContainerImage", "DockerHost_Image"]
         for field in image_fields:
             if properties.get(field):
                 image = properties[field].strip()
                 if image:
-                    opts.append(f"image='{image}'")
+                    opts.append(f"dimage='{image}'")
                     break
         
-        # Port Forwarding
-        port_fields = ["DockerHost_PortForward", "lineEdit_11"]
-        for field in port_fields:
+        # Container Command
+        cmd_fields = ["DockerHost_Command", "DockerHost_Cmd"]
+        for field in cmd_fields:
             if properties.get(field):
-                ports = properties[field].strip()
-                if ports:
-                    opts.append(f"ports='{ports}'")
-                    break
-        
-        # Volume Mapping
-        vol_fields = ["DockerHost_VolumeMapping", "lineEdit_12"]
-        for field in vol_fields:
-            if properties.get(field):
-                volumes = properties[field].strip()
-                if volumes:
-                    opts.append(f"volumes='{volumes}'")
+                cmd = properties[field].strip()
+                if cmd:
+                    opts.append(f"dcmd='{cmd}'")
                     break
         
         return opts
-    
+
     @staticmethod
-    def get_component_config(node_type, properties):
-        """Get the complete configuration for a component type"""
-        config_map = {
-            "Host": ConfigurationMapper.map_host_config,
-            "STA": ConfigurationMapper.map_host_config,
-            "UE": ConfigurationMapper.map_ue_config,
-            "Switch": ConfigurationMapper.map_switch_config,
-            "Router": ConfigurationMapper.map_switch_config,
-            "AP": ConfigurationMapper.map_ap_config,
-            "Controller": ConfigurationMapper.map_controller_config,
-            "GNB": ConfigurationMapper.map_gnb_config,
-            "DockerHost": ConfigurationMapper.map_docker_config,
-            "VGcore": ConfigurationMapper.map_5g_core_config
-        }
-        
-        mapper = config_map.get(node_type, lambda p: [])
-        return mapper(properties)
+    def get_component_config(component_type, properties):
+        """Get configuration for any component type."""
+        if component_type in ['Host', 'STA']:
+            return ConfigurationMapper.map_host_config(properties)
+        elif component_type == 'GNB':
+            return ConfigurationMapper.map_gnb_config(properties)
+        elif component_type == 'UE':
+            return ConfigurationMapper.map_ue_config(properties)
+        elif component_type == 'VGcore':
+            return ConfigurationMapper.map_5g_core_config(properties)
+        elif component_type == 'AP':
+            return ConfigurationMapper.map_ap_config(properties)
+        elif component_type in ['Switch', 'Router']:
+            return ConfigurationMapper.map_switch_config(properties)
+        elif component_type == 'Controller':
+            return ConfigurationMapper.map_controller_config(properties)
+        elif component_type == 'DockerHost':
+            return ConfigurationMapper.map_docker_config(properties)
+        else:
+            return []

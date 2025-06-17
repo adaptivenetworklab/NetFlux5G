@@ -26,29 +26,26 @@ class KeyboardManager:
                 # Ctrl+Shift+D for debug toggle
                 current_debug = is_debug_enabled()
                 set_debug_enabled(not current_debug)
-                debug_print(f"Debug mode {'enabled' if not current_debug else 'disabled'}", force=True)
+                self.main_window.showCanvasStatus(f"Debug mode {'enabled' if not current_debug else 'disabled'}")
             else:
-                # Just D for delete tool
                 self.main_window.tool_manager.enableDeleteTool()
         elif event.key() == Qt.Key_L: 
             self.main_window.tool_manager.enableLinkTool()
         elif event.key() == Qt.Key_T:
-            self.main_window.tool_manager.addTextBox()
+            self.main_window.tool_manager.enableTextTool()
         elif event.modifiers() & Qt.ControlModifier:
-            if event.key() == Qt.Key_S:
-                self.main_window.file_manager.saveTopology()
-            elif event.key() == Qt.Key_N:
+            if event.key() == Qt.Key_N:
                 self.main_window.file_manager.newTopology()
             elif event.key() == Qt.Key_O:
                 self.main_window.file_manager.openTopology()
-        # Add shortcuts for RunAll and StopAll
+            elif event.key() == Qt.Key_S:
+                if event.modifiers() & Qt.ShiftModifier:
+                    self.main_window.file_manager.saveTopologyAs()
+                else:
+                    self.main_window.file_manager.saveTopology()
         elif event.key() == Qt.Key_R and event.modifiers() & Qt.ControlModifier:
-            if hasattr(self.main_window, 'actionRunAll') and self.main_window.actionRunAll.isEnabled():
-                self.main_window.automation_manager.runAllComponents()
-        elif event.key() == Qt.Key_S and event.modifiers() & Qt.ControlModifier and event.modifiers() & Qt.ShiftModifier:
-            if hasattr(self.main_window, 'actionStopAll') and self.main_window.actionStopAll.isEnabled():
-                self.main_window.automation_manager.stopAllComponents()
+            self.main_window.automation_manager.runAllComponents()
         else:
-            return False
+            return False  # Key not handled
         
-        return True
+        return True  # Key was handled

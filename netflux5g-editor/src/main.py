@@ -290,6 +290,10 @@ class NetFlux5GApp(QMainWindow):
         """Delegate to canvas manager."""
         self.canvas_manager.toggleGrid()
 
+    def extractTopology(self):
+        """Extract current topology data - delegate to file manager."""
+        return self.file_manager.extractTopology()
+
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""
         try:

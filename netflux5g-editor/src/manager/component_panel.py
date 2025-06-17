@@ -423,7 +423,7 @@ class ComponentPanelManager:
             frame_rect = self.main_window.ObjectFrame.geometry()
             # Reduced width for tighter column layout
             min_width = max(165, frame_rect.width())  # Reduced from 180 to 165
-            self.scroll_area.setGeometry(0, 0, min_width, frame_rect.height())
+            self.scroll_area.setGeometry(0, 0, frame_rect.width(), frame_rect.height())
 
     def updateComponentButtonSizes(self):
         """Update component layout with debouncing."""
@@ -442,24 +442,22 @@ class ComponentPanelManager:
 
     def toggleComponentPanel(self):
         """Toggle the visibility of the component panel with smooth animation."""
-        if not hasattr(self.main_window, 'main_splitter') or not hasattr(self.main_window, 'ObjectFrame'):
-            return
-        
-        if self.main_window.ObjectFrame.isVisible():
-            # Hide panel
-            self.main_window.ObjectFrame.hide()
-            if hasattr(self.main_window, 'panel_toggle_button'):
-                self.main_window.panel_toggle_button.setText("▶")
-                self.main_window.panel_toggle_button.setToolTip("Show Component Panel")
-            self.main_window.status_manager.showCanvasStatus("Component panel hidden")
-        else:
-            # Show panel
-            self.main_window.ObjectFrame.show()
-            if hasattr(self.main_window, 'panel_toggle_button'):
-                self.main_window.panel_toggle_button.setText("◀")
-                self.main_window.panel_toggle_button.setToolTip("Hide Component Panel")
-            QTimer.singleShot(100, self.updateComponentButtonSizes)
-            self.main_window.status_manager.showCanvasStatus("Component panel shown")
+        if hasattr(self.main_window, 'ObjectFrame'):
+            if self.main_window.ObjectFrame.isVisible():
+                self.main_window.ObjectFrame.hide()
+                if hasattr(self.main_window, 'panel_toggle_button'):
+                    self.main_window.panel_toggle_button.setText("▶")
+                    self.main_window.panel_toggle_button.setToolTip("Show Component Panel")
+                if hasattr(self.main_window, 'status_manager'):
+                    self.main_window.status_manager.showCanvasStatus("Component panel hidden")
+            else:
+                self.main_window.ObjectFrame.show()
+                if hasattr(self.main_window, 'panel_toggle_button'):
+                    self.main_window.panel_toggle_button.setText("◀")
+                    self.main_window.panel_toggle_button.setToolTip("Hide Component Panel")
+                QTimer.singleShot(100, self.updateComponentButtonSizes)
+                if hasattr(self.main_window, 'status_manager'):
+                    self.main_window.status_manager.showCanvasStatus("Component panel shown")
 
     def setupComponentPanelToggle(self):
         """Add a modern toggle button to show/hide the component panel."""
@@ -491,6 +489,8 @@ class ComponentPanelManager:
         
         self.main_window.panel_toggle_button.clicked.connect(self.toggleComponentPanel)
         
+        if hasattr(self.main_window, 'toolBar'):
+            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
         if hasattr(self.main_window, 'toolBar'):
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
