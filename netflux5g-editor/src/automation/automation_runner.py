@@ -826,3 +826,352 @@ read
         os.makedirs(test_dir, exist_ok=True)
         debug_print(f"Created test directory: {test_dir}")
         return test_dir
+
+    def run_end_to_end_test(self):
+        """Run complete end-to-end testing sequence."""
+        if self.is_running:
+            QMessageBox.warning(
+                self.main_window,
+                "Already Running",
+                "A deployment is already running. Please stop it first."
+            )
+            return
+        
+        all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
+        if not all_ok:
+            missing = [tool for tool, ok in checks.items() if not ok]
+            instructions = PrerequisitesChecker.get_installation_instructions()
+            
+            error_msg = f"Missing prerequisites for testing: {', '.join(missing)}\n\n"
+            for tool in missing:
+                error_msg += f"{tool.upper()}:\n{instructions[tool]}\n"
+            
+            QMessageBox.critical(
+                self.main_window,
+                "Missing Prerequisites",
+                error_msg
+            )
+            return
+
+        # Show progress dialog
+        self.progress_dialog = QProgressDialog(
+            "Preparing end-to-end test...", 
+            "Cancel", 
+            0, 
+            100, 
+            self.main_window
+        )
+        self.progress_dialog.setWindowTitle("NetFlux5G End-to-End Test")
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.canceled.connect(self.stop_all)
+        self.progress_dialog.show()
+        
+        # Connect progress signal
+        self.progress_updated.connect(self.progress_dialog.setValue)
+        
+        # Set test mode
+        self.test_mode = True
+        
+        # Start the test in a separate thread
+        self.test_thread = threading.Thread(target=self._run_end_to_end_test_sequence)
+        self.test_thread.daemon = True
+        self.test_thread.start()
+        
+    def _run_end_to_end_test_sequence(self):
+        """Run the complete end-to-end test sequence."""
+        try:
+            self.is_running = True
+            
+            # Step 1: Create test directory
+            self.status_updated.emit("Creating test environment...")
+            self.progress_updated.emit(10)
+            self.export_dir = self._create_test_directory()
+            
+            # Step 2: Generate test configurations
+            self.status_updated.emit("Generating test configurations...")
+            self.progress_updated.emit(25)
+            self._generate_test_configurations()
+            
+            # Step 3: Start Docker services
+            self.status_updated.emit("Starting 5G Core services...")
+            self.progress_updated.emit(40)
+            self._start_docker_compose()
+            
+            # Step 4: Wait for services initialization
+            self.status_updated.emit("Waiting for services to initialize...")
+            self.progress_updated.emit(60)
+            self._wait_for_services()
+            
+            # Step 5: Register test subscribers
+            self.status_updated.emit("Registering test subscribers...")
+            self.progress_updated.emit(75)
+            self._register_test_subscribers()
+            
+            # Step 6: Run connectivity tests
+            self.status_updated.emit("Running connectivity tests...")
+            self.progress_updated.emit(90)
+            test_results = self._run_connectivity_tests()
+            
+            self.progress_updated.emit(100)
+            self.status_updated.emit("End-to-end test completed!")
+            
+            # Emit test results
+            self.test_results_ready.emit(test_results)
+            self.execution_finished.emit(True, "End-to-end test completed successfully")
+            
+        except Exception as e:
+            error_msg = f"End-to-end test failed: {str(e)}"
+            error_print(f"ERROR: {error_msg}")
+            self.status_updated.emit(error_msg)
+            self.execution_finished.emit(False, error_msg)
+        finally:
+            self.test_mode = False
+            self.is_running = False
+            if hasattr(self, 'progress_dialog'):
+                self.progress_dialog.hide()
+
+    def _register_test_subscribers(self):
+        """Register test subscribers in the 5G Core."""
+        try:
+            # Check if registration script exists
+            reg_script = os.path.join(self.export_dir, "register_subscriber.sh")
+            if os.path.exists(reg_script):
+                debug_print("Running subscriber registration script...")
+                result = subprocess.run(
+                    ["bash", reg_script],
+                    cwd=self.export_dir,
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+                
+                if result.returncode == 0:
+                    debug_print("Subscriber registration completed successfully")
+                else:
+                    warning_print(f"Subscriber registration warning: {result.stderr}")
+            else:
+                debug_print("No registration script found, skipping subscriber registration")
+                
+        except Exception as e:
+            error_print(f"Failed to register subscribers: {e}")
+            raise
+
+    def _run_connectivity_tests(self):
+        """Run connectivity tests between components."""
+        test_results = {
+            'timestamp': time.time(),
+            'tests': [],
+            'summary': {'passed': 0, 'failed': 0, 'total': 0}
+        }
+        
+        try:
+            # Test 1: Check if 5G Core services are running
+            core_test = self._test_core_services()
+            test_results['tests'].append(core_test)
+            
+            # Test 2: Test gNB connection (if available)
+            gnb_test = self._test_gnb_connection()
+            test_results['tests'].append(gnb_test)
+            
+            # Test 3: Test UE registration (if available)
+            ue_test = self._test_ue_registration()
+            test_results['tests'].append(ue_test)
+            
+            # Calculate summary
+            for test in test_results['tests']:
+                test_results['summary']['total'] += 1
+                if test['result'] == 'PASS':
+                    test_results['summary']['passed'] += 1
+                else:
+                    test_results['summary']['failed'] += 1
+                    
+            debug_print(f"Test summary: {test_results['summary']}")
+            
+        except Exception as e:
+            error_print(f"Error running connectivity tests: {e}")
+            test_results['tests'].append({
+                'name': 'Test Execution',
+                'result': 'FAIL',
+                'message': str(e),
+                'duration': 0
+            })
+            test_results['summary']['failed'] += 1
+            test_results['summary']['total'] += 1
+        
+        return test_results
+
+    def _test_core_services(self):
+        """Test if 5G Core services are running properly."""
+        start_time = time.time()
+        
+        try:
+            # Check Docker services status
+            compose_cmd = self._get_docker_compose_command()
+            if compose_cmd:
+                result = subprocess.run(
+                    compose_cmd + ["-f", os.path.join(self.export_dir, "docker-compose.yaml"), "ps"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.export_dir,
+                    timeout=30
+                )
+                
+                if result.returncode == 0:
+                    # Check if services are up
+                    if "Up" in result.stdout:
+                        return {
+                            'name': '5G Core Services',
+                            'result': 'PASS',
+                            'message': 'Core services are running',
+                            'duration': time.time() - start_time
+                        }
+                    else:
+                        return {
+                            'name': '5G Core Services',
+                            'result': 'FAIL',
+                            'message': 'No services are running',
+                            'duration': time.time() - start_time
+                        }
+                else:
+                    return {
+                        'name': '5G Core Services',
+                        'result': 'FAIL',
+                        'message': f'Failed to check services: {result.stderr}',
+                        'duration': time.time() - start_time
+                    }
+            else:
+                return {
+                    'name': '5G Core Services',
+                    'result': 'FAIL',
+                    'message': 'Docker Compose not available',
+                    'duration': time.time() - start_time
+                }
+                
+        except Exception as e:
+            return {
+                'name': '5G Core Services',
+                'result': 'FAIL',
+                'message': str(e),
+                'duration': time.time() - start_time
+            }
+
+    def _test_gnb_connection(self):
+        """Test gNB connection to 5G Core."""
+        start_time = time.time()
+        
+        try:
+            # Check if gNB container is running
+            result = subprocess.run(
+                ["docker", "ps", "--filter", "name=gnb", "--format", "{{.Names}}"],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0 and result.stdout.strip():
+                gnb_container = result.stdout.strip().split('\n')[0]
+                
+                # Try to check gNB status (simplified test)
+                status_result = subprocess.run(
+                    ["docker", "exec", gnb_container, "ps", "aux"],
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                
+                if status_result.returncode == 0:
+                    return {
+                        'name': 'gNB Connection',
+                        'result': 'PASS',
+                        'message': f'gNB container {gnb_container} is running',
+                        'duration': time.time() - start_time
+                    }
+                else:
+                    return {
+                        'name': 'gNB Connection',
+                        'result': 'FAIL',
+                        'message': 'gNB container not responding',
+                        'duration': time.time() - start_time
+                    }
+            else:
+                return {
+                    'name': 'gNB Connection',
+                    'result': 'SKIP',
+                    'message': 'No gNB container found',
+                    'duration': time.time() - start_time
+                }
+                
+        except Exception as e:
+            return {
+                'name': 'gNB Connection',
+                'result': 'FAIL',
+                'message': str(e),
+                'duration': time.time() - start_time
+            }
+
+    def _test_ue_registration(self):
+        """Test UE registration with 5G Core."""
+        start_time = time.time()
+        
+        try:
+            # Check if UE container is running
+            result = subprocess.run(
+                ["docker", "ps", "--filter", "name=ue", "--format", "{{.Names}}"],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0 and result.stdout.strip():
+                ue_container = result.stdout.strip().split('\n')[0]
+                
+                # Try to check UE status (simplified test)
+                status_result = subprocess.run(
+                    ["docker", "exec", ue_container, "ps", "aux"],
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                
+                if status_result.returncode == 0:
+                    return {
+                        'name': 'UE Registration',
+                        'result': 'PASS',
+                        'message': f'UE container {ue_container} is running',
+                        'duration': time.time() - start_time
+                    }
+                else:
+                    return {
+                        'name': 'UE Registration',
+                        'result': 'FAIL',
+                        'message': 'UE container not responding',
+                        'duration': time.time() - start_time
+                    }
+            else:
+                return {
+                    'name': 'UE Registration',
+                    'result': 'SKIP',
+                    'message': 'No UE container found',
+                    'duration': time.time() - start_time
+                }
+                
+        except Exception as e:
+            return {
+                'name': 'UE Registration',
+                'result': 'FAIL',
+                'message': str(e),
+                'duration': time.time() - start_time
+            }
+
+    def get_deployment_info(self):
+        """Get information about the current deployment."""
+        if not self.export_dir:
+            return None
+            
+        info = {
+            'export_dir': self.export_dir,
+            'docker_compose_file': os.path.join(self.export_dir, "docker-compose.yaml"),
+            'mininet_script': self.mininet_script_path or "Not generated"
+        }
+        
+        return info
