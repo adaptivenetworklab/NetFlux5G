@@ -286,23 +286,23 @@ class ComponentPanelManager:
                 border-radius: 6px;
             }
         """)
-        header_frame.setMinimumHeight(35)  # Ultra compact header
-        header_frame.setMaximumHeight(35)
+        header_frame.setMinimumHeight(50)  # Increased height for larger text
+        header_frame.setMaximumHeight(50)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(4, 2, 4, 2)  # Ultra minimal margins
-        header_layout.setSpacing(0)  # No spacing
+        header_layout.setContentsMargins(4, 6, 4, 6)  # Increased margins for better spacing
+        header_layout.setSpacing(2)  # Small spacing between title and subtitle
         
-        # Title - ENLARGED as requested
+        # Title - MUCH LARGER
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 12, QFont.Bold)  # LARGER font for title
+        title_font = QFont("Segoe UI", 16, QFont.Bold)  # MUCH LARGER font for title
         title_label.setFont(title_font)
         title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
         
-        # Subtitle
+        # Subtitle - LARGER
         subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 7)  # Readable font for subtitle
+        subtitle_font = QFont("Segoe UI", 10)  # LARGER font for subtitle
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -342,20 +342,20 @@ class ComponentPanelManager:
 
     def createCategorySection(self, category_name, components):
         """Create a category section with components."""
-        # Add ultra minimal spacing before each category (except first one)
+        # Add minimal spacing before each category (except first one)
         if hasattr(self, '_category_count'):
             self._category_count += 1
         else:
             self._category_count = 1
             
         if self._category_count > 1:
-            # Add ultra minimal spacing between categories
+            # Add spacing between categories
             spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(1)  # Ultra minimal spacing
+            spacer_frame.setFixedHeight(3)  # Slightly more spacing
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
-        # Category header - ENLARGED as requested
+        # Category header - MUCH LARGER
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
@@ -364,14 +364,14 @@ class ComponentPanelManager:
                 margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(24)  # Slightly taller for larger text
+        category_frame.setFixedHeight(32)  # Increased height for larger text
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(6, 2, 6, 2)  # Minimal margins
+        category_layout.setContentsMargins(8, 4, 8, 4)  # Increased margins for better spacing
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 9, QFont.Bold)  # LARGER and BOLD font for categories
+        category_font = QFont("Segoe UI", 12, QFont.Bold)  # MUCH LARGER and BOLD font for categories
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
@@ -389,7 +389,7 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(1, 1, 1, 2)  # Ultra minimal margins
+        components_layout.setContentsMargins(1, 3, 1, 4)  # Slightly increased margins
         components_layout.setSpacing(2)  # Ultra minimal spacing between components
         
         # Use 2 column layout as requested
