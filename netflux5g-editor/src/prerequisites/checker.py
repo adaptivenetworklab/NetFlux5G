@@ -8,13 +8,16 @@ class PrerequisitesChecker:
     
     @staticmethod
     def check_all_prerequisites():
-        """Check all prerequisites and return a report."""
+        """Check all prerequisites and return a tuple (all_ok, checks)."""
         checks = {
             'docker': PrerequisitesChecker.check_docker(),
             'docker_compose': PrerequisitesChecker.check_docker_compose(),
             'mininet': PrerequisitesChecker.check_mininet(),
+            'mininet_wifi': PrerequisitesChecker.check_mininet_wifi(),
+            'containernet': PrerequisitesChecker.check_containernet(),
             'python3': PrerequisitesChecker.check_python3(),
-            'sudo': PrerequisitesChecker.check_sudo()
+            'sudo': PrerequisitesChecker.check_sudo(),
+            'wireless_tools': PrerequisitesChecker.check_wireless_tools()
         }
         
         all_ok = all(checks.values())
@@ -138,24 +141,9 @@ class PrerequisitesChecker:
         return True
     
     @staticmethod
-    def check_all_prerequisites():
-        """Check all prerequisites and return a status dictionary."""
-        status = {
-            "python3": PrerequisitesChecker.check_python3(),
-            "sudo": PrerequisitesChecker.check_sudo(),
-            "docker": PrerequisitesChecker.check_docker(),
-            "docker_compose": PrerequisitesChecker.check_docker_compose(),
-            "mininet": PrerequisitesChecker.check_mininet(),
-            "mininet_wifi": PrerequisitesChecker.check_mininet_wifi(),
-            "containernet": PrerequisitesChecker.check_containernet(),
-            "wireless_tools": PrerequisitesChecker.check_wireless_tools(),
-        }
-        return status
-    
-    @staticmethod
     def get_installation_instructions():
         """Get installation instructions for missing prerequisites."""
-        status = PrerequisitesChecker.check_all_prerequisites()
+        all_ok, status = PrerequisitesChecker.check_all_prerequisites()
         instructions = []
         
         if not status["python3"]:
@@ -188,7 +176,7 @@ class PrerequisitesChecker:
     @staticmethod
     def get_missing_prerequisites():
         """Get a list of missing prerequisites."""
-        status = PrerequisitesChecker.check_all_prerequisites()
+        all_ok, status = PrerequisitesChecker.check_all_prerequisites()
         missing = []
         
         for prereq, available in status.items():
@@ -200,7 +188,7 @@ class PrerequisitesChecker:
     @staticmethod
     def is_system_ready():
         """Check if the system has all required prerequisites."""
-        status = PrerequisitesChecker.check_all_prerequisites()
+        all_ok, status = PrerequisitesChecker.check_all_prerequisites()
         # Mininet-WiFi and Containernet are optional if Docker is available
         critical = ["python3", "sudo"]
         recommended = ["docker", "docker_compose", "mininet", "wireless_tools"]
