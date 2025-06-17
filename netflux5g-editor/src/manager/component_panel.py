@@ -24,46 +24,47 @@ class ModernComponentWidget(QFrame):
         
     def setupUI(self):
         """Setup the UI components with modern styling."""
-        self.setFixedSize(90, 105)  # Increased size to prevent cut-off
+        self.setFixedSize(100, 120)  # Increased size for better text display
         self.setFrameStyle(QFrame.NoFrame)
         self.setCursor(Qt.PointingHandCursor)
         
         # Main layout
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(6, 6, 6, 6)  # Reduced margins
-        layout.setSpacing(2)  # Reduced spacing
+        layout.setContentsMargins(8, 8, 8, 8)  # Increased margins
+        layout.setSpacing(4)  # Increased spacing
         layout.setAlignment(Qt.AlignCenter)
         
         # Icon container
         self.icon_container = QFrame()
-        self.icon_container.setFixedSize(50, 50)  # Slightly larger
+        self.icon_container.setFixedSize(55, 55)  # Larger icon container
         self.icon_container.setStyleSheet("""
             QFrame {
                 background-color: #ffffff;
                 border: 2px solid #e0e0e0;
-                border-radius: 24px;
+                border-radius: 27px;
             }
         """)
         
         # Icon label
         self.icon_label = QLabel(self.icon_container)
         self.icon_label.setAlignment(Qt.AlignCenter)
-        self.icon_label.setGeometry(5, 5, 40, 40)  # Adjusted positioning
+        self.icon_label.setGeometry(7, 7, 41, 41)  # Adjusted positioning for larger container
         
         # Set icon
         if self.icon_path and os.path.exists(self.icon_path):
             pixmap = QPixmap(self.icon_path)
-            scaled_pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(35, 35, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.icon_label.setPixmap(scaled_pixmap)
         
         # Text label
         self.text_label = QLabel(self.display_text)
         self.text_label.setAlignment(Qt.AlignCenter)
         self.text_label.setWordWrap(True)
-        self.text_label.setMaximumHeight(30)  # Limit height to prevent overflow
+        self.text_label.setMinimumHeight(35)  # Increased minimum height
+        self.text_label.setMaximumHeight(45)  # Increased maximum height
         
-        # Set font - smaller to fit better
-        font = QFont("Segoe UI", 7)  # Reduced font size
+        # Set font - optimized for readability
+        font = QFont("Segoe UI", 8)  # Slightly larger font
         font.setWeight(QFont.Medium)
         self.text_label.setFont(font)
         
@@ -350,14 +351,14 @@ class ComponentPanelManager:
                 margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(24)  # Smaller height
+        category_frame.setFixedHeight(28)  # Increased height for better visibility
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(6, 2, 6, 2)  # Reduced margins
+        category_layout.setContentsMargins(8, 4, 8, 4)  # Increased margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 9, QFont.DemiBold)  # Smaller font
+        category_font = QFont("Segoe UI", 9, QFont.DemiBold)  # Consistent font size
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
@@ -375,13 +376,14 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(2, 2, 2, 4)  # Reduced margins
-        components_layout.setSpacing(4)  # Reduced spacing
+        components_layout.setContentsMargins(4, 4, 4, 8)  # Increased margins
+        components_layout.setSpacing(6)  # Increased spacing
         
-        # Add components to grid - 2 components per row for better fit
+        # Calculate optimal grid layout based on container width
+        # Use single column layout for better text visibility
         for i, (comp_type, icon_file, display_text) in enumerate(components):
-            row = i // 2  # Integer division to get row number
-            col = i % 2   # Modulo to get column (0 or 1)
+            row = i  # Single column, each component gets its own row
+            col = 0
             
             # Get full icon path
             icon_path = self.main_window.component_icon_map.get(comp_type)
@@ -403,7 +405,9 @@ class ComponentPanelManager:
         """Update the geometry of the scroll area to fill ObjectFrame."""
         if hasattr(self, 'scroll_area') and hasattr(self.main_window, 'ObjectFrame'):
             frame_rect = self.main_window.ObjectFrame.geometry()
-            self.scroll_area.setGeometry(0, 0, frame_rect.width(), frame_rect.height())
+            # Ensure minimum width for proper text display
+            min_width = max(120, frame_rect.width())
+            self.scroll_area.setGeometry(0, 0, min_width, frame_rect.height())
 
     def updateComponentButtonSizes(self):
         """Update component layout with debouncing."""
