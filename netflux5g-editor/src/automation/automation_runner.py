@@ -1172,6 +1172,77 @@ done
 ''')
         os.chmod(status_script, 0o755)
 
+    def _deploy_test_infrastructure(self):
+        """Deploy the test infrastructure including Docker services."""
+        try:
+            # Start Docker Compose services
+            compose_file = os.path.join(self.export_dir, "docker-compose.yaml")
+            
+            if not os.path.exists(compose_file):
+                raise Exception("Docker Compose file not found")
+            
+            # Check if Docker is available
+            try:
+                subprocess.run(["docker", "--version"], capture_output=True, check=True)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                raise Exception("Docker is not installed or not accessible")
+            
+            # Get the correct Docker Compose command
+            compose_cmd = self._get_docker_compose_command()
+            if not compose_cmd:
+                raise Exception("Docker Compose is not installed or not accessible")
+            
+            # Stop any existing services first
+            debug_print("Stopping any existing Docker services...")
+            subprocess.run(
+                compose_cmd + ["-f", compose_file, "down"],
+                cwd=self.export_dir,
+                capture_output=True
+            )
+            
+            # Start Docker Compose services
+            debug_print("Starting Docker Compose services...")
+            cmd = compose_cmd + ["-f", compose_file, "up", "-d"]
+            
+            result = subprocess.run(
+                cmd,
+                cwd=self.export_dir,
+                capture_output=True,
+                text=True,
+                timeout=300  # 5 minute timeout
+            )
+            
+            if result.returncode != 0:
+                error_msg = f"Docker Compose failed: {result.stderr}"
+                error_print(error_msg)
+                return False
+            
+            debug_print(f"Docker Compose started successfully: {result.stdout}")
+            
+            # Verify services are running
+            time.sleep(10)  # Give services time to start
+            
+            verify_result = subprocess.run(
+                compose_cmd + ["-f", compose_file, "ps"],
+                cwd=self.export_dir,
+                capture_output=True,
+                text=True
+            )
+            
+            if "Up" in verify_result.stdout:
+                debug_print("Infrastructure deployment successful")
+                return True
+            else:
+                error_print(f"Services not running properly: {verify_result.stdout}")
+                return False
+                
+        except subprocess.TimeoutExpired:
+            error_print("Docker Compose startup timed out")
+            return False
+        except Exception as e:
+            error_print(f"Infrastructure deployment failed: {e}")
+            return False
+
     def _wait_for_services_ready(self):
         """Wait for all services to be ready with improved timing."""
         # Wait for Docker services
