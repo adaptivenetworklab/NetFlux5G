@@ -24,47 +24,47 @@ class ModernComponentWidget(QFrame):
         
     def setupUI(self):
         """Setup the UI components with modern styling."""
-        self.setFixedSize(85, 100)  # Reduced size for more compact layout
+        self.setFixedSize(80, 85)  # Even more compact size
         self.setFrameStyle(QFrame.NoFrame)
         self.setCursor(Qt.PointingHandCursor)
         
         # Main layout
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(6, 6, 6, 6)  # Reduced margins
-        layout.setSpacing(3)  # Reduced spacing
+        layout.setContentsMargins(4, 4, 4, 4)  # Minimal margins
+        layout.setSpacing(2)  # Minimal spacing
         layout.setAlignment(Qt.AlignCenter)
         
         # Icon container
         self.icon_container = QFrame()
-        self.icon_container.setFixedSize(45, 45)  # Smaller icon container
+        self.icon_container.setFixedSize(50, 50)  # Larger icon container
         self.icon_container.setStyleSheet("""
             QFrame {
                 background-color: #ffffff;
                 border: 2px solid #e0e0e0;
-                border-radius: 22px;
+                border-radius: 25px;
             }
         """)
         
         # Icon label
         self.icon_label = QLabel(self.icon_container)
         self.icon_label.setAlignment(Qt.AlignCenter)
-        self.icon_label.setGeometry(5, 5, 35, 35)  # Adjusted positioning for smaller container
+        self.icon_label.setGeometry(5, 5, 40, 40)  # Larger icon area
         
         # Set icon
         if self.icon_path and os.path.exists(self.icon_path):
             pixmap = QPixmap(self.icon_path)
-            scaled_pixmap = pixmap.scaled(30, 30, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(35, 35, Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Larger icon
             self.icon_label.setPixmap(scaled_pixmap)
         
         # Text label
         self.text_label = QLabel(self.display_text)
         self.text_label.setAlignment(Qt.AlignCenter)
         self.text_label.setWordWrap(True)
-        self.text_label.setMinimumHeight(30)  # Reduced minimum height
-        self.text_label.setMaximumHeight(35)  # Reduced maximum height
+        self.text_label.setMinimumHeight(20)  # Reduced text area
+        self.text_label.setMaximumHeight(25)  # Reduced text area
         
-        # Set font - optimized for readability
-        font = QFont("Segoe UI", 7)  # Smaller font for compact layout
+        # Set font - smaller for compact layout
+        font = QFont("Segoe UI", 6)  # Even smaller font
         font.setWeight(QFont.Medium)
         self.text_label.setFont(font)
         
@@ -100,14 +100,14 @@ class ModernComponentWidget(QFrame):
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                               stop:0 #f8f9ff, stop:1 #e6f2ff);
                     border: 2px solid #4a90e2;
-                    border-radius: 12px;
+                    border-radius: 10px;
                 }
             """)
             self.icon_container.setStyleSheet("""
                 QFrame {
                     background-color: #ffffff;
                     border: 2px solid #4a90e2;
-                    border-radius: 24px;
+                    border-radius: 25px;
                 }
             """)
             self.text_label.setStyleSheet("color: #2c5282; font-weight: 600;")
@@ -123,14 +123,14 @@ class ModernComponentWidget(QFrame):
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                               stop:0 #ffffff, stop:1 #f8f9fa);
                     border: 1px solid #e9ecef;
-                    border-radius: 12px;
+                    border-radius: 10px;
                 }
             """)
             self.icon_container.setStyleSheet("""
                 QFrame {
                     background-color: #ffffff;
                     border: 2px solid #e0e0e0;
-                    border-radius: 24px;
+                    border-radius: 25px;
                 }
             """)
             self.text_label.setStyleSheet("color: #495057;")
@@ -161,7 +161,7 @@ class ModernComponentWidget(QFrame):
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                               stop:0 #e6f2ff, stop:1 #cce7ff);
                     border: 2px solid #2c5282;
-                    border-radius: 12px;
+                    border-radius: 10px;
                 }
             """)
             
@@ -258,8 +258,8 @@ class ComponentPanelManager:
         
         # Create main vertical layout
         self.main_layout = QVBoxLayout(self.container_widget)
-        self.main_layout.setContentsMargins(2, 2, 2, 2)  # Reduced margins
-        self.main_layout.setSpacing(6)  # Compact spacing between sections
+        self.main_layout.setContentsMargins(2, 2, 2, 2)
+        self.main_layout.setSpacing(4)  # Even more compact spacing
         
         # Create header section
         self.createHeaderSection()
@@ -286,23 +286,23 @@ class ComponentPanelManager:
                 border-radius: 6px;
             }
         """)
-        header_frame.setMinimumHeight(45)  # Reduced height for compactness
-        header_frame.setMaximumHeight(45)
+        header_frame.setMinimumHeight(40)  # Even more compact header
+        header_frame.setMaximumHeight(40)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(4, 4, 4, 4)  # Reduced margins
-        header_layout.setSpacing(2)  # Reduced spacing
+        header_layout.setContentsMargins(4, 3, 4, 3)  # Minimal margins
+        header_layout.setSpacing(1)  # Minimal spacing
         
         # Title
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 11, QFont.Bold)  # Slightly smaller font
+        title_font = QFont("Segoe UI", 10, QFont.Bold)  # Smaller font
         title_label.setFont(title_font)
         title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle
         subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 7)  # Smaller font
+        subtitle_font = QFont("Segoe UI", 6)  # Smaller font
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -349,9 +349,9 @@ class ComponentPanelManager:
             self._category_count = 1
             
         if self._category_count > 1:
-            # Add compact spacing between categories
+            # Add minimal spacing between categories
             spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(4)  # Reduced spacing
+            spacer_frame.setFixedHeight(2)  # Minimal spacing
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
@@ -364,14 +364,14 @@ class ComponentPanelManager:
                 margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(26)  # Reduced height for compactness
+        category_frame.setFixedHeight(22)  # More compact height
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(6, 3, 6, 3)  # Reduced margins
+        category_layout.setContentsMargins(6, 2, 6, 2)  # Minimal margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 8, QFont.DemiBold)  # Slightly smaller font
+        category_font = QFont("Segoe UI", 7, QFont.DemiBold)  # Smaller font
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
@@ -389,8 +389,8 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(2, 4, 2, 6)  # Reduced margins
-        components_layout.setSpacing(4)  # Reduced spacing between components
+        components_layout.setContentsMargins(2, 2, 2, 4)  # Minimal margins
+        components_layout.setSpacing(3)  # Minimal spacing between components
         
         # Use 2 column layout as requested
         for i, (comp_type, icon_file, display_text) in enumerate(components):
