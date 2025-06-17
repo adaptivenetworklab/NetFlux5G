@@ -24,14 +24,14 @@ class ModernComponentWidget(QFrame):
         
     def setupUI(self):
         """Setup the UI components with modern styling."""
-        self.setFixedSize(75, 75)  # Ultra compact size
+        self.setFixedSize(75, 85)  # Increased height for larger text
         self.setFrameStyle(QFrame.NoFrame)
         self.setCursor(Qt.PointingHandCursor)
         
         # Main layout
         layout = QVBoxLayout(self)
         layout.setContentsMargins(3, 3, 3, 3)  # Ultra minimal margins
-        layout.setSpacing(1)  # Ultra minimal spacing
+        layout.setSpacing(2)  # Slightly increased spacing for larger text
         layout.setAlignment(Qt.AlignCenter)
         
         # Icon container
@@ -60,11 +60,11 @@ class ModernComponentWidget(QFrame):
         self.text_label = QLabel(self.display_text)
         self.text_label.setAlignment(Qt.AlignCenter)
         self.text_label.setWordWrap(True)
-        self.text_label.setMinimumHeight(16)  # Ultra compact text area
-        self.text_label.setMaximumHeight(20)  # Ultra compact text area
+        self.text_label.setMinimumHeight(24)  # Increased height for larger text
+        self.text_label.setMaximumHeight(30)  # Increased height for larger text
         
-        # Set font - very small for ultra compact layout
-        font = QFont("Segoe UI", 5)  # Very small font
+        # Set font - increased size for better readability
+        font = QFont("Segoe UI", 8)  # Increased from 5 to 8
         font.setWeight(QFont.Medium)
         self.text_label.setFont(font)
         
@@ -286,23 +286,23 @@ class ComponentPanelManager:
                 border-radius: 6px;
             }
         """)
-        header_frame.setMinimumHeight(50)  # Increased height for larger text
-        header_frame.setMaximumHeight(50)
+        header_frame.setMinimumHeight(65)  # Increased height to prevent truncation
+        header_frame.setMaximumHeight(65)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(4, 6, 4, 6)  # Increased margins for better spacing
-        header_layout.setSpacing(2)  # Small spacing between title and subtitle
+        header_layout.setContentsMargins(4, 8, 4, 8)  # Increased top/bottom margins
+        header_layout.setSpacing(3)  # Increased spacing between title and subtitle
         
         # Title - MUCH LARGER
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 16, QFont.Bold)  # MUCH LARGER font for title
+        title_font = QFont("Segoe UI", 18, QFont.Bold)  # Increased from 16 to 18
         title_label.setFont(title_font)
         title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle - LARGER
         subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 10)  # LARGER font for subtitle
+        subtitle_font = QFont("Segoe UI", 11)  # Increased from 10 to 11
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -364,14 +364,14 @@ class ComponentPanelManager:
                 margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(32)  # Increased height for larger text
+        category_frame.setFixedHeight(36)  # Increased height from 32 to 36
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 4, 8, 4)  # Increased margins for better spacing
+        category_layout.setContentsMargins(8, 6, 8, 6)  # Increased vertical margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 12, QFont.Bold)  # MUCH LARGER and BOLD font for categories
+        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Increased from 12 to 13
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
@@ -389,8 +389,8 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(1, 3, 1, 4)  # Slightly increased margins
-        components_layout.setSpacing(2)  # Ultra minimal spacing between components
+        components_layout.setContentsMargins(1, 4, 1, 5)  # Increased margins for larger components
+        components_layout.setSpacing(3)  # Increased spacing between larger components
         
         # Use 2 column layout as requested
         for i, (comp_type, icon_file, display_text) in enumerate(components):
@@ -417,8 +417,8 @@ class ComponentPanelManager:
         """Update the geometry of the scroll area to fill ObjectFrame."""
         if hasattr(self, 'scroll_area') and hasattr(self.main_window, 'ObjectFrame'):
             frame_rect = self.main_window.ObjectFrame.geometry()
-            # Optimized width for ultra compact layout
-            min_width = max(170, frame_rect.width())  # Narrower panel for compact design
+            # Increased width for larger text
+            min_width = max(180, frame_rect.width())  # Increased from 170 to 180
             self.scroll_area.setGeometry(0, 0, min_width, frame_rect.height())
 
     def updateComponentButtonSizes(self):
