@@ -258,8 +258,8 @@ class ComponentPanelManager:
         
         # Create main vertical layout
         self.main_layout = QVBoxLayout(self.container_widget)
-        self.main_layout.setContentsMargins(4, 4, 4, 4)  # Reduced margins
-        self.main_layout.setSpacing(4)  # Reduced spacing
+        self.main_layout.setContentsMargins(4, 4, 4, 4)
+        self.main_layout.setSpacing(12)  # Increased spacing between sections
         
         # Create header section
         self.createHeaderSection()
@@ -286,23 +286,23 @@ class ComponentPanelManager:
                 border-radius: 6px;
             }
         """)
-        header_frame.setMinimumHeight(50)  # Reduced height
-        header_frame.setMaximumHeight(50)
+        header_frame.setMinimumHeight(60)  # Increased height for better spacing
+        header_frame.setMaximumHeight(60)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(4, 6, 4, 6)  # Reduced margins
-        header_layout.setSpacing(1)  # Reduced spacing
+        header_layout.setContentsMargins(4, 8, 4, 8)  # Increased vertical margins
+        header_layout.setSpacing(4)  # Increased spacing between title and subtitle
         
         # Title
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 12, QFont.Bold)  # Smaller font
+        title_font = QFont("Segoe UI", 12, QFont.Bold)
         title_label.setFont(title_font)
         title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle
         subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 8)  # Smaller font
+        subtitle_font = QFont("Segoe UI", 8)
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -342,6 +342,19 @@ class ComponentPanelManager:
 
     def createCategorySection(self, category_name, components):
         """Create a category section with components."""
+        # Add spacing before each category (except first one)
+        if hasattr(self, '_category_count'):
+            self._category_count += 1
+        else:
+            self._category_count = 1
+            
+        if self._category_count > 1:
+            # Add extra spacing between categories
+            spacer_frame = QFrame()
+            spacer_frame.setFixedHeight(8)
+            spacer_frame.setStyleSheet("background-color: transparent;")
+            self.main_layout.addWidget(spacer_frame)
+        
         # Category header
         category_frame = QFrame()
         category_frame.setStyleSheet("""
@@ -351,14 +364,14 @@ class ComponentPanelManager:
                 margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(28)  # Increased height for better visibility
+        category_frame.setFixedHeight(32)  # Increased height for better spacing
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 4, 8, 4)  # Increased margins
+        category_layout.setContentsMargins(8, 6, 8, 6)  # Increased vertical margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 9, QFont.DemiBold)  # Consistent font size
+        category_font = QFont("Segoe UI", 9, QFont.DemiBold)
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
@@ -376,14 +389,14 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(4, 4, 4, 8)  # Increased margins
-        components_layout.setSpacing(6)  # Increased spacing
+        components_layout.setContentsMargins(4, 8, 4, 12)  # Increased bottom margin
+        components_layout.setSpacing(6)
         
         # Calculate optimal grid layout based on container width
-        # Use single column layout for better text visibility
+        # Use 2 column layout as requested
         for i, (comp_type, icon_file, display_text) in enumerate(components):
-            row = i  # Single column, each component gets its own row
-            col = 0
+            row = i // 2
+            col = i % 2
             
             # Get full icon path
             icon_path = self.main_window.component_icon_map.get(comp_type)
