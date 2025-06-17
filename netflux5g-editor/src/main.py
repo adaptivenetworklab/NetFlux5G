@@ -11,6 +11,10 @@ os.environ["PYTHONWARNINGS"] = "ignore"
 os.environ["QT_LOGGING_RULES"] = "*=false"
 os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = ""
 
+# Performance optimizations
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
+os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
+
 # Handle Wayland warning - force X11 to avoid the warning
 if os.environ.get("XDG_SESSION_TYPE") == "wayland":
     os.environ["QT_QPA_PLATFORM"] = "xcb"  # Force X11 instead of wayland
@@ -49,6 +53,10 @@ class NetFlux5GApp(QMainWindow):
     def __init__(self, show_welcome=True):
         super().__init__()
         
+        # Performance optimization attributes
+        self.performance_mode = True
+        self.reduced_updates = True
+
         # Load the UI file
         uic.loadUi(UI_FILE, self)
 
@@ -472,20 +480,12 @@ class NetFlux5GApp(QMainWindow):
         debug_print("=== END DEBUG ===")
 
 if __name__ == "__main__":
-    # Additional Qt environment setup
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-    
-    # Redirect stderr to suppress warnings at runtime
-    import io
-    original_stderr = sys.stderr
-    sys.stderr = io.StringIO()
-    
     app = QApplication(sys.argv)
     
-    # Restore stderr after QApplication creation
-    sys.stderr = original_stderr
-
+    # Performance optimizations for the application
+    app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings, True)
+    app.setAttribute(Qt.AA_DontShowIconsInMenus, True)
+    
     icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
     app.setWindowIcon(QIcon(icon_path))
 

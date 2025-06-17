@@ -110,62 +110,73 @@ class NetworkComponent(QGraphicsPixmapItem):
             return QRectF(-10, -10, 70, 90)  # Extra padding and height for text with margins
     
     def paint(self, painter, option, widget):
-        """Draw the component."""
+        """Draw the component with optimized performance."""
+        # Enable performance optimizations
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        
         # Save the painter state
         painter.save()
         
         # Draw coverage circle for wireless components first (so it's behind the icon)
         if self.component_type in ["AP", "GNB"]:
-            # Set up a semi-transparent fill for the coverage area
-            painter.setBrush(QColor(0, 128, 255, 40))
-            
-            # Use a thin border for the coverage area
-            painter.setPen(QPen(QColor(0, 0, 0, 80), 1, Qt.DashLine))
-            
-            # Draw the coverage circle using QRectF to handle float values
-            circle_rect = QRectF(
-                25 - self.coverage_radius,  # x (float)
-                25 - self.coverage_radius,  # y (float)
-                self.coverage_radius * 2,   # width (float)
-                self.coverage_radius * 2    # height (float)
-            )
-            painter.drawEllipse(circle_rect)
+            # Only draw coverage circle if it's within visible area
+            if option.exposedRect.intersects(QRectF(
+                25 - self.coverage_radius, 25 - self.coverage_radius,
+                self.coverage_radius * 2, self.coverage_radius * 2
+            )):
+                # Set up a semi-transparent fill for the coverage area
+                painter.setBrush(QColor(0, 128, 255, 40))
+                
+                # Use a thin border for the coverage area
+                painter.setPen(QPen(QColor(0, 0, 0, 80), 1, Qt.DashLine))
+                
+                # Draw the coverage circle using QRectF to handle float values
+                circle_rect = QRectF(
+                    25 - self.coverage_radius,  # x (float)
+                    25 - self.coverage_radius,  # y (float)
+                    self.coverage_radius * 2,   # width (float)
+                    self.coverage_radius * 2    # height (float)
+                )
+                painter.drawEllipse(circle_rect)
         
         # Reset painter for icon drawing
         painter.restore()
         painter.save()
         
-        # Draw the component icon
-        if not self.pixmap().isNull():
-            painter.drawPixmap(0, 0, 50, 50, self.pixmap())
+        # Draw the component icon only if visible
+        if option.exposedRect.intersects(QRectF(0, 0, 50, 50)):
+            if not self.pixmap().isNull():
+                painter.drawPixmap(0, 0, 50, 50, self.pixmap())
     
         # Draw the component name below the icon with proper background clearing
-        painter.setPen(Qt.black)
-        font = painter.font()
-        font.setPointSize(8)  # Smaller font size
-        painter.setFont(font)
-        
-        # Calculate text metrics
-        text_width = painter.fontMetrics().width(self.display_name)
-        text_height = painter.fontMetrics().height()
-        
-        # Clear the text area with white background to prevent traces
-        text_rect = QRectF(
-            (50 - text_width) / 2 - 2,  # x position with padding
-            55,  # y position
-            text_width + 4,  # width with padding
-            text_height + 4  # height with padding
-        )
-        
-        # Fill text background with white to clear any traces
-        painter.fillRect(text_rect, Qt.white)
-        
-        # Draw the text
-        painter.drawText(
-            int((50 - text_width) / 2),  # Center horizontally (ensure integer)
-            65,  # Position below the icon
-            self.display_name
-        )
+        text_rect = QRectF(0, 55, 50, 20)
+        if option.exposedRect.intersects(text_rect):
+            painter.setPen(Qt.black)
+            font = painter.font()
+            font.setPointSize(8)  # Smaller font size
+            painter.setFont(font)
+            
+            # Calculate text metrics
+            text_width = painter.fontMetrics().width(self.display_name)
+            text_height = painter.fontMetrics().height()
+            
+            # Clear the text area with white background to prevent traces
+            clear_rect = QRectF(
+                (50 - text_width) / 2 - 2,  # x position with padding
+                55,  # y position
+                text_width + 4,  # width with padding
+                text_height + 4  # height with padding
+            )
+            
+            # Fill text background with white to clear any traces
+            painter.fillRect(clear_rect, Qt.white)
+            
+            # Draw the text
+            painter.drawText(
+                int((50 - text_width) / 2),  # Center horizontally (ensure integer)
+                65,  # Position below the icon
+                self.display_name
+            )
     
         # Restore painter state
         painter.restore()
@@ -200,35 +211,28 @@ class NetworkComponent(QGraphicsPixmapItem):
         return path
 
     def itemChange(self, change, value):
-        """Handle position changes and update connected links."""
+        """Handle position changes and update connected links with optimized updates."""
         if change == QGraphicsItem.ItemPositionChange and self.scene():
             # Update position properties when position changes
             if hasattr(value, 'x') and hasattr(value, 'y'):
                 self.properties["x"] = value.x()
                 self.properties["y"] = value.y()
             
-            # If we have connected links, update them
+            # If we have connected links, update them (but don't force immediate scene update)
             if hasattr(self, 'connected_links'):
                 for link in self.connected_links:
-                    link.updatePosition()
+                    link.prepareGeometryChange()
         
         # For position changes, update the coverage area for AP/GNB components
         if change == QGraphicsItem.ItemPositionHasChanged and self.scene():
             # Final position update after the move is complete
             self.updatePositionProperties()
             
-            # Force a comprehensive scene update to clear any traces
+            # Use minimal update instead of full scene update
             if self.scene():
-                # Update a larger area around the component to ensure text traces are cleared
-                expanded_rect = self.sceneBoundingRect().adjusted(-20, -20, 20, 20)
-                self.scene().update(expanded_rect)
-            
-            # Force a complete repaint for this item
-            self.update()
-            
-            if self.component_type in ["AP", "GNB"]:
-                # Additional update for coverage circles
-                self.scene().update()
+                # Update only the necessary area
+                update_rect = self.sceneBoundingRect().adjusted(-10, -10, 10, 10)
+                self.scene.update(update_rect)
         
         return super().itemChange(change, value)
 

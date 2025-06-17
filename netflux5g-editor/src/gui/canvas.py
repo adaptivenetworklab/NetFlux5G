@@ -104,6 +104,19 @@ class Canvas(QGraphicsView):
         self.setScene(self.scene)
         self.current_dialog = None
 
+        # Performance optimizations
+        self.setOptimizationFlags(
+            QGraphicsView.DontSavePainterState |
+            QGraphicsView.DontAdjustForAntialiasing
+        )
+        self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
+        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform, False)
+        self.setCacheMode(QGraphicsView.CacheBackground)
+        
+        # Reduce update frequency during scrolling
+        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+
         self.updateSceneSize()
         self.setDragMode(QGraphicsView.NoDrag)
         self.setStyleSheet("background-color: white;")
@@ -116,6 +129,11 @@ class Canvas(QGraphicsView):
         self.is_panning = False
         self.pan_start_point = QPoint()
         self.last_pan_point = QPoint()
+        
+        # Debounce timer for scene updates
+        self.update_timer = QTimer()
+        self.update_timer.setSingleShot(True)
+        self.update_timer.timeout.connect(self._delayed_scene_update)
         
         from PyQt5.QtWidgets import QSizePolicy
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -147,15 +165,18 @@ class Canvas(QGraphicsView):
             error_print(f"Failed to update scene size: {e}")
 
     def resizeEvent(self, event):
-        """Handle canvas resize events."""
+        """Handle canvas resize events with optimized updates."""
         super().resizeEvent(event)
         
         debug_print(f"Canvas resize event - new size: {event.size()}")
         
-        # Update scene size when canvas is resized
-        QTimer.singleShot(100, self.updateSceneSize)  # Small delay to ensure geometry is settled
+        # Debounce scene size updates to avoid excessive calls
+        self.update_timer.stop()
+        self.update_timer.start(150)  # Wait 150ms before updating
         
-        # Force a viewport update to ensure proper rendering
+    def _delayed_scene_update(self):
+        """Delayed scene update to reduce resize event spam."""
+        self.updateSceneSize()
         self.viewport().update()
 
     def zoomIn(self, zoom_factor=1.2):
@@ -172,13 +193,16 @@ class Canvas(QGraphicsView):
 
     def setShowGrid(self, show):
         self.show_grid = show
-        self.viewport().update()
+        # Only update visible area instead of entire viewport
+        self.scene.update(self.mapToScene(self.viewport().rect()).boundingRect())
 
     def drawBackground(self, painter, rect):
         super().drawBackground(painter, rect)
         if self.show_grid:
+            # Optimize grid drawing for visible area only
             pen = QPen(Qt.lightGray)
             pen.setWidth(0)
+            pen.setCosmetic(True)  # Don't scale with zoom
             painter.setPen(pen)
 
             grid_size = 35
@@ -187,21 +211,29 @@ class Canvas(QGraphicsView):
             right = int(rect.right())
             bottom = int(rect.bottom())
 
+            # Draw only visible grid lines
+            lines = []
             for x in range(left, right, grid_size):
-                painter.drawLine(int(x), int(rect.top()), int(x), int(rect.bottom()))
+                lines.append(painter.drawLine(int(x), int(rect.top()), int(x), int(rect.bottom())))
             for y in range(top, bottom, grid_size):
-                painter.drawLine(int(rect.left()), int(y), int(rect.right()), int(y))
+                lines.append(painter.drawLine(int(rect.left()), int(y), int(rect.right()), int(y)))
 
     def wheelEvent(self, event):
         modifiers = event.modifiers()
         
         if modifiers & Qt.ControlModifier:
+            # Optimize zoom operations
+            old_anchor = self.transformationAnchor()
+            self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+            
             if event.angleDelta().y() > 0:
                 self.zoomIn(1.15)
                 self.app_instance.showCanvasStatus(f"Zoomed in (Level: {self.zoom_level:.1f}x)")
             else:
                 self.zoomOut(1.15)
                 self.app_instance.showCanvasStatus(f"Zoomed out (Level: {self.zoom_level:.1f}x)")
+            
+            self.setTransformationAnchor(old_anchor)
             event.accept()
         else:
             super().wheelEvent(event)
@@ -271,12 +303,14 @@ class Canvas(QGraphicsView):
             delta = event.pos() - self.last_pan_point
             self.last_pan_point = event.pos()
             
+            # Optimize scrolling by reducing update frequency
             h_bar = self.horizontalScrollBar()
             v_bar = self.verticalScrollBar()
             
             h_bar.setValue(h_bar.value() - delta.x())
             v_bar.setValue(v_bar.value() - delta.y())
             
+            # Don't update scene on every mouse move during panning
             event.accept()
             return
             
@@ -298,6 +332,8 @@ class Canvas(QGraphicsView):
             distance = (total_delta.x() ** 2 + total_delta.y() ** 2) ** 0.5
             self.app_instance.showCanvasStatus(f"Panning completed (moved {distance:.0f} pixels)")
             
+            # Force update only after panning is complete
+            self.scene.update()
             event.accept()
             return
             
