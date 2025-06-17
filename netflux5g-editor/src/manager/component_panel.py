@@ -281,8 +281,9 @@ class ComponentPanelManager:
         header_frame = QFrame()
         header_frame.setStyleSheet("""
             QFrame {
-                background-color: transparent;
-                border: none;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                        stop:0 #4a90e2, stop:1 #357abd);
+                border-radius: 6px;
             }
         """)
         header_frame.setMinimumHeight(75)  # Keep height for proper spacing
@@ -296,14 +297,14 @@ class ComponentPanelManager:
         title_label = QLabel("Components")
         title_font = QFont("Segoe UI", 18, QFont.Bold)  # Keep size but ensure proper spacing
         title_label.setFont(title_font)
-        title_label.setStyleSheet("color: #2c3e50;")  # Changed to dark color since no background
+        title_label.setStyleSheet("color: white;")  # White text on blue background
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle - LARGER
         subtitle_label = QLabel("Drag to canvas")
         subtitle_font = QFont("Segoe UI", 11)  # Keep current size
         subtitle_label.setFont(subtitle_font)
-        subtitle_label.setStyleSheet("color: #6c757d;")  # Changed to gray color
+        subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")  # Semi-transparent white
         subtitle_label.setAlignment(Qt.AlignCenter)
         
         header_layout.addWidget(title_label)
@@ -350,11 +351,11 @@ class ComponentPanelManager:
         if self._category_count > 1:
             # Add spacing between categories
             spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(8)  # Increased spacing since no frame
+            spacer_frame.setFixedHeight(8)  # Spacing between categories
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
-        # Category header without frame
+        # Category header without gray background frame - just text
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
@@ -362,7 +363,7 @@ class ComponentPanelManager:
                 border: none;
             }
         """)
-        category_frame.setFixedHeight(32)  # Reduced height since no background frame
+        category_frame.setFixedHeight(32)  # Height for text
         
         category_layout = QHBoxLayout(category_frame)
         category_layout.setContentsMargins(8, 4, 8, 4)  # Keep margins for text positioning
