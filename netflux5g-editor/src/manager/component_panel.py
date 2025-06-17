@@ -286,23 +286,23 @@ class ComponentPanelManager:
                 border-radius: 6px;
             }
         """)
-        header_frame.setMinimumHeight(65)  # Increased height to prevent truncation
-        header_frame.setMaximumHeight(65)
+        header_frame.setMinimumHeight(75)  # Further increased height to prevent truncation
+        header_frame.setMaximumHeight(75)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(4, 8, 4, 8)  # Increased top/bottom margins
-        header_layout.setSpacing(3)  # Increased spacing between title and subtitle
+        header_layout.setContentsMargins(8, 10, 8, 10)  # Increased margins for better spacing
+        header_layout.setSpacing(4)  # Increased spacing between title and subtitle
         
         # Title - MUCH LARGER
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 18, QFont.Bold)  # Increased from 16 to 18
+        title_font = QFont("Segoe UI", 18, QFont.Bold)  # Keep size but ensure proper spacing
         title_label.setFont(title_font)
         title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle - LARGER
         subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 11)  # Increased from 10 to 11
+        subtitle_font = QFont("Segoe UI", 11)  # Keep current size
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -389,8 +389,10 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(1, 4, 1, 5)  # Increased margins for larger components
-        components_layout.setSpacing(3)  # Increased spacing between larger components
+        components_layout.setContentsMargins(3, 4, 3, 5)  # Reduced side margins for tighter layout
+        components_layout.setSpacing(1)  # Much reduced spacing between components
+        components_layout.setHorizontalSpacing(1)  # Specifically reduce horizontal spacing
+        components_layout.setVerticalSpacing(3)  # Keep some vertical spacing
         
         # Use 2 column layout as requested
         for i, (comp_type, icon_file, display_text) in enumerate(components):
@@ -417,8 +419,8 @@ class ComponentPanelManager:
         """Update the geometry of the scroll area to fill ObjectFrame."""
         if hasattr(self, 'scroll_area') and hasattr(self.main_window, 'ObjectFrame'):
             frame_rect = self.main_window.ObjectFrame.geometry()
-            # Increased width for larger text
-            min_width = max(180, frame_rect.width())  # Increased from 170 to 180
+            # Reduced width for tighter column layout
+            min_width = max(165, frame_rect.width())  # Reduced from 180 to 165
             self.scroll_area.setGeometry(0, 0, min_width, frame_rect.height())
 
     def updateComponentButtonSizes(self):
