@@ -232,13 +232,13 @@ class ComponentPanelManager:
             }
             QScrollBar:vertical {
                 background-color: #e9ecef;
-                width: 8px;
-                border-radius: 4px;
+                width: 4px;
+                border-radius: 2px;
                 margin: 0;
             }
             QScrollBar::handle:vertical {
                 background-color: #adb5bd;
-                border-radius: 4px;
+                border-radius: 2px;
                 min-height: 20px;
             }
             QScrollBar::handle:vertical:hover {
@@ -256,7 +256,7 @@ class ComponentPanelManager:
         
         # Create main vertical layout
         self.main_layout = QVBoxLayout(self.container_widget)
-        self.main_layout.setContentsMargins(6, 8, 6, 8)
+        self.main_layout.setContentsMargins(8, 8, 8, 8)
         self.main_layout.setSpacing(8)
         
         # Create header section

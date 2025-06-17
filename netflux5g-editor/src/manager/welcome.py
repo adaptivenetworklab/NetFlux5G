@@ -61,30 +61,23 @@ class WelcomeScreenManager:
     def loadExampleTopology(self, example_name):
         """Load a specific example topology."""
         try:
-            examples_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
-                "examples"
-            )
-            
-            example_files = {
-                "basic_gnb_core": "basic_5g_topology.nf5g",
-                "multi_core": "multi_core_deployment.nf5g", 
-                "sdn_deployment": "sdn_topology.nf5g"
+            # Map example names to template names
+            example_mapping = {
+                "basic_gnb_core": "basic_5g_topology",
+                "multi_core": "multi_core_deployment", 
+                "sdn_deployment": "sdn_topology"
             }
             
-            if example_name in example_files:
-                example_file = os.path.join(examples_path, example_files[example_name])
-                if os.path.exists(example_file):
-                    self.main_window.file_manager.loadTopologyFromFile(example_file)
-                    self.main_window.status_manager.showCanvasStatus(f"Loaded example: {example_name}")
-                else:
-                    warning_print(f"Example file not found: {example_file}")
-                    self.main_window.status_manager.showCanvasStatus("Example file not found")
+            template_name = example_mapping.get(example_name, example_name)
+            
+            if self.main_window.file_manager.loadExampleTemplate(template_name):
+                self.main_window.status_manager.showCanvasStatus(f"Loaded example: {example_name}")
             else:
-                warning_print(f"Unknown example: {example_name}")
+                warning_print(f"Failed to load example: {example_name}")
                 
         except Exception as e:
             error_print(f"Failed to load example topology: {e}")
+            self.main_window.status_manager.showCanvasStatus(f"Error loading example: {str(e)}")
 
 class WelcomeScreen(QMainWindow):
     """Welcome screen window that loads the UI file and handles interactions."""

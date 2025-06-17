@@ -13,8 +13,6 @@ fi
 
 echo "Welcome to Mininet-Wifi & Containernet running within a Docker container ..."
 
-source /opt/venv/bin/activate
-
 if [[ $# -eq 0 ]]; then
     exec /bin/bash
 else

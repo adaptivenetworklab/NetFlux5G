@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
 ENV TZ=Asia/Jakarta
 ENV DEBIAN_FRONTEND=noninteractive
@@ -56,9 +56,9 @@ RUN git clone https://github.com/containernet/containernet.git
 COPY ./install.sh /app/neflux5g/mininet-wifi/util/install.sh
 
 WORKDIR /app/neflux5g/containernet/ansible
-ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+# ENV VIRTUAL_ENV=/opt/venv
+# RUN python3 -m venv $VIRTUAL_ENV
+# ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install --upgrade pip ansible
 RUN ansible-playbook -i "localhost," -c local --skip-tags "notindocker" install.yml
 
@@ -71,9 +71,11 @@ ENV CONTAINERNET_NESTED=1
 WORKDIR /app/neflux5g/mininet-wifi
 
 # Run the installation script
-RUN util/install.sh -W -l -n -f -v -6
+RUN util/install.sh -Wlnfv6
 
 WORKDIR /app/neflux5g
+RUN git clone https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
+RUN git clone https://github.com/adaptivenetworklab/Riset_23-24_SDN.git
 
 # Set the dafault init to use bash shell
 COPY ./entrypoint.sh /entrypoint.sh

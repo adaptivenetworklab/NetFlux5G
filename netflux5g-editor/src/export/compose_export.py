@@ -1,8 +1,10 @@
 import os
+import json
 import yaml
 import shutil
 import traceback
 from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtCore import QDateTime
 from manager.debug import debug_print, error_print, warning_print
 
 class DockerComposeExporter:
@@ -25,8 +27,10 @@ class DockerComposeExporter:
     def export_docker_compose_files(self, export_dir):
         """Export docker-compose.yaml and configuration files for 5G Core components."""
         try:
-            # Extract 5G Core components from the topology
+            # Extract topology to analyze components
             nodes, links = self.main_window.extractTopology()
+            
+            # Find 5G Core components
             core5g_components = [n for n in nodes if n['type'] == 'VGcore']
             
             if not core5g_components:
@@ -37,8 +41,11 @@ class DockerComposeExporter:
             config_dir = os.path.join(export_dir, "config")
             os.makedirs(config_dir, exist_ok=True)
             
-            # Generate docker-compose.yaml
-            docker_compose_data = self.generate_docker_compose_config(core5g_components)
+            # Extract component configurations from VGcore components
+            component_configs = self.extract_5g_component_configurations(core5g_components)
+            
+            # Generate docker-compose.yaml based on ngc.yaml structure
+            docker_compose_data = self.generate_docker_compose_config(component_configs)
             
             # Write docker-compose.yaml
             compose_file = os.path.join(export_dir, "docker-compose.yaml")
@@ -46,10 +53,17 @@ class DockerComposeExporter:
                 yaml.dump(docker_compose_data, f, default_flow_style=False, sort_keys=False)
             
             # Generate configuration files for each component
-            self.generate_configuration_files(core5g_components, config_dir)
+            self.generate_configuration_files(component_configs, config_dir)
             
-            # Copy entrypoint.sh if it exists in the reference config
+            # Copy entrypoint.sh
             self.copy_entrypoint_script(config_dir)
+            
+            # Create MongoDB service if needed
+            if self.requires_mongodb(component_configs):
+                self.add_mongodb_service(docker_compose_data)
+                # Write updated docker-compose.yaml with MongoDB
+                with open(compose_file, 'w') as f:
+                    yaml.dump(docker_compose_data, f, default_flow_style=False, sort_keys=False)
             
             self.main_window.showCanvasStatus(f"Docker Compose files exported to {export_dir}")
             debug_print(f"DEBUG: Docker Compose export completed to {export_dir}")
@@ -60,14 +74,80 @@ class DockerComposeExporter:
             error_print(f"ERROR: {error_msg}")
             traceback.print_exc()
 
-    def generate_docker_compose_config(self, core5g_components):
-        """Generate docker-compose configuration based on 5G Core components."""
+    def extract_5g_component_configurations(self, core5g_components):
+        """Extract configurations from 5G Core components properties."""
+        component_configs = {
+            'UPF': [], 'AMF': [], 'SMF': [], 'NRF': [], 'SCP': [],
+            'AUSF': [], 'BSF': [], 'NSSF': [], 'PCF': [], 'PCRF': [],
+            'UDM': [], 'UDR': []
+        }
+        
+        for component in core5g_components:
+            props = component.get('properties', {})
+            
+            # Extract configurations for each component type
+            for comp_type in component_configs.keys():
+                configs = self.extract_component_type_configs(props, comp_type)
+                component_configs[comp_type].extend(configs)
+        
+        # If no specific configurations found, create default set based on ngc.yaml
+        if not any(component_configs.values()):
+            component_configs = self.create_default_component_set()
+            
+        return component_configs
+
+    def extract_component_type_configs(self, properties, component_type):
+        """Extract configurations for a specific component type from properties."""
+        configs = []
+        
+        # Look for table data or stored configurations
+        config_key = f"{component_type}_configs"
+        if config_key in properties:
+            stored_configs = properties[config_key]
+            if isinstance(stored_configs, list):
+                for config in stored_configs:
+                    configs.append(config)
+        
+        # Check if this component type is selected in the UI
+        component_type_key = "Component5G_Type"
+        if component_type_key in properties and properties[component_type_key] == component_type:
+            default_config = {
+                'name': f"{component_type.lower()}",
+                'image': 'adaptive/open5gs:1.0',
+                'config_file': f"{component_type.lower()}.yaml",
+                'volumes': [],
+                'component_type': component_type,
+                'imported': False,
+                'config_content': {},
+                'config_file_path': '',
+                'settings': ''
+            }
+            configs.append(default_config)
+        
+        return configs
+
+    def create_default_component_set(self):
+        """Create a default set of 5G Core components based on ngc.yaml."""
+        return {
+            'NRF': [{'name': 'nrf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'nrf.yaml'}],
+            'SCP': [{'name': 'scp', 'image': 'adaptive/open5gs:1.0', 'config_file': 'scp.yaml'}],
+            'AMF': [{'name': 'amf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'amf.yaml'}],
+            'SMF': [{'name': 'smf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'smf.yaml'}],
+            'UPF': [{'name': 'upf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'upf.yaml'}],
+            'AUSF': [{'name': 'ausf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'ausf.yaml'}],
+            'BSF': [{'name': 'bsf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'bsf.yaml'}],
+            'NSSF': [{'name': 'nssf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'nssf.yaml'}],
+            'PCF': [{'name': 'pcf', 'image': 'adaptive/open5gs:1.0', 'config_file': 'pcf.yaml'}],
+            'UDM': [{'name': 'udm', 'image': 'adaptive/open5gs:1.0', 'config_file': 'udm.yaml'}],
+            'UDR': [{'name': 'udr', 'image': 'adaptive/open5gs:1.0', 'config_file': 'udr.yaml'}],
+            'PCRF': [],  # Optional component
+        }
+
+    def generate_docker_compose_config(self, component_configs):
+        """Generate docker-compose configuration based on ngc.yaml structure."""
         services = {}
         
-        # Group components by type and extract their configurations
-        component_configs = self.extract_5g_component_configurations(core5g_components)
-        
-        # Define dependency chain for 5G Core components
+        # Define dependency chain for 5G Core components (based on ngc.yaml)
         dependency_chain = {
             'NRF': [],
             'SCP': ['nrf'],
@@ -86,7 +166,7 @@ class DockerComposeExporter:
         # Generate services for each component type
         for component_type, instances in component_configs.items():
             for instance in instances:
-                service_name = instance['name'].lower().replace(' ', '_').replace('#', '')
+                service_name = instance.get('name', f"{component_type.lower()}").lower().replace(' ', '_').replace('#', '')
                 
                 # Base service configuration
                 service_config = {
@@ -96,29 +176,16 @@ class DockerComposeExporter:
                     'volumes': []
                 }
                 
-                # Add component-specific configurations
-                service_config.update(self.get_component_specific_config(component_type, instance))
+                # Add component-specific configurations from ngc.yaml
+                service_config.update(self.get_component_specific_config(component_type, instance, service_name))
                 
                 # Add dependencies
                 dependencies = dependency_chain.get(component_type, [])
                 if dependencies:
-                    # Check if dependent services exist
-                    existing_deps = []
-                    for dep in dependencies:
-                        if any(dep in svc_name for svc_name in services.keys()):
-                            existing_deps.append(dep)
-                    
-                    if existing_deps:
-                        if component_type in ['PCF', 'UDR']:
-                            # Use condition for services that need database
-                            service_config['depends_on'] = {
-                                dep: {'condition': 'service_started'} for dep in existing_deps
-                            }
-                        else:
-                            service_config['depends_on'] = existing_deps
+                    service_config['depends_on'] = dependencies
                 
                 # Add volume bindings for configuration files
-                config_file = f"{service_name}.yaml"
+                config_file = instance.get('config_file', f"{component_type.lower()}.yaml")
                 service_config['volumes'].extend([
                     {
                         'type': 'bind',
@@ -133,22 +200,22 @@ class DockerComposeExporter:
                 ])
                 
                 # Add any custom volume mappings from properties
-                if 'volumes' in instance and instance['volumes']:
-                    for volume in instance['volumes']:
-                        service_config['volumes'].append(volume)
+                custom_volumes = instance.get('volumes', [])
+                if custom_volumes:
+                    service_config['volumes'].extend(custom_volumes)
                 
                 services[service_name] = service_config
         
         return {'services': services}
 
-    def get_component_specific_config(self, component_type, instance):
-        """Get component-specific configuration."""
+    def get_component_specific_config(self, component_type, instance, service_name):
+        """Get component-specific configuration based on ngc.yaml."""
         config = {}
         
         if component_type == 'UPF':
             config.update({
                 'command': ['/opt/open5gs/etc/open5gs/entrypoint.sh', 'open5gs-upfd'],
-                'cap_add': ['all'],
+                'cap_add': ['net_admin'],
             })
             
         elif component_type == 'AMF':
@@ -159,7 +226,8 @@ class DockerComposeExporter:
             
         elif component_type == 'SMF':
             config.update({
-                'command': ['/opt/open5gs/etc/open5gs/entrypoint.sh', 'open5gs-smfd'],
+                'command': '/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-smfd',
+                'cap_add': ['net_admin'],
             })
             
         elif component_type == 'NRF':
@@ -190,13 +258,13 @@ class DockerComposeExporter:
         elif component_type == 'PCF':
             config.update({
                 'command': ['/opt/open5gs/etc/open5gs/entrypoint.sh', 'open5gs-pcfd'],
-                'environment': {'DB_URI': 'mongodb://10.0.0.220/open5gs'}
+                'environment': {'DB_URI': 'mongodb://mongo/open5gs'}
             })
             
         elif component_type == 'PCRF':
             config.update({
                 'command': ['/opt/open5gs/etc/open5gs/entrypoint.sh', 'open5gs-pcrfd'],
-                'environment': {'DB_URI': 'mongodb://10.0.0.220/open5gs'}
+                'environment': {'DB_URI': 'mongodb://mongo/open5gs'}
             })
             
         elif component_type == 'UDM':
@@ -207,112 +275,68 @@ class DockerComposeExporter:
         elif component_type == 'UDR':
             config.update({
                 'command': ['/opt/open5gs/etc/open5gs/entrypoint.sh', 'open5gs-udrd'],
-                'environment': {'DB_URI': 'mongodb://10.0.0.220/open5gs'}
+                'environment': {'DB_URI': 'mongodb://mongo/open5gs'}
             })
         
         return config
 
-    def extract_5g_component_configurations(self, core5g_components):
-        """Extract configurations from 5G Core components properties."""
-        component_configs = {
-            'UPF': [], 'AMF': [], 'SMF': [], 'NRF': [], 'SCP': [],
-            'AUSF': [], 'BSF': [], 'NSSF': [], 'PCF': [], 'PCRF': [],
-            'UDM': [], 'UDR': []
+    def requires_mongodb(self, component_configs):
+        """Check if any components require MongoDB."""
+        mongodb_components = ['PCF', 'PCRF', 'UDR']
+        return any(component_configs.get(comp, []) for comp in mongodb_components)
+
+    def add_mongodb_service(self, docker_compose_data):
+        """Add MongoDB service to docker-compose configuration."""
+        mongodb_service = {
+            'image': 'mongo:latest',
+            'restart': 'unless-stopped',
+            'environment': {
+                'MONGO_INITDB_ROOT_USERNAME': 'root',
+                'MONGO_INITDB_ROOT_PASSWORD': 'example',
+                'MONGO_INITDB_DATABASE': 'open5gs'
+            },
+            'volumes': [
+                'mongodb_data:/data/db'
+            ],
+            'ports': ['27017:27017']
         }
         
-        for component in core5g_components:
-            props = component.get('properties', {})
-            
-            # Extract configurations for each component type
-            for comp_type in component_configs.keys():
-                configs = self.extract_component_type_configs(props, comp_type)
-                component_configs[comp_type].extend(configs)
+        docker_compose_data['services']['mongo'] = mongodb_service
         
-        return component_configs
+        # Add volumes section
+        if 'volumes' not in docker_compose_data:
+            docker_compose_data['volumes'] = {}
+        docker_compose_data['volumes']['mongodb_data'] = {}
 
-    def extract_component_type_configs(self, properties, component_type):
-        """Extract configurations for a specific component type from properties."""
-        configs = []
-        
-        # Look for table data or stored configurations
-        config_key = f"{component_type}_configs"
-        if config_key in properties:
-            stored_configs = properties[config_key]
-            if isinstance(stored_configs, list):
-                # Process each stored configuration
-                for config in stored_configs:
-                    # Ensure the config has all necessary fields
-                    processed_config = {
-                        'name': config.get('name', f"{component_type.lower()}1"),
-                        'image': config.get('image', 'adaptive/open5gs:1.0'),
-                        'config_file': config.get('config_file', f"{component_type.lower()}.yaml"),
-                        'volumes': config.get('volumes', []),
-                        'component_type': component_type,
-                        'imported': config.get('imported', False),
-                        'config_content': config.get('config_content', {}),
-                        'config_file_path': config.get('config_file_path', ''),
-                        'settings': config.get('settings', '')
-                    }
-                    configs.append(processed_config)
-        
-        # Fallback: create a default configuration if none exists but component is present
-        if not configs:
-            # Check if this component type is actually being used
-            component_type_key = f"Component5G_Type"
-            if component_type_key in properties and properties[component_type_key] == component_type:
-                default_config = {
-                    'name': f"{component_type.lower()}1",
-                    'image': 'adaptive/open5gs:1.0',
-                    'config_file': f"{component_type.lower()}.yaml",
-                    'volumes': [],
-                    'component_type': component_type,
-                    'imported': False,
-                    'config_content': {},
-                    'config_file_path': '',
-                    'settings': ''
-                }
-                configs.append(default_config)
-        
-        return configs
-
-    def generate_configuration_files(self, core5g_components, config_dir):
+    def generate_configuration_files(self, component_configs, config_dir):
         """Generate configuration files for each 5G Core component."""
         try:
-            # Extract component configurations
-            component_configs = self.extract_5g_component_configurations(core5g_components)
-            
             # Base path for template configurations
-            template_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "export", "5g-configs")
+            template_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "5g-configs")
             
             for component_type, instances in component_configs.items():
                 for instance in instances:
-                    service_name = instance['name'].lower().replace(' ', '_').replace('#', '')
-                    config_filename = f"{service_name}.yaml"
-                    config_file_path = os.path.join(config_dir, config_filename)
+                    service_name = instance.get('name', f"{component_type.lower()}")
+                    config_file = instance.get('config_file', f"{component_type.lower()}.yaml")
+                    config_file_path = os.path.join(config_dir, config_file)
                     
-                    # Check if this component has an imported configuration
+                    # Check if imported configuration exists
                     if instance.get('imported', False) and instance.get('config_content'):
-                        # Use the imported configuration
                         self.write_imported_config_file(config_file_path, instance, component_type)
-                        debug_print(f"DEBUG: Used imported config for {service_name}")
-                    elif instance.get('config_file_path') and os.path.exists(instance['config_file_path']):
-                        # Copy from the imported file path
-                        shutil.copy2(instance['config_file_path'], config_file_path)
-                        self.customize_config_file(config_file_path, instance, component_type)
-                        debug_print(f"DEBUG: Copied imported config from {instance['config_file_path']}")
                     else:
-                        # Try to copy from template or create default config
+                        # Use template configuration
                         template_file = os.path.join(template_config_path, f"{component_type.lower()}.yaml")
-                        
                         if os.path.exists(template_file):
-                            # Copy and modify template file
                             shutil.copy2(template_file, config_file_path)
-                            self.customize_config_file(config_file_path, instance, component_type)
-                            debug_print(f"DEBUG: Copied and customized config from template: {config_file_path}")
+                            debug_print(f"DEBUG: Copied template config {template_file} to {config_file_path}")
+                            
+                            # Apply any customizations
+                            if instance.get('settings'):
+                                self.customize_config_file(config_file_path, instance, component_type)
                         else:
                             # Create default configuration
                             self.create_default_config_file(config_file_path, instance, component_type)
-                            debug_print(f"DEBUG: Created default config file: {config_file_path}")
+                            debug_print(f"DEBUG: Created default config for {component_type} at {config_file_path}")
             
         except Exception as e:
             error_print(f"ERROR: Failed to generate configuration files: {e}")
@@ -349,37 +373,56 @@ class DockerComposeExporter:
                         key, value = line.split('=', 1)
                         key = key.strip()
                         value = value.strip()
-                        
-                        # Try to apply to the main component section
-                        main_section = component_type.lower()
-                        if main_section in config_data and isinstance(config_data[main_section], dict):
-                            # Try to convert value to appropriate type
-                            if value.lower() in ['true', 'false']:
-                                config_data[main_section][key] = value.lower() == 'true'
-                            elif value.isdigit():
-                                config_data[main_section][key] = int(value)
-                            elif value.replace('.', '', 1).isdigit():
-                                config_data[main_section][key] = float(value)
-                            else:
-                                config_data[main_section][key] = value
+                        # Apply setting to config (simplified - could be more sophisticated)
+                        if key and value:
+                            self.apply_config_setting(config_data, key, value, component_type)
                                 
             # Apply other instance-specific modifications based on component type
+            instance_name = instance_config.get('name', component_type.lower())
+            
             if component_type == 'UPF':
                 # Ensure unique identifiers for multiple UPF instances
-                instance_name = instance_config.get('name', 'upf')
-                if 'upf' in config_data and 'instance_id' not in config_data['upf']:
-                    config_data['upf']['instance_id'] = instance_name
+                if 'upf' in config_data:
+                    if 'metrics' in config_data['upf']:
+                        # Customize metrics port for multiple instances
+                        config_data['upf']['metrics']['server'][0]['port'] = 9090 + hash(instance_name) % 100
                     
             elif component_type == 'AMF':
                 # Customize AMF instance identifiers
-                instance_name = instance_config.get('name', 'amf')
                 if 'amf' in config_data and 'amf_name' not in config_data['amf']:
                     config_data['amf']['amf_name'] = f"open5gs-{instance_name}"
             
-            # Add any additional customizations based on component type and instance settings
-            
         except Exception as e:
             error_print(f"ERROR: Failed to apply customizations to {component_type}: {e}")
+
+    def apply_config_setting(self, config_data, key, value, component_type):
+        """Apply a specific configuration setting to the config data."""
+        try:
+            # Convert value to appropriate type
+            if value.lower() in ['true', 'false']:
+                value = value.lower() == 'true'
+            elif value.isdigit():
+                value = int(value)
+            elif value.replace('.', '').isdigit():
+                value = float(value)
+            
+            # Apply setting based on key pattern
+            component_section = component_type.lower()
+            if component_section in config_data:
+                # Simple dot notation support (e.g., "sbi.port=7777")
+                if '.' in key:
+                    parts = key.split('.')
+                    current = config_data[component_section]
+                    for part in parts[:-1]:
+                        if part not in current:
+                            current[part] = {}
+                        current = current[part]
+                    current[parts[-1]] = value
+                else:
+                    config_data[component_section][key] = value
+                    
+        except Exception as e:
+            error_print(f"ERROR: Failed to apply config setting {key}={value}: {e}")
 
     def customize_config_file(self, config_file_path, instance_config, component_type):
         """Customize a configuration file based on instance-specific settings."""
@@ -388,38 +431,12 @@ class DockerComposeExporter:
             with open(config_file_path, 'r') as f:
                 config_data = yaml.safe_load(f)
             
-            # Apply instance-specific customizations based on component type
-            custom_params = instance_config.get('custom_parameters', {})
-            
-            if component_type == 'UPF':
-                # Customize UPF-specific settings
-                if 'upf' in config_data:
-                    if 'session' in config_data['upf']:
-                        # Apply custom session parameters
-                        if 'subnet' in custom_params:
-                            config_data['upf']['session'] = [{'subnet': custom_params['subnet']}]
-                    
-            elif component_type == 'AMF':
-                # Customize AMF-specific settings
-                if 'amf' in config_data:
-                    if 'plmn_support' in config_data['amf'] and 'mcc' in custom_params:
-                        for plmn in config_data['amf']['plmn_support']:
-                            if 'plmn_id' in plmn:
-                                plmn['plmn_id']['mcc'] = custom_params['mcc']
-                                if 'mnc' in custom_params:
-                                    plmn['plmn_id']['mnc'] = custom_params['mnc']
-            
-            # Apply any other custom parameters
-            for key, value in custom_params.items():
-                if key not in ['subnet', 'mcc', 'mnc']:  # Skip already processed params
-                    # Try to apply to the component's main configuration section
-                    main_section = component_type.lower()
-                    if main_section in config_data and isinstance(config_data[main_section], dict):
-                        config_data[main_section][key] = value
+            # Apply instance-specific customizations
+            self.apply_instance_customizations(config_data, instance_config, component_type)
             
             # Write the modified configuration back
             with open(config_file_path, 'w') as f:
-                yaml.dump(config_data, f, default_flow_style=False)
+                yaml.dump(config_data, f, default_flow_style=False, sort_keys=False)
                 
         except Exception as e:
             error_print(f"ERROR: Failed to customize config file {config_file_path}: {e}")
@@ -428,19 +445,23 @@ class DockerComposeExporter:
         """Create a default configuration file for a component type."""
         default_configs = {
             'UPF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/upf.log'}},
                 'upf': {
-                    'pfcp': [{'addr': '127.0.0.7'}],
-                    'gtpu': [{'addr': '127.0.0.7'}],
-                    'session': [{'subnet': '10.45.0.1/16'}, {'subnet': '2001:db8:cafe::1/48'}]
+                    'pfcp': {'server': [{'dev': 'eth0'}]},
+                    'gtpu': {'server': [{'dev': 'eth0'}]},
+                    'session': [
+                        {'subnet': '10.100.0.0/16', 'gateway': '10.100.0.1', 'dnn': 'internet', 'dev': 'ogstun'},
+                        {'subnet': '10.200.0.0/16', 'gateway': '10.200.0.1', 'dnn': 'internet2', 'dev': 'ogstun2'}
+                    ],
+                    'metrics': {'server': [{'dev': 'eth0', 'port': 9090}]}
                 }
             },
             'AMF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/amf.log'}},
                 'amf': {
-                    'sbi': [{'addr': '127.0.0.5', 'port': 7777}],
-                    'ngap': [{'addr': '127.0.0.5'}],
-                    'metrics': [{'addr': '127.0.0.5', 'port': 9090}],
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}},
+                    'ngap': {'server': [{'dev': 'eth0'}]},
+                    'metrics': {'server': [{'dev': 'eth0', 'port': 9090}]},
                     'guami': [{'plmn_id': {'mcc': '999', 'mnc': '70'}, 'amf_id': {'region': 2, 'set': 1}}],
                     'tai': [{'plmn_id': {'mcc': '999', 'mnc': '70'}, 'tac': 1}],
                     'plmn_support': [{'plmn_id': {'mcc': '999', 'mnc': '70'}, 's_nssai': [{'sst': 1}]}],
@@ -450,139 +471,179 @@ class DockerComposeExporter:
                 }
             },
             'SMF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/smf.log'}},
                 'smf': {
-                    'sbi': [{'addr': '127.0.0.4', 'port': 7777}],
-                    'pfcp': [{'addr': '127.0.0.4'}],
-                    'gtpc': [{'addr': '127.0.0.4'}],
-                    'gtpu': [{'addr': '127.0.0.4'}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}},
+                    'pfcp': {'server': [{'dev': 'eth0'}], 'client': {'upf': [{'address': 'upf', 'dnn': ['internet', 'internet2']}]}},
+                    'gtpc': {'server': [{'dev': 'eth0'}]},
+                    'gtpu': {'server': [{'dev': 'eth0'}]},
+                    'metrics': {'server': [{'dev': 'eth0', 'port': 9090}]},
+                    'session': [
+                        {'subnet': '10.100.0.0/16', 'gateway': '10.100.0.1', 'dnn': 'internet'},
+                        {'subnet': '10.200.0.0/16', 'gateway': '10.200.0.1', 'dnn': 'internet2'}
+                    ],
+                    'dns': ['1.1.1.1', '8.8.8.8'],
+                    'mtu': 1400
                 }
             },
             'NRF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/nrf.log'}},
                 'nrf': {
-                    'serving': [{'addr': '127.0.0.10', 'port': 7777}],
-                    'sbi': [{'addr': '127.0.0.10', 'port': 7777}]
+                    'serving': [{'plmn_id': {'mcc': '999', 'mnc': '70'}}],
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}]}
                 }
             },
             'SCP': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/scp.log'}},
                 'scp': {
-                    'sbi': [{'addr': '127.0.0.200', 'port': 7777}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'nrf': [{'uri': 'http://nrf:7777'}]}}
                 }
             },
             'AUSF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/ausf.log'}},
                 'ausf': {
-                    'sbi': [{'addr': '127.0.0.9', 'port': 7777}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}}
                 }
             },
             'BSF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/bsf.log'}},
                 'bsf': {
-                    'sbi': [{'addr': '127.0.0.15', 'port': 7777}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}}
                 }
             },
             'NSSF': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/nssf.log'}},
                 'nssf': {
-                    'sbi': [{'addr': '127.0.0.14', 'port': 7777}],
-                    'nsi': [{'addr': '127.0.0.14', 'port': 7777}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}], 'nsi': [{'uri': 'http://nrf:7777', 's_nssai': {'sst': 1}}]}}
                 }
             },
             'PCF': {
-                'logger': {'level': 'info'},
+                'db_uri': 'mongodb://mongo/open5gs',
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/pcf.log'}},
                 'pcf': {
-                    'sbi': [{'addr': '127.0.0.13', 'port': 7777}]
-                }
-            },
-            'PCRF': {
-                'logger': {'level': 'info'},
-                'pcrf': {
-                    'freeDiameter': '/opt/open5gs/etc/freeDiameter/pcrf.conf'
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}},
+                    'metrics': {'server': [{'dev': 'eth0', 'port': 9090}]}
                 }
             },
             'UDM': {
-                'logger': {'level': 'info'},
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/udm.log'}},
                 'udm': {
-                    'sbi': [{'addr': '127.0.0.12', 'port': 7777}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}}
                 }
             },
             'UDR': {
-                'logger': {'level': 'info'},
+                'db_uri': 'mongodb://mongo/open5gs',
+                'logger': {'file': {'path': '/opt/open5gs/var/log/open5gs/udr.log'}},
                 'udr': {
-                    'sbi': [{'addr': '127.0.0.20', 'port': 7777}]
+                    'sbi': {'server': [{'dev': 'eth0', 'port': 7777}], 'client': {'scp': [{'uri': 'http://scp:7777'}]}}
                 }
             }
         }
         
-        config_data = default_configs.get(component_type, {'logger': {'level': 'info'}})
+        config_data = default_configs.get(component_type, {'logger': {'file': {'path': f'/opt/open5gs/var/log/open5gs/{component_type.lower()}.log'}}})
         
         try:
             with open(config_file_path, 'w') as f:
-                yaml.dump(config_data, f, default_flow_style=False)
+                yaml.dump(config_data, f, default_flow_style=False, sort_keys=False)
         except Exception as e:
             error_print(f"ERROR: Failed to create default config file {config_file_path}: {e}")
 
     def copy_entrypoint_script(self, config_dir):
         """Copy the entrypoint.sh script to the config directory."""
         try:
-            # Dynamically determine the path
-            source_entrypoint = os.path.join(os.path.dirname(os.path.abspath(__file__)), "export", "5g-configs", "entrypoint.sh")
+            # Try to find entrypoint.sh in the 5g-configs directory
+            source_entrypoint = os.path.join(os.path.dirname(os.path.abspath(__file__)), "5g-configs", "entrypoint.sh")
             dest_entrypoint = os.path.join(config_dir, "entrypoint.sh")
             
             if os.path.exists(source_entrypoint):
                 shutil.copy2(source_entrypoint, dest_entrypoint)
                 # Make sure it's executable
                 os.chmod(dest_entrypoint, 0o755)
-                debug_print(f"DEBUG: Copied entrypoint.sh to {dest_entrypoint}")
+                debug_print(f"DEBUG: Copied entrypoint.sh from {source_entrypoint} to {dest_entrypoint}")
             else:
-                # Create a basic entrypoint script
+                # Create a default entrypoint.sh script
                 self.create_default_entrypoint_script(dest_entrypoint)
                 
         except Exception as e:
             error_print(f"ERROR: Failed to copy entrypoint script: {e}")
 
     def create_default_entrypoint_script(self, script_path):
-        """Create a default entrypoint.sh script."""
-        entrypoint_content = """#!/bin/bash
+        """Create a default entrypoint.sh script based on the template."""
+        entrypoint_content = '''#!/bin/bash
 
-# Configure TUN interfaces for UPF
-configure_upf_tun() {
-    ip tuntap add name ogstun mode tun
-    ip addr add 10.45.0.1/16 dev ogstun
-    ip addr add 2001:db8:cafe::1/48 dev ogstun
+set -eo pipefail
+
+# tun iface create
+function tun_create {
+    echo -e "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+    if ! grep "ogstun" /proc/net/dev > /dev/null; then
+        echo "Creating ogstun device"
+        ip tuntap add name ogstun mode tun
+    fi
+
+    if ! grep "ogstun2" /proc/net/dev > /dev/null; then
+        echo "Creating ogstun2 device"
+        ip tuntap add name ogstun2 mode tun
+    fi
+
+    if ! grep "ogstun3" /proc/net/dev > /dev/null; then
+        echo "Creating ogstun3 device"
+        ip tuntap add name ogstun3 mode tun
+    fi
+
+    if ! grep "ogstun4" /proc/net/dev > /dev/null; then
+        echo "Creating ogstun4 device"
+        ip tuntap add name ogstun4 mode tun
+    fi
+
+    ip addr del 10.100.0.1/16 dev ogstun 2> /dev/null || true
+    ip addr add 10.100.0.1/16 dev ogstun
+
+    ip addr del 10.200.0.1/16 dev ogstun2 2> /dev/null || true
+    ip addr add 10.200.0.1/16 dev ogstun2
+
+    ip addr del 10.51.0.1/16 dev ogstun3 2> /dev/null || true
+    ip addr add 10.51.0.1/16 dev ogstun3
+
+    ip addr del 10.52.0.1/16 dev ogstun4 2> /dev/null || true
+    ip addr add 10.52.0.1/16 dev ogstun4
+    
     ip link set ogstun up
-
-    ip tuntap add name ogstun2 mode tun  
-    ip addr add 10.46.0.1/16 dev ogstun2
     ip link set ogstun2 up
+    ip link set ogstun3 up
+    ip link set ogstun4 up
+    sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward";
+    if [ "$ENABLE_NAT" = true ] ; then
+      iptables -t nat -A POSTROUTING -s 10.100.0.0/16 ! -o ogstun -j MASQUERADE
+      iptables -t nat -A POSTROUTING -s 10.200.0.0/16 ! -o ogstun2 -j MASQUERADE
+      iptables -t nat -A POSTROUTING -s 10.51.0.0/16 ! -o ogstun3 -j MASQUERADE
+      iptables -t nat -A POSTROUTING -s 10.52.0.0/16 ! -o ogstun4 -j MASQUERADE
+    fi
 }
-
-# Check if we need to configure TUN interfaces
-if [[ "$1" == *"upf"* ]]; then
-    configure_upf_tun
+ 
+COMMAND=$1
+if [[ "$COMMAND"  == *"open5gs-pgwd" ]] || [[ "$COMMAND"  == *"open5gs-upfd" ]]; then
+tun_create
 fi
 
 # Temporary patch to solve the case of docker internal dns not resolving "not running" container names.
 # Just wait 10 seconds to be "running" and resolvable
-if [[ "$1"  == *"open5gs-pcrfd" ]] \\
-    || [[ "$1"  == *"open5gs-mmed" ]] \\
-    || [[ "$1"  == *"open5gs-nrfd" ]] \\
-    || [[ "$1"  == *"open5gs-scpd" ]] \\
-    || [[ "$1"  == *"open5gs-pcfd" ]] \\
-    || [[ "$1"  == *"open5gs-hssd" ]] \\
-    || [[ "$1"  == *"open5gs-udrd" ]] \\
-    || [[ "$1"  == *"open5gs-sgwcd" ]] \\
-    || [[ "$1"  == *"open5gs-upfd" ]]; then
+if [[ "$COMMAND"  == *"open5gs-pcrfd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-mmed" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-nrfd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-scpd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-pcfd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-hssd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-udrd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-sgwcd" ]] \\
+    || [[ "$COMMAND"  == *"open5gs-upfd" ]]; then
 sleep 10
 fi
 
-# Execute the main command
-exec "$@"
+$@
 
 exit 1
-"""
+'''
         
         try:
             with open(script_path, 'w') as f:

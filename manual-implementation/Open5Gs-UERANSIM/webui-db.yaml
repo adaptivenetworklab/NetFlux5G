@@ -1,0 +1,41 @@
+volumes:
+  mongo:
+
+# networks:
+#   db-network:
+#     driver: bridge
+#     ipam:
+#       config:
+#       - subnet: 172.25.0.0/24
+
+services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: open5gs
+    ports:
+    - 27017:27017
+    volumes:
+    - mongo:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/test --quiet
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    # networks:
+    #   db-network:
+
+  webui:
+    image: gradiant/open5gs-webui:2.7.1
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: on-failure
+    ports:
+    - 9999:9999
+    environment:
+      DB_URI: mongodb://mongo/open5gs
+      NODE_ENV: dev
+    # networks:
+    #   db-network:
