@@ -153,10 +153,18 @@ class WelcomeScreen(QMainWindow):
     
     def addHoverEffect(self, label, hover):
         """Add hover effect to labels."""
-        if hover:
-            label.setStyleSheet("QLabel { color: #0078d4; }")
+        if label.objectName() == 'linkRepo':
+            # Special styling for GitHub link
+            if hover:
+                label.setStyleSheet("QLabel { color: #0056b3; text-decoration: underline; }")
+            else:
+                label.setStyleSheet("QLabel { color: #007bff; text-decoration: underline; }")
         else:
-            label.setStyleSheet("QLabel { color: black; }")
+            # Regular hover effect for other labels
+            if hover:
+                label.setStyleSheet("QLabel { color: #0078d4; }")
+            else:
+                label.setStyleSheet("QLabel { color: black; }")
     
     def applyModernStyling(self):
         """Apply modern styling to the welcome screen."""
@@ -171,7 +179,15 @@ class WelcomeScreen(QMainWindow):
                 color: #0078d4;
                 font-weight: bold;
             }
+            QLabel#linkRepo {
+                color: #007bff;
+                text-decoration: underline;
+            }
         """)
+        
+        # Apply initial link styling to GitHub link
+        if hasattr(self, 'linkRepo'):
+            self.linkRepo.setStyleSheet("QLabel { color: #007bff; text-decoration: underline; }")
     
     def centerWindow(self):
         """Center the window on the screen."""
