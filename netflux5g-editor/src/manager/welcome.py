@@ -76,6 +76,20 @@ class WelcomeScreenManager:
                         )
                     
                     if reply == QMessageBox.Yes:
+                        # Show additional info about the test
+                        info_msg = QMessageBox.information(
+                            self.main_window,
+                            "Test Information",
+                            "The end-to-end test will:\n\n"
+                            "1. Deploy Open5GS 5G core network\n"
+                            "2. Start gNodeB and UE simulators\n" 
+                            "3. Test UE registration and connectivity\n"
+                            "4. Generate comprehensive test report\n\n"
+                            "Note: Tests may take 3-5 minutes to complete.\n"
+                            "Containers will be automatically cleaned up after testing.",
+                            QMessageBox.Ok
+                        )
+                        
                         # Start the end-to-end test
                         QTimer.singleShot(1000, self.main_window.automation_manager.runEndToEndTest)
         
