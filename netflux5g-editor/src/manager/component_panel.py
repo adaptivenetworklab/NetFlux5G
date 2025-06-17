@@ -281,30 +281,29 @@ class ComponentPanelManager:
         header_frame = QFrame()
         header_frame.setStyleSheet("""
             QFrame {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                        stop:0 #4a90e2, stop:1 #357abd);
-                border-radius: 6px;
+                background-color: transparent;
+                border: none;
             }
         """)
-        header_frame.setMinimumHeight(75)  # Further increased height to prevent truncation
+        header_frame.setMinimumHeight(75)  # Keep height for proper spacing
         header_frame.setMaximumHeight(75)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(8, 10, 8, 10)  # Increased margins for better spacing
-        header_layout.setSpacing(4)  # Increased spacing between title and subtitle
+        header_layout.setContentsMargins(8, 10, 8, 10)  # Keep margins for spacing
+        header_layout.setSpacing(4)  # Keep spacing between title and subtitle
         
         # Title - MUCH LARGER
         title_label = QLabel("Components")
         title_font = QFont("Segoe UI", 18, QFont.Bold)  # Keep size but ensure proper spacing
         title_label.setFont(title_font)
-        title_label.setStyleSheet("color: white;")
+        title_label.setStyleSheet("color: #2c3e50;")  # Changed to dark color since no background
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle - LARGER
         subtitle_label = QLabel("Drag to canvas")
         subtitle_font = QFont("Segoe UI", 11)  # Keep current size
         subtitle_label.setFont(subtitle_font)
-        subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
+        subtitle_label.setStyleSheet("color: #6c757d;")  # Changed to gray color
         subtitle_label.setAlignment(Qt.AlignCenter)
         
         header_layout.addWidget(title_label)
@@ -351,29 +350,28 @@ class ComponentPanelManager:
         if self._category_count > 1:
             # Add spacing between categories
             spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(3)  # Slightly more spacing
+            spacer_frame.setFixedHeight(8)  # Increased spacing since no frame
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
-        # Category header - MUCH LARGER
+        # Category header without frame
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
-                background-color: #e9ecef;
-                border-radius: 4px;
-                margin: 1px 0px;
+                background-color: transparent;
+                border: none;
             }
         """)
-        category_frame.setFixedHeight(36)  # Increased height from 32 to 36
+        category_frame.setFixedHeight(32)  # Reduced height since no background frame
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 6, 8, 6)  # Increased vertical margins
+        category_layout.setContentsMargins(8, 4, 8, 4)  # Keep margins for text positioning
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Increased from 12 to 13
+        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Keep font size
         category_label.setFont(category_font)
-        category_label.setStyleSheet("color: #495057;")
+        category_label.setStyleSheet("color: #495057;")  # Keep text color
         
         category_layout.addWidget(category_label)
         
@@ -490,5 +488,7 @@ class ComponentPanelManager:
         self.main_window.panel_toggle_button.clicked.connect(self.toggleComponentPanel)
         
         if hasattr(self.main_window, 'toolBar'):
+            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
+            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
