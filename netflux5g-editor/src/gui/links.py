@@ -2,7 +2,7 @@ import os
 import math
 from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5.QtCore import Qt, QRectF, QPointF, QLineF
-from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor
+from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor, QPainter
 from manager.debug import debug_print, error_print
 
 class NetworkLink(QGraphicsItem):
@@ -61,6 +61,54 @@ class NetworkLink(QGraphicsItem):
         
         # Update position
         self.updatePosition()
+
+    def get_center_point(self, node):
+        """Get the center point of a network component."""
+        if hasattr(node, 'pos') and hasattr(node, 'boundingRect'):
+            # For NetworkComponent objects
+            node_pos = node.pos()
+            node_rect = node.boundingRect()
+            center_x = node_pos.x() + node_rect.width() / 2
+            center_y = node_pos.y() + node_rect.height() / 2
+            return QPointF(center_x, center_y)
+        elif hasattr(node, 'x') and hasattr(node, 'y'):
+            # For legacy objects with x/y attributes
+            return QPointF(node.x() + 25, node.y() + 25)  # Assume 50x50 size
+        else:
+            # Fallback
+            return QPointF(0, 0)
+
+    def get_object_radius(self, node):
+        """Get the radius of a network component for connection points."""
+        if hasattr(node, 'boundingRect'):
+            rect = node.boundingRect()
+            # Use the smaller dimension as the radius
+            return min(rect.width(), rect.height()) / 2
+        else:
+            # Default radius for legacy objects
+            return 25  # Half of 50px default size
+
+    def get_intersection_point(self, center1, center2, radius):
+        """Calculate the intersection point on the edge of a component."""
+        # Calculate the direction vector from center1 to center2
+        dx = center2.x() - center1.x()
+        dy = center2.y() - center1.y()
+        
+        # Calculate distance
+        distance = math.sqrt(dx * dx + dy * dy)
+        
+        if distance == 0:
+            return center1
+        
+        # Normalize the direction vector
+        unit_x = dx / distance
+        unit_y = dy / distance
+        
+        # Calculate the intersection point on the edge
+        edge_x = center1.x() + unit_x * radius
+        edge_y = center1.y() + unit_y * radius
+        
+        return QPointF(edge_x, edge_y)
             
     def updatePosition(self):
         """Update the link's position and trigger a redraw with optimized performance."""
