@@ -32,27 +32,20 @@ class MininetExporter:
             return
         
         # Separate nodes by type
-        hosts = [n for n in nodes if n['type'] in ['Host', 'STA']]
-        ues = [n for n in nodes if n['type'] == 'UE']
-        gnbs = [n for n in nodes if n['type'] == 'GNB']
-        aps = [n for n in nodes if n['type'] == 'AP']
-        switches = [n for n in nodes if n['type'] in ['Switch', 'Router']]
-        controllers = [n for n in nodes if n['type'] == 'Controller']
-        docker_hosts = [n for n in nodes if n['type'] == 'DockerHost']
-        core5g = [n for n in nodes if n['type'] == 'VGcore']
+        categorized_nodes = {
+            'hosts': [n for n in nodes if n['type'] in ['Host', 'STA']],
+            'ues': [n for n in nodes if n['type'] == 'UE'],
+            'gnbs': [n for n in nodes if n['type'] == 'GNB'],
+            'aps': [n for n in nodes if n['type'] == 'AP'],
+            'switches': [n for n in nodes if n['type'] in ['Switch', 'Router']],
+            'controllers': [n for n in nodes if n['type'] == 'Controller'],
+            'docker_hosts': [n for n in nodes if n['type'] == 'DockerHost'],
+            'core5g': [n for n in nodes if n['type'] == 'VGcore']
+        }
         
         try:
             with open(filename, "w") as f:
-                self.write_mininet_script(f, nodes, links, {
-                    'hosts': hosts,
-                    'ues': ues,
-                    'gnbs': gnbs,
-                    'aps': aps,
-                    'switches': switches,
-                    'controllers': controllers,
-                    'docker_hosts': docker_hosts,
-                    'core5g': core5g
-                })
+                self.write_mininet_script(f, nodes, links, categorized_nodes)
             
             self.main_window.showCanvasStatus(f"Exported Level 2 topology to {os.path.basename(filename)}")
             debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with Level 2 features to {filename}")
@@ -182,16 +175,10 @@ class MininetExporter:
         """Write controller creation code."""
         if categorized_nodes['controllers']:
             f.write('    info( \'\\n*** Adding controller\\n\' )\n')
-            for controller in categorized_nodes['controllers']:
-                props = controller.get('properties', {})
-                ctrl_name = self.sanitize_variable_name(controller['name'])
-                ctrl_ip = props.get('Controller_IPAddress', '127.0.0.1')
-                ctrl_port = props.get('Controller_Port', 6633)
-                
-                f.write(f'    {ctrl_name} = net.addController(name=\'{ctrl_name}\',\n')
-                f.write(f'                           controller=RemoteController,\n')
-                f.write(f'                           ip=\'{ctrl_ip}\',\n')
-                f.write(f'                           port={ctrl_port})\n')
+            for i, controller in enumerate(categorized_nodes['controllers'], 1):
+                controller_name = self.sanitize_variable_name(controller['name'])
+                f.write(f'    {controller_name} = net.addController(name=\'{controller_name}\',\n')
+                f.write(f'                                        controller=RemoteController)\n')
             f.write('\n')
         else:
             f.write('    info( \'\\n*** Adding controller\\n\' )\n')
@@ -205,31 +192,18 @@ class MininetExporter:
             
             # Add APs with enhanced configuration
             for i, ap in enumerate(categorized_nodes['aps'], 1):
-                props = ap.get('properties', {})
                 ap_name = self.sanitize_variable_name(ap['name'])
-                ssid = props.get('AP_SSID', f'{ap_name}-ssid')
-                channel = props.get('AP_Channel', '36')
-                mode = props.get('AP_Mode', 'a')
-                position = f"{ap['x']:.1f},{ap['y']:.1f},0"
-                
-                f.write(f'    {ap_name} = net.addAccessPoint(\'{ap_name}\', cls=OVSKernelAP, ssid=\'{ssid}\', failMode=\'standalone\', datapath=\'user\',\n')
-                f.write(f'                             channel=\'{channel}\', mode=\'{mode}\', position=\'{position}\', protocols="OpenFlow14")\n')
+                f.write(f'    {ap_name} = net.addAccessPoint(\'{ap_name}\', cls=OVSKernelAP, ')
+                f.write(f'ssid=\'{ap_name}-ssid\', failMode=\'standalone\', datapath=\'user\', ')
+                f.write(f'channel=\'36\', mode=\'n\', protocols="OpenFlow14")\n')
             
             # Add hierarchical switch topology (based on fixed_topology-upf.py pattern)
             switch_count = max(len(categorized_nodes['switches']), 10)  # Ensure minimum for hierarchy
             if switch_count >= 3:
-                # Create a hierarchical topology with at least 10 switches for full structure
-                for i in range(1, 11):  # s1 to s10
+                for i in range(1, 11):  # Always create s1-s10 for hierarchical topology
                     f.write(f'    s{i} = net.addSwitch(\'s{i}\', cls=OVSKernelSwitch, protocols="OpenFlow14")\n')
-                    
-                # Add any user-defined switches beyond s10
-                user_switch_start = 11
-                for i, switch in enumerate(categorized_nodes['switches']):
-                    if i >= 10:  # Skip first 10 as they are part of the base hierarchy
-                        switch_name = self.sanitize_variable_name(switch['name'])
-                        f.write(f'    {switch_name} = net.addSwitch(\'{switch_name}\', cls=OVSKernelSwitch, protocols="OpenFlow14")\n')
             else:
-                # Add basic switches if less than required for hierarchy
+                # Add user-defined switches
                 for switch in categorized_nodes['switches']:
                     switch_name = self.sanitize_variable_name(switch['name'])
                     f.write(f'    {switch_name} = net.addSwitch(\'{switch_name}\', cls=OVSKernelSwitch, protocols="OpenFlow14")\n')
@@ -245,26 +219,21 @@ class MininetExporter:
         if core_components['UPF']:
             f.write('    info( \'\\n *** Add UPF\\n\')\n')
             for i, upf in enumerate(core_components['UPF'], 1):
-                upf_name = self.sanitize_variable_name(upf.get('name', f'upf{i}'))
-                position = f"{upf.get('x', 700):.1f},{upf.get('y', 335):.1f},0"
-                config_file = upf.get('config_file', f'upf{i}.yaml')
-                
-                f.write(f'    {upf_name} = net.addStation(\'{upf_name}\', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", privileged=True, publish_all_ports=True,\n')
-                f.write(f'                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position=\'{position}\', range=116,\n')
-                f.write(f'                          volumes=[cwd + "/config/{config_file}:/opt/open5gs/etc/open5gs/upf.yaml"])\n')
+                upf_name = self.sanitize_variable_name(upf['name'])
+                f.write(f'    {upf_name} = net.addStation(\'{upf_name}\', cap_add=["net_admin"], ')
+                f.write(f'network_mode="open5gs-ueransim_default", privileged=True, ')
+                f.write(f'dcmd="/bin/bash", cls=DockerSta, dimage="adaptive/open5gs:1.0", ')
+                f.write(f'volumes=[cwd + "/config/upf.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])\n')
             f.write('\n')
         
         # Add AMF components
         if core_components['AMF']:
             f.write('    info( \'\\n *** Add AMF\\n\')\n')
             for i, amf in enumerate(core_components['AMF'], 1):
-                amf_name = self.sanitize_variable_name(amf.get('name', f'amf{i}'))
-                position = f"{amf.get('x', 520):.1f},{amf.get('y', 10):.1f},0"
-                config_file = amf.get('config_file', 'amf.yaml')
-                
-                f.write(f'    {amf_name} = net.addStation(\'{amf_name}\', network_mode="open5gs-ueransim_default", cap_add=["net_admin"],  publish_all_ports=True,\n')
-                f.write(f'                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position=\'{position}\', range=116,\n')
-                f.write(f'                          volumes=[cwd + "/config/{config_file}:/opt/open5gs/etc/open5gs/amf.yaml"])\n')
+                amf_name = self.sanitize_variable_name(amf['name'])
+                f.write(f'    {amf_name} = net.addStation(\'{amf_name}\', network_mode="open5gs-ueransim_default", ')
+                f.write(f'cap_add=["net_admin"], dcmd="/bin/bash", cls=DockerSta, dimage="adaptive/open5gs:1.0", ')
+                f.write(f'volumes=[cwd + "/config/amf.yaml:/opt/open5gs/etc/open5gs/amf.yaml"])\n')
             f.write('\n')
 
     def extract_5g_components_by_type(self, core5g_components):
@@ -280,14 +249,7 @@ class MininetExporter:
             comp_type = props.get('Component5G_Type', 'AMF')
             
             if comp_type in components:
-                component_info = {
-                    'name': component.get('name', f'{comp_type.lower()}1'),
-                    'x': component.get('x', 0),
-                    'y': component.get('y', 0),
-                    'properties': props,
-                    'config_file': props.get('Component5G_ConfigFile', f'{comp_type.lower()}.yaml')
-                }
-                components[comp_type].append(component_info)
+                components[comp_type].append(component)
         
         return components
 
@@ -296,23 +258,11 @@ class MininetExporter:
         if categorized_nodes['gnbs']:
             f.write('    info( \'\\n *** Add gNB\\n\')\n')
             for i, gnb in enumerate(categorized_nodes['gnbs'], 1):
-                props = gnb.get('properties', {})
                 gnb_name = self.sanitize_variable_name(gnb['name'])
-                position = f"{gnb['x']:.1f},{gnb['y']:.1f},0"
-                
-                # Extract gNB configuration
-                amf_ip = props.get('GNB_AMF_IP', '10.0.0.3')
-                hostname = props.get('GNB_Hostname', f'mn.{gnb_name}')
-                mcc = props.get('GNB_MCC', '999')
-                mnc = props.get('GNB_MNC', '70')
-                sst = props.get('GNB_SST', '1')
-                sd = props.get('GNB_SD', '0xffffff')
-                tac = props.get('GNB_TAC', '1')
-                
-                f.write(f'    {gnb_name} = net.addStation(\'{gnb_name}\', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", publish_all_ports=True, \n')
-                f.write(f'                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position=\'{position}\', range=116,\n')
-                f.write(f'                          environment={{"AMF_IP": "{amf_ip}", "GNB_HOSTNAME": "{hostname}", "N2_IFACE":"{gnb_name}-wlan0", "N3_IFACE":"{gnb_name}-wlan0", "RADIO_IFACE":"{gnb_name}-wlan0",\n')
-                f.write(f'                                        "MCC": "{mcc}", "MNC": "{mnc}", "SST": "{sst}", "SD": "{sd}", "TAC": "{tac}"}})\n')
+                f.write(f'    {gnb_name} = net.addStation(\'{gnb_name}\', cap_add=["net_admin"], ')
+                f.write(f'network_mode="open5gs-ueransim_default", dcmd="/bin/bash", ')
+                f.write(f'cls=DockerSta, dimage="adaptive/ueransim:1.0", range=116, ')
+                f.write(f'environment={{"AMF_IP": "10.0.0.2", "GNB_HOSTNAME": "mn.{gnb_name}"}})\n')
             f.write('\n')
 
     def write_ues_level2(self, f, categorized_nodes):
@@ -320,28 +270,11 @@ class MininetExporter:
         if categorized_nodes['ues']:
             f.write('    info(\'\\n*** Adding docker UE hosts\\n\')\n')
             for i, ue in enumerate(categorized_nodes['ues'], 1):
-                props = ue.get('properties', {})
                 ue_name = self.sanitize_variable_name(ue['name'])
-                position = f"{ue['x']:.1f},{ue['y']:.1f},0"
-                
-                # Extract UE configuration
-                gnb_ip = props.get('UE_GNB_IP', '10.0.0.4')
-                apn = props.get('UE_APN', 'internet')
-                msisdn = props.get('UE_MSISDN', f'000000000{i:01d}')
-                mcc = props.get('UE_MCC', '999')
-                mnc = props.get('UE_MNC', '70')
-                sst = props.get('UE_SST', '1')
-                sd = props.get('UE_SD', '0xffffff')
-                tac = props.get('UE_TAC', '1')
-                key = props.get('UE_Key', '465B5CE8B199B49FAA5F0A2EE238A6BC')
-                op_type = props.get('UE_OP_Type', 'OPC')
-                op = props.get('UE_OP', 'E8ED289DEBA952E4283B54E88E6183CA')
-                
-                f.write(f'    {ue_name} = net.addStation(\'{ue_name}\', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",\n')
-                f.write(f'                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position=\'{position}\', \n')
-                f.write(f'                          environment={{"GNB_IP": "{gnb_ip}", "APN": "{apn}", "MSISDN": \'{msisdn}\',\n')
-                f.write(f'                                        "MCC": "{mcc}", "MNC": "{mnc}", "SST": "{sst}", "SD": "{sd}", "TAC": "{tac}", \n')
-                f.write(f'                                        "KEY": "{key}", "OP_TYPE": "{op_type}", "OP": "{op}"}})\n')
+                f.write(f'    {ue_name} = net.addStation(\'{ue_name}\', devices=["/dev/net/tun"], ')
+                f.write(f'cap_add=["net_admin"], network_mode="open5gs-ueransim_default", ')
+                f.write(f'dcmd="/bin/bash", cls=DockerSta, dimage="adaptive/ueransim:1.0", ')
+                f.write(f'environment={{"GNB_IP": "10.0.0.3", "APN": "internet", "MSISDN": "{i:010d}"}})\n')
             f.write('\n')
 
     def write_docker_hosts(self, f, categorized_nodes):
@@ -349,13 +282,8 @@ class MininetExporter:
         if categorized_nodes['docker_hosts']:
             f.write('    info(\'\\n*** Adding Docker hosts\\n\')\n')
             for docker_host in categorized_nodes['docker_hosts']:
-                props = docker_host.get('properties', {})
                 host_name = self.sanitize_variable_name(docker_host['name'])
-                position = f"{docker_host['x']:.1f},{docker_host['y']:.1f},0"
-                
-                image = props.get('DockerHost_ContainerImage', 'ubuntu:latest')
-                
-                f.write(f'    {host_name} = net.addStation(\'{host_name}\', cls=DockerSta, dimage="{image}", position=\'{position}\')\n')
+                f.write(f'    {host_name} = net.addHost(\'{host_name}\', cls=DockerHost)\n')
             f.write('\n')
 
     def write_hosts_and_stas(self, f, categorized_nodes):
@@ -363,24 +291,11 @@ class MininetExporter:
         if categorized_nodes['hosts']:
             f.write('    info(\'\\n*** Adding hosts and stations\\n\')\n')
             for host in categorized_nodes['hosts']:
-                props = host.get('properties', {})
                 host_name = self.sanitize_variable_name(host['name'])
-                host_type = host['type']
-                
-                config_opts = ConfigurationMapper.get_component_config(host_type, props)
-                opts_str = ', '.join(config_opts) if config_opts else ''
-                
-                if host_type == 'STA':
-                    position = f"{host['x']:.1f},{host['y']:.1f},0"
-                    f.write(f'    {host_name} = net.addStation(\'{host_name}\', position=\'{position}\'')
-                    if opts_str:
-                        f.write(f', {opts_str}')
-                    f.write(')\n')
-                else:  # Host
-                    f.write(f'    {host_name} = net.addHost(\'{host_name}\'')
-                    if opts_str:
-                        f.write(f', {opts_str}')
-                    f.write(')\n')
+                if host['type'] == 'STA':
+                    f.write(f'    {host_name} = net.addStation(\'{host_name}\')\n')
+                else:
+                    f.write(f'    {host_name} = net.addHost(\'{host_name}\', cls=Host)\n')
             f.write('\n')
 
     def write_wifi_connections(self, f, categorized_nodes):
@@ -391,20 +306,18 @@ class MininetExporter:
             # Connect UEs to APs (based on proximity or explicit configuration)
             ap_names = [self.sanitize_variable_name(ap['name']) for ap in categorized_nodes['aps']]
             
-            for ue in categorized_nodes['ues']:
+            for i, ue in enumerate(categorized_nodes['ues']):
                 ue_name = self.sanitize_variable_name(ue['name'])
-                # Simple assignment - connect to first AP or based on position
                 if ap_names:
-                    target_ap = ap_names[0]  # Simple assignment, could be improved with proximity
-                    f.write(f'    {ue_name}.cmd(\'iw dev {ue_name}-wlan0 connect {target_ap}-ssid\')\n')
+                    ap_name = ap_names[i % len(ap_names)]  # Round-robin assignment
+                    f.write(f'    {ue_name}.cmd(\'iw dev {ue_name}-wlan0 connect {ap_name}-ssid\')\n')
             
             # Connect STAs to APs
             for host in categorized_nodes['hosts']:
-                if host['type'] == 'STA':
-                    sta_name = self.sanitize_variable_name(host['name'])
-                    if ap_names:
-                        target_ap = ap_names[0]  # Simple assignment
-                        f.write(f'    {sta_name}.cmd(\'iw dev {sta_name}-wlan0 connect {target_ap}-ssid\')\n')
+                if host['type'] == 'STA' and ap_names:
+                    host_name = self.sanitize_variable_name(host['name'])
+                    ap_name = ap_names[0]  # Connect to first AP
+                    f.write(f'    {host_name}.cmd(\'iw dev {host_name}-wlan0 connect {ap_name}-ssid\')\n')
             
             f.write('\n')
 
@@ -427,16 +340,16 @@ class MininetExporter:
             
             # Add user-defined links
             for link in links:
-                source_name = self.sanitize_variable_name(link['source'])
-                dest_name = self.sanitize_variable_name(link['destination'])
-                f.write(f'    net.addLink({source_name}, {dest_name})\n')
+                source_name = self.sanitize_variable_name(link.get('source', ''))
+                target_name = self.sanitize_variable_name(link.get('target', ''))
+                if source_name and target_name:
+                    f.write(f'    net.addLink({source_name}, {target_name})\n')
             
             # Connect APs to switches
             ap_names = [self.sanitize_variable_name(ap['name']) for ap in categorized_nodes['aps']]
             if ap_names:
-                # Connect APs to different switches for distribution
                 for i, ap_name in enumerate(ap_names):
-                    switch_num = (i % 3) + 1  # Distribute among s1, s2, s3
+                    switch_num = (i % 4) + 1  # Connect to s1-s4
                     f.write(f'    net.addLink(s{switch_num}, {ap_name})\n')
             
             # Connect 5G components to infrastructure
@@ -444,24 +357,21 @@ class MininetExporter:
             
             # Connect AMF to top-level switch
             if core_components['AMF']:
-                for i, amf in enumerate(core_components['AMF']):
-                    amf_name = self.sanitize_variable_name(amf['name'])
-                    f.write(f'    net.addLink(s10, {amf_name}, cls=TCLink)\n')
+                amf_name = self.sanitize_variable_name(core_components['AMF'][0]['name'])
+                f.write(f'    net.addLink(s10, {amf_name})\n')
             
             # Connect UPFs to switches
             if core_components['UPF']:
                 for i, upf in enumerate(core_components['UPF']):
                     upf_name = self.sanitize_variable_name(upf['name'])
-                    switch_num = (i % 3) + 1  # Distribute among s1, s2, s3
-                    f.write(f'    net.addLink(s{switch_num}, {upf_name}, cls=TCLink)\n')
+                    switch_num = (i % 4) + 1  # Connect to s1-s4
+                    f.write(f'    net.addLink(s{switch_num}, {upf_name})\n')
             
             # Connect gNBs to APs and UPFs
             for i, gnb in enumerate(categorized_nodes['gnbs']):
                 gnb_name = self.sanitize_variable_name(gnb['name'])
-                # Connect to nearest AP
                 if ap_names and i < len(ap_names):
-                    ap_name = ap_names[i]
-                    f.write(f'    net.addLink({ap_name}, {gnb_name}, cls=TCLink)\n')
+                    f.write(f'    net.addLink({ap_names[i]}, {gnb_name})\n')
             
             f.write('\n')
 
@@ -498,8 +408,8 @@ class MininetExporter:
         if categorized_nodes['controllers']:
             f.write('    info( \'\\n*** Starting controllers\\n\')\n')
             for controller in categorized_nodes['controllers']:
-                ctrl_name = self.sanitize_variable_name(controller['name'])
-                f.write(f'    {ctrl_name}.start()\n')
+                controller_name = self.sanitize_variable_name(controller['name'])
+                f.write(f'    {controller_name}.start()\n')
         else:
             f.write('    info( \'\\n*** Starting controllers\\n\')\n')
             f.write('    c0.start()\n')
@@ -606,10 +516,10 @@ class MininetExporter:
         
         # Ensure it doesn't start with a number
         if sanitized and sanitized[0].isdigit():
-            sanitized = 'n_' + sanitized
+            sanitized = f'node_{sanitized}'
             
         # Ensure it's not empty
         if not sanitized:
-            sanitized = 'unnamed_component'
+            sanitized = 'unnamed_node'
             
         return sanitized

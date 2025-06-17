@@ -1,2 +1,26 @@
-PyQt5
-PyYAML
+# Core GUI framework
+PyQt5>=5.12.0
+PyQt5-tools>=5.12.0.1.3
+
+# Network simulation and containerization
+# Note: mininet-wifi and containernet require system-level installation
+# Use the provided Docker container or manual installation
+
+# Scientific computing
+numpy>=1.19.0
+matplotlib>=3.3.0
+
+# Utility libraries
+psutil>=5.7.0
+pexpect>=4.8.0
+
+# System dependencies (install via package manager):
+# Ubuntu/Debian:
+# sudo apt-get install mininet python3-mininet
+# sudo apt-get install docker.io docker-compose
+# sudo apt-get install wireless-tools rfkill
+# sudo apt-get install python3-tk
+
+# For Mininet-WiFi, use the provided Docker container or install manually:
+# git clone https://github.com/intrig-unicamp/mininet-wifi.git
+# cd mininet-wifi && sudo util/install.sh -Wlnfv

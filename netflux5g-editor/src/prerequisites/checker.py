@@ -1,6 +1,7 @@
 import subprocess
 import shutil
-from manager.debug import debug_print, error_print, warning_print
+import sys
+import importlib.util
 
 class PrerequisitesChecker:
     """Check if all required tools are installed and accessible."""
@@ -36,24 +37,13 @@ class PrerequisitesChecker:
     @staticmethod
     def check_docker_compose():
         """Check if Docker Compose is available."""
-        # Check for docker-compose command (legacy)
-        if shutil.which("docker-compose"):
-            try:
-                result = subprocess.run(
-                    ["docker-compose", "--version"], 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=10
-                )
-                if result.returncode == 0:
-                    return True
-            except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-                pass
+        command = PrerequisitesChecker.get_docker_compose_command()
+        if command is None:
+            return False
         
-        # Check for docker compose (newer syntax)
         try:
             result = subprocess.run(
-                ["docker", "compose", "version"], 
+                [command, "--version"], 
                 capture_output=True, 
                 text=True, 
                 timeout=10
@@ -64,20 +54,10 @@ class PrerequisitesChecker:
 
     @staticmethod
     def get_docker_compose_command():
-        """Get the correct Docker Compose command to use."""
-        # Check for docker-compose command (legacy)
+        """Get the appropriate docker-compose command."""
+        # Check for docker-compose (older version)
         if shutil.which("docker-compose"):
-            try:
-                result = subprocess.run(
-                    ["docker-compose", "--version"], 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=10
-                )
-                if result.returncode == 0:
-                    return ["docker-compose"]
-            except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-                pass
+            return "docker-compose"
         
         # Check for docker compose (newer syntax)
         try:
@@ -88,7 +68,7 @@ class PrerequisitesChecker:
                 timeout=10
             )
             if result.returncode == 0:
-                return ["docker", "compose"]
+                return "docker compose"
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
             pass
         
@@ -106,6 +86,27 @@ class PrerequisitesChecker:
             )
             return result.returncode == 0
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+            return False
+    
+    @staticmethod
+    def check_mininet_wifi():
+        """Check if Mininet-WiFi Python modules are available."""
+        try:
+            import mn_wifi.net
+            import mn_wifi.node
+            import mn_wifi.link
+            return True
+        except ImportError:
+            return False
+    
+    @staticmethod
+    def check_containernet():
+        """Check if Containernet Python modules are available."""
+        try:
+            import containernet.cli
+            import containernet.node
+            return True
+        except ImportError:
             return False
     
     @staticmethod
@@ -128,33 +129,89 @@ class PrerequisitesChecker:
         return shutil.which("sudo") is not None
     
     @staticmethod
+    def check_wireless_tools():
+        """Check if wireless tools are available."""
+        tools = ["iw", "iwconfig", "wpa_supplicant"]
+        for tool in tools:
+            if not shutil.which(tool):
+                return False
+        return True
+    
+    @staticmethod
+    def check_all_prerequisites():
+        """Check all prerequisites and return a status dictionary."""
+        status = {
+            "python3": PrerequisitesChecker.check_python3(),
+            "sudo": PrerequisitesChecker.check_sudo(),
+            "docker": PrerequisitesChecker.check_docker(),
+            "docker_compose": PrerequisitesChecker.check_docker_compose(),
+            "mininet": PrerequisitesChecker.check_mininet(),
+            "mininet_wifi": PrerequisitesChecker.check_mininet_wifi(),
+            "containernet": PrerequisitesChecker.check_containernet(),
+            "wireless_tools": PrerequisitesChecker.check_wireless_tools(),
+        }
+        return status
+    
+    @staticmethod
     def get_installation_instructions():
         """Get installation instructions for missing prerequisites."""
-        return {
-            'docker': """
-Install Docker:
-Ubuntu/Debian: sudo apt-get install docker.io
-CentOS/RHEL: sudo yum install docker
-Or visit: https://docs.docker.com/get-docker/
-""",
-            'docker_compose': """
-Install Docker Compose:
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-Or visit: https://docs.docker.com/compose/install/
-""",
-            'mininet': """
-Install Mininet:
-Ubuntu/Debian: sudo apt-get install mininet
-Or visit: http://mininet.org/download/
-""",
-            'python3': """
-Install Python 3:
-Ubuntu/Debian: sudo apt-get install python3
-CentOS/RHEL: sudo yum install python3
-""",
-            'sudo': """
-sudo should be available on most Linux systems.
-If not available, run as root or install sudo package.
-"""
-        }
+        status = PrerequisitesChecker.check_all_prerequisites()
+        instructions = []
+        
+        if not status["python3"]:
+            instructions.append("Install Python 3: sudo apt-get install python3 python3-pip")
+        
+        if not status["sudo"]:
+            instructions.append("Install sudo: apt-get install sudo")
+        
+        if not status["docker"]:
+            instructions.append("Install Docker: sudo apt-get install docker.io")
+            instructions.append("Add user to docker group: sudo usermod -aG docker $USER")
+        
+        if not status["docker_compose"]:
+            instructions.append("Install Docker Compose: sudo apt-get install docker-compose")
+        
+        if not status["mininet"]:
+            instructions.append("Install Mininet: sudo apt-get install mininet")
+        
+        if not status["wireless_tools"]:
+            instructions.append("Install wireless tools: sudo apt-get install wireless-tools wpasupplicant iw")
+        
+        if not status["mininet_wifi"] or not status["containernet"]:
+            instructions.append("For Mininet-WiFi and Containernet, use the provided Docker container:")
+            instructions.append("cd netflux5g-editor/src/automation/mininet")
+            instructions.append("docker build -t mn-wifi:v1 .")
+            instructions.append("Or install manually following the README.md instructions")
+        
+        return instructions
+    
+    @staticmethod
+    def get_missing_prerequisites():
+        """Get a list of missing prerequisites."""
+        status = PrerequisitesChecker.check_all_prerequisites()
+        missing = []
+        
+        for prereq, available in status.items():
+            if not available:
+                missing.append(prereq.replace("_", "-"))
+        
+        return missing
+    
+    @staticmethod
+    def is_system_ready():
+        """Check if the system has all required prerequisites."""
+        status = PrerequisitesChecker.check_all_prerequisites()
+        # Mininet-WiFi and Containernet are optional if Docker is available
+        critical = ["python3", "sudo"]
+        recommended = ["docker", "docker_compose", "mininet", "wireless_tools"]
+        
+        # Check critical prerequisites
+        for prereq in critical:
+            if not status[prereq]:
+                return False
+        
+        # Check if we have either native installation or Docker
+        has_native = status["mininet_wifi"] and status["containernet"]
+        has_docker = status["docker"] and status["docker_compose"]
+        
+        return has_native or has_docker
