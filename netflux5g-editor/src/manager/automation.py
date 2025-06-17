@@ -105,18 +105,14 @@ class AutomationManager:
         self.main_window.automation_runner.run_end_to_end_test()
 
     def stopAllComponents(self):
-        """Stop All - Stop all running services"""
+        """Stop All - Stop all running services and clean up containers."""
         debug_print("DEBUG: StopAll triggered")
-        
-        if not self.main_window.automation_runner.is_deployment_running():
-            self.main_window.status_manager.showCanvasStatus("No services are currently running")
-            return
         
         # Show confirmation dialog
         reply = QMessageBox.question(
             self.main_window,
             "Stop All Services",
-            "Are you sure you want to stop all running services?\n\nThis will:\n- Stop Docker containers\n- Clean up Mininet\n- Terminate all processes",
+            "Are you sure you want to stop all running services?\n\nThis will:\n- Stop Docker containers\n- Clean up Mininet\n- Remove orphaned containers\n- Terminate all processes",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -124,11 +120,18 @@ class AutomationManager:
         if reply == QMessageBox.Yes:
             self.main_window.automation_runner.stop_all()
             
-            # Update UI state
-            if hasattr(self.main_window, 'actionRunAll'):
-                self.main_window.actionRunAll.setEnabled(True)
-            if hasattr(self.main_window, 'actionStopAll'):
-                self.main_window.actionStopAll.setEnabled(False)    
+            # Wait a moment for cleanup to complete
+            QTimer.singleShot(3000, self._update_ui_after_stop)
+
+    def _update_ui_after_stop(self):
+        """Update UI state after stopping services."""
+        # Update UI state
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.setEnabled(True)
+        if hasattr(self.main_window, 'actionStopAll'):
+            self.main_window.actionStopAll.setEnabled(False)
+        
+        self.main_window.showCanvasStatus("All services stopped and cleaned up")
 
     def onAutomationFinished(self, success, message):
         """Handle automation completion."""
