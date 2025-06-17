@@ -42,22 +42,25 @@ class WindowManager:
             window_size = self.main_window.size()
 
             # Get ObjectFrame width from the actual widget
-            object_frame_width = self.main_window.ObjectFrame.width() if hasattr(self.main_window, 'ObjectFrame') else 220
+            object_frame_width = 220  # Fixed width for consistency
+            if hasattr(self.main_window, 'ObjectFrame'):
+                self.main_window.ObjectFrame.setMinimumWidth(object_frame_width)
+                self.main_window.ObjectFrame.setMaximumWidth(object_frame_width)
 
             menubar_height = self.main_window.menubar.height() if hasattr(self.main_window, 'menubar') else 26
             toolbar_height = self.main_window.toolBar.height() if hasattr(self.main_window, 'toolBar') else 30
             statusbar_height = self.main_window.statusbar.height() if hasattr(self.main_window, 'statusbar') else 23
 
             # Calculate available space with better margins
-            available_width = window_size.width() - object_frame_width - 20  # More margin
-            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 20
+            available_width = window_size.width() - object_frame_width - 10  # Reduced margin
+            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10
 
             # Ensure minimum canvas size to prevent cropping
-            available_width = max(available_width, 800)  # Increased minimum
-            available_height = max(available_height, 600)  # Increased minimum
+            available_width = max(available_width, 800)
+            available_height = max(available_height, 600)
 
-            canvas_x = object_frame_width + 10  # Better spacing
-            canvas_y = 10
+            canvas_x = object_frame_width + 5  # Reduced spacing
+            canvas_y = 5
 
             self.main_window.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
             self.main_window.canvas_view.setVisible(True)

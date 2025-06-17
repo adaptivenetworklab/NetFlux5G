@@ -23,7 +23,7 @@ if os.environ.get("XDG_SESSION_TYPE") == "wayland":
 os.environ["QT_ASSUME_STDERR_HAS_CONSOLE"] = "1"
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QMenuBar, QMenu, QAction
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QSize as QtCoreQSize  # Add QSize import
 from PyQt5.QtGui import QIcon, QKeySequence
 from PyQt5 import uic
 
@@ -146,14 +146,14 @@ class NetFlux5GApp(QMainWindow):
                 self.ObjectFrame.setParent(None)
                 self.main_splitter.addWidget(self.ObjectFrame)
                 self.ObjectFrame.setMinimumWidth(220)
-                self.ObjectFrame.setMaximumWidth(280)  # Slightly wider for better usability
+                self.ObjectFrame.setMaximumWidth(220)  # Fixed width
             
             self.canvas_view = Canvas(self)
-            self.canvas_view.setMinimumWidth(600)  # Increased minimum width
+            self.canvas_view.setMinimumWidth(600)
             self.main_splitter.addWidget(self.canvas_view)
             
             # Better initial sizing ratio
-            self.main_splitter.setSizes([250, 1000])
+            self.main_splitter.setSizes([220, 1000])
             self.setCentralWidget(self.main_splitter)
             
             self.main_splitter.setCollapsible(0, True)
@@ -163,7 +163,7 @@ class NetFlux5GApp(QMainWindow):
             
             QTimer.singleShot(200, self.status_manager.setupCanvasStatusBar)
             
-            debug_print("DEBUG: Canvas and component panel setup with dynamic resizing")
+            debug_print("DEBUG: Canvas and component panel setup with fixed sizing")
             
         except Exception as e:
             error_print(f"ERROR: Failed to setup canvas: {e}")

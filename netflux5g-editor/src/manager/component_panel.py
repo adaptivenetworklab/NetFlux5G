@@ -233,13 +233,13 @@ class ComponentPanelManager:
             }
             QScrollBar:vertical {
                 background-color: #e9ecef;
-                width: 4px;
-                border-radius: 2px;
+                width: 8px;
+                border-radius: 4px;
                 margin: 0;
             }
             QScrollBar::handle:vertical {
                 background-color: #adb5bd;
-                border-radius: 2px;
+                border-radius: 4px;
                 min-height: 20px;
             }
             QScrollBar::handle:vertical:hover {
@@ -257,8 +257,8 @@ class ComponentPanelManager:
         
         # Create main vertical layout
         self.main_layout = QVBoxLayout(self.container_widget)
-        self.main_layout.setContentsMargins(8, 8, 8, 8)
-        self.main_layout.setSpacing(8)
+        self.main_layout.setContentsMargins(4, 4, 4, 4)  # Reduced margins
+        self.main_layout.setSpacing(4)  # Reduced spacing
         
         # Create header section
         self.createHeaderSection()
@@ -274,7 +274,7 @@ class ComponentPanelManager:
         
         # Position scroll area to fill ObjectFrame
         self.updateScrollAreaGeometry()
-        
+
     def createHeaderSection(self):
         """Create a beautiful header section with readable font sizes."""
         header_frame = QFrame()
@@ -282,26 +282,26 @@ class ComponentPanelManager:
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                         stop:0 #4a90e2, stop:1 #357abd);
-                border-radius: 8px;
+                border-radius: 6px;
             }
         """)
-        header_frame.setMinimumHeight(60)  # Fixed height
-        header_frame.setMaximumHeight(60)
+        header_frame.setMinimumHeight(50)  # Reduced height
+        header_frame.setMaximumHeight(50)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(6, 8, 6, 8)  # Adjusted margins
-        header_layout.setSpacing(2)  # Reduced spacing
+        header_layout.setContentsMargins(4, 6, 4, 6)  # Reduced margins
+        header_layout.setSpacing(1)  # Reduced spacing
         
         # Title
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 14, QFont.Bold)  # Reduced font size
+        title_font = QFont("Segoe UI", 12, QFont.Bold)  # Smaller font
         title_label.setFont(title_font)
         title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
         
         # Subtitle
         subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 9)  # Reduced font size
+        subtitle_font = QFont("Segoe UI", 8)  # Smaller font
         subtitle_label.setFont(subtitle_font)
         subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")
         subtitle_label.setAlignment(Qt.AlignCenter)
@@ -346,18 +346,18 @@ class ComponentPanelManager:
         category_frame.setStyleSheet("""
             QFrame {
                 background-color: #e9ecef;
-                border-radius: 6px;
+                border-radius: 4px;
                 margin: 1px 0px;
             }
         """)
-        category_frame.setFixedHeight(32)  # Reduced height
+        category_frame.setFixedHeight(24)  # Smaller height
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 4, 8, 4)  # Reduced margins
+        category_layout.setContentsMargins(6, 2, 6, 2)  # Reduced margins
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 10, QFont.DemiBold)  # Reduced font size
+        category_font = QFont("Segoe UI", 9, QFont.DemiBold)  # Smaller font
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
@@ -375,10 +375,10 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(2, 2, 2, 6)  # Reduced margins
-        components_layout.setSpacing(6)  # Reduced spacing
+        components_layout.setContentsMargins(2, 2, 2, 4)  # Reduced margins
+        components_layout.setSpacing(4)  # Reduced spacing
         
-        # Add components to grid - 2 components per row
+        # Add components to grid - 2 components per row for better fit
         for i, (comp_type, icon_file, display_text) in enumerate(components):
             row = i // 2  # Integer division to get row number
             col = i % 2   # Modulo to get column (0 or 1)
