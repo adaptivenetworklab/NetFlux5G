@@ -1,0 +1,333 @@
+{
+  "version": "1.1",
+  "type": "NetFlux5G_Topology",
+  "metadata": {
+    "created_with": "NetFlux5G Editor",
+    "template_name": "SDN Topology",
+    "template_description": "Software-Defined Network topology with controller, switches, and hosts",
+    "created_date": "2024-12-17T10:00:00",
+    "saved_date": "2024-12-17T10:00:00",
+    "canvas_size": {
+      "width": 1000,
+      "height": 600
+    },
+    "component_counts": {
+      "Host": 6,
+      "STA": 0,
+      "UE": 0,
+      "GNB": 0,
+      "DockerHost": 0,
+      "AP": 0,
+      "VGcore": 0,
+      "Controller": 1,
+      "Router": 0,
+      "Switch": 4
+    },
+    "editor_version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "Controller #1",
+      "type": "Controller",
+      "x": 400,
+      "y": 50,
+      "properties": {
+        "name": "Controller #1",
+        "type": "Controller",
+        "Controller_IPAddress": "127.0.0.1",
+        "Controller_Port": 6633,
+        "Controller_Type": "RemoteController"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2001
+    },
+    {
+      "name": "Switch #1",
+      "type": "Switch",
+      "x": 200,
+      "y": 200,
+      "properties": {
+        "name": "Switch #1",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000001",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2002
+    },
+    {
+      "name": "Switch #2",
+      "type": "Switch",
+      "x": 600,
+      "y": 200,
+      "properties": {
+        "name": "Switch #2",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000002",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2003
+    },
+    {
+      "name": "Switch #3",
+      "type": "Switch",
+      "x": 300,
+      "y": 350,
+      "properties": {
+        "name": "Switch #3",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000003",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2004
+    },
+    {
+      "name": "Switch #4",
+      "type": "Switch",
+      "x": 500,
+      "y": 350,
+      "properties": {
+        "name": "Switch #4",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000004",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2005
+    },
+    {
+      "name": "Host #1",
+      "type": "Host",
+      "x": 100,
+      "y": 150,
+      "properties": {
+        "name": "Host #1",
+        "type": "Host",
+        "Host_IPAddress": "10.0.0.1",
+        "Host_DefaultRoute": "10.0.0.254",
+        "Host_AmountCPU": 1.0,
+        "Host_Memory": 512
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2006
+    },
+    {
+      "name": "Host #2",
+      "type": "Host",
+      "x": 100,
+      "y": 250,
+      "properties": {
+        "name": "Host #2",
+        "type": "Host",
+        "Host_IPAddress": "10.0.0.2",
+        "Host_DefaultRoute": "10.0.0.254",
+        "Host_AmountCPU": 1.0,
+        "Host_Memory": 512
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2007
+    },
+    {
+      "name": "Host #3",
+      "type": "Host",
+      "x": 700,
+      "y": 150,
+      "properties": {
+        "name": "Host #3",
+        "type": "Host",
+        "Host_IPAddress": "10.0.0.3",
+        "Host_DefaultRoute": "10.0.0.254",
+        "Host_AmountCPU": 1.0,
+        "Host_Memory": 512
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2008
+    },
+    {
+      "name": "Host #4",
+      "type": "Host",
+      "x": 700,
+      "y": 250,
+      "properties": {
+        "name": "Host #4",
+        "type": "Host",
+        "Host_IPAddress": "10.0.0.4",
+        "Host_DefaultRoute": "10.0.0.254",
+        "Host_AmountCPU": 1.0,
+        "Host_Memory": 512
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2009
+    },
+    {
+      "name": "Host #5",
+      "type": "Host",
+      "x": 200,
+      "y": 450,
+      "properties": {
+        "name": "Host #5",
+        "type": "Host",
+        "Host_IPAddress": "10.0.0.5",
+        "Host_DefaultRoute": "10.0.0.254",
+        "Host_AmountCPU": 1.0,
+        "Host_Memory": 512
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2010
+    },
+    {
+      "name": "Host #6",
+      "type": "Host",
+      "x": 600,
+      "y": 450,
+      "properties": {
+        "name": "Host #6",
+        "type": "Host",
+        "Host_IPAddress": "10.0.0.6",
+        "Host_DefaultRoute": "10.0.0.254",
+        "Host_AmountCPU": 1.0,
+        "Host_Memory": 512
+      },
+      "created_date": "2024-12-17T10:00:00",
+      "component_id": 2011
+    }
+  ],
+  "links": [
+    {
+      "source": "Switch #1",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_s1_s2",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "name": "link_s1_s2",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Switch #1",
+      "destination": "Switch #3",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_s1_s3",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "name": "link_s1_s3",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Switch #2",
+      "destination": "Switch #4",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_s2_s4",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "name": "link_s2_s4",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Switch #3",
+      "destination": "Switch #4",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_s3_s4",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "name": "link_s3_s4",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Host #1",
+      "destination": "Switch #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_h1_s1",
+        "type": "ethernet",
+        "bandwidth": "100",
+        "delay": "1ms"
+      },
+      "name": "link_h1_s1",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Host #2",
+      "destination": "Switch #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_h2_s1",
+        "type": "ethernet",
+        "bandwidth": "100",
+        "delay": "1ms"
+      },
+      "name": "link_h2_s1",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Host #3",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_h3_s2",
+        "type": "ethernet",
+        "bandwidth": "100",
+        "delay": "1ms"
+      },
+      "name": "link_h3_s2",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Host #4",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_h4_s2",
+        "type": "ethernet",
+        "bandwidth": "100",
+        "delay": "1ms"
+      },
+      "name": "link_h4_s2",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Host #5",
+      "destination": "Switch #3",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_h5_s3",
+        "type": "ethernet",
+        "bandwidth": "100",
+        "delay": "1ms"
+      },
+      "name": "link_h5_s3",
+      "created_date": "2024-12-17T10:00:00"
+    },
+    {
+      "source": "Host #6",
+      "destination": "Switch #4",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_h6_s4",
+        "type": "ethernet",
+        "bandwidth": "100",
+        "delay": "1ms"
+      },
+      "name": "link_h6_s4",
+      "created_date": "2024-12-17T10:00:00"
+    }
+  ],
+  "canvas_properties": {
+    "zoom_level": 1.0,
+    "show_grid": false
+  }
+}

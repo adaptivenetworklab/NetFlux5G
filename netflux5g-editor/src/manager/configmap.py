@@ -1,6 +1,7 @@
 """
 Configuration mapping for different component types to Mininet parameters
 """
+from manager.debug import debug_print, error_print, warning_print
 
 class ConfigurationMapper:
     """Maps UI component configurations to Mininet script parameters"""
@@ -38,8 +39,8 @@ class ConfigurationMapper:
                         cpu_val = float(cpu)
                         if cpu_val != 1.0:  # Only add if different from default
                             opts.append(f"cpu={cpu_val}")
-                    except ValueError:
-                        pass
+                    except (ValueError, TypeError):
+                        warning_print(f"Invalid CPU value: {cpu}")
                     break
         
         # Memory Configuration
@@ -52,8 +53,8 @@ class ConfigurationMapper:
                         mem_val = int(memory)
                         if mem_val > 0:
                             opts.append(f"mem={mem_val}")
-                    except ValueError:
-                        pass
+                    except (ValueError, TypeError):
+                        warning_print(f"Invalid memory value: {memory}")
                     break
         
         return opts

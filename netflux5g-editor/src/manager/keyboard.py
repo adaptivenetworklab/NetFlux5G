@@ -1,4 +1,5 @@
 from PyQt5.QtCore import Qt
+from manager.debug import debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
 
 class KeyboardManager:
     def __init__(self, main_window):
@@ -23,7 +24,9 @@ class KeyboardManager:
         elif event.key() == Qt.Key_D:
             if event.modifiers() & Qt.ShiftModifier and event.modifiers() & Qt.ControlModifier:
                 # Ctrl+Shift+D for debug toggle
-                self.main_window.toggleDebugMode()
+                current_debug = is_debug_enabled()
+                set_debug_enabled(not current_debug)
+                debug_print(f"Debug mode {'enabled' if not current_debug else 'disabled'}", force=True)
             else:
                 # Just D for delete tool
                 self.main_window.tool_manager.enableDeleteTool()
