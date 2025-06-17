@@ -146,9 +146,9 @@ class Canvas(QGraphicsView):
             debug_print(f"Updating scene size - canvas viewport: {canvas_width}x{canvas_height}")
             
             if canvas_width > 0 and canvas_height > 0:
-                # Make scene larger than the visible area to allow panning
-                scene_width = max(canvas_width * 2, 2000)  # At least 2000px wide
-                scene_height = max(canvas_height * 2, 1500)  # At least 1500px high
+                # Make scene much larger to prevent cropping of large topologies
+                scene_width = max(canvas_width * 3, 3000)  # Larger scene
+                scene_height = max(canvas_height * 3, 2500)  # Larger scene
                 
                 # Center the scene
                 scene_rect = QRectF(-scene_width//2, -scene_height//2, scene_width, scene_height)
@@ -156,6 +156,9 @@ class Canvas(QGraphicsView):
                 
                 debug_print(f"Scene size updated - {scene_width}x{scene_height}")
                 debug_print(f"Scene rect: {scene_rect}")
+                
+                # Enable smooth scrolling for large scenes
+                self.setDragMode(QGraphicsView.RubberBandDrag)
                 
             else:
                 warning_print("Canvas viewport has zero or negative dimensions")

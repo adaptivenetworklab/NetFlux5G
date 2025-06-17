@@ -18,13 +18,13 @@ class WindowManager:
         # Get screen geometry for better initial sizing
         screen = QDesktopWidget().screenGeometry()
         
-        # Set initial size to 80% of screen size
-        initial_width = int(screen.width() * 0.8)
-        initial_height = int(screen.height() * 0.8)
+        # Set initial size to 90% of screen size for better visibility
+        initial_width = int(screen.width() * 0.9)
+        initial_height = int(screen.height() * 0.9)
         self.main_window.resize(initial_width, initial_height)
         
         # Set window properties for better responsiveness
-        self.main_window.setMinimumSize(1000, 700)
+        self.main_window.setMinimumSize(1200, 800)  # Increased minimum size
         
         # Center the window on the screen
         self.main_window.move(
@@ -42,20 +42,22 @@ class WindowManager:
             window_size = self.main_window.size()
 
             # Get ObjectFrame width from the actual widget
-            object_frame_width = self.main_window.ObjectFrame.width() if hasattr(self.main_window, 'ObjectFrame') else 71
+            object_frame_width = self.main_window.ObjectFrame.width() if hasattr(self.main_window, 'ObjectFrame') else 220
 
             menubar_height = self.main_window.menubar.height() if hasattr(self.main_window, 'menubar') else 26
             toolbar_height = self.main_window.toolBar.height() if hasattr(self.main_window, 'toolBar') else 30
             statusbar_height = self.main_window.statusbar.height() if hasattr(self.main_window, 'statusbar') else 23
 
-            available_width = window_size.width() - object_frame_width - 10
-            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10
+            # Calculate available space with better margins
+            available_width = window_size.width() - object_frame_width - 20  # More margin
+            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 20
 
-            available_width = max(available_width, 400)
-            available_height = max(available_height, 300)
+            # Ensure minimum canvas size to prevent cropping
+            available_width = max(available_width, 800)  # Increased minimum
+            available_height = max(available_height, 600)  # Increased minimum
 
-            canvas_x = object_frame_width + 5
-            canvas_y = 5
+            canvas_x = object_frame_width + 10  # Better spacing
+            canvas_y = 10
 
             self.main_window.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
             self.main_window.canvas_view.setVisible(True)

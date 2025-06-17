@@ -115,9 +115,11 @@ class FileManager:
             if not self.validateTopologyFile(topology_data):
                 raise ValueError("Invalid topology file format")
             
-            # Clear current canvas
+            # Clear current canvas and update scene size
             if hasattr(self.main_window, 'canvas_view') and hasattr(self.main_window.canvas_view, 'scene'):
                 self.main_window.canvas_view.scene.clear()
+                # Update scene size to accommodate loaded topology
+                self.main_window.canvas_view.updateSceneSize()
             
             progress.setValue(30)
             QApplication.processEvents()
@@ -132,6 +134,10 @@ class FileManager:
             nodes = topology_data.get('nodes', [])
             node_map = {}
             
+            # Calculate topology bounds to ensure proper canvas sizing
+            min_x = min_y = float('inf')
+            max_x = max_y = float('-inf')
+            
             total_nodes = len(nodes)
             for i, node_data in enumerate(nodes):
                 if progress.wasCanceled():
@@ -140,11 +146,30 @@ class FileManager:
                 component = self.createComponentFromData(node_data)
                 if component:
                     node_map[node_data['name']] = component
+                    # Track topology bounds
+                    x, y = node_data.get('x', 0), node_data.get('y', 0)
+                    min_x = min(min_x, x)
+                    min_y = min(min_y, y)
+                    max_x = max(max_x, x)
+                    max_y = max(max_y, y)
                 
                 # Update progress
                 node_progress = 40 + int((i / max(total_nodes, 1)) * 40)
                 progress.setValue(node_progress)
                 QApplication.processEvents()
+            
+            # Update canvas to fit topology bounds
+            if hasattr(self.main_window, 'canvas_view') and min_x != float('inf'):
+                topology_width = max_x - min_x + 200  # Add padding
+                topology_height = max_y - min_y + 200  # Add padding
+                
+                # Ensure canvas scene is large enough
+                self.main_window.canvas_view.scene.setSceneRect(
+                    min_x - 100, min_y - 100, topology_width, topology_height
+                )
+                
+                # Center the view on the topology
+                self.main_window.canvas_view.centerOn((min_x + max_x) / 2, (min_y + max_y) / 2)
             
             progress.setValue(80)
             QApplication.processEvents()

@@ -146,13 +146,14 @@ class NetFlux5GApp(QMainWindow):
                 self.ObjectFrame.setParent(None)
                 self.main_splitter.addWidget(self.ObjectFrame)
                 self.ObjectFrame.setMinimumWidth(220)
-                self.ObjectFrame.setMaximumWidth(240)
+                self.ObjectFrame.setMaximumWidth(280)  # Slightly wider for better usability
             
             self.canvas_view = Canvas(self)
-            self.canvas_view.setMinimumWidth(400)
+            self.canvas_view.setMinimumWidth(600)  # Increased minimum width
             self.main_splitter.addWidget(self.canvas_view)
             
-            self.main_splitter.setSizes([200, 800])
+            # Better initial sizing ratio
+            self.main_splitter.setSizes([250, 1000])
             self.setCentralWidget(self.main_splitter)
             
             self.main_splitter.setCollapsible(0, True)
