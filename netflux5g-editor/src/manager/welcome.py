@@ -91,7 +91,7 @@ class WelcomeScreenManager:
                         )
                         
                         # Start the end-to-end test
-                        QTimer.singleShot(1000, self.main_window.automation_manager.runEndToEndTest)
+                        QTimer.singleShot(1000, self.main_window.automation_runner.run_end_to_end_test)
         
         elif action == "open_link":  
             self.openWebLink(data) 

@@ -42,6 +42,145 @@ class AutomationRunner(QObject):
         """Check if a deployment is currently running."""
         return self.is_running
 
+    def run_end_to_end_test(self):
+        """Run complete end-to-end testing sequence."""
+        if self.is_running:
+            QMessageBox.warning(
+                self.main_window,
+                "Already Running",
+                "A deployment is already running. Please stop it first."
+            )
+            return
+
+        # Set test mode
+        self.test_mode = True
+        
+        # Check prerequisites first
+        all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
+        if not all_ok:
+            missing = [tool for tool, ok in checks.items() if not ok]
+            instructions = PrerequisitesChecker.get_installation_instructions()
+            
+            error_msg = f"Missing prerequisites for testing: {', '.join(missing)}\n\n"
+            for tool in missing:
+                error_msg += f"{tool.upper()}:\n{instructions[tool]}\n"
+            
+            QMessageBox.critical(
+                self.main_window,
+                "Missing Prerequisites",
+                error_msg
+            )
+            return
+
+        # Show progress dialog
+        self.progress_dialog = QProgressDialog(
+            "Preparing end-to-end test...", 
+            "Cancel", 
+            0, 
+            100, 
+            self.main_window
+        )
+        self.progress_dialog.setWindowTitle("NetFlux5G End-to-End Test")
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.canceled.connect(self.stop_all)
+        self.progress_dialog.show()
+        
+        # Connect progress signal
+        self.progress_updated.connect(self.progress_dialog.setValue)
+        
+        # Start the test sequence in a separate thread
+        self.test_thread = threading.Thread(target=self._run_end_to_end_test_sequence)
+        self.test_thread.daemon = True
+        self.test_thread.start()
+
+    def _run_end_to_end_test_sequence(self):
+        """Run the complete end-to-end test sequence."""
+        try:
+            self.is_running = True
+            
+            # Step 1: Create working directory
+            self.status_updated.emit("Creating test environment...")
+            self.progress_updated.emit(5)
+            self.export_dir = self._create_working_directory()
+            
+            # Step 2: Generate test configurations
+            self.status_updated.emit("Generating test configurations...")
+            self.progress_updated.emit(15)
+            self._generate_test_configurations()
+            
+            # Step 3: Start Docker Compose services
+            self.status_updated.emit("Starting 5G Core services...")
+            self.progress_updated.emit(30)
+            self._start_docker_compose()
+            
+            # Step 4: Wait for services to be ready
+            self.status_updated.emit("Waiting for services to initialize...")
+            self.progress_updated.emit(45)
+            self._wait_for_services()
+            
+            # Step 5: Register test subscribers
+            self.status_updated.emit("Registering test subscribers...")
+            self.progress_updated.emit(55)
+            self._register_test_subscribers()
+            
+            # Step 6: Run connectivity tests
+            self.status_updated.emit("Running connectivity tests...")
+            self.progress_updated.emit(70)
+            test_results = self._run_connectivity_tests()
+            
+            # Step 7: Generate Mininet (if components exist)
+            nodes, _ = self.main_window.file_manager.extractTopology()
+            if any(n['type'] in ['Host', 'Switch', 'Router'] for n in nodes):
+                self.status_updated.emit("Starting Mininet network...")
+                self.progress_updated.emit(85)
+                self._generate_mininet_script()
+                self._start_mininet()
+            
+            self.progress_updated.emit(100)
+            self.status_updated.emit("End-to-end test completed!")
+            
+            # Emit test results
+            self.test_results_ready.emit(test_results)
+            self.execution_finished.emit(True, "End-to-end test completed successfully")
+            
+        except Exception as e:
+            error_msg = f"End-to-end test failed: {str(e)}"
+            error_print(f"ERROR: {error_msg}")
+            self.status_updated.emit(error_msg)
+            
+            # Create error test result
+            error_test_results = {
+                'timestamp': time.time(),
+                'tests': [{
+                    'name': 'Test Execution',
+                    'result': 'FAIL',
+                    'duration': 0,
+                    'message': error_msg
+                }],
+                'summary': {'total': 1, 'passed': 0, 'failed': 1}
+            }
+            self.test_results_ready.emit(error_test_results)
+            self.execution_finished.emit(False, error_msg)
+        finally:
+            self.is_running = False
+            self.test_mode = False
+            if hasattr(self, 'progress_dialog'):
+                self.progress_dialog.hide()
+
+    def get_deployment_info(self):
+        """Get information about the current deployment."""
+        if not self.export_dir:
+            return None
+            
+        info = {
+            'export_dir': self.export_dir,
+            'docker_compose_file': os.path.join(self.export_dir, 'docker-compose.yaml'),
+            'mininet_script': self.mininet_script_path if self.mininet_script_path else None,
+            'test_mode': self.test_mode
+        }
+        
+        return info
+
     def _get_docker_compose_command(self):
         """Get the correct Docker Compose command."""
         if self.docker_compose_cmd is None:
@@ -57,6 +196,9 @@ class AutomationRunner(QObject):
                 "Automation is already running. Please stop it first."
             )
             return
+        
+        # Set test mode to False for regular deployment
+        self.test_mode = False
         
         all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
         if not all_ok:
