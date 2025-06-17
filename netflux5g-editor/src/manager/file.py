@@ -2,6 +2,8 @@ import os
 import json
 import traceback
 import yaml
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtCore import QDateTime
 from manager.debug import debug_print, error_print, warning_print
 
 class FileManager:
@@ -198,3 +200,32 @@ class FileManager:
             self.main_window.show_grid = show_grid
             if hasattr(self.main_window.canvas_view, 'setShowGrid'):
                 self.main_window.canvas_view.setShowGrid(show_grid)
+
+    def loadExampleTemplate(self, template_name):
+        """Load an example template topology."""
+        try:
+            # Get the examples directory path
+            examples_dir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
+                "examples"
+            )
+            
+            # Construct the template file path
+            template_file = os.path.join(examples_dir, f"{template_name}.nf5g")
+            
+            if not os.path.exists(template_file):
+                error_print(f"Template file not found: {template_file}")
+                return False
+            
+            # Load the template file
+            self.loadTopologyFromFile(template_file)
+            
+            # Don't set current_file for templates (they should be saved as new files)
+            self.main_window.current_file = None
+            
+            debug_print(f"Example template loaded successfully: {template_name}")
+            return True
+            
+        except Exception as e:
+            error_print(f"Failed to load example template '{template_name}': {e}")
+            return False
