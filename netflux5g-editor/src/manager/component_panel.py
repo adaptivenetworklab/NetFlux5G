@@ -283,7 +283,7 @@ class ComponentPanelManager:
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                         stop:0 #4a90e2, stop:1 #357abd);
-                border: none;
+                border: 1px solid #2c5aa0;
                 border-radius: 6px;
             }
         """)
@@ -356,12 +356,12 @@ class ComponentPanelManager:
             spacer_frame.setStyleSheet("background-color: transparent;")
             self.main_layout.addWidget(spacer_frame)
         
-        # Category header with gray background
+        # Category header with gray background and border
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
                 background-color: #e9ecef;
-                border: none;
+                border: 1px solid #d1d7dd;
                 border-radius: 4px;
                 margin: 1px 0px;
             }
