@@ -241,7 +241,7 @@ class MininetExporter:
         components = {
             'UPF': [], 'AMF': [], 'SMF': [], 'NRF': [], 'SCP': [],
             'AUSF': [], 'BSF': [], 'NSSF': [], 'PCF': [], 'PCRF': [],
-            'UDM': [], 'UDR': []
+            'UDM': [], 'UDR': [], 'GNB': [], 'UE': []
         }
         
         for component in core5g_components:
@@ -250,8 +250,72 @@ class MininetExporter:
             
             if comp_type in components:
                 components[comp_type].append(component)
+            # Special handling for GNB and UE components which may not have Component5G_Type
+            elif component.get('type') == 'GNB':
+                components['GNB'].append(component)
+            elif component.get('type') == 'UE':
+                components['UE'].append(component)
         
         return components
+    
+    def write_connection_test_script(self, f, categorized_nodes):
+        """Write connection test script for 5G components."""
+        f.write("\n# Connection test script\n")
+        f.write("def test_5g_connection():\n")
+        f.write("    print('\\nTesting 5G network connectivity...')\n")
+        
+        # Test UE registration and connectivity
+        if categorized_nodes['UE']:
+            f.write("    # Test UE connectivity\n")
+            f.write("    for host in [")
+            ue_hosts = []
+            for ue in categorized_nodes['UE']:
+                ue_name = ue.get('properties', {}).get('name', 'ue').replace(' ', '_')
+                ue_hosts.append(ue_name)
+            f.write(", ".join([f"'{h}'" for h in ue_hosts]))
+            f.write("]:\n")
+            f.write("        if host in net.hosts:\n")
+            f.write("            print(f'Testing connectivity from {host}:')\n")
+            f.write("            # Try to ping 8.8.8.8 through PDU session\n")
+            f.write("            result = net.hosts[net.hosts.index(host)].cmd('ping -c 3 -I uesimtun0 8.8.8.8')\n")
+            f.write("            if '3 packets transmitted, 3 received' in result:\n")
+            f.write("                print(f'✓ {host} connectivity test successful')\n")
+            f.write("            else:\n")
+            f.write("                print(f'✗ {host} connectivity test failed')\n")
+            f.write("                print(result)\n\n")
+        
+        # Test gNB to AMF connectivity
+        if categorized_nodes['GNB'] and categorized_nodes['AMF']:
+            f.write("    # Test gNB to AMF connectivity\n")
+            f.write("    print('\\nTesting gNB to AMF connectivity:')\n")
+            f.write("    for gnb in [")
+            gnb_hosts = []
+            for gnb in categorized_nodes['GNB']:
+                gnb_name = gnb.get('properties', {}).get('name', 'gnb').replace(' ', '_')
+                gnb_hosts.append(gnb_name)
+            f.write(", ".join([f"'{h}'" for h in gnb_hosts]))
+            f.write("]:\n")
+            f.write("        if gnb in net.hosts:\n")
+            f.write("            for amf in [")
+            amf_hosts = []
+            for amf in categorized_nodes['AMF']:
+                amf_name = amf.get('properties', {}).get('name', 'amf').replace(' ', '_')
+                amf_hosts.append(amf_name)
+            f.write(", ".join([f"'{h}'" for h in amf_hosts]))
+            f.write("]:\n")
+            f.write("                if amf in net.hosts:\n")
+            f.write("                    amf_ip = net.hosts[net.hosts.index(amf)].IP()\n")
+            f.write("                    print(f'Testing {gnb} -> {amf} ({amf_ip}):')\n")
+            f.write("                    result = net.hosts[net.hosts.index(gnb)].cmd(f'ping -c 3 {amf_ip}')\n")
+            f.write("                    if '3 packets transmitted, 3 received' in result:\n")
+            f.write("                        print(f'✓ {gnb} to {amf} connectivity test successful')\n")
+            f.write("                    else:\n")
+            f.write("                        print(f'✗ {gnb} to {amf} connectivity test failed')\n")
+            f.write("                        print(result)\n\n")
+        
+        f.write("    print('Connection test complete')\n\n")
+        f.write("# Add connection test to CLI\n")
+        f.write("CLI.do_test = test_5g_connection\n")
 
     def write_gnbs_level2(self, f, categorized_nodes):
         """Write gNB creation code with Level 2 features."""

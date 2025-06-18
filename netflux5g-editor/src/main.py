@@ -205,48 +205,34 @@ class NetFlux5GApp(QMainWindow):
                 self.actionPickTool.triggered.connect(self.tool_manager.enablePickTool)
             if hasattr(self, 'actionLinkTool'):
                 self.actionLinkTool.triggered.connect(self.tool_manager.enableLinkTool)
-            if hasattr(self, 'actionDelete'):
-                self.actionDelete.triggered.connect(self.tool_manager.enableDeleteTool)
-
-            # Canvas connections
-            if hasattr(self, 'actionShowGrid'):
-                self.actionShowGrid.triggered.connect(self.canvas_manager.toggleGrid)
-
-            # Automation connections
+            if hasattr(self, 'actionDeleteTool'):
+                self.actionDeleteTool.triggered.connect(self.tool_manager.enableDeleteTool)
+                
+            # Run/Test connections
             if hasattr(self, 'actionRunAll'):
-                self.actionRunAll.triggered.connect(self.automation_manager.runAllComponents)
+                self.actionRunAll.triggered.connect(self.automation_runner.run_all)
             if hasattr(self, 'actionStopAll'):
-                self.actionStopAll.triggered.connect(self.automation_manager.stopAllComponents)
-
-            # Component button connections
-            if hasattr(self.component_panel_manager, 'component_widgets'):
-                for widget in self.component_panel_manager.component_widgets:
-                    if hasattr(widget, 'button') and hasattr(widget, 'button_name'):
-                        button = widget.button
-                        component_type = widget.button_name
-                        
-                        def make_mouse_press_handler(comp_type):
-                            def handle_mouse_press(event):
-                                self.onComponentButtonPress(event, comp_type)
-                            return handle_mouse_press
-                        
-                        button.mousePressEvent = make_mouse_press_handler(component_type)
-                        debug_print(f"DEBUG: Connected {component_type} button")
-
-            # Keyboard shortcuts
-            if hasattr(self, 'actionPickTool'):
-                self.actionPickTool.setShortcut(QKeySequence('P'))
-            if hasattr(self, 'actionLinkTool'):
-                self.actionLinkTool.setShortcut(QKeySequence('L'))
-            if hasattr(self, 'actionDelete'):
-                self.actionDelete.setShortcut(QKeySequence('D'))
-            if hasattr(self, 'actionShowGrid'):
-                self.actionShowGrid.setShortcut(QKeySequence('G'))
-
-            debug_print("DEBUG: All connections setup successfully")
+                self.actionStopAll.triggered.connect(self.automation_runner.stop_all)
+            if hasattr(self, 'actionTestConnection'):
+                self.actionTestConnection.triggered.connect(self.automation_runner.run_end_to_end_test)
+            
+            # Component menu connections
+            if hasattr(self, 'actionViewLogs'):
+                self.actionViewLogs.triggered.connect(self.view_component_logs)
+            if hasattr(self, 'actionOpenTerminal'):
+                self.actionOpenTerminal.triggered.connect(self.open_component_terminal)
+            if hasattr(self, 'actionRestartComponent'):
+                self.actionRestartComponent.triggered.connect(self.restart_component)
+                
+            # Automation runner signals
+            self.automation_runner.status_updated.connect(self.showCanvasStatus)
+            self.automation_runner.execution_finished.connect(self.handle_automation_finished)
+            self.automation_runner.test_results_ready.connect(self.show_test_results)
             
         except Exception as e:
-            error_print(f"ERROR: Failed to setup connections: {e}")
+            print(f"Error setting up connections: {e}")
+            import traceback
+            traceback.print_exc()
 
     def onComponentButtonPress(self, event, component_type):
         """Handle component button press to start drag operation."""
@@ -484,6 +470,11 @@ class NetFlux5GApp(QMainWindow):
         
         debug_print("=== END DEBUG ===")
 
+from main_window_utils import add_component_interaction_methods
+
+# Apply component interaction methods to main window class
+NetFlux5GApp = add_component_interaction_methods(NetFlux5GApp)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
@@ -495,6 +486,20 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon(icon_path))
 
     # Check for command line arguments to skip welcome screen
+    show_welcome = "--no-welcome" not in sys.argv
+    
+    window = NetFlux5GApp(show_welcome)
+    
+    if show_welcome:
+        # Show welcome screen first
+        if not window.welcome_manager.showWelcomeScreen():
+            # If welcome screen fails, show main window directly
+            window.show()
+    else:
+        # Show main window directly
+        window.show()
+    
+    sys.exit(app.exec_())
     show_welcome = "--no-welcome" not in sys.argv
     
     window = NetFlux5GApp(show_welcome)
