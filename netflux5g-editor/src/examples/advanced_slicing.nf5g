@@ -1,0 +1,697 @@
+{
+  "version": "1.2",
+  "type": "NetFlux5G_Topology",
+  "metadata": {
+    "created_with": "NetFlux5G Editor",
+    "template_name": "Advanced 5G Network Slicing",
+    "template_description": "5G network with multiple slices, multiple UPFs, and differentiated service",
+    "created_date": "2024-12-18T09:00:00",
+    "saved_date": "2024-12-18T09:00:00",
+    "canvas_size": {
+      "width": 1200,
+      "height": 800
+    },
+    "component_counts": {
+      "Host": 2,
+      "STA": 0,
+      "UE": 6,
+      "GNB": 2,
+      "DockerHost": 0,
+      "AP": 2,
+      "VGcore": 6,
+      "Controller": 1,
+      "Router": 1,
+      "Switch": 6
+    },
+    "editor_version": "2.0"
+  },
+  "nodes": [
+    {
+      "name": "Controller",
+      "type": "Controller",
+      "x": 600,
+      "y": 50,
+      "properties": {
+        "name": "Controller",
+        "type": "Controller",
+        "Controller_IPAddress": "127.0.0.1",
+        "Controller_Port": 6633,
+        "Controller_Type": "RemoteController"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2001
+    },
+    {
+      "name": "AMF",
+      "type": "VGcore",
+      "x": 500,
+      "y": 150,
+      "properties": {
+        "name": "AMF",
+        "type": "VGcore",
+        "Component5G_Type": "AMF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "amf.yaml"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2002
+    },
+    {
+      "name": "SMF",
+      "type": "VGcore",
+      "x": 650,
+      "y": 150,
+      "properties": {
+        "name": "SMF",
+        "type": "VGcore",
+        "Component5G_Type": "SMF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "smf.yaml"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2003
+    },
+    {
+      "name": "NRF",
+      "type": "VGcore",
+      "x": 350,
+      "y": 150,
+      "properties": {
+        "name": "NRF",
+        "type": "VGcore",
+        "Component5G_Type": "NRF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "nrf.yaml"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2004
+    },
+    {
+      "name": "UPF1",
+      "type": "VGcore",
+      "x": 400,
+      "y": 300,
+      "properties": {
+        "name": "UPF1",
+        "type": "VGcore",
+        "Component5G_Type": "UPF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "upf.yaml"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2005
+    },
+    {
+      "name": "UPF2",
+      "type": "VGcore",
+      "x": 650,
+      "y": 300,
+      "properties": {
+        "name": "UPF2",
+        "type": "VGcore",
+        "Component5G_Type": "UPF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "upf2.yaml"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2006
+    },
+    {
+      "name": "PCF",
+      "type": "VGcore",
+      "x": 800,
+      "y": 150,
+      "properties": {
+        "name": "PCF",
+        "type": "VGcore",
+        "Component5G_Type": "PCF",
+        "Component5G_NetworkMode": "open5gs-ueransim_default",
+        "Component5G_Image": "adaptive/open5gs:1.0",
+        "Component5G_ConfigFile": "pcf.yaml"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2007
+    },
+    {
+      "name": "Switch Core",
+      "type": "Switch",
+      "x": 600,
+      "y": 220,
+      "properties": {
+        "name": "Switch Core",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000001",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2008
+    },
+    {
+      "name": "Switch UPF1",
+      "type": "Switch",
+      "x": 400,
+      "y": 400,
+      "properties": {
+        "name": "Switch UPF1",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000002",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2009
+    },
+    {
+      "name": "Switch UPF2",
+      "type": "Switch",
+      "x": 650,
+      "y": 400,
+      "properties": {
+        "name": "Switch UPF2",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000003",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2010
+    },
+    {
+      "name": "Switch Internet",
+      "type": "Switch",
+      "x": 600,
+      "y": 550,
+      "properties": {
+        "name": "Switch Internet",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000004",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2011
+    },
+    {
+      "name": "Switch RAN1",
+      "type": "Switch",
+      "x": 300,
+      "y": 500,
+      "properties": {
+        "name": "Switch RAN1",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000005",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2012
+    },
+    {
+      "name": "Switch RAN2",
+      "type": "Switch",
+      "x": 900,
+      "y": 500,
+      "properties": {
+        "name": "Switch RAN2",
+        "type": "Switch",
+        "Switch_DPID": "0000000000000006",
+        "Switch_Protocol": "OpenFlow14"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2013
+    },
+    {
+      "name": "Internet Router",
+      "type": "Router",
+      "x": 600,
+      "y": 650,
+      "properties": {
+        "name": "Internet Router",
+        "type": "Router"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2014
+    },
+    {
+      "name": "Web Server",
+      "type": "Host",
+      "x": 520,
+      "y": 720,
+      "properties": {
+        "name": "Web Server",
+        "type": "Host",
+        "Host_IPAddress": "10.1.0.100",
+        "Host_DefaultRoute": "10.1.0.1"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2015
+    },
+    {
+      "name": "Video Server",
+      "type": "Host",
+      "x": 680,
+      "y": 720,
+      "properties": {
+        "name": "Video Server",
+        "type": "Host",
+        "Host_IPAddress": "10.2.0.100",
+        "Host_DefaultRoute": "10.2.0.1"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2016
+    },
+    {
+      "name": "AP1",
+      "type": "AP",
+      "x": 200,
+      "y": 500,
+      "properties": {
+        "name": "AP1",
+        "type": "AP",
+        "AP_SSID": "slice1-ran",
+        "AP_Channel": "36",
+        "AP_Mode": "a",
+        "AP_Range": 100
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2017
+    },
+    {
+      "name": "AP2",
+      "type": "AP",
+      "x": 1000,
+      "y": 500,
+      "properties": {
+        "name": "AP2",
+        "type": "AP",
+        "AP_SSID": "slice2-ran",
+        "AP_Channel": "40",
+        "AP_Mode": "a",
+        "AP_Range": 100
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2018
+    },
+    {
+      "name": "gNB1",
+      "type": "GNB",
+      "x": 150,
+      "y": 600,
+      "properties": {
+        "name": "gNB1",
+        "type": "GNB",
+        "GNB_AMF_IP": "10.0.0.3",
+        "GNB_Hostname": "gnb1.5g.local",
+        "GNB_MCC": "999",
+        "GNB_MNC": "70",
+        "GNB_SST": "1",
+        "GNB_SD": "0x000001",
+        "GNB_TAC": "1",
+        "GNB_Frequency": "3500"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2019
+    },
+    {
+      "name": "gNB2",
+      "type": "GNB",
+      "x": 1050,
+      "y": 600,
+      "properties": {
+        "name": "gNB2",
+        "type": "GNB",
+        "GNB_AMF_IP": "10.0.0.3",
+        "GNB_Hostname": "gnb2.5g.local",
+        "GNB_MCC": "999",
+        "GNB_MNC": "70",
+        "GNB_SST": "1",
+        "GNB_SD": "0x000002",
+        "GNB_TAC": "2",
+        "GNB_Frequency": "3500"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2020
+    },
+    {
+      "name": "UE-Web-1",
+      "type": "UE",
+      "x": 100,
+      "y": 500,
+      "properties": {
+        "name": "UE-Web-1",
+        "type": "UE",
+        "UE_GNB_IP": "10.0.0.25",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000001",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_SST": "1",
+        "UE_SD": "0x000001",
+        "UE_Key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2021
+    },
+    {
+      "name": "UE-Web-2",
+      "type": "UE",
+      "x": 50,
+      "y": 550,
+      "properties": {
+        "name": "UE-Web-2",
+        "type": "UE",
+        "UE_GNB_IP": "10.0.0.25",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000002",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_SST": "1",
+        "UE_SD": "0x000001",
+        "UE_Key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2022
+    },
+    {
+      "name": "UE-Web-3",
+      "type": "UE",
+      "x": 50,
+      "y": 600,
+      "properties": {
+        "name": "UE-Web-3",
+        "type": "UE",
+        "UE_GNB_IP": "10.0.0.25",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000003",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_SST": "1",
+        "UE_SD": "0x000001",
+        "UE_Key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2023
+    },
+    {
+      "name": "UE-Video-1",
+      "type": "UE",
+      "x": 1100,
+      "y": 500,
+      "properties": {
+        "name": "UE-Video-1",
+        "type": "UE",
+        "UE_GNB_IP": "10.0.0.26",
+        "UE_APN": "web1",
+        "UE_MSISDN": "0000000004",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_SST": "1",
+        "UE_SD": "0x000002",
+        "UE_Key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2024
+    },
+    {
+      "name": "UE-Video-2",
+      "type": "UE",
+      "x": 1150,
+      "y": 550,
+      "properties": {
+        "name": "UE-Video-2",
+        "type": "UE",
+        "UE_GNB_IP": "10.0.0.26", 
+        "UE_APN": "web1",
+        "UE_MSISDN": "0000000005",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_SST": "1",
+        "UE_SD": "0x000002",
+        "UE_Key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2025
+    },
+    {
+      "name": "UE-Video-3",
+      "type": "UE",
+      "x": 1150,
+      "y": 600,
+      "properties": {
+        "name": "UE-Video-3",
+        "type": "UE",
+        "UE_GNB_IP": "10.0.0.26",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000006",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_SST": "1",
+        "UE_SD": "0x000002",
+        "UE_Key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA"
+      },
+      "created_date": "2024-12-18T09:00:00",
+      "component_id": 2026
+    }
+  ],
+  "links": [
+    {
+      "source": "AMF",
+      "destination": "Switch Core",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_amf_core",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "SMF",
+      "destination": "Switch Core",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_smf_core",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "NRF",
+      "destination": "Switch Core",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_nrf_core",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "PCF",
+      "destination": "Switch Core",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_pcf_core",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch Core",
+      "destination": "UPF1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_core_upf1",
+        "type": "ethernet",
+        "bandwidth": "10000", 
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch Core",
+      "destination": "UPF2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_core_upf2",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "UPF1",
+      "destination": "Switch UPF1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_upf1_swupf1",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "UPF2",
+      "destination": "Switch UPF2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_upf2_swupf2",
+        "type": "ethernet", 
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch UPF1",
+      "destination": "Switch Internet",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_upf1_internet",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch UPF2",
+      "destination": "Switch Internet",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_upf2_internet",
+        "type": "ethernet",
+        "bandwidth": "10000", 
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch Internet",
+      "destination": "Internet Router",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_internet_router",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Internet Router",
+      "destination": "Web Server",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_router_webserver",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Internet Router",
+      "destination": "Video Server",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_router_videoserver",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch UPF1",
+      "destination": "Switch RAN1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_upf1_ran1",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "2ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch UPF2",
+      "destination": "Switch RAN2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_upf2_ran2",
+        "type": "ethernet",
+        "bandwidth": "10000",
+        "delay": "2ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch RAN1",
+      "destination": "AP1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_ran1_ap1",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "Switch RAN2",
+      "destination": "AP2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_ran2_ap2",
+        "type": "ethernet",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "AP1",
+      "destination": "gNB1",
+      "type": "wireless",
+      "properties": {
+        "name": "link_ap1_gnb1",
+        "type": "wireless",
+        "bandwidth": "1000",
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    },
+    {
+      "source": "AP2",
+      "destination": "gNB2",
+      "type": "wireless",
+      "properties": {
+        "name": "link_ap2_gnb2",
+        "type": "wireless",
+        "bandwidth": "1000", 
+        "delay": "1ms"
+      },
+      "created_date": "2024-12-18T09:00:00"
+    }
+  ],
+  "canvas_properties": {
+    "zoom_level": 1.0,
+    "show_grid": true
+  }
+}

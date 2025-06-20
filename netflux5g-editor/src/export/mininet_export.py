@@ -156,6 +156,9 @@ class MininetExporter:
         # Add 5G specific startup sequences with Level 2 features
         self.write_5g_startup_sequences_level2(f, categorized_nodes)
         
+        # Add connection test script
+        self.write_connection_test_script(f, categorized_nodes)
+        
         # Add CLI and cleanup
         self.write_cli_and_cleanup(f)
 
@@ -260,62 +263,103 @@ class MininetExporter:
     
     def write_connection_test_script(self, f, categorized_nodes):
         """Write connection test script for 5G components."""
-        f.write("\n# Connection test script\n")
-        f.write("def test_5g_connection():\n")
-        f.write("    print('\\nTesting 5G network connectivity...')\n")
+        # Extract 5G component types
+        core_components = self.extract_5g_components_by_type(categorized_nodes['core5g'] if 'core5g' in categorized_nodes else [])
         
-        # Test UE registration and connectivity
-        if categorized_nodes['UE']:
-            f.write("    # Test UE connectivity\n")
-            f.write("    for host in [")
-            ue_hosts = []
-            for ue in categorized_nodes['UE']:
-                ue_name = ue.get('properties', {}).get('name', 'ue').replace(' ', '_')
-                ue_hosts.append(ue_name)
-            f.write(", ".join([f"'{h}'" for h in ue_hosts]))
-            f.write("]:\n")
-            f.write("        if host in net.hosts:\n")
-            f.write("            print(f'Testing connectivity from {host}:')\n")
-            f.write("            # Try to ping 8.8.8.8 through PDU session\n")
-            f.write("            result = net.hosts[net.hosts.index(host)].cmd('ping -c 3 -I uesimtun0 8.8.8.8')\n")
-            f.write("            if '3 packets transmitted, 3 received' in result:\n")
-            f.write("                print(f'✓ {host} connectivity test successful')\n")
-            f.write("            else:\n")
-            f.write("                print(f'✗ {host} connectivity test failed')\n")
-            f.write("                print(result)\n\n")
+        f.write('\n    info( \'\\n*** Creating connection test functions\\n\')\n')
+        f.write('    # Connection test function\n')
+        f.write('    def test_5g_connection():\n')
+        f.write('        """Test 5G network connectivity between components"""\n')
+        f.write('        info(\'\\n=== 5G Connection Test ===\\n\')\n')
         
-        # Test gNB to AMF connectivity
-        if categorized_nodes['GNB'] and categorized_nodes['AMF']:
-            f.write("    # Test gNB to AMF connectivity\n")
-            f.write("    print('\\nTesting gNB to AMF connectivity:')\n")
-            f.write("    for gnb in [")
-            gnb_hosts = []
-            for gnb in categorized_nodes['GNB']:
-                gnb_name = gnb.get('properties', {}).get('name', 'gnb').replace(' ', '_')
-                gnb_hosts.append(gnb_name)
-            f.write(", ".join([f"'{h}'" for h in gnb_hosts]))
-            f.write("]:\n")
-            f.write("        if gnb in net.hosts:\n")
-            f.write("            for amf in [")
-            amf_hosts = []
-            for amf in categorized_nodes['AMF']:
-                amf_name = amf.get('properties', {}).get('name', 'amf').replace(' ', '_')
-                amf_hosts.append(amf_name)
-            f.write(", ".join([f"'{h}'" for h in amf_hosts]))
-            f.write("]:\n")
-            f.write("                if amf in net.hosts:\n")
-            f.write("                    amf_ip = net.hosts[net.hosts.index(amf)].IP()\n")
-            f.write("                    print(f'Testing {gnb} -> {amf} ({amf_ip}):')\n")
-            f.write("                    result = net.hosts[net.hosts.index(gnb)].cmd(f'ping -c 3 {amf_ip}')\n")
-            f.write("                    if '3 packets transmitted, 3 received' in result:\n")
-            f.write("                        print(f'✓ {gnb} to {amf} connectivity test successful')\n")
-            f.write("                    else:\n")
-            f.write("                        print(f'✗ {gnb} to {amf} connectivity test failed')\n")
-            f.write("                        print(result)\n\n")
+        # Add UE registration and PDU session tests
+        if categorized_nodes.get('ues', []):
+            f.write('        # Test UE connectivity\n')
+            f.write('        info(\'\\n1. Testing UE registration and PDU sessions\\n\')\n')
+            
+            for i, ue in enumerate(categorized_nodes['ues']):
+                ue_name = self.sanitize_variable_name(ue['name'])
+                apn = ue.get('properties', {}).get('UE_APN', 'internet')
+                
+                f.write(f'        info(\'  - Testing {ue_name} with APN {apn}:\\n\')\n')
+                f.write(f'        # Check if UE registered successfully\n')
+                f.write(f'        reg_check = {ue_name}.cmd("ifconfig uesimtun0 2>/dev/null | grep inet")\n')
+                f.write(f'        if "inet" in reg_check:\n')
+                f.write(f'            info(\'    ✓ UE registered successfully with IP: \' + reg_check.strip().split()[1] + \'\\n\')\n')
+                f.write(f'            # Test PDU session connectivity\n')
+                f.write(f'            ping_result = {ue_name}.cmd("ping -c 3 -w 5 -I uesimtun0 8.8.8.8")\n')
+                f.write(f'            if "3 packets transmitted, 3 received" in ping_result:\n')
+                f.write(f'                info(\'    ✓ PDU session working - Internet connectivity successful\\n\')\n')
+                f.write(f'            else:\n')
+                f.write(f'                info(\'    ✗ PDU session test failed - No internet connectivity\\n\')\n')
+                f.write(f'        else:\n')
+                f.write(f'            info(\'    ✗ UE failed to register\\n\')\n')
         
-        f.write("    print('Connection test complete')\n\n")
-        f.write("# Add connection test to CLI\n")
-        f.write("CLI.do_test = test_5g_connection\n")
+        # Add gNB to AMF connectivity test
+        if categorized_nodes.get('gnbs', []) and core_components.get('AMF', []):
+            f.write('        # Test gNB to AMF connectivity\n')
+            f.write('        info(\'\\n2. Testing gNB to AMF connectivity:\\n\')\n')
+            
+            # Get AMF IP address
+            amf_name = self.sanitize_variable_name(core_components['AMF'][0]['name'])
+            for gnb in categorized_nodes['gnbs']:
+                gnb_name = self.sanitize_variable_name(gnb['name'])
+                f.write(f'        amf_ip = {amf_name}.IP()\n')
+                f.write(f'        info(f"  - Testing {gnb_name} → {amf_name} ({{amf_ip}}):\\n")\n')
+                f.write(f'        ping_result = {gnb_name}.cmd(f"ping -c 3 -w 5 {{amf_ip}}")\n')
+                f.write(f'        if "3 packets transmitted, 3 received" in ping_result:\n')
+                f.write(f'            info(\'    ✓ gNB can reach AMF\\n\')\n')
+                f.write(f'            ngap_check = {gnb_name}.cmd("cat /tmp/gnb.log | grep -i \'ng_setup_response\'")\n')
+                f.write(f'            if "ng_setup_response" in ngap_check:\n')
+                f.write(f'                info(\'    ✓ NGAP connection established\\n\')\n')
+                f.write(f'            else:\n')
+                f.write(f'                info(\'    ✗ NGAP connection not found\\n\')\n')
+                f.write(f'        else:\n')
+                f.write(f'            info(\'    ✗ gNB cannot reach AMF\\n\')\n')
+        
+        # Add test for UPF connectivity
+        if core_components.get('UPF', []):
+            f.write('        # Test UPF connectivity\n')
+            f.write('        info(\'\\n3. Testing UPF interfaces and routing:\\n\')\n')
+            
+            for upf in core_components['UPF']:
+                upf_name = self.sanitize_variable_name(upf['name'])
+                f.write(f'        info(f"  - Testing {upf_name} interfaces:\\n")\n')
+                f.write(f'        tun_check = {upf_name}.cmd("ifconfig | grep -i ogstun")\n')
+                f.write(f'        if "ogstun" in tun_check:\n')
+                f.write(f'            info(\'    ✓ UPF tunnel interfaces created\\n\')\n')
+                f.write(f'        else:\n')
+                f.write(f'            info(\'    ✗ UPF tunnel interfaces not found\\n\')\n')
+        
+        # Add end-to-end latency test between UEs
+        if len(categorized_nodes.get('ues', [])) >= 2:
+            f.write('        # Test UE to UE connectivity (if multiple UEs exist)\n')
+            f.write('        info(\'\\n4. Testing UE to UE connectivity:\\n\')\n')
+            
+            ue_names = [self.sanitize_variable_name(ue['name']) for ue in categorized_nodes['ues']]
+            if len(ue_names) >= 2:
+                ue1, ue2 = ue_names[0], ue_names[1]
+                f.write(f'        # Get IPs of UEs\n')
+                f.write(f'        ue1_ip = {ue1}.cmd("ifconfig uesimtun0 2>/dev/null | grep inet").strip().split()[1]\n')
+                f.write(f'        ue2_ip = {ue2}.cmd("ifconfig uesimtun0 2>/dev/null | grep inet").strip().split()[1]\n')
+                f.write(f'        if ue1_ip and ue2_ip:\n')
+                f.write(f'            info(f"  - Testing connectivity between {ue1} ({{ue1_ip}}) → {ue2} ({{ue2_ip}}):\\n")\n')
+                f.write(f'            ping_result = {ue1}.cmd(f"ping -c 3 -w 5 -I uesimtun0 {{ue2_ip}}")\n')
+                f.write(f'            if "3 packets transmitted, 3 received" in ping_result:\n')
+                f.write(f'                info(\'    ✓ UE to UE connectivity successful\\n\')\n')
+                f.write(f'            else:\n')
+                f.write(f'                info(\'    ✗ UE to UE connectivity failed\\n\')\n')
+                f.write(f'        else:\n')
+                f.write(f'            info(\'    ✗ Could not get UE IP addresses\\n\')\n')
+        
+        f.write('        info(\'\\n=== End of 5G Connection Test ===\\n\')\n\n')
+        
+        # Add CLI command to run the test
+        f.write('    # Add test_5g_connection to CLI\n')
+        f.write('    def do_test5g(self, line):\n')
+        f.write('        """Test 5G network connectivity\\nUsage: test5g"""\n')
+        f.write('        test_5g_connection()\n')
+        f.write('    CLI.do_test5g = do_test5g\n\n')
 
     def write_gnbs_level2(self, f, categorized_nodes):
         """Write gNB creation code with Level 2 features."""
