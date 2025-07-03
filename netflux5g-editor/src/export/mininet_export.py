@@ -1057,6 +1057,13 @@ class MininetExporter:
             source_name = self.sanitize_variable_name(link['source'])
             dest_name = self.sanitize_variable_name(link['destination'])
             
+            # Replace VGcore #1 connections with amf1 connections
+            # Handle various possible names for VGcore #1
+            if source_name in ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]:
+                source_name = "amf1"
+            if dest_name in ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]:
+                dest_name = "amf1"
+            
             # Build link parameters
             link_params = [source_name, dest_name]
             

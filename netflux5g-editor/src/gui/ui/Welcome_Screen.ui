@@ -211,7 +211,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Multi Core Deployment</string>
+     <string>Multi RAN Deployment</string>
     </property>
    </widget>
    <widget class="QLabel" name="ExamplesIcon_2">
@@ -276,9 +276,9 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>400</y>
+      <y>380</y>
       <width>381</width>
-      <height>41</height>
+      <height>81</height>
      </rect>
     </property>
     <property name="text">
