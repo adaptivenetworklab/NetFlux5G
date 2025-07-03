@@ -69,6 +69,9 @@ class MovableLabel(QLabel):
         super().keyPressEvent(event)
     
     def contextMenuEvent(self, event):
+        # Always reset dragging state and offset on context menu
+        self.dragging = False
+        self.offset = QPoint()
         menu = QMenu(self)
         if self.object_type in ["Switch", "Router"]:
             menu.addAction("Delete", self.close)
@@ -84,6 +87,10 @@ class MovableLabel(QLabel):
             dialog = dialog_class(label_text=self.object_type, parent=self.parent(), component=self)
             dialog.show()
             
+            # After dialog closes, always reset dragging state and offset
+            self.dragging = False
+            self.offset = QPoint()
+
     def setHighlighted(self, highlight=True):
         self.highlighted = highlight
         self.update()
@@ -104,18 +111,6 @@ class Canvas(QGraphicsView):
         self.setScene(self.scene)
         self.current_dialog = None
 
-        # Performance optimizations
-        self.setOptimizationFlags(
-            QGraphicsView.DontSavePainterState |
-            QGraphicsView.DontAdjustForAntialiasing
-        )
-        self.setViewportUpdateMode(QGraphicsView.MinimalViewportUpdate)
-        self.setCacheMode(QGraphicsView.CacheBackground)
-        
-        # Reduce update frequency during scrolling
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
         self.updateSceneSize()
         self.setDragMode(QGraphicsView.NoDrag)
         self.setStyleSheet("background-color: white;")
@@ -129,11 +124,6 @@ class Canvas(QGraphicsView):
         self.pan_start_point = QPoint()
         self.last_pan_point = QPoint()
         
-        # Debounce timer for scene updates
-        self.update_timer = QTimer()
-        self.update_timer.setSingleShot(True)
-        self.update_timer.timeout.connect(self._delayed_scene_update)
-        
         from PyQt5.QtWidgets import QSizePolicy
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
@@ -146,9 +136,9 @@ class Canvas(QGraphicsView):
             debug_print(f"Updating scene size - canvas viewport: {canvas_width}x{canvas_height}")
             
             if canvas_width > 0 and canvas_height > 0:
-                # Make scene much larger to prevent cropping of large topologies
-                scene_width = max(canvas_width * 3, 3000)  # Larger scene
-                scene_height = max(canvas_height * 3, 2500)  # Larger scene
+                # Make scene larger than the visible area to allow panning
+                scene_width = max(canvas_width * 2, 2000)  # At least 2000px wide
+                scene_height = max(canvas_height * 2, 1500)  # At least 1500px high
                 
                 # Center the scene
                 scene_rect = QRectF(-scene_width//2, -scene_height//2, scene_width, scene_height)
@@ -157,9 +147,6 @@ class Canvas(QGraphicsView):
                 debug_print(f"Scene size updated - {scene_width}x{scene_height}")
                 debug_print(f"Scene rect: {scene_rect}")
                 
-                # Enable smooth scrolling for large scenes
-                self.setDragMode(QGraphicsView.RubberBandDrag)
-                
             else:
                 warning_print("Canvas viewport has zero or negative dimensions")
                 
@@ -167,18 +154,15 @@ class Canvas(QGraphicsView):
             error_print(f"Failed to update scene size: {e}")
 
     def resizeEvent(self, event):
-        """Handle canvas resize events with optimized updates."""
+        """Handle canvas resize events."""
         super().resizeEvent(event)
         
         debug_print(f"Canvas resize event - new size: {event.size()}")
         
-        # Debounce scene size updates to avoid excessive calls
-        self.update_timer.stop()
-        self.update_timer.start(150)  # Wait 150ms before updating
+        # Update scene size when canvas is resized
+        QTimer.singleShot(100, self.updateSceneSize)  # Small delay to ensure geometry is settled
         
-    def _delayed_scene_update(self):
-        """Delayed scene update to reduce resize event spam."""
-        self.updateSceneSize()
+        # Force a viewport update to ensure proper rendering
         self.viewport().update()
 
     def zoomIn(self, zoom_factor=1.2):
@@ -195,16 +179,13 @@ class Canvas(QGraphicsView):
 
     def setShowGrid(self, show):
         self.show_grid = show
-        # Only update visible area instead of entire viewport
-        self.scene.update(self.mapToScene(self.viewport().rect()).boundingRect())
+        self.viewport().update()
 
     def drawBackground(self, painter, rect):
         super().drawBackground(painter, rect)
         if self.show_grid:
-            # Optimize grid drawing for visible area only
             pen = QPen(Qt.lightGray)
             pen.setWidth(0)
-            pen.setCosmetic(True)  # Don't scale with zoom
             painter.setPen(pen)
 
             grid_size = 35
@@ -213,34 +194,35 @@ class Canvas(QGraphicsView):
             right = int(rect.right())
             bottom = int(rect.bottom())
 
-            # Draw only visible grid lines
-            lines = []
             for x in range(left, right, grid_size):
-                lines.append(painter.drawLine(int(x), int(rect.top()), int(x), int(rect.bottom())))
+                painter.drawLine(int(x), int(rect.top()), int(x), int(rect.bottom()))
             for y in range(top, bottom, grid_size):
-                lines.append(painter.drawLine(int(rect.left()), int(y), int(rect.right()), int(y)))
+                painter.drawLine(int(rect.left()), int(y), int(rect.right()), int(y))
 
     def wheelEvent(self, event):
         modifiers = event.modifiers()
         
         if modifiers & Qt.ControlModifier:
-            # Optimize zoom operations
-            old_anchor = self.transformationAnchor()
-            self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-            
             if event.angleDelta().y() > 0:
                 self.zoomIn(1.15)
                 self.app_instance.showCanvasStatus(f"Zoomed in (Level: {self.zoom_level:.1f}x)")
             else:
                 self.zoomOut(1.15)
                 self.app_instance.showCanvasStatus(f"Zoomed out (Level: {self.zoom_level:.1f}x)")
-            
-            self.setTransformationAnchor(old_anchor)
             event.accept()
         else:
             super().wheelEvent(event)
 
     def mousePressEvent(self, event):
+        # If in placement mode, place the component at the clicked position
+        if hasattr(self.app_instance, 'placement_mode') and self.app_instance.placement_mode:
+            component_type = self.app_instance.placement_component_type
+            if component_type:
+                pos = self.mapToScene(event.pos())
+                self.placeComponent(component_type, pos)
+                self.app_instance.exitPlacementMode()
+                return  # Do not propagate event further
+
         if event.button() == Qt.MiddleButton:
             self.is_panning = True
             self.pan_start_point = event.pos()
@@ -305,14 +287,12 @@ class Canvas(QGraphicsView):
             delta = event.pos() - self.last_pan_point
             self.last_pan_point = event.pos()
             
-            # Optimize scrolling by reducing update frequency
             h_bar = self.horizontalScrollBar()
             v_bar = self.verticalScrollBar()
             
             h_bar.setValue(h_bar.value() - delta.x())
             v_bar.setValue(v_bar.value() - delta.y())
             
-            # Don't update scene on every mouse move during panning
             event.accept()
             return
             
@@ -334,8 +314,6 @@ class Canvas(QGraphicsView):
             distance = (total_delta.x() ** 2 + total_delta.y() ** 2) ** 0.5
             self.app_instance.showCanvasStatus(f"Panning completed (moved {distance:.0f} pixels)")
             
-            # Force update only after panning is complete
-            self.scene.update()
             event.accept()
             return
             
@@ -439,34 +417,38 @@ class Canvas(QGraphicsView):
                 for item in selected_items:
                     # Remove any connected links first if this is a NetworkComponent
                     if hasattr(item, 'connected_links') and item.connected_links:
-                        # Copy the list to avoid modification during iteration
                         links_to_remove = item.connected_links.copy()
                         for link in links_to_remove:
-                            # Remove the link from both connected nodes
                             if hasattr(link, 'source_node') and hasattr(link.source_node, 'connected_links'):
                                 if link in link.source_node.connected_links:
                                     link.source_node.connected_links.remove(link)
                             if hasattr(link, 'dest_node') and hasattr(link.dest_node, 'connected_links'):
                                 if link in link.dest_node.connected_links:
                                     link.dest_node.connected_links.remove(link)
-                            # Remove the link from the scene
                             if link.scene():
                                 self.scene.removeItem(link)
-                    
-                    # Now remove the component
-                    self.scene.removeItem(item)
-                
-                # Clean up any remaining broken links
+                    # If it's a NetworkComponent, use its cleanup method
+                    from .components import NetworkComponent
+                    if isinstance(item, NetworkComponent):
+                        item._delete_and_cleanup()
+                    else:
+                        self.scene.removeItem(item)
                 self.cleanupBrokenLinks()
-                
-                # Show status message
                 if hasattr(self, 'app_instance') and self.app_instance:
                     num_items = len(selected_items)
                     self.app_instance.showCanvasStatus(f"Deleted {num_items} selected item(s)")
-                    
         elif event.key() == Qt.Key_Escape:
             if hasattr(self, 'app_instance') and self.app_instance:
                 if self.app_instance.current_tool in ["delete", "link", "placement", "text", "square"]:
                     self.app_instance.tool_manager.enablePickTool()
-        
         super().keyPressEvent(event)
+
+    def placeComponent(self, component_type, pos):
+        """Create and place a component at the given scene position."""
+        # Use the icon map from main window
+        icon_path = self.app_instance.component_icon_map.get(component_type)
+        from .components import NetworkComponent
+        component = NetworkComponent(component_type, icon_path)
+        component.setPos(pos)
+        self.scene.addItem(component)
+        debug_print(f"Placed component '{component_type}' at position: x={pos.x()}, y={pos.y()}")

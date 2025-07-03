@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QTimer
 from manager.debug import debug_print
 
 class CanvasManager:
@@ -22,48 +22,6 @@ class CanvasManager:
         if hasattr(self.main_window, 'canvas_view'):
             self.main_window.canvas_view.resetZoom()
             self.main_window.status_manager.showCanvasStatus("Zoom reset to default level")
-    
-    def fitToWindow(self):
-        """Fit the topology to the current window size."""
-        if hasattr(self.main_window, 'canvas_view') and hasattr(self.main_window.canvas_view, 'scene'):
-            scene = self.main_window.canvas_view.scene
-            items = scene.items()
-            
-            if items:
-                # Get bounding rectangle of all items
-                scene_rect = scene.itemsBoundingRect()
-                
-                # Add padding around the topology
-                padding = 50
-                scene_rect.adjust(-padding, -padding, padding, padding)
-                
-                # Update scene rectangle
-                scene.setSceneRect(scene_rect)
-                
-                # Fit the view to show the entire topology
-                self.main_window.canvas_view.fitInView(scene_rect, Qt.KeepAspectRatio)
-                
-                # Update zoom level
-                transform = self.main_window.canvas_view.transform()
-                self.main_window.canvas_view.zoom_level = transform.m11()
-                
-                self.main_window.status_manager.showCanvasStatus("Topology fitted to window")
-    
-    def centerTopology(self):
-        """Center the topology in the current view."""
-        if hasattr(self.main_window, 'canvas_view') and hasattr(self.main_window.canvas_view, 'scene'):
-            scene = self.main_window.canvas_view.scene
-            items = scene.items()
-            
-            if items:
-                # Get bounding rectangle of all items
-                bounds = scene.itemsBoundingRect()
-                center = bounds.center()
-                
-                # Center the view on the topology
-                self.main_window.canvas_view.centerOn(center)
-                
-                self.main_window.status_manager.showCanvasStatus("Topology centered")
         
     def toggleGrid(self):
         """Toggle the visibility of the grid on the canvas with debouncing."""

@@ -38,39 +38,13 @@ docker compose -f gnb2.yaml up -d
 
 # Test
 
-To test ue connectivity through RAN, first check which UE containers are running:
-
-```
-docker ps | grep ues
-```
-
-Then enter the appropriate UE container (e.g., gnb1-ues1):
+To test ue connectivity through RAN, enter the gnb1-ues1 container:
 
 ```
 docker compose -f gnb1.yaml exec ues1 /bin/bash
-```
-
-Check available tunnel interfaces:
-```
-ip link show | grep uesimtun
-ip addr show uesimtun0
-```
-
-Test connectivity:
-```
 traceroute -i uesimtun0 google.com
 ping -I uesimtun0 google.com
 ```
-
-For comprehensive testing, you can also check:
-```
-# Check UE registration status
-grep -i "registration\|attach" /var/log/ueransim/ue*.log
-
-# Test data transfer between UEs
-python3 -m http.server 8080 --bind $(ip addr show uesimtun0 | grep 'inet ' | awk '{print $2}' | cut -d'/' -f1)
-```
-
 ues container will have multiple interfaces (one for each ue). 
 You can try each tunnel providing the flag '-i' in traceroute and '-I' in ping.
 

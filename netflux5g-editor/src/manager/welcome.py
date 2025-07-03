@@ -3,7 +3,6 @@ from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QPixmap, QIcon, QCursor
 from PyQt5 import uic
 from manager.debug import debug_print, error_print, warning_print
-from prerequisites.checker import PrerequisitesChecker
 import os
 import webbrowser 
 
@@ -41,57 +40,7 @@ class WelcomeScreenManager:
         elif action == "load_example":
             self.welcome_window.close()
             self.main_window.show()
-            # Load the example and optionally start testing
-            if self.loadExampleTopology(data):
-                # If it's the basic topology, offer to run end-to-end test
-                if data == "basic_gnb_core":
-                    from PyQt5.QtWidgets import QMessageBox
-                    
-                    # Check prerequisites before offering test
-                    all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
-                    if not all_ok:
-                        missing = [tool for tool, ok in checks.items() if not ok]
-                        reply = QMessageBox.question(
-                            self.main_window,
-                            "Missing Prerequisites",
-                            f"Some prerequisites are missing: {', '.join(missing)}\n\n"
-                            "Would you still like to run the end-to-end test?\n"
-                            "(The test may fail without all prerequisites)",
-                            QMessageBox.Yes | QMessageBox.No,
-                            QMessageBox.No
-                        )
-                    else:
-                        reply = QMessageBox.question(
-                            self.main_window,
-                            "Run End-to-End Test?",
-                            "Would you like to run the automated end-to-end test for this topology?\n\n"
-                            "This will:\n"
-                            "• Deploy the 5G network\n" 
-                            "• Start all components\n"
-                            "• Run connectivity tests\n"
-                            "• Generate test reports\n\n"
-                            "Make sure Docker and Mininet are installed.",
-                            QMessageBox.Yes | QMessageBox.No,
-                            QMessageBox.No
-                        )
-                    
-                    if reply == QMessageBox.Yes:
-                        # Show additional info about the test
-                        info_msg = QMessageBox.information(
-                            self.main_window,
-                            "Test Information",
-                            "The end-to-end test will:\n\n"
-                            "1. Deploy Open5GS 5G core network\n"
-                            "2. Start gNodeB and UE simulators\n" 
-                            "3. Test UE registration and connectivity\n"
-                            "4. Generate comprehensive test report\n\n"
-                            "Note: Tests may take 3-5 minutes to complete.\n"
-                            "Containers will be automatically cleaned up after testing.",
-                            QMessageBox.Ok
-                        )
-                        
-                        # Start the end-to-end test
-                        QTimer.singleShot(1000, self.main_window.automation_runner.run_end_to_end_test)
+            self.loadExampleTopology(data)
         
         elif action == "open_link":  
             self.openWebLink(data) 
@@ -115,7 +64,7 @@ class WelcomeScreenManager:
             # Map example names to template names
             example_mapping = {
                 "basic_gnb_core": "basic_5g_topology",
-                "multi_core": "multi_core_deployment", 
+                "multi_ran": "multi_ran_deployment", 
                 "sdn_deployment": "sdn_topology"
             }
             
@@ -123,15 +72,12 @@ class WelcomeScreenManager:
             
             if self.main_window.file_manager.loadExampleTemplate(template_name):
                 self.main_window.status_manager.showCanvasStatus(f"Loaded example: {example_name}")
-                return True
             else:
                 warning_print(f"Failed to load example: {example_name}")
-                return False
                 
         except Exception as e:
             error_print(f"Failed to load example topology: {e}")
             self.main_window.status_manager.showCanvasStatus(f"Error loading example: {str(e)}")
-            return False
 
 class WelcomeScreen(QMainWindow):
     """Welcome screen window that loads the UI file and handles interactions."""
@@ -185,7 +131,7 @@ class WelcomeScreen(QMainWindow):
             'NewTopo': ('new_topology', None),
             'OpenTopo': ('open_topology', None),
             'Examples_1': ('load_example', 'basic_gnb_core'),
-            'Examples_2': ('load_example', 'multi_core'),
+            'Examples_2': ('load_example', 'multi_ran'),
             'Examples_3': ('load_example', 'sdn_deployment'),
             'linkRepo': ('open_link', 'https://github.com/adaptivenetworklab/Riset_23-24_SDN/tree/netflux5g'),
         }
@@ -207,18 +153,10 @@ class WelcomeScreen(QMainWindow):
     
     def addHoverEffect(self, label, hover):
         """Add hover effect to labels."""
-        if label.objectName() == 'linkRepo':
-            # Special styling for GitHub link
-            if hover:
-                label.setStyleSheet("QLabel { color: #0056b3; text-decoration: underline; }")
-            else:
-                label.setStyleSheet("QLabel { color: #007bff; text-decoration: underline; }")
+        if hover:
+            label.setStyleSheet("QLabel { color: #0078d4; }")
         else:
-            # Regular hover effect for other labels
-            if hover:
-                label.setStyleSheet("QLabel { color: #0078d4; }")
-            else:
-                label.setStyleSheet("QLabel { color: black; }")
+            label.setStyleSheet("QLabel { color: black; }")
     
     def applyModernStyling(self):
         """Apply modern styling to the welcome screen."""
@@ -233,15 +171,7 @@ class WelcomeScreen(QMainWindow):
                 color: #0078d4;
                 font-weight: bold;
             }
-            QLabel#linkRepo {
-                color: #007bff;
-                text-decoration: underline;
-            }
         """)
-        
-        # Apply initial link styling to GitHub link
-        if hasattr(self, 'linkRepo'):
-            self.linkRepo.setStyleSheet("QLabel { color: #007bff; text-decoration: underline; }")
     
     def centerWindow(self):
         """Center the window on the screen."""

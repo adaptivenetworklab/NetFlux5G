@@ -27,13 +27,11 @@ class ToolbarFunctions:
             if action is not None:
                 action.triggered.connect(method)
 
-        # Connect run/stop actions if they exist
-        run_action = getattr(self.main_window, 'actionRunAll', None)
-        if run_action is not None:
-            run_action.triggered.connect(self.runAll)
-        stop_action = getattr(self.main_window, 'actionStopAll', None)
-        if stop_action is not None:
-            stop_action.triggered.connect(self.stopAll)
+        # Note: RunAll/StopAll actions are connected directly in main.py to avoid duplicate connections
+        # Note: Database actions are connected directly in main.py to avoid duplicate connections
+        # Note: Docker network actions are connected directly in main.py to avoid duplicate connections
+
+        # Note: Database actions are connected directly in main.py to avoid duplicate connections
 
     def setup_tooltips(self):
         """Set up helpful tooltips with keyboard shortcuts."""
@@ -48,7 +46,13 @@ class ToolbarFunctions:
             'actionZoomOut': "Zoom Out (-)",
             'actionResetZoom': "Reset Zoom (0)",
             'actionRunAll': "Run All - Deploy and start all components",
-            'actionStopAll': "Stop All - Stop all running services"
+            'actionStopAll': "Stop All - Stop all running services",
+            'actionCreate_Docker_Network': "Create Docker Network - Create network for current topology",
+            'actionDelete_Docker_Network': "Delete Docker Network - Delete network for current topology",
+            'actionDeploy_Database': "Deploy Database - Deploy MongoDB container (Ctrl+Shift+B)",
+            'actionStop_Database': "Stop Database - Stop MongoDB container (Ctrl+Shift+D)",
+            'actionDeploy_User_Manager': "Deploy Web UI - Deploy Open5GS WebUI container (Ctrl+Shift+U)",
+            'actionStop_User_Manager': "Stop Web UI - Stop Open5GS WebUI container (Ctrl+Shift+W)"
         }
 
         for action_name, tooltip in tooltips.items():
@@ -102,10 +106,6 @@ class ToolbarFunctions:
         if canvas_view is not None and hasattr(canvas_view, 'resetZoom'):
             canvas_view.resetZoom()
 
-    def runAll(self):
-        if hasattr(self.main_window, 'runAllComponents'):
-            self.main_window.runAllComponents()
-
-    def stopAll(self):
-        if hasattr(self.main_window, 'stopAllComponents'):
-            self.main_window.stopAllComponents()
+    # Note: RunAll/StopAll methods are handled directly in main.py via automation_manager
+    # Note: Docker network methods are handled directly in main.py via docker_network_manager
+    # Note: Database methods are handled directly in main.py via database_manager

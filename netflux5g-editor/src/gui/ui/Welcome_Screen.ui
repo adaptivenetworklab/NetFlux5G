@@ -39,7 +39,7 @@
       <x>80</x>
       <y>260</y>
       <width>191</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -131,8 +131,8 @@
     <property name="geometry">
      <rect>
       <x>470</x>
-      <y>160</y>
-      <width>351</width>
+      <y>150</y>
+      <width>341</width>
       <height>121</height>
      </rect>
     </property>
@@ -155,9 +155,9 @@
    <widget class="QLabel" name="Start">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>450</x>
       <y>270</y>
-      <width>350</width>
+      <width>371</width>
       <height>41</height>
      </rect>
     </property>
@@ -165,27 +165,23 @@
      <font>
       <family>Poppins Medium</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>Start building your 5G network now!</string>
+     <string>      Start building your 5G network now!      </string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="ExamplesIcon_1">
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>260</y>
+      <y>261</y>
       <width>21</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -204,7 +200,7 @@
       <x>80</x>
       <y>290</y>
       <width>191</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -222,9 +218,9 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>290</y>
+      <y>291</y>
       <width>21</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -243,7 +239,7 @@
       <x>80</x>
       <y>320</y>
       <width>191</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -261,9 +257,9 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>320</y>
+      <y>321</y>
       <width>21</width>
-      <height>16</height>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -298,9 +294,9 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>470</x>
       <y>400</y>
-      <width>450</width>
+      <width>361</width>
       <height>31</height>
      </rect>
     </property>
@@ -311,27 +307,14 @@
    <widget class="QLabel" name="linkRepo">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>420</x>
       <y>420</y>
-      <width>450</width>
+      <width>411</width>
       <height>20</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>Poppins Light</family>
-      <pointsize>8</pointsize>
-      <underline>true</underline>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: #007bff; text-decoration: underline;</string>
-    </property>
     <property name="text">
      <string>https://github.com/adaptivenetworklab/Riset_23-24_SDN/tree/netflux5g</string>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -339,4 +322,3 @@
  <resources/>
  <connections/>
 </ui>
-

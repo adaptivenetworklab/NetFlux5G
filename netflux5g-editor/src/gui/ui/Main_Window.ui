@@ -98,7 +98,7 @@ QFrame {
      <x>0</x>
      <y>0</y>
      <width>1314</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -110,7 +110,6 @@ QFrame {
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="actionExport_to_Level_2_Script"/>
-    <addaction name="actionExport_to_Docker_Compose"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -126,8 +125,25 @@ QFrame {
     <property name="title">
      <string>Run</string>
     </property>
+    <addaction name="separator"/>
+    <addaction name="actionRun_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_Docker_Network"/>
+    <addaction name="actionDelete_Docker_Network"/>
+    <addaction name="separator"/>
     <addaction name="actionRun"/>
+    <addaction name="actionDeploy_Database"/>
+    <addaction name="actionDeploy_User_Manager"/>
+    <addaction name="actionDeploy_Monitoring"/>
+    <addaction name="separator"/>
+    <addaction name="actionStop_All"/>
+    <addaction name="separator"/>
     <addaction name="actionStop"/>
+    <addaction name="actionStop_Database"/>
+    <addaction name="actionStop_User_Manager"/>
+    <addaction name="actionStop_Monitoring"/>
+    <addaction name="separator"/>
+    <addaction name="actionClear_All_Data"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -232,7 +248,7 @@ QFrame {
   </action>
   <action name="actionRun">
    <property name="text">
-    <string>Run</string>
+    <string>Run Topology</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -240,7 +256,7 @@ QFrame {
   </action>
   <action name="actionStop">
    <property name="text">
-    <string>Stop</string>
+    <string>Stop Topology</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
@@ -395,9 +411,81 @@ QFrame {
     <string>StopAll</string>
    </property>
   </action>
-  <action name="actionExport_to_Docker_Compose">
+  <action name="actionDeploy_Database">
    <property name="text">
-    <string>Export to Docker Compose</string>
+    <string>Deploy Database</string>
+   </property>
+  </action>
+  <action name="actionDeploy_User_Manager">
+   <property name="text">
+    <string>Deploy User Manager</string>
+   </property>
+  </action>
+  <action name="actionStop_Database">
+   <property name="text">
+    <string>Stop Database</string>
+   </property>
+  </action>
+  <action name="actionStop_User_Manager">
+   <property name="text">
+    <string>Stop User Manager</string>
+   </property>
+  </action>
+  <action name="actionClear_All_Data">
+   <property name="text">
+    <string>Clear All Data</string>
+   </property>
+  </action>
+  <action name="actionDeploy_Monitoring">
+   <property name="text">
+    <string>Deploy Monitoring</string>
+   </property>
+  </action>
+  <action name="actionStop_Monitoring">
+   <property name="text">
+    <string>Stop Monitoring</string>
+   </property>
+  </action>
+  <action name="actionRun_All">
+   <property name="text">
+    <string>Run All</string>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
+   </property>
+  </action>
+  <action name="actionStop_All">
+   <property name="text">
+    <string>Stop All</string>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
+   </property>
+  </action>
+  <action name="actionCreate_Docker_Network">
+   <property name="text">
+    <string>Create Docker Network</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a Docker network for the current topology (Ctrl+Shift+C)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="actionDelete_Docker_Network">
+   <property name="text">
+    <string>Delete Docker Network</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete the Docker network for the current topology (Ctrl+Shift+X)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+X</string>
    </property>
   </action>
  </widget>

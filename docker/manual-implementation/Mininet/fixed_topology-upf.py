@@ -32,11 +32,11 @@ def topology(args):
 
     info( '\n*** Add APs & Switches\n')
     ap1 = net.addAccessPoint('ap1', cls=OVSKernelAP, ssid='ap1-ssid', failMode='standalone', datapath='user',
-                             channel='36', mode='a', position='700.0,335.0,0', protocols="OpenFlow14")
+                             channel='36', mode='a', position='700.0,335.0,0', range=116, txpower=20, protocols="OpenFlow14")
     ap2 = net.addAccessPoint('ap2', cls=OVSKernelAP, ssid='ap2-ssid', failMode='standalone', datapath='user',
-                             channel='36', mode='a', position='350.0,335.0,0', protocols="OpenFlow14")
+                             channel='36', mode='a', position='350.0,335.0,0', range=116, txpower=20, protocols="OpenFlow14")
     ap3 = net.addAccessPoint('ap3', cls=OVSKernelAP, ssid='ap3-ssid', failMode='standalone', datapath='user',
-                             channel='36', mode='a', position='525.0,10.0,0', protocols="OpenFlow14")
+                             channel='36', mode='a', position='525.0,10.0,0', range=116, txpower=20, protocols="OpenFlow14")
 
     s1 = net.addSwitch('s1', cls=OVSKernelSwitch, protocols="OpenFlow14")
     s2 = net.addSwitch('s2', cls=OVSKernelSwitch, protocols="OpenFlow14")
@@ -53,58 +53,58 @@ def topology(args):
 
     info( '\n *** Add UPF\n')
     upf1 = net.addStation('upf1', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", privileged=True, publish_all_ports=True,
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='695.0,335.0,0', range=116,
-                          volumes=[cwd + "/config/upf1.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='695.0,335.0,0', range=116)
+                        #   volumes=[cwd + "/config/upf1.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
     upf2 = net.addStation('upf2', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", privileged=True, publish_all_ports=True,
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='355.0,335.0,0', range=116,
-                          volumes=[cwd + "/config/upf2.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='355.0,335.0,0', range=116)
+                        #   volumes=[cwd + "/config/upf2.yaml:/opt/open5gs/etc/open5gs/upf.yaml"])
 
     info( '\n *** Add AMF\n')
     amf1 = net.addStation('amf1', network_mode="open5gs-ueransim_default", cap_add=["net_admin"],  publish_all_ports=True,
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='520.0,10.0,0', range=116,
-                          volumes=[cwd + "/config/amf.yaml:/opt/open5gs/etc/open5gs/amf.yaml"])
+                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/open5gs:1.0", position='520.0,10.0,0', range=116)
+                        #   volumes=[cwd + "/config/amf.yaml:/opt/open5gs/etc/open5gs/amf.yaml"])
 
     info( '\n *** Add gNB\n')
     gnb1 = net.addStation('gnb1', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", publish_all_ports=True, 
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='705.0,335.0,0', range=116,
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='705.0,335.0,0', range=300, txpower=30,
                           environment={"AMF_IP": "10.0.0.3", "GNB_HOSTNAME": "mn.gnb1", "N2_IFACE":"gnb1-wlan0", "N3_IFACE":"gnb1-wlan0", "RADIO_IFACE":"gnb1-wlan0",
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1"})                               
     gnb2 = net.addStation('gnb2', cap_add=["net_admin"], network_mode="open5gs-ueransim_default", publish_all_ports=True,
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='345.0,335.0,0', range=116,
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='345.0,335.0,0', range=300, txpower=30,
                           environment={"AMF_IP": "10.0.0.3", "GNB_HOSTNAME": "mn.gnb2", "N2_IFACE":"gnb2-wlan0", "N3_IFACE":"gnb2-wlan0", "RADIO_IFACE":"gnb2-wlan0",
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1"})                   
 
     info('\n*** Adding docker UE hosts\n')
     # Docker Host (UE) connected to ap1-ssid
-    ue1 = net.addStation('ue1', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='700.0,163.0,0', 
+    ue1 = net.addStation('ue1', devices=["/dev/net/tun"], cap_add=["net_admin"], range=150, txpower=15, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='700.0,163.0,0', 
                           environment={"GNB_IP": "10.0.0.4", "APN": "internet", "MSISDN": '0000000001',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1", 
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue2 = net.addStation('ue2', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='815.0,335.0,0', 
+    ue2 = net.addStation('ue2', devices=["/dev/net/tun"], cap_add=["net_admin"], range=150, txpower=15, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='815.0,335.0,0', 
                           environment={"GNB_IP": "10.0.0.4", "APN": "internet", "MSISDN": '0000000002',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue3 = net.addStation('ue3', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='700.0,513.0,0', 
+    ue3 = net.addStation('ue3', devices=["/dev/net/tun"], cap_add=["net_admin"], range=150, txpower=15, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='700.0,513.0,0', 
                           environment={"GNB_IP": "10.0.0.4", "APN": "internet2", "MSISDN": '0000000011',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
     
-    # Docker Host (UE) connected to ap2-ssid
-    ue4 = net.addStation('ue4', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='390.0,496.0,0', 
+    # Docker Host (UE) connected to ap2-ssid - different power levels
+    ue4 = net.addStation('ue4', devices=["/dev/net/tun"], cap_add=["net_admin"], range=100, txpower=10, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='390.0,496.0,0', 
                           environment={"GNB_IP": "10.0.0.5", "APN": "internet", "MSISDN": '0000000003',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue5 = net.addStation('ue5', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='195.0,323.0,0', 
+    ue5 = net.addStation('ue5', devices=["/dev/net/tun"], cap_add=["net_admin"], range=100, txpower=10, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='195.0,323.0,0', 
                           environment={"GNB_IP": "10.0.0.5", "APN": "internet2", "MSISDN": '0000000012',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"})
-    ue6 = net.addStation('ue6', devices=["/dev/net/tun"], cap_add=["net_admin"], range=116, network_mode="open5gs-ueransim_default",
-                          dcmd="/bin/bash",cls=DockerSta, dimage="adaptive/ueransim:1.0", position='390.0,180.0,0', 
+    ue6 = net.addStation('ue6', devices=["/dev/net/tun"], cap_add=["net_admin"], range=100, txpower=10, network_mode="open5gs-ueransim_default",
+                          dcmd="/bin/bash",cls=DockerSta, dimage="gradiant/ueransim:3.2.6", position='390.0,180.0,0', 
                           environment={"GNB_IP": "10.0.0.5", "APN": "internet2", "MSISDN": '0000000013',
                                         "MCC": "999", "MNC": "70", "SST": "1", "SD": "0xffffff", "TAC": "1",
                                         "KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC", "OP_TYPE": "OPC", "OP": "E8ED289DEBA952E4283B54E88E6183CA"}) 

@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>10</number>
     </property>
     <widget class="QWidget" name="UPF_2">
      <attribute name="title">
@@ -38,7 +38,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -233,7 +233,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -306,7 +306,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -379,7 +379,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -452,7 +452,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -525,7 +525,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -598,7 +598,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -671,7 +671,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -744,80 +744,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
-        <height>231</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 255, 255);</string>
-      </property>
-      <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
-      </attribute>
-      <attribute name="verticalHeaderHighlightSections">
-       <bool>true</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Import YAML</string>
-       </property>
-      </column>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="PCRF_2">
-     <attribute name="title">
-      <string>PCRF</string>
-     </attribute>
-     <widget class="QWidget" name="formLayoutWidget_27">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>211</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <layout class="QFormLayout" name="formLayout_27">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_63">
-         <property name="text">
-          <string>Add  PCRF:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="Component5G_AddPCRFButton">
-         <property name="text">
-          <string>add</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QLabel" name="label_64">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>50</y>
-        <width>101</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>PCRF List:</string>
-      </property>
-     </widget>
-     <widget class="QTableWidget" name="Component5G_PCRFtable">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>
@@ -890,7 +817,7 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>531</width>
+        <width>541</width>
         <height>231</height>
        </rect>
       </property>

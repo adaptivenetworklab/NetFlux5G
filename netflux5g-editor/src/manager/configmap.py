@@ -1,7 +1,7 @@
 """
 Configuration mapping for different component types to Mininet parameters
+Streamlined version focused on essential 5G core functionality
 """
-from manager.debug import debug_print, error_print, warning_print
 
 class ConfigurationMapper:
     """Maps UI component configurations to Mininet script parameters"""
@@ -39,8 +39,8 @@ class ConfigurationMapper:
                         cpu_val = float(cpu)
                         if cpu_val != 1.0:  # Only add if different from default
                             opts.append(f"cpu={cpu_val}")
-                    except (ValueError, TypeError):
-                        warning_print(f"Invalid CPU value: {cpu}")
+                    except ValueError:
+                        pass
                     break
         
         # Memory Configuration
@@ -53,8 +53,8 @@ class ConfigurationMapper:
                         mem_val = int(memory)
                         if mem_val > 0:
                             opts.append(f"mem={mem_val}")
-                    except (ValueError, TypeError):
-                        warning_print(f"Invalid memory value: {memory}")
+                    except ValueError:
+                        pass
                     break
         
         return opts
@@ -64,7 +64,7 @@ class ConfigurationMapper:
         """Map gNB properties to configuration parameters"""
         config = {}
         
-        # gNB specific configurations
+        # gNB specific configurations following fixed_topology-upf.py pattern
         config['amf_ip'] = properties.get('GNB_AMF_IP', '10.0.0.3')
         config['hostname'] = properties.get('GNB_Hostname', 'mn.gnb')
         config['mcc'] = properties.get('GNB_MCC', '999')
@@ -72,8 +72,34 @@ class ConfigurationMapper:
         config['sst'] = properties.get('GNB_SST', '1')
         config['sd'] = properties.get('GNB_SD', '0xffffff')
         config['tac'] = properties.get('GNB_TAC', '1')
-        config['frequency'] = properties.get('GNB_Frequency', '3500')
-        config['band'] = properties.get('GNB_Band', 'n78')
+        
+        # Power configuration for radio propagation
+        power_fields = ["GNB_Power", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        for field in power_fields:
+            if properties.get(field):
+                power = str(properties[field]).strip()
+                if power:
+                    try:
+                        power_val = float(power)
+                        if power_val > 0:
+                            config['txpower'] = power_val
+                    except ValueError:
+                        pass
+                    break
+        
+        # Range configuration (coverage area)
+        range_fields = ["GNB_Range", "GNB_Coverage", "spinBox_range"]
+        for field in range_fields:
+            if properties.get(field):
+                range_val = str(properties[field]).strip()
+                if range_val:
+                    try:
+                        range_int = int(range_val)
+                        if range_int > 0:
+                            config['range'] = range_int
+                    except ValueError:
+                        pass
+                    break
         
         return config
     
@@ -81,9 +107,13 @@ class ConfigurationMapper:
     def map_ue_config(properties):
         """Map UE properties to configuration parameters"""
         config = {}
-        
-        # UE specific configurations
-        config['gnb_ip'] = properties.get('UE_GNB_IP', '10.0.0.4')
+        # Use gNB hostname instead of IP
+        gnb_hostname = properties.get('UE_GNB_HOSTNAME')
+        if not gnb_hostname:
+            # Try to find a gNB hostname in the topology if available (not possible here, so fallback)
+            gnb_hostname = 'mn.gnb'
+        config['gnb_hostname'] = gnb_hostname
+        # Deprecated: config['gnb_ip'] = properties.get('UE_GNB_IP', '10.0.0.4')
         config['apn'] = properties.get('UE_APN', 'internet')
         config['msisdn'] = properties.get('UE_MSISDN', '0000000001')
         config['mcc'] = properties.get('UE_MCC', '999')
@@ -95,20 +125,98 @@ class ConfigurationMapper:
         config['op_type'] = properties.get('UE_OP_Type', 'OPC')
         config['op'] = properties.get('UE_OP', 'E8ED289DEBA952E4283B54E88E6183CA')
         
+        # Power configuration for radio propagation
+        power_fields = ["UE_Power", "UE_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        for field in power_fields:
+            if properties.get(field):
+                power = str(properties[field]).strip()
+                if power:
+                    try:
+                        power_val = float(power)
+                        if power_val > 0:
+                            config['txpower'] = power_val
+                    except ValueError:
+                        pass
+                    break
+        
+        # Range configuration (coverage area)
+        range_fields = ["UE_Range", "UE_Coverage", "spinBox_range"]
+        for field in range_fields:
+            if properties.get(field):
+                range_val = str(properties[field]).strip()
+                if range_val:
+                    try:
+                        range_int = int(range_val)
+                        if range_int > 0:
+                            config['range'] = range_int
+                    except ValueError:
+                        pass
+                    break
+        
         return config
     
     @staticmethod
-    def map_5g_core_config(properties):
-        """Map 5G Core component properties to configuration parameters"""
-        config = {}
+    def get_5g_core_docker_options(component_type):
+        """Get Docker-specific options for 5G components based on fixed_topology-upf.py"""
+        base_options = {
+            'cap_add': ["net_admin"],
+            'network_mode': "open5gs-ueransim_default", 
+            'publish_all_ports': True,
+            'dcmd': "/bin/bash",
+            'cls': "DockerSta",
+            'range': 116
+        }
         
-        # 5G Core specific configurations
-        config['component_type'] = properties.get('Component5G_Type', 'AMF')
-        config['network_mode'] = properties.get('Component5G_NetworkMode', 'open5gs-ueransim_default')
-        config['image'] = properties.get('Component5G_Image', 'adaptive/open5gs:1.0')
-        config['config_file'] = properties.get('Component5G_ConfigFile', 'default.yaml')
+        # Component-specific configurations
+        component_configs = {
+            'UPF': {
+                'privileged': True,
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'AMF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'SMF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'NRF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'SCP': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'AUSF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'BSF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'NSSF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'PCF': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'UDM': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'UDR': {
+                'dimage': 'adaptive/open5gs:1.0'
+            },
+            'GNB': {
+                'dimage': 'gradiant/ueransim:3.2.6'
+            },
+            'UE': {
+                'devices': ["/dev/net/tun"],
+                'dimage': 'gradiant/ueransim:3.2.6'
+            }
+        }
         
-        return config
+        options = base_options.copy()
+        if component_type in component_configs:
+            options.update(component_configs[component_type])
+            
+        return options
     
     @staticmethod
     def map_ap_config(properties):
@@ -147,25 +255,30 @@ class ConfigurationMapper:
                     opts.append(f"mode='{mode}'")
                     break
         
-        # Wireless protocol
-        protocol_fields = ["AP_WirelessProtocol", "comboBox_3"]
-        for field in protocol_fields:
+        # Power configuration for radio propagation
+        power_fields = ["AP_Power", "AP_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        for field in power_fields:
             if properties.get(field):
-                protocol = properties[field].strip()
-                if protocol:
-                    opts.append(f"protocol='{protocol}'")
+                power = str(properties[field]).strip()
+                if power:
+                    try:
+                        power_val = float(power)
+                        if power_val > 0:
+                            opts.append(f"txpower={power_val}")
+                    except ValueError:
+                        pass
                     break
         
-        # Range/Position
-        range_fields = ["AP_Range", "spinBox_3"]
+        # Range configuration (coverage area)
+        range_fields = ["AP_Range", "AP_Coverage", "spinBox_range"]
         for field in range_fields:
             if properties.get(field):
                 range_val = str(properties[field]).strip()
                 if range_val:
                     try:
-                        r_val = int(range_val)
-                        if r_val != 30:  # Only add if different from default
-                            opts.append(f"range={r_val}")
+                        range_int = int(range_val)
+                        if range_int > 0:
+                            opts.append(f"range={range_int}")
                     except ValueError:
                         pass
                     break
@@ -173,33 +286,8 @@ class ConfigurationMapper:
         return opts
     
     @staticmethod
-    def map_switch_config(properties):
-        """Map switch/router properties to Mininet switch parameters"""
-        opts = []
-        
-        # DPID
-        dpid_fields = ["Switch_DPID", "Router_DPID", "AP_DPID", "lineEdit_4"]
-        for field in dpid_fields:
-            if properties.get(field):
-                dpid = properties[field].strip()
-                if dpid:
-                    opts.append(f"dpid='{dpid}'")
-                    break
-        
-        # Protocol
-        protocol_fields = ["Switch_Protocol", "comboBox"]
-        for field in protocol_fields:
-            if properties.get(field):
-                protocol = properties[field].strip()
-                if protocol and protocol != "OpenFlow":
-                    opts.append(f"protocols='{protocol}'")
-                    break
-        
-        return opts
-    
-    @staticmethod
     def map_controller_config(properties):
-        """Map Controller properties to Mininet controller parameters."""
+        """Map Controller properties to Mininet controller parameters"""
         opts = []
         
         # IP Address
@@ -216,64 +304,109 @@ class ConfigurationMapper:
         for field in port_fields:
             if properties.get(field):
                 port = str(properties[field]).strip()
-                if port and port != "6633":
-                    opts.append(f"port={port}")
-                    break
-        
-        # Controller type
-        type_fields = ["Controller_Type", "comboBox_4"]
-        for field in type_fields:
-            if properties.get(field):
-                ctrl_type = properties[field].strip()
-                if ctrl_type and ctrl_type != "RemoteController":
-                    opts.append(f"controller={ctrl_type}")
+                if port:
+                    try:
+                        port_val = int(port)
+                        if port_val != 6633:  # Only add if different from default
+                            opts.append(f"port={port_val}")
+                    except ValueError:
+                        pass
                     break
         
         return opts
     
     @staticmethod
-    def map_docker_config(properties):
-        """Map Docker Host properties to container parameters."""
+    def map_sta_config(properties):
+        """Map Station properties to Mininet station parameters"""
         opts = []
         
-        # Container Image
-        image_fields = ["DockerHost_ContainerImage", "DockerHost_Image"]
-        for field in image_fields:
+        # IP Address
+        ip_fields = ["STA_IPAddress", "lineEdit_2"]
+        for field in ip_fields:
             if properties.get(field):
-                image = properties[field].strip()
-                if image:
-                    opts.append(f"dimage='{image}'")
+                ip = properties[field].strip()
+                if ip and ip != "10.0.0.1":
+                    opts.append(f"ip='{ip}'")
                     break
         
-        # Container Command
-        cmd_fields = ["DockerHost_Command", "DockerHost_Cmd"]
-        for field in cmd_fields:
+        # Default Route
+        route_fields = ["STA_DefaultRoute", "lineEdit_3"]
+        for field in route_fields:
             if properties.get(field):
-                cmd = properties[field].strip()
-                if cmd:
-                    opts.append(f"dcmd='{cmd}'")
+                route = properties[field].strip()
+                if route:
+                    opts.append(f"defaultRoute='via {route}'")
+                    break
+        
+        # CPU Configuration
+        cpu_fields = ["STA_AmountCPU", "doubleSpinBox"]
+        for field in cpu_fields:
+            if properties.get(field):
+                cpu = str(properties[field]).strip()
+                if cpu:
+                    try:
+                        cpu_val = float(cpu)
+                        if cpu_val > 0 and cpu_val != 1.0:
+                            opts.append(f"cpu={cpu_val}")
+                    except ValueError:
+                        pass
+                    break
+        
+        # Memory Configuration
+        memory_fields = ["STA_Memory", "spinBox"]
+        for field in memory_fields:
+            if properties.get(field):
+                memory = str(properties[field]).strip()
+                if memory:
+                    try:
+                        mem_val = int(memory)
+                        if mem_val > 0:
+                            opts.append(f"mem={mem_val}")
+                    except ValueError:
+                        pass
+                    break
+        
+        # Power configuration for radio propagation
+        power_fields = ["STA_Power", "STA_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        for field in power_fields:
+            if properties.get(field):
+                power = str(properties[field]).strip()
+                if power:
+                    try:
+                        power_val = float(power)
+                        if power_val > 0:
+                            opts.append(f"txpower={power_val}")
+                    except ValueError:
+                        pass
+                    break
+        
+        # Range configuration (coverage area)
+        range_fields = ["STA_Range", "STA_Coverage", "spinBox_range"]
+        for field in range_fields:
+            if properties.get(field):
+                range_val = str(properties[field]).strip()
+                if range_val:
+                    try:
+                        range_int = int(range_val)
+                        if range_int > 0:
+                            opts.append(f"range={range_int}")
+                    except ValueError:
+                        pass
                     break
         
         return opts
-
+    
     @staticmethod
-    def get_component_config(component_type, properties):
-        """Get configuration for any component type."""
-        if component_type in ['Host', 'STA']:
-            return ConfigurationMapper.map_host_config(properties)
-        elif component_type == 'GNB':
-            return ConfigurationMapper.map_gnb_config(properties)
-        elif component_type == 'UE':
-            return ConfigurationMapper.map_ue_config(properties)
-        elif component_type == 'VGcore':
-            return ConfigurationMapper.map_5g_core_config(properties)
-        elif component_type == 'AP':
-            return ConfigurationMapper.map_ap_config(properties)
-        elif component_type in ['Switch', 'Router']:
-            return ConfigurationMapper.map_switch_config(properties)
-        elif component_type == 'Controller':
-            return ConfigurationMapper.map_controller_config(properties)
-        elif component_type == 'DockerHost':
-            return ConfigurationMapper.map_docker_config(properties)
-        else:
-            return []
+    def get_component_config(node_type, properties):
+        """Get the complete configuration for a component type"""
+        config_map = {
+            "Host": ConfigurationMapper.map_host_config,
+            "STA": ConfigurationMapper.map_host_config,
+            "UE": ConfigurationMapper.map_ue_config,
+            "AP": ConfigurationMapper.map_ap_config,
+            "Controller": ConfigurationMapper.map_controller_config,
+            "GNB": ConfigurationMapper.map_gnb_config,
+        }
+        
+        mapper = config_map.get(node_type, lambda p: [])
+        return mapper(properties)

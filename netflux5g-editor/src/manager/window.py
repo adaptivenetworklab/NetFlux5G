@@ -18,13 +18,13 @@ class WindowManager:
         # Get screen geometry for better initial sizing
         screen = QDesktopWidget().screenGeometry()
         
-        # Set initial size to 90% of screen size for better visibility
-        initial_width = int(screen.width() * 0.9)
-        initial_height = int(screen.height() * 0.9)
+        # Set initial size to 80% of screen size
+        initial_width = int(screen.width() * 0.8)
+        initial_height = int(screen.height() * 0.8)
         self.main_window.resize(initial_width, initial_height)
         
         # Set window properties for better responsiveness
-        self.main_window.setMinimumSize(1200, 800)  # Increased minimum size
+        self.main_window.setMinimumSize(1000, 700)
         
         # Center the window on the screen
         self.main_window.move(
@@ -33,43 +33,13 @@ class WindowManager:
         )
         
     def updateCanvasGeometry(self):
-        """Update canvas geometry based on current window size and ObjectFrame position."""
+        """Let the splitter/layout manage the canvas size. Only update scene size if needed."""
         try:
             if not hasattr(self.main_window, 'canvas_view'):
                 warning_print("Canvas view not found during geometry update")
                 return
-
-            window_size = self.main_window.size()
-
-            # Get ObjectFrame width from the actual widget
-            object_frame_width = 220  # Fixed width for consistency
-            if hasattr(self.main_window, 'ObjectFrame'):
-                self.main_window.ObjectFrame.setMinimumWidth(object_frame_width)
-                self.main_window.ObjectFrame.setMaximumWidth(object_frame_width)
-
-            menubar_height = self.main_window.menubar.height() if hasattr(self.main_window, 'menubar') else 26
-            toolbar_height = self.main_window.toolBar.height() if hasattr(self.main_window, 'toolBar') else 30
-            statusbar_height = self.main_window.statusbar.height() if hasattr(self.main_window, 'statusbar') else 23
-
-            # Calculate available space with better margins
-            available_width = window_size.width() - object_frame_width - 10  # Reduced margin
-            available_height = window_size.height() - menubar_height - toolbar_height - statusbar_height - 10
-
-            # Ensure minimum canvas size to prevent cropping
-            available_width = max(available_width, 800)
-            available_height = max(available_height, 600)
-
-            canvas_x = object_frame_width + 5  # Reduced spacing
-            canvas_y = 5
-
-            self.main_window.canvas_view.setGeometry(canvas_x, canvas_y, available_width, available_height)
-            self.main_window.canvas_view.setVisible(True)
-            self.main_window.canvas_view.show()
-
             if hasattr(self.main_window.canvas_view, 'updateSceneSize'):
                 self.main_window.canvas_view.updateSceneSize()
-
-            debug_print(f"Canvas geometry updated - x:{canvas_x}, y:{canvas_y}, w:{available_width}, h:{available_height}")
-
+            debug_print("Canvas geometry update: only updateSceneSize called (no manual geometry)")
         except Exception as e:
             error_print(f"Failed to update canvas geometry: {e}")

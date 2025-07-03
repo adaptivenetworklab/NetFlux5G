@@ -37,16 +37,12 @@ class ToolManager:
         # Set a pixmap for the drag appearance
         icon_path = self.main_window.component_icon_map.get(component_type)
         if icon_path and os.path.exists(icon_path):
-            pixmap = QPixmap(icon_path).scaled(40, 40)
+            # Always scale the pixmap to a small size for smooth dragging
+            pixmap = QPixmap(icon_path).scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             drag.setPixmap(pixmap)
-            drag.setHotSpot(QPoint(20, 20))  # Set the drag hotspot to the center
-            debug_print(f"DEBUG: Set drag pixmap from {icon_path}")
         else:
-            error_print(f"ERROR: Icon not found for {component_type} at {icon_path}")
-            # Create a simple text pixmap as fallback
-            fallback_pixmap = QPixmap(40, 40)
-            fallback_pixmap.fill(Qt.lightGray)
-            drag.setPixmap(fallback_pixmap)
+            # Use a default small pixmap if icon not found
+            drag.setPixmap(QPixmap(48, 48))
         
         # Update status
         self.main_window.status_manager.showCanvasStatus(f"Dragging {component_type}... Drop on canvas to place")

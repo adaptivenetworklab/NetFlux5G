@@ -9,7 +9,7 @@ import os
 class ModernComponentWidget(QFrame):
     """A modern, stylish component widget with hover effects and animations."""
     
-    clicked = pyqtSignal(str)  # Signal emitted when clicked
+    clicked = pyqtSignal(str, str)  # Signal now emits component_type and icon_path
     
     def __init__(self, component_type, icon_path, display_text, parent=None):
         super().__init__(parent)
@@ -24,19 +24,19 @@ class ModernComponentWidget(QFrame):
         
     def setupUI(self):
         """Setup the UI components with modern styling."""
-        self.setFixedSize(75, 85)  # Increased height for larger text
+        self.setFixedSize(80, 95)
         self.setFrameStyle(QFrame.NoFrame)
         self.setCursor(Qt.PointingHandCursor)
         
         # Main layout
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(3, 3, 3, 3)  # Ultra minimal margins
-        layout.setSpacing(2)  # Slightly increased spacing for larger text
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(4)
         layout.setAlignment(Qt.AlignCenter)
         
         # Icon container
         self.icon_container = QFrame()
-        self.icon_container.setFixedSize(48, 48)  # Larger icon container
+        self.icon_container.setFixedSize(48, 48)
         self.icon_container.setStyleSheet("""
             QFrame {
                 background-color: #ffffff;
@@ -48,23 +48,24 @@ class ModernComponentWidget(QFrame):
         # Icon label
         self.icon_label = QLabel(self.icon_container)
         self.icon_label.setAlignment(Qt.AlignCenter)
-        self.icon_label.setGeometry(4, 4, 40, 40)  # Larger icon area
+        self.icon_label.setGeometry(4, 4, 40, 40)
         
         # Set icon
         if self.icon_path and os.path.exists(self.icon_path):
             pixmap = QPixmap(self.icon_path)
-            scaled_pixmap = pixmap.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation)  # Larger icon
+            scaled_pixmap = pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             self.icon_label.setPixmap(scaled_pixmap)
         
         # Text label
         self.text_label = QLabel(self.display_text)
         self.text_label.setAlignment(Qt.AlignCenter)
         self.text_label.setWordWrap(True)
-        self.text_label.setMinimumHeight(24)  # Increased height for larger text
-        self.text_label.setMaximumHeight(30)  # Increased height for larger text
+        self.text_label.setStyleSheet("border: none;")
+        # Manually adjust the position by adding a top margin
+        self.text_label.setContentsMargins(0, 8, 0, 0)
         
-        # Set font - increased size for better readability
-        font = QFont("Segoe UI", 8)  # Increased from 5 to 8
+        # Set font
+        font = QFont("Segoe UI", 8)
         font.setWeight(QFont.Medium)
         self.text_label.setFont(font)
         
@@ -100,14 +101,14 @@ class ModernComponentWidget(QFrame):
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                               stop:0 #f8f9ff, stop:1 #e6f2ff);
                     border: 2px solid #4a90e2;
-                    border-radius: 10px;
+                    border-radius: 12px;
                 }
             """)
             self.icon_container.setStyleSheet("""
                 QFrame {
                     background-color: #ffffff;
                     border: 2px solid #4a90e2;
-                    border-radius: 25px;
+                    border-radius: 24px;
                 }
             """)
             self.text_label.setStyleSheet("color: #2c5282; font-weight: 600;")
@@ -123,14 +124,14 @@ class ModernComponentWidget(QFrame):
                     background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                               stop:0 #ffffff, stop:1 #f8f9fa);
                     border: 1px solid #e9ecef;
-                    border-radius: 10px;
+                    border-radius: 12px;
                 }
             """)
             self.icon_container.setStyleSheet("""
                 QFrame {
                     background-color: #ffffff;
                     border: 2px solid #e0e0e0;
-                    border-radius: 25px;
+                    border-radius: 24px;
                 }
             """)
             self.text_label.setStyleSheet("color: #495057;")
@@ -155,27 +156,8 @@ class ModernComponentWidget(QFrame):
     def mousePressEvent(self, event):
         """Handle mouse press event."""
         if event.button() == Qt.LeftButton:
-            # Add click animation
-            self.setStyleSheet("""
-                ModernComponentWidget {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                              stop:0 #e6f2ff, stop:1 #cce7ff);
-                    border: 2px solid #2c5282;
-                    border-radius: 10px;
-                }
-            """)
-            
-            # Emit signal and delegate to parent
-            self.clicked.emit(self.component_type)
-            
-            # Find main window and call drag handler
-            parent = self.parent()
-            while parent and not hasattr(parent, 'onComponentButtonPress'):
-                parent = parent.parent()
-            
-            if parent and hasattr(parent, 'onComponentButtonPress'):
-                parent.onComponentButtonPress(event, self.component_type)
-                
+            # Emit clicked signal with component type and icon path (for click-to-place)
+            self.clicked.emit(self.component_type, self.icon_path)
         super().mousePressEvent(event)
         
     def mouseReleaseEvent(self, event):
@@ -234,13 +216,13 @@ class ComponentPanelManager:
             }
             QScrollBar:vertical {
                 background-color: #e9ecef;
-                width: 8px;
-                border-radius: 4px;
+                width: 4px;
+                border-radius: 2px;
                 margin: 0;
             }
             QScrollBar::handle:vertical {
                 background-color: #adb5bd;
-                border-radius: 4px;
+                border-radius: 2px;
                 min-height: 20px;
             }
             QScrollBar::handle:vertical:hover {
@@ -258,8 +240,8 @@ class ComponentPanelManager:
         
         # Create main vertical layout
         self.main_layout = QVBoxLayout(self.container_widget)
-        self.main_layout.setContentsMargins(1, 1, 1, 15)  # Increased bottom margin from 1 to 15
-        self.main_layout.setSpacing(2)  # Ultra compact spacing
+        self.main_layout.setContentsMargins(8, 8, 8, 8)
+        self.main_layout.setSpacing(4)
         
         # Create header section
         self.createHeaderSection()
@@ -275,7 +257,7 @@ class ComponentPanelManager:
         
         # Position scroll area to fill ObjectFrame
         self.updateScrollAreaGeometry()
-
+        
     def createHeaderSection(self):
         """Create a beautiful header section with readable font sizes."""
         header_frame = QFrame()
@@ -283,34 +265,40 @@ class ComponentPanelManager:
             QFrame {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
                                         stop:0 #4a90e2, stop:1 #357abd);
-                border: 1px solid #2c5aa0;
-                border-radius: 6px;
+                border-radius: 8px;
+                /* Remove padding here, let layout handle it */
             }
         """)
-        header_frame.setMinimumHeight(75)  # Keep height for proper spacing
-        header_frame.setMaximumHeight(75)
+        # Increase height to fit font and margins
+        header_frame.setMinimumHeight(50)
+        header_frame.setMaximumHeight(100)
         
         header_layout = QVBoxLayout(header_frame)
-        header_layout.setContentsMargins(8, 10, 8, 10)  # Keep margins for spacing
-        header_layout.setSpacing(4)  # Keep spacing between title and subtitle
+        header_layout.setContentsMargins(8, 12, 8, 12)  # More vertical space
+        header_layout.setSpacing(4)
         
-        # Title - MUCH LARGER
+        # Title
         title_label = QLabel("Components")
-        title_font = QFont("Segoe UI", 18, QFont.Bold)  # Keep size but ensure proper spacing
+        title_font = QFont("Segoe UI", 0, QFont.Bold)
+        title_font.setPointSize(20)  # Larger for visibility
         title_label.setFont(title_font)
-        title_label.setStyleSheet("color: white;")  # White text on blue background
+        title_label.setStyleSheet("color: white;")
         title_label.setAlignment(Qt.AlignCenter)
+        title_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
-        # Subtitle - LARGER
-        subtitle_label = QLabel("Drag to canvas")
-        subtitle_font = QFont("Segoe UI", 11)  # Keep current size
+        # Subtitle
+        subtitle_label = QLabel("Click and Drop to Canvas")
+        subtitle_font = QFont("Segoe UI", 0)
+        subtitle_font.setPointSize(12)
         subtitle_label.setFont(subtitle_font)
-        subtitle_label.setStyleSheet("color: rgba(255, 255, 255, 180);")  # Semi-transparent white
+        subtitle_label.setStyleSheet("color: white; border: none;")
         subtitle_label.setAlignment(Qt.AlignCenter)
+        subtitle_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         
         header_layout.addWidget(title_label)
         header_layout.addWidget(subtitle_label)
-
+        header_layout.addStretch(1)  # Push content to top if extra space
+        
         self.main_layout.addWidget(header_frame)
 
     def createComponentSections(self):
@@ -343,41 +331,29 @@ class ComponentPanelManager:
 
     def createCategorySection(self, category_name, components):
         """Create a category section with components."""
-        # Add minimal spacing before each category (except first one)
-        if hasattr(self, '_category_count'):
-            self._category_count += 1
-        else:
-            self._category_count = 1
-            
-        if self._category_count > 1:
-            # Add spacing between categories
-            spacer_frame = QFrame()
-            spacer_frame.setFixedHeight(3)  # Slightly more spacing
-            spacer_frame.setStyleSheet("background-color: transparent;")
-            self.main_layout.addWidget(spacer_frame)
-        
-        # Category header with gray background and border
+        # Category header
         category_frame = QFrame()
         category_frame.setStyleSheet("""
             QFrame {
                 background-color: #e9ecef;
-                border: 1px solid #d1d7dd;
-                border-radius: 4px;
-                margin: 1px 0px;
+                border-radius: 6px;
+                margin: 0px 2px;
+                /* Remove border if present */
             }
         """)
-        category_frame.setFixedHeight(36)  # Increased height
+        category_frame.setFixedHeight(42)  # Increased height for better font fit
         
         category_layout = QHBoxLayout(category_frame)
-        category_layout.setContentsMargins(8, 6, 8, 6)  # Increased vertical margins
+        category_layout.setContentsMargins(12, 6, 12, 6)  # More vertical space
         category_layout.setAlignment(Qt.AlignCenter)
         
         category_label = QLabel(category_name)
-        category_font = QFont("Segoe UI", 13, QFont.Bold)  # Font size
+        category_font = QFont("Segoe UI", 13, QFont.DemiBold)
         category_label.setFont(category_font)
         category_label.setStyleSheet("color: #495057;")
         
         category_layout.addWidget(category_label)
+        category_layout.addStretch()
         
         self.main_layout.addWidget(category_frame)
         
@@ -391,12 +367,10 @@ class ComponentPanelManager:
         """)
         
         components_layout = QGridLayout(components_frame)
-        components_layout.setContentsMargins(3, 4, 3, 12)  # Increased bottom margin from 5 to 12
-        components_layout.setSpacing(1)  # Much reduced spacing between components
-        components_layout.setHorizontalSpacing(1)  # Specifically reduce horizontal spacing
-        components_layout.setVerticalSpacing(3)  # Keep some vertical spacing
+        components_layout.setContentsMargins(4, 4, 4, 8)
+        components_layout.setSpacing(4)
         
-        # Use 2 column layout as requested
+        # Add components to grid
         for i, (comp_type, icon_file, display_text) in enumerate(components):
             row = i // 2
             col = i % 2
@@ -407,6 +381,9 @@ class ComponentPanelManager:
             # Create modern component widget
             component_widget = ModernComponentWidget(comp_type, icon_path, display_text)
             self.component_widgets.append(component_widget)
+            
+            # Connect click to placement mode (now expects two arguments)
+            component_widget.clicked.connect(self.main_window.enterPlacementMode)
             
             components_layout.addWidget(component_widget, row, col, Qt.AlignCenter)
         
@@ -421,8 +398,6 @@ class ComponentPanelManager:
         """Update the geometry of the scroll area to fill ObjectFrame."""
         if hasattr(self, 'scroll_area') and hasattr(self.main_window, 'ObjectFrame'):
             frame_rect = self.main_window.ObjectFrame.geometry()
-            # Reduced width for tighter column layout
-            min_width = max(165, frame_rect.width())  # Reduced from 180 to 165
             self.scroll_area.setGeometry(0, 0, frame_rect.width(), frame_rect.height())
 
     def updateComponentButtonSizes(self):
@@ -442,22 +417,24 @@ class ComponentPanelManager:
 
     def toggleComponentPanel(self):
         """Toggle the visibility of the component panel with smooth animation."""
-        if hasattr(self.main_window, 'ObjectFrame'):
-            if self.main_window.ObjectFrame.isVisible():
-                self.main_window.ObjectFrame.hide()
-                if hasattr(self.main_window, 'panel_toggle_button'):
-                    self.main_window.panel_toggle_button.setText("▶")
-                    self.main_window.panel_toggle_button.setToolTip("Show Component Panel")
-                if hasattr(self.main_window, 'status_manager'):
-                    self.main_window.status_manager.showCanvasStatus("Component panel hidden")
-            else:
-                self.main_window.ObjectFrame.show()
-                if hasattr(self.main_window, 'panel_toggle_button'):
-                    self.main_window.panel_toggle_button.setText("◀")
-                    self.main_window.panel_toggle_button.setToolTip("Hide Component Panel")
-                QTimer.singleShot(100, self.updateComponentButtonSizes)
-                if hasattr(self.main_window, 'status_manager'):
-                    self.main_window.status_manager.showCanvasStatus("Component panel shown")
+        if not hasattr(self.main_window, 'main_splitter') or not hasattr(self.main_window, 'ObjectFrame'):
+            return
+        
+        if self.main_window.ObjectFrame.isVisible():
+            # Hide panel
+            self.main_window.ObjectFrame.hide()
+            if hasattr(self.main_window, 'panel_toggle_button'):
+                self.main_window.panel_toggle_button.setText("▶")
+                self.main_window.panel_toggle_button.setToolTip("Show Component Panel")
+            self.main_window.status_manager.showCanvasStatus("Component panel hidden")
+        else:
+            # Show panel
+            self.main_window.ObjectFrame.show()
+            if hasattr(self.main_window, 'panel_toggle_button'):
+                self.main_window.panel_toggle_button.setText("◀")
+                self.main_window.panel_toggle_button.setToolTip("Hide Component Panel")
+            QTimer.singleShot(100, self.updateComponentButtonSizes)
+            self.main_window.status_manager.showCanvasStatus("Component panel shown")
 
     def setupComponentPanelToggle(self):
         """Add a modern toggle button to show/hide the component panel."""
@@ -491,7 +468,7 @@ class ComponentPanelManager:
         
         if hasattr(self.main_window, 'toolBar'):
             self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
-        if hasattr(self.main_window, 'toolBar'):
-            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
-            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
-            self.main_window.toolBar.addWidget(self.main_window.panel_toggle_button)
+        
+        # Connect ModernComponentWidget clicks to placement mode
+        for widget in self.component_widgets:
+            widget.clicked.connect(self.main_window.enterPlacementMode)

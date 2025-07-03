@@ -91,7 +91,7 @@ class BasePropertiesWindow(QMainWindow):
 
     def save5GComponentTableData(self, properties):
         """Save data from all 5G component tables."""
-        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'PCRF', 'UDM', 'UDR']
+        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
         
         for component_type in component_types:
             # Try different possible table name patterns
@@ -133,17 +133,27 @@ class BasePropertiesWindow(QMainWindow):
                             row_data['config_content'] = config_item.config_data
                             row_data['imported'] = True
                             row_data['config_filename'] = getattr(config_item, 'config_filename', 'imported.yaml')
+                            # Store the file path if available
+                            if hasattr(config_item, 'config_file_path'):
+                                row_data['config_file_path'] = config_item.config_file_path
+                            else:
+                                row_data['config_file_path'] = ''
                         elif hasattr(config_item, 'config_file_path'):
                             row_data['config_file_path'] = config_item.config_file_path
                             row_data['imported'] = True
                             row_data['config_filename'] = os.path.basename(config_item.config_file_path)
+                            # Also try to get config content if available
+                            if hasattr(config_item, 'config_data'):
+                                row_data['config_content'] = config_item.config_data
                         else:
                             row_data['imported'] = False
                             row_data['config_filename'] = f"{component_type.lower()}.yaml"
+                            row_data['config_file_path'] = ''
                     else:
                         row_data['config_display'] = "(Double-click to import)"
                         row_data['imported'] = False
                         row_data['config_filename'] = f"{component_type.lower()}.yaml"
+                        row_data['config_file_path'] = ''
                     
                     # Settings (column 2, if exists)
                     if table.columnCount() > 2:
@@ -229,7 +239,7 @@ class BasePropertiesWindow(QMainWindow):
         
     def load5GComponentTableData(self, properties):
         """Load data into all 5G component tables."""
-        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'PCRF', 'UDM', 'UDR']
+        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
         
         for component_type in component_types:
             config_key = f"{component_type}_configs"
@@ -471,7 +481,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             self.Component5G_CancelButton.clicked.connect(self.onCancel)
             
         # Connect add buttons for each component type - FIXED: Remove duplicate connections
-        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'PCRF', 'UDM', 'UDR']
+        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
         for comp_type in component_types:
             add_button = getattr(self, f'Component5G_Add{comp_type}Button', None)
             if add_button:
@@ -806,6 +816,9 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 config_item.config_file_path = file_path
                 config_item.config_filename = os.path.basename(file_path)
                 
+                # Also store the configuration in component properties
+                self.storeComponentConfiguration(component_type, row, file_path, yaml_content)
+                
                 debug_print(f"DEBUG: Successfully imported {file_path} for {component_name}")
                 QMessageBox.information(
                     self,
@@ -847,7 +860,6 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             'BSF': 'bsf',
             'NSSF': 'nssf',
             'PCF': 'pcf',
-            'PCRF': 'pcrf',
             'UDM': 'udm',
             'UDR': 'udr'
         }
@@ -874,8 +886,19 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         while len(properties[config_key]) <= row:
             properties[config_key].append({})
             
+        # Get component name from the table
+        table_name = f'Component5G_{component_type}table'
+        table = getattr(self, table_name, None)
+        component_name = f"{component_type.lower()}{row + 1}"  # Default name
+        
+        if table:
+            name_item = table.item(row, 0)
+            if name_item and name_item.text().strip():
+                component_name = name_item.text().strip()
+        
         # Update the specific component's configuration
         properties[config_key][row].update({
+            'name': component_name,
             'config_file_path': file_path,
             'config_content': yaml_content,
             'config_filename': os.path.basename(file_path),

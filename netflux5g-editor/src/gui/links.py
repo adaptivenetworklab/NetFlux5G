@@ -2,7 +2,7 @@ import os
 import math
 from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5.QtCore import Qt, QRectF, QPointF, QLineF
-from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor, QPainter
+from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor
 from manager.debug import debug_print, error_print
 
 class NetworkLink(QGraphicsItem):
@@ -55,81 +55,95 @@ class NetworkLink(QGraphicsItem):
         self.cable_segments = []
         self.segment_count = 1  # Start with a single segment
         
-        # Performance optimization: cache bounding rect
-        self._cached_bounding_rect = None
-        self._bounding_rect_dirty = True
-        
         # Update position
         self.updatePosition()
-
+    
     def get_center_point(self, node):
-        """Get the center point of a network component."""
-        if hasattr(node, 'pos') and hasattr(node, 'boundingRect'):
-            # For NetworkComponent objects
-            node_pos = node.pos()
-            node_rect = node.boundingRect()
-            center_x = node_pos.x() + node_rect.width() / 2
-            center_y = node_pos.y() + node_rect.height() / 2
-            return QPointF(center_x, center_y)
-        elif hasattr(node, 'x') and hasattr(node, 'y'):
-            # For legacy objects with x/y attributes
-            return QPointF(node.x() + 25, node.y() + 25)  # Assume 50x50 size
+        """Get the center point of a node's icon (not including coverage circles or text)"""
+        pos = node.pos()
+        
+        # For NetworkComponent objects, always use the icon area (50x50)
+        if hasattr(node, 'component_type'):
+            # All NetworkComponent icons are 50x50, so center is at (25, 25) from top-left
+            return QPointF(pos.x() + 25, pos.y() + 25)
+        
+        # For other types of objects (legacy support)
+        elif hasattr(node, 'boundingRect'):
+            rect = node.boundingRect()
+            # Use only the icon portion, not the full bounding rect which includes text
+            if hasattr(node, 'component_type'):
+                # For components, use fixed icon size
+                return QPointF(pos.x() + 25, pos.y() + 25)
+            else:
+                # For other objects, use actual center
+                return QPointF(pos.x() + rect.width()/2, pos.y() + rect.height()/2)
+        
+        elif hasattr(node, 'rect'):
+            rect = node.rect()
+            return QPointF(pos.x() + rect.width()/2, pos.y() + rect.height()/2)
+        
+        elif hasattr(node, 'size'):
+            size = node.size()
+            return QPointF(pos.x() + size.width()/2, pos.y() + size.height()/2)
+        
         else:
-            # Fallback
-            return QPointF(0, 0)
+            # Fallback: assume 50x50 icon
+            return QPointF(pos.x() + 25, pos.y() + 25)
 
     def get_object_radius(self, node):
-        """Get the radius of a network component for connection points."""
-        if hasattr(node, 'boundingRect'):
+        """Get the radius for link connection point calculation (icon edge, not coverage)"""
+        # For NetworkComponent objects, use the icon radius
+        if hasattr(node, 'component_type'):
+            # Icon is 50x50, so radius for connection should be about 25 (half the diagonal would be ~35)
+            # Use 30 to give a small margin from the icon edge
+            return 30
+        
+        # For legacy objects
+        elif hasattr(node, 'boundingRect'):
             rect = node.boundingRect()
-            # Use the smaller dimension as the radius
+            # For components, don't use the full bounding rect as it includes coverage circles and text
+            if hasattr(node, 'component_type'):
+                return 30  # Fixed radius for component icons
+            else:
+                return min(rect.width(), rect.height()) / 2
+        
+        elif hasattr(node, 'rect'):
+            rect = node.rect()
             return min(rect.width(), rect.height()) / 2
+        
+        elif hasattr(node, 'size'):
+            size = node.size()
+            return min(size.width(), size.height()) / 2
+        
         else:
-            # Default radius for legacy objects
-            return 25  # Half of 50px default size
-
-    def get_intersection_point(self, center1, center2, radius):
-        """Calculate the intersection point on the edge of a component."""
-        # Calculate the direction vector from center1 to center2
-        dx = center2.x() - center1.x()
-        dy = center2.y() - center1.y()
+            return 30  # Default radius for 50x50 icons
+    
+    def get_intersection_point(self, center_point, target_point, radius):
+        """Calculate the intersection point of a line with a circle (where link should start/end)"""
+        # Create a line from center to target
+        line = QLineF(center_point, target_point)
         
-        # Calculate distance
-        distance = math.sqrt(dx * dx + dy * dy)
-        
-        if distance == 0:
-            return center1
-        
-        # Normalize the direction vector
-        unit_x = dx / distance
-        unit_y = dy / distance
-        
-        # Calculate the intersection point on the edge
-        edge_x = center1.x() + unit_x * radius
-        edge_y = center1.y() + unit_y * radius
-        
-        return QPointF(edge_x, edge_y)
+        # If the line is too short, just return the center point
+        if line.length() < 1:
+            return center_point
             
-    def updatePosition(self):
-        """Update the link's position and trigger a redraw with optimized performance."""
-        self._bounding_rect_dirty = True
-        self._cached_bounding_rect = None
-        self.prepareGeometryChange()
+        # Calculate the angle of the line
+        angle_rad = math.atan2(target_point.y() - center_point.y(), target_point.x() - center_point.x())
         
-        # Only update if the link is visible in the current view
+        # Calculate intersection point (center + radius * unit_vector)
+        intersection_x = center_point.x() + radius * math.cos(angle_rad)
+        intersection_y = center_point.y() + radius * math.sin(angle_rad)
+        
+        return QPointF(intersection_x, intersection_y)
+        
+    def updatePosition(self):
+        """Update the link's position and trigger a redraw"""
+        self.prepareGeometryChange()
         if self.scene():
-            views = self.scene().views()
-            if views:
-                view = views[0]
-                visible_rect = view.mapToScene(view.viewport().rect()).boundingRect()
-                if visible_rect.intersects(self.boundingRect()):
-                    self.update()
+            self.update()
             
     def boundingRect(self):
-        """Define the bounding rectangle for the cable with caching."""
-        if not self._bounding_rect_dirty and self._cached_bounding_rect:
-            return self._cached_bounding_rect
-            
+        """Define the bounding rectangle for the cable"""
         source_center = self.get_center_point(self.source_node)
         dest_center = self.get_center_point(self.dest_node)
         
@@ -139,78 +153,98 @@ class NetworkLink(QGraphicsItem):
         width = abs(source_center.x() - dest_center.x()) + 40
         height = abs(source_center.y() - dest_center.y()) + 40
         
-        self._cached_bounding_rect = QRectF(min_x, min_y, width, height)
-        self._bounding_rect_dirty = False
-        return self._cached_bounding_rect
+        return QRectF(min_x, min_y, width, height)
     
     def paint(self, painter, option, widget):
-        """Draw the cable between components with performance optimizations."""
-        # Skip drawing if not in visible area
-        if not option.exposedRect.intersects(self.boundingRect()):
-            return
-            
-        # Disable antialiasing for better performance
-        painter.setRenderHint(QPainter.Antialiasing, False)
+        """Draw the cable between components"""
+        # Determine if this is a Controller link
+        is_controller_link = False
+        for node in (self.source_node, self.dest_node):
+            # Check for both QGraphicsPixmapItem and QLabel based nodes
+            if hasattr(node, 'component_type') and node.component_type == 'Controller':
+                is_controller_link = True
+                break
+            if hasattr(node, 'object_type') and node.object_type == 'Controller':
+                is_controller_link = True
+                break
         
-        # Get center positions of source and destination nodes
-        source_center = self.get_center_point(self.source_node)
-        dest_center = self.get_center_point(self.dest_node)
-        
-        # Get the appropriate radii for connection points
-        source_radius = self.get_object_radius(self.source_node)
-        dest_radius = self.get_object_radius(self.dest_node)
-        
-        # Calculate edge points where the link should start and end
-        source_edge = self.get_intersection_point(source_center, dest_center, source_radius)
-        dest_edge = self.get_intersection_point(dest_center, source_center, dest_radius)
-        
-        # Calculate angle and distance between edge points
-        line = QLineF(source_edge, dest_edge)
-        angle = line.angle()  # Angle in degrees
-        length = line.length()
-        
-        # Always draw a line to ensure visibility and proper connection indication
-        if self.isSelected():
-            painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
+        # Draw a red, dotted line for Controller links
+        if is_controller_link:
+            pen = QPen(QColor(220, 0, 0), 3, Qt.DotLine)
         else:
-            painter.setPen(QPen(QColor(0, 0, 128), 1, Qt.SolidLine))  # Thin dark blue line
+            pen = QPen(Qt.black, 3, Qt.SolidLine)
+        pen.setCapStyle(Qt.RoundCap)
+        painter.setPen(pen)
+
+        # Draw the cable as a line between the centers
+        src = self.get_center_point(self.source_node)
+        dst = self.get_center_point(self.dest_node)
+        painter.drawLine(QLineF(src, dst))
+
+        # Optionally, draw the cable image for non-controller links
+        if not is_controller_link and self.cable_pixmap:
+            # Get center positions of source and destination nodes
+            source_center = self.get_center_point(self.source_node)
+            dest_center = self.get_center_point(self.dest_node)
             
-        painter.drawLine(source_edge, dest_edge)
-        
-        # Simplified cable drawing for better performance
-        if self.cable_pixmap and not self.cable_pixmap.isNull() and length > 20:
-            # Only draw cable segments for longer connections to reduce overhead
+            # Get the appropriate radii for connection points
+            source_radius = self.get_object_radius(self.source_node)
+            dest_radius = self.get_object_radius(self.dest_node)
+            
+            # Calculate edge points where the link should start and end
+            source_edge = self.get_intersection_point(source_center, dest_center, source_radius)
+            dest_edge = self.get_intersection_point(dest_center, source_center, dest_radius)
+            
+            # Debug output
+            debug_print(f"DEBUG: Link from {source_edge.x():.1f},{source_edge.y():.1f} to {dest_edge.x():.1f},{dest_edge.y():.1f}")
+            
+            # Calculate angle and distance between edge points
+            line = QLineF(source_edge, dest_edge)
+            angle = line.angle()  # Angle in degrees
+            length = line.length()
+            
+            # Save painter state
             painter.save()
             
-            # Reduce segment count for better performance
-            if length > 100:
-                self.segment_count = 2
+            # Determine number of segments based on length
+            if length > 150:
+                self.segment_count = 3  # Use 3 segments for long connections
+            elif length > 75:
+                self.segment_count = 2  # Use 2 segments for medium connections
             else:
-                self.segment_count = 1
+                self.segment_count = 1  # Use 1 segment for short connections
             
             # Calculate cable segment size (scale to fit connection length)
             segment_length = length / self.segment_count
-            cable_width = max(8, min(16, int(segment_length / 6)))  # Smaller for performance
+            cable_width = max(12, min(20, int(segment_length / 4)))  # Adaptive width
             cable_height = int(self.cable_pixmap.height() * (cable_width / self.cable_pixmap.width()))
             
-            # Draw cable segments with reduced detail
+            # Draw cable segments
             for i in range(self.segment_count):
-                segment_pos = 0.5 if self.segment_count == 1 else i / (self.segment_count - 1)
+                # Calculate segment position (evenly spaced)
+                if self.segment_count == 1:
+                    segment_pos = 0.5  # Center the single segment
+                else:
+                    segment_pos = i / (self.segment_count - 1)  # Distribute segments
                 
                 x = source_edge.x() + segment_pos * (dest_edge.x() - source_edge.x()) - cable_width / 2
                 y = source_edge.y() + segment_pos * (dest_edge.y() - source_edge.y()) - cable_height / 2
                 
-                # Simplified transform for better performance
-                painter.translate(x + cable_width / 2, y + cable_height / 2)
-                painter.rotate(-angle)
-                painter.translate(-cable_width / 2, -cable_height / 2)
+                # Create transform to rotate around center
+                transform = QTransform()
+                transform.translate(x + cable_width / 2, y + cable_height / 2)
+                transform.rotate(-angle)  # Negative angle to match Qt's coordinate system
+                transform.translate(-cable_width / 2, -cable_height / 2)
+                
+                # Apply transform
+                painter.setTransform(transform)
                 
                 # Draw the scaled cable image
                 painter.drawPixmap(0, 0, cable_width, cable_height, self.cable_pixmap)
-                painter.resetTransform()
             
+            # Restore painter state
             painter.restore()
-
+        
     def mousePressEvent(self, event):
         """Handle mouse press events."""
         # Check if we're in delete mode

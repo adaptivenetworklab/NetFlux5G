@@ -1,30 +1,9 @@
 import os
 import sys
-import warnings
 import traceback
-
-# Comprehensive warning suppression
-warnings.filterwarnings("ignore")
-os.environ["PYTHONWARNINGS"] = "ignore"
-
-# Handle Qt and display warnings before importing PyQt5
-os.environ["QT_LOGGING_RULES"] = "*=false"
-os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = ""
-
-# Performance optimizations
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
-os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-
-# Handle Wayland warning - force X11 to avoid the warning
-if os.environ.get("XDG_SESSION_TYPE") == "wayland":
-    os.environ["QT_QPA_PLATFORM"] = "xcb"  # Force X11 instead of wayland
-    
-# Suppress all Qt warnings
-os.environ["QT_ASSUME_STDERR_HAS_CONSOLE"] = "1"
-
 from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QMenuBar, QMenu, QAction
-from PyQt5.QtCore import Qt, QTimer, QSize as QtCoreQSize  # Add QSize import
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QCursor
 from PyQt5 import uic
 
 # Import managers
@@ -38,11 +17,12 @@ from manager.automation import AutomationManager
 from manager.keyboard import KeyboardManager
 from manager.debug import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
 from manager.welcome import WelcomeScreenManager
+from manager.docker_network import DockerNetworkManager
+from manager.database import DatabaseManager
 
 # Import existing modules
 from gui.canvas import Canvas, MovableLabel
 from gui.toolbar import ToolbarFunctions
-from export.compose_export import DockerComposeExporter
 from export.mininet_export import MininetExporter
 from automation.automation_runner import AutomationRunner
 
@@ -53,10 +33,6 @@ class NetFlux5GApp(QMainWindow):
     def __init__(self, show_welcome=True):
         super().__init__()
         
-        # Performance optimization attributes
-        self.performance_mode = True
-        self.reduced_updates = True
-
         # Load the UI file
         uic.loadUi(UI_FILE, self)
 
@@ -73,10 +49,11 @@ class NetFlux5GApp(QMainWindow):
         self.automation_manager = AutomationManager(self)
         self.keyboard_manager = KeyboardManager(self)
         self.welcome_manager = WelcomeScreenManager(self)
+        self.docker_network_manager = DockerNetworkManager(self)
+        self.database_manager = DatabaseManager(self)
         
         # Initialize other components
         self.toolbar_functions = ToolbarFunctions(self)
-        self.docker_compose_exporter = DockerComposeExporter(self)
         self.mininet_exporter = MininetExporter(self)
         self.automation_runner = AutomationRunner(self)
 
@@ -99,6 +76,8 @@ class NetFlux5GApp(QMainWindow):
         self.current_file = None
         self.current_tool = "pick"
         self.selected_component = None
+        self.placement_mode = False
+        self.placement_component_type = None
         
         # Setup all connections
         self.setupConnections()
@@ -135,36 +114,27 @@ class NetFlux5GApp(QMainWindow):
         }
 
     def setupCanvas(self):
-        """Set up the canvas with proper error handling."""
+        """Set up the canvas with proper error handling and let splitter manage sizing."""
         try:
             if hasattr(self, 'horizontalLayoutWidget'):
                 self.horizontalLayoutWidget.deleteLater()
-            
             self.main_splitter = QSplitter(Qt.Horizontal)
-            
             if hasattr(self, 'ObjectFrame'):
                 self.ObjectFrame.setParent(None)
                 self.main_splitter.addWidget(self.ObjectFrame)
-                self.ObjectFrame.setMinimumWidth(220)
-                self.ObjectFrame.setMaximumWidth(220)  # Fixed width
-            
+                self.ObjectFrame.setMinimumWidth(240)
+                self.ObjectFrame.setMaximumWidth(240)
             self.canvas_view = Canvas(self)
-            self.canvas_view.setMinimumWidth(600)
             self.main_splitter.addWidget(self.canvas_view)
-            
-            # Better initial sizing ratio
-            self.main_splitter.setSizes([220, 1000])
+            self.main_splitter.setSizes([240, 1000])
+            self.main_splitter.setStretchFactor(0, 0)
+            self.main_splitter.setStretchFactor(1, 1)  # Make canvas expand
             self.setCentralWidget(self.main_splitter)
-            
             self.main_splitter.setCollapsible(0, True)
             self.main_splitter.setCollapsible(1, False)
-            
             self.main_splitter.splitterMoved.connect(self.onSplitterMoved)
-            
             QTimer.singleShot(200, self.status_manager.setupCanvasStatusBar)
-            
-            debug_print("DEBUG: Canvas and component panel setup with fixed sizing")
-            
+            debug_print("DEBUG: Canvas and component panel setup with dynamic resizing (no manual geometry)")
         except Exception as e:
             error_print(f"ERROR: Failed to setup canvas: {e}")
             self.canvas_view = Canvas(self)
@@ -183,6 +153,10 @@ class NetFlux5GApp(QMainWindow):
         
         self._splitter_timer.start(150)
 
+        # Update canvas geometry when the splitter is moved
+        if hasattr(self, 'window_manager'):
+            self.window_manager.updateCanvasGeometry()
+
     def setupConnections(self):
         """Set up all signal connections."""
         try:
@@ -193,12 +167,10 @@ class NetFlux5GApp(QMainWindow):
                 self.actionOpen.triggered.connect(self.file_manager.openTopology)
             if hasattr(self, 'actionSave'):
                 self.actionSave.triggered.connect(self.file_manager.saveTopology)
-            if hasattr(self, 'actionSaveAs'):
-                self.actionSaveAs.triggered.connect(self.file_manager.saveTopologyAs)
-            if hasattr(self, 'actionExportToDockerCompose'):
-                self.actionExportToDockerCompose.triggered.connect(self.automation_manager.exportToDockerCompose)
-            if hasattr(self, 'actionExportToMininet'):
-                self.actionExportToMininet.triggered.connect(self.automation_manager.exportToMininet)
+            if hasattr(self, 'actionSave_As'):
+                self.actionSave_As.triggered.connect(self.file_manager.saveTopologyAs)
+            if hasattr(self, 'actionExport_to_Level_2_Script'):
+                self.actionExport_to_Level_2_Script.triggered.connect(self.automation_manager.exportToMininet)
 
             # Tool connections
             if hasattr(self, 'actionPickTool'):
@@ -217,6 +189,24 @@ class NetFlux5GApp(QMainWindow):
                 self.actionRunAll.triggered.connect(self.automation_manager.runAllComponents)
             if hasattr(self, 'actionStopAll'):
                 self.actionStopAll.triggered.connect(self.automation_manager.stopAllComponents)
+
+            # Docker network connections
+            if hasattr(self, 'actionCreate_Docker_Network'):
+                self.actionCreate_Docker_Network.triggered.connect(self.docker_network_manager.create_docker_network)
+            if hasattr(self, 'actionDelete_Docker_Network'):
+                self.actionDelete_Docker_Network.triggered.connect(self.docker_network_manager.delete_docker_network)
+
+            # Database connections
+            if hasattr(self, 'actionDeploy_Database'):
+                self.actionDeploy_Database.triggered.connect(self.database_manager.deployDatabase)
+            if hasattr(self, 'actionStop_Database'):
+                self.actionStop_Database.triggered.connect(self.database_manager.stopDatabase)
+
+            # Web UI connections
+            if hasattr(self, 'actionDeploy_User_Manager'):
+                self.actionDeploy_User_Manager.triggered.connect(self.database_manager.deployWebUI)
+            if hasattr(self, 'actionStop_User_Manager'):
+                self.actionStop_User_Manager.triggered.connect(self.database_manager.stopWebUI)
 
             # Component button connections
             if hasattr(self.component_panel_manager, 'component_widgets'):
@@ -243,6 +233,10 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionShowGrid'):
                 self.actionShowGrid.setShortcut(QKeySequence('G'))
 
+            # Connect splitter moved signal to handler
+            if hasattr(self, 'splitter'):
+                self.splitter.splitterMoved.connect(self.onSplitterMoved)
+
             debug_print("DEBUG: All connections setup successfully")
             
         except Exception as e:
@@ -258,8 +252,18 @@ class NetFlux5GApp(QMainWindow):
 
     def keyPressEvent(self, event):
         """Handle key press events."""
-        if not self.keyboard_manager.handleKeyPress(event):
-            super().keyPressEvent(event)
+        # Allow ESC to cancel placement mode
+        if self.placement_mode and event.key() == Qt.Key_Escape:
+            self.exitPlacementMode()
+            return
+        
+        # Delegate to keyboard manager for other shortcuts
+        if hasattr(self, 'keyboard_manager'):
+            handled = self.keyboard_manager.handleKeyPress(event)
+            if handled:
+                return
+        
+        super().keyPressEvent(event)
 
     # Delegate methods to managers
     def startDrag(self, component_type):
@@ -289,10 +293,6 @@ class NetFlux5GApp(QMainWindow):
     def toggleGrid(self):
         """Delegate to canvas manager."""
         self.canvas_manager.toggleGrid()
-
-    def extractTopology(self):
-        """Extract current topology data - delegate to file manager."""
-        return self.file_manager.extractTopology()
 
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""
@@ -484,13 +484,37 @@ class NetFlux5GApp(QMainWindow):
         
         debug_print("=== END DEBUG ===")
 
+    def enterPlacementMode(self, component_type, icon_path=None):
+        """Enter placement mode for the selected component and set cursor to its icon. Always reset cursor first."""
+        from PyQt5.QtWidgets import QApplication
+        QApplication.restoreOverrideCursor()  # Prevent cursor stacking
+        self.placement_mode = True
+        self.placement_component_type = component_type
+        self.placement_icon_path = icon_path
+        if icon_path and os.path.exists(icon_path):
+            pixmap = QPixmap(icon_path)
+            if not pixmap.isNull():
+                cursor = QCursor(pixmap.scaled(32, 32, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                QApplication.setOverrideCursor(cursor)
+        self.showCanvasStatus(f"Selected: {component_type}. Click on canvas to place. Press ESC to cancel.")
+
+    def exitPlacementMode(self):
+        """Exit placement mode and restore default cursor."""
+        self.placement_mode = False
+        self.placement_component_type = None
+        self.placement_icon_path = None
+        QApplication.restoreOverrideCursor()
+        self.showCanvasStatus("Ready")
+
+    def extractTopology(self):
+        """Delegate topology extraction to the file manager."""
+        if hasattr(self, 'file_manager'):
+            return self.file_manager.extractTopology()
+        return [], []
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    
-    # Performance optimizations for the application
-    app.setAttribute(Qt.AA_DontCreateNativeWidgetSiblings, True)
-    app.setAttribute(Qt.AA_DontShowIconsInMenus, True)
-    
+
     icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
     app.setWindowIcon(QIcon(icon_path))
 

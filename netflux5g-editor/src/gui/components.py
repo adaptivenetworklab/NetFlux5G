@@ -2,7 +2,7 @@ import os
 from .links import NetworkLink
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
 from PyQt5.QtCore import Qt, QRectF, QPoint
-from PyQt5.QtGui import QPixmap, QPen, QColor, QPainter
+from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
 from manager.debug import debug_print, error_print, warning_print
 
@@ -27,15 +27,25 @@ class NetworkComponent(QGraphicsPixmapItem):
         "Host": 0, "STA": 0, "UE": 0, "GNB": 0, "DockerHost": 0,
         "AP": 0, "VGcore": 0, "Controller": 0, "Router": 0, "Switch": 0,
     }
+    # Track available (unused) numbers for each component type
+    available_numbers = {
+        "Host": set(), "STA": set(), "UE": set(), "GNB": set(), "DockerHost": set(),
+        "AP": set(), "VGcore": set(), "Controller": set(), "Router": set(), "Switch": set(),
+    }
+    copied_properties = None  # Class-level clipboard for properties
     
     def __init__(self, component_type, icon_path, parent=None):
         super().__init__(parent)
         self.component_type = component_type
         self.icon_path = icon_path
-    
-        # Increment the component count and assign a unique number
-        NetworkComponent.component_counts[component_type] = NetworkComponent.component_counts.get(component_type, 0) + 1
-        self.component_number = NetworkComponent.component_counts[component_type]
+
+        # Assign the lowest available number or increment
+        if NetworkComponent.available_numbers[component_type]:
+            self.component_number = min(NetworkComponent.available_numbers[component_type])
+            NetworkComponent.available_numbers[component_type].remove(self.component_number)
+        else:
+            NetworkComponent.component_counts[component_type] = NetworkComponent.component_counts.get(component_type, 0) + 1
+            self.component_number = NetworkComponent.component_counts[component_type]
         
         # Set the display name (e.g., "Host #1")
         self.display_name = f"{component_type} #{self.component_number}"
@@ -60,8 +70,8 @@ class NetworkComponent(QGraphicsPixmapItem):
         # Enable handling context menu events
         self.setAcceptedMouseButtons(Qt.LeftButton | Qt.RightButton)
         
-        # Coverage radius for wireless components - always visible
-        self.coverage_radius = 340.0 if component_type in ["AP", "GNB"] else 0
+        # Coverage radius for wireless components - calculated based on power
+        self.coverage_radius = self.calculateCoverageRadius()
         
         # Set appropriate Z-value
         if self.component_type in ["AP", "GNB"]:
@@ -91,6 +101,12 @@ class NetworkComponent(QGraphicsPixmapItem):
         # Update position if provided in properties
         if "x" in properties_dict and "y" in properties_dict:
             self.setPos(properties_dict["x"], properties_dict["y"])
+        
+        # Update coverage radius if power-related properties changed
+        power_fields = ["AP_Power", "AP_TxPower", "GNB_Power", "GNB_TxPower", 
+                       "lineEdit_power", "doubleSpinBox_power"]
+        if any(field in properties_dict for field in power_fields):
+            self.updateCoverageRadius()
 
     def getProperties(self):
         """Get the current properties including updated position."""
@@ -110,73 +126,82 @@ class NetworkComponent(QGraphicsPixmapItem):
             return QRectF(-10, -10, 70, 90)  # Extra padding and height for text with margins
     
     def paint(self, painter, option, widget):
-        """Draw the component with optimized performance."""
-        # Enable performance optimizations
-        painter.setRenderHint(QPainter.Antialiasing, False)
-        
+        """Draw the component."""
         # Save the painter state
         painter.save()
         
         # Draw coverage circle for wireless components first (so it's behind the icon)
         if self.component_type in ["AP", "GNB"]:
-            # Only draw coverage circle if it's within visible area
-            if option.exposedRect.intersects(QRectF(
-                25 - self.coverage_radius, 25 - self.coverage_radius,
-                self.coverage_radius * 2, self.coverage_radius * 2
-            )):
-                # Set up a semi-transparent fill for the coverage area
-                painter.setBrush(QColor(0, 128, 255, 40))
-                
-                # Use a thin border for the coverage area
-                painter.setPen(QPen(QColor(0, 0, 0, 80), 1, Qt.DashLine))
-                
-                # Draw the coverage circle using QRectF to handle float values
-                circle_rect = QRectF(
-                    25 - self.coverage_radius,  # x (float)
-                    25 - self.coverage_radius,  # y (float)
-                    self.coverage_radius * 2,   # width (float)
-                    self.coverage_radius * 2    # height (float)
-                )
-                painter.drawEllipse(circle_rect)
+            # Get current power to determine color intensity
+            power = self.getCurrentPower()
+            
+            # Color-code based on power level
+            # Higher power = more intense/warmer color
+            if power <= 10:
+                # Low power: Blue-green
+                color = QColor(0, 150, 100, 40)
+                border_color = QColor(0, 100, 70, 120)
+            elif power <= 20:
+                # Medium power: Blue
+                color = QColor(0, 128, 255, 50)
+                border_color = QColor(0, 100, 200, 140)
+            elif power <= 30:
+                # High power: Orange
+                color = QColor(255, 150, 0, 60)
+                border_color = QColor(200, 120, 0, 160)
+            else:
+                # Very high power: Red
+                color = QColor(255, 50, 50, 70)
+                border_color = QColor(200, 30, 30, 180)
+            
+            # Set up the fill and border for the coverage area
+            painter.setBrush(color)
+            painter.setPen(QPen(border_color, 2, Qt.DashLine))
+            
+            # Draw the coverage circle using QRectF to handle float values
+            circle_rect = QRectF(
+                25 - self.coverage_radius,  # x (float)
+                25 - self.coverage_radius,  # y (float)
+                self.coverage_radius * 2,   # width (float)
+                self.coverage_radius * 2    # height (float)
+            )
+            painter.drawEllipse(circle_rect)
         
         # Reset painter for icon drawing
         painter.restore()
         painter.save()
         
-        # Draw the component icon only if visible
-        if option.exposedRect.intersects(QRectF(0, 0, 50, 50)):
-            if not self.pixmap().isNull():
-                painter.drawPixmap(0, 0, 50, 50, self.pixmap())
+        # Draw the component icon
+        if not self.pixmap().isNull():
+            painter.drawPixmap(0, 0, 50, 50, self.pixmap())
     
         # Draw the component name below the icon with proper background clearing
-        text_rect = QRectF(0, 55, 50, 20)
-        if option.exposedRect.intersects(text_rect):
-            painter.setPen(Qt.black)
-            font = painter.font()
-            font.setPointSize(8)  # Smaller font size
-            painter.setFont(font)
-            
-            # Calculate text metrics
-            text_width = painter.fontMetrics().width(self.display_name)
-            text_height = painter.fontMetrics().height()
-            
-            # Clear the text area with white background to prevent traces
-            clear_rect = QRectF(
-                (50 - text_width) / 2 - 2,  # x position with padding
-                55,  # y position
-                text_width + 4,  # width with padding
-                text_height + 4  # height with padding
-            )
-            
-            # Fill text background with white to clear any traces
-            painter.fillRect(clear_rect, Qt.white)
-            
-            # Draw the text
-            painter.drawText(
-                int((50 - text_width) / 2),  # Center horizontally (ensure integer)
-                65,  # Position below the icon
-                self.display_name
-            )
+        painter.setPen(Qt.black)
+        font = painter.font()
+        font.setPointSize(8)  # Smaller font size
+        painter.setFont(font)
+        
+        # Calculate text metrics
+        text_width = painter.fontMetrics().width(self.display_name)
+        text_height = painter.fontMetrics().height()
+        
+        # Clear the text area with white background to prevent traces
+        text_rect = QRectF(
+            (50 - text_width) / 2 - 2,  # x position with padding
+            55,  # y position
+            text_width + 4,  # width with padding
+            text_height + 4  # height with padding
+        )
+        
+        # Fill text background with white to clear any traces
+        painter.fillRect(text_rect, Qt.white)
+        
+        # Draw the text
+        painter.drawText(
+            int((50 - text_width) / 2),  # Center horizontally (ensure integer)
+            65,  # Position below the icon
+            self.display_name
+        )
     
         # Restore painter state
         painter.restore()
@@ -211,41 +236,161 @@ class NetworkComponent(QGraphicsPixmapItem):
         return path
 
     def itemChange(self, change, value):
-        """Handle position changes and update connected links with optimized updates."""
+        """Handle position changes and update connected links."""
         if change == QGraphicsItem.ItemPositionChange and self.scene():
             # Update position properties when position changes
             if hasattr(value, 'x') and hasattr(value, 'y'):
                 self.properties["x"] = value.x()
                 self.properties["y"] = value.y()
             
-            # If we have connected links, update them (but don't force immediate scene update)
+            # If we have connected links, update them
             if hasattr(self, 'connected_links'):
                 for link in self.connected_links:
-                    link.prepareGeometryChange()
+                    link.updatePosition()
         
         # For position changes, update the coverage area for AP/GNB components
         if change == QGraphicsItem.ItemPositionHasChanged and self.scene():
             # Final position update after the move is complete
             self.updatePositionProperties()
             
-            # Use minimal update instead of full scene update
+            # Force a comprehensive scene update to clear any traces
             if self.scene():
-                # Update only the necessary area
-                update_rect = self.sceneBoundingRect().adjusted(-10, -10, 10, 10)
-                self.scene().update(update_rect)
+                # Update a larger area around the component to ensure text traces are cleared
+                expanded_rect = self.sceneBoundingRect().adjusted(-20, -20, 20, 20)
+                self.scene().update(expanded_rect)
+            
+            # Force a complete repaint for this item
+            self.update()
+            
+            if self.component_type in ["AP", "GNB"]:
+                # Additional update for coverage circles
+                self.scene().update()
         
+        if change == QGraphicsItem.ItemPositionHasChanged:
+            pos = value
+            debug_print(f"Component '{self.display_name}' moved to position: x={pos.x()}, y={pos.y()}")
         return super().itemChange(change, value)
 
     def contextMenuEvent(self, event: QGraphicsSceneContextMenuEvent):
         """Handle right-click context menu events."""
-        menu = QMenu()
+        # Always reset dragging state and offset on context menu
+        self.dragging = False
+        self._drag_start_pos = None
+        
+        parent_widget = None
+        scene = self.scene()
+        if scene and scene.views():
+            parent_widget = scene.views()[0]
+        menu = QMenu(parent_widget)
+        menu.setStyleSheet("""
+            QMenu {
+            background-color: #f0f0f0;
+            border: 1px solid #000000;
+            }
+            QMenu::item:selected {
+            background-color: #cccccc;
+            }
+        """)
         if self.component_type in ["Switch", "Router"]:
-            menu.addAction("Delete", lambda: self.scene().removeItem(self))
+            menu.addAction("Delete", lambda: self._delete_and_cleanup())
         else:
             menu.addAction("Properties", self.openPropertiesDialog)
             menu.addSeparator()
-            menu.addAction("Delete", lambda: self.scene().removeItem(self))
+            menu.addAction("Delete", lambda: self._delete_and_cleanup())
+            # Add copy/paste properties actions
+            copy_action = menu.addAction("Copy Properties")
+            paste_action = menu.addAction("Paste Properties")
+            paste_action.setEnabled(NetworkComponent.copied_properties is not None and (NetworkComponent.copied_properties.get('type') == self.component_type))
+            copy_action.triggered.connect(self.copy_properties)
+            paste_action.triggered.connect(self.paste_properties)
         menu.exec_(event.screenPos())
+        # After menu closes, ensure dragging state and offset are reset
+        self.dragging = False
+        self._drag_start_pos = None
+        # Explicitly release mouse and focus after context menu
+        try:
+            self.ungrabMouse()
+        except Exception:
+            pass
+        try:
+            self.clearFocus()
+        except Exception:
+            pass
+        super().contextMenuEvent(event)
+
+    def copy_properties(self):
+        # Copy all properties except position and name/number
+        props = self.getProperties().copy()
+        for k in ["x", "y", "name"]:
+            if k in props:
+                del props[k]
+        props['type'] = self.component_type  # Ensure type is present
+        NetworkComponent.copied_properties = props
+        # Show status and debug
+        scene = self.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance'):
+                view.app_instance.showCanvasStatus(f"Copied properties from {self.display_name}")
+        debug_print(f"Copied properties from {self.display_name}: {props}")
+
+    def paste_properties(self):
+        # Only paste if types match
+        props = NetworkComponent.copied_properties
+        if props and props.get('type') == self.component_type:
+            # Don't overwrite name/number/position
+            for k, v in props.items():
+                if k not in ["x", "y", "name", "type"]:
+                    self.properties[k] = v
+            # Optionally, update dialog if open
+            if hasattr(self, 'dialog') and self.dialog is not None:
+                self.dialog.loadProperties()
+            # Optionally, visually indicate update
+            self.update()
+            # Show status and debug
+            scene = self.scene()
+            if scene and scene.views():
+                view = scene.views()[0]
+                if hasattr(view, 'app_instance'):
+                    view.app_instance.showCanvasStatus(f"Pasted properties to {self.display_name}")
+            debug_print(f"Pasted properties to {self.display_name}: {props}")
+        else:
+            debug_print(f"Paste failed: clipboard type {props.get('type') if props else None} does not match {self.component_type}")
+
+    def _delete_and_cleanup(self):
+        # Remove any connected links first (same as before)
+        scene = self.scene()
+        if hasattr(self, 'connected_links') and self.connected_links:
+            links_to_remove = self.connected_links.copy()
+            for link in links_to_remove:
+                if hasattr(link, 'source_node') and hasattr(link.source_node, 'connected_links'):
+                    if link in link.source_node.connected_links:
+                        link.source_node.connected_links.remove(link)
+                if hasattr(link, 'dest_node') and hasattr(link.dest_node, 'connected_links'):
+                    if link in link.dest_node.connected_links:
+                        link.dest_node.connected_links.remove(link)
+                if link.scene():
+                    scene.removeItem(link)
+        # Free up the number for reuse
+        self.deleteComponent()
+        # Remove this component
+        if scene:
+            scene.removeItem(self)
+        # Show status message if possible
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance'):
+                num_links = len(self.connected_links) if hasattr(self, 'connected_links') and self.connected_links else 0
+                view.app_instance.showCanvasStatus(f"Deleted component and {num_links} connected link(s)")
+
+    def deleteComponent(self):
+        """Call this when the component is deleted to free up its number."""
+        ctype = self.component_type
+        cnum = self.component_number
+        # Add this number back to available numbers for reuse
+        NetworkComponent.available_numbers[ctype].add(cnum)
+        # Optionally, decrement count if you want strictly sequential numbers
+        # NetworkComponent.component_counts[ctype] = max(NetworkComponent.component_counts[ctype] - 1, 0)
 
     def openPropertiesDialog(self):
         """Open the properties dialog for the component."""
@@ -254,6 +399,9 @@ class NetworkComponent(QGraphicsPixmapItem):
             # Pass the component reference to the dialog
             dialog = dialog_class(label_text=self.display_name, parent=self.scene().views()[0], component=self)
             dialog.show()
+            # After dialog closes, always reset dragging state and offset
+            self.dragging = False
+            self._drag_start_pos = None
 
     def setHighlighted(self, highlight=True):
         """Set the highlight state of this component"""
@@ -262,35 +410,120 @@ class NetworkComponent(QGraphicsPixmapItem):
 
     def mousePressEvent(self, event):
         """Handle mouse press events."""
-        # Check if we're in delete mode
-        scene = self.scene()
-        if scene and scene.views():
-            view = scene.views()[0]
-            if hasattr(view, 'app_instance') and view.app_instance.current_tool == "delete":
-                # Remove any connected links first
-                if hasattr(self, 'connected_links') and self.connected_links:
-                    # Copy the list to avoid modification during iteration
-                    links_to_remove = self.connected_links.copy()
-                    for link in links_to_remove:
-                        # Remove the link from both connected nodes
-                        if hasattr(link, 'source_node') and hasattr(link.source_node, 'connected_links'):
-                            if link in link.source_node.connected_links:
-                                link.source_node.connected_links.remove(link)
-                        if hasattr(link, 'dest_node') and hasattr(link.dest_node, 'connected_links'):
-                            if link in link.dest_node.connected_links:
-                                link.dest_node.connected_links.remove(link)
-                        # Remove the link from the scene
-                        if link.scene():
-                            scene.removeItem(link)
-                
-                # Now remove this component
-                scene.removeItem(self)
-                
-                # Show status message
-                if hasattr(view, 'app_instance'):
-                    num_links = len(self.connected_links) if hasattr(self, 'connected_links') and self.connected_links else 0
-                    view.app_instance.showCanvasStatus(f"Deleted component and {num_links} connected link(s)")
-                return
-                
-        # If not in delete mode, call the parent handler for other functionality
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            # Always calculate offset fresh on left press
+            self._drag_start_pos = event.pos()
+        else:
+            self.dragging = False
+            self._drag_start_pos = None
         super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.dragging and (event.buttons() & Qt.LeftButton):
+            # Calculate new position based on drag start
+            if hasattr(self, '_drag_start_pos') and self._drag_start_pos is not None:
+                new_pos = self.mapToParent(event.pos() - self._drag_start_pos)
+                self.setPos(new_pos)
+                if hasattr(self, 'updatePositionProperties'):
+                    self.updatePositionProperties()
+        else:
+            self.dragging = False
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self.dragging = False
+        self._drag_start_pos = None
+        super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Delete:
+            # Call the same cleanup as context menu delete
+            self._delete_and_cleanup()
+            return
+        elif event.key() == Qt.Key_Escape:
+            self.clearFocus()
+        super().keyPressEvent(event)
+
+    def calculateCoverageRadius(self):
+        """Calculate coverage radius based on component power settings."""
+        if self.component_type not in ["AP", "GNB"]:
+            return 0
+        
+        # Get power from properties
+        power = None
+        power_fields = []
+        
+        if self.component_type == "AP":
+            power_fields = ["AP_Power", "AP_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        elif self.component_type == "GNB":
+            power_fields = ["GNB_Power", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        
+        # Try to get power value from properties
+        for field in power_fields:
+            if self.properties.get(field):
+                try:
+                    power = float(str(self.properties[field]).strip())
+                    if power > 0:
+                        break
+                except (ValueError, TypeError):
+                    continue
+        
+        # Use default power if not specified
+        if power is None or power <= 0:
+            # Use mininet-wifi defaults: AP=14dBm, gNB=20dBm
+            power = 14.0 if self.component_type == "AP" else 20.0
+        
+        # Calculate coverage radius based on power
+        # Using a logarithmic relationship similar to real RF propagation
+        # Base formula: radius = base_radius * 10^((power - reference_power) / 20)
+        # This approximates the path loss formula in free space
+        
+        reference_power = 14.0  # Reference power in dBm
+        base_radius = 100.0     # Base radius in pixels for reference power
+        
+        # Calculate radius using path loss approximation
+        power_ratio = (power - reference_power) / 20.0
+        radius = base_radius * (10 ** power_ratio)
+        
+        # Clamp radius to reasonable visual limits
+        min_radius = 50.0   # Minimum visual radius
+        max_radius = 500.0  # Maximum visual radius
+        
+        return max(min_radius, min(radius, max_radius))
+
+    def updateCoverageRadius(self):
+        """Update the coverage radius and trigger a repaint."""
+        if self.component_type in ["AP", "GNB"]:
+            old_radius = self.coverage_radius
+            self.coverage_radius = self.calculateCoverageRadius()
+            
+            # Only update scene if radius changed significantly
+            if abs(old_radius - self.coverage_radius) > 5.0:
+                self.prepareGeometryChange()
+                self.update()
+
+    def getCurrentPower(self):
+        """Get the current power setting for this component."""
+        if self.component_type not in ["AP", "GNB"]:
+            return 0
+        
+        # Get power from properties
+        power_fields = []
+        if self.component_type == "AP":
+            power_fields = ["AP_Power", "AP_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        elif self.component_type == "GNB":
+            power_fields = ["GNB_Power", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        
+        # Try to get power value from properties
+        for field in power_fields:
+            if self.properties.get(field):
+                try:
+                    power = float(str(self.properties[field]).strip())
+                    if power > 0:
+                        return power
+                except (ValueError, TypeError):
+                    continue
+        
+        # Return default power if not specified
+        return 14.0 if self.component_type == "AP" else 20.0

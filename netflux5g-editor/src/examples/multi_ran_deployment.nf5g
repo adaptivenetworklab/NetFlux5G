@@ -3,8 +3,8 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Kam Jul 3 15:08:38 2025",
-    "saved_date": "Kam Jul 3 15:08:38 2025",
+    "created_date": "Kam Jul 3 15:07:59 2025",
+    "saved_date": "Kam Jul 3 15:07:59 2025",
     "canvas_size": {
       "width": 1292,
       "height": 801
@@ -16,13 +16,13 @@
     {
       "name": "VGcore #1",
       "type": "VGcore",
-      "x": -501.0,
-      "y": -310.0,
+      "x": 78.0,
+      "y": -320.0,
       "properties": {
         "name": "VGcore #1",
         "type": "VGcore",
-        "x": -501.0,
-        "y": -310.0,
+        "x": 78.0,
+        "y": -320.0,
         "UPF_configs": [
           {
             "name": "upf1",
@@ -605,6 +605,30 @@
             "volumes": []
           }
         ],
+        "PCRF_configs": [
+          {
+            "name": "pcrf1",
+            "config_display": "✓ pcrf.yaml",
+            "config_content": {
+              "db_uri": "mongodb://localhost/open5gs",
+              "logger": {
+                "file": {
+                  "path": "/opt/open5gs/var/log/open5gs/pcrf.log"
+                }
+              },
+              "global": null,
+              "pcrf": {
+                "freeDiameter": "/opt/open5gs/etc/freeDiameter/pcrf.conf"
+              }
+            },
+            "imported": true,
+            "config_filename": "pcrf.yaml",
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "PCRF",
+            "volumes": [],
+            "config_file_path": ""
+          }
+        ],
         "UDM_configs": [
           {
             "name": "udm1",
@@ -713,19 +737,19 @@
           }
         ]
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754563584
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802880
     },
     {
       "name": "UE #6",
       "type": "UE",
-      "x": -168.8695652173913,
-      "y": -132.95652173913044,
+      "x": 416.0,
+      "y": 115.0,
       "properties": {
         "name": "UE #6",
         "type": "UE",
-        "x": -168.8695652173913,
-        "y": -132.95652173913044,
+        "x": 416.0,
+        "y": 115.0,
         "UE_GNBHostName": "mn.gnb1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000003",
@@ -737,19 +761,19 @@
         "UE_SST": "1",
         "UE_SD": "0xffffff"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754563440
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802736
     },
     {
       "name": "UE #5",
       "type": "UE",
-      "x": -277.13043478260875,
-      "y": -205.26086956521746,
+      "x": 444.0,
+      "y": -237.0,
       "properties": {
         "name": "UE #5",
         "type": "UE",
-        "x": -277.13043478260875,
-        "y": -205.26086956521746,
+        "x": 444.0,
+        "y": -237.0,
         "UE_GNBHostName": "mn.gnb1",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000013",
@@ -761,19 +785,19 @@
         "UE_SST": "1",
         "UE_SD": "0xffffff"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754563296
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802592
     },
     {
       "name": "UE #4",
       "type": "UE",
-      "x": -411.9565217391304,
-      "y": -126.78260869565216,
+      "x": 199.0,
+      "y": -74.0,
       "properties": {
         "name": "UE #4",
         "type": "UE",
-        "x": -411.9565217391304,
-        "y": -126.78260869565216,
+        "x": 199.0,
+        "y": -74.0,
         "UE_GNBHostName": "mn.gnb1",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000012",
@@ -785,19 +809,19 @@
         "UE_SST": "1",
         "UE_SD": "0xffffff"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754563152
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802448
     },
     {
       "name": "UE #3",
       "type": "UE",
-      "x": -163.8695652173913,
-      "y": -5.521739130434796,
+      "x": -121.0,
+      "y": 127.0,
       "properties": {
         "name": "UE #3",
         "type": "UE",
-        "x": -163.8695652173913,
-        "y": -5.521739130434796,
+        "x": -121.0,
+        "y": 127.0,
         "UE_GNBHostName": "mn.gnb1",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000011",
@@ -809,19 +833,19 @@
         "UE_SST": "1",
         "UE_SD": "0xffffff"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754563008
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802304
     },
     {
       "name": "UE #2",
       "type": "UE",
-      "x": -269.65217391304344,
-      "y": 58.04347826086956,
+      "x": -447.0,
+      "y": 56.0,
       "properties": {
         "name": "UE #2",
         "type": "UE",
-        "x": -269.65217391304344,
-        "y": 58.04347826086956,
+        "x": -447.0,
+        "y": 56.0,
         "UE_GNBHostName": "mn.gnb1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000002",
@@ -833,19 +857,19 @@
         "UE_SST": "1",
         "UE_SD": "0xffffff"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754562864
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802160
     },
     {
       "name": "UE #1",
       "type": "UE",
-      "x": -384.73913043478257,
-      "y": -16.130434782608695,
+      "x": -444.0,
+      "y": -223.0,
       "properties": {
         "name": "UE #1",
         "type": "UE",
-        "x": -384.73913043478257,
-        "y": -16.130434782608695,
+        "x": -444.0,
+        "y": -223.0,
         "UE_GNBHostName": "mn.gnb1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000001",
@@ -857,19 +881,19 @@
         "UE_SST": "1",
         "UE_SD": "0xffffff"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754562720
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951802016
     },
     {
       "name": "GNB #1",
       "type": "GNB",
-      "x": -284.6956521739131,
-      "y": -65.34782608695653,
+      "x": -278.0,
+      "y": -59.0,
       "properties": {
         "name": "GNB #1",
         "type": "GNB",
-        "x": -284.6956521739131,
-        "y": -65.34782608695653,
+        "x": -278.0,
+        "y": -59.0,
         "GNB_AMFHostName": "mn.amf1",
         "GNB_GNBHostName": "mn.gnb1",
         "GNB_TAC": "1",
@@ -877,10 +901,32 @@
         "GNB_MNC": "70",
         "GNB_SST": "1",
         "GNB_SD": "0xffffff",
-        "GNB_Power": "20"
+        "GNB_Power": "25"
       },
-      "created_date": "Kam Jul 3 15:08:38 2025",
-      "component_id": 127934754563728
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951803168
+    },
+    {
+      "name": "GNB #2",
+      "type": "GNB",
+      "x": 443.0,
+      "y": -37.0,
+      "properties": {
+        "name": "GNB #2",
+        "type": "GNB",
+        "x": 443.0,
+        "y": -37.0,
+        "GNB_AMFHostName": "mn.amf1",
+        "GNB_GNBHostName": "mn.gnb2",
+        "GNB_TAC": "1",
+        "GNB_MCC": "999",
+        "GNB_MNC": "70",
+        "GNB_SST": "1",
+        "GNB_SD": "0xffffff",
+        "GNB_Power": "25"
+      },
+      "created_date": "Kam Jul 3 15:07:59 2025",
+      "component_id": 134849951803024
     }
   ],
   "links": [
@@ -895,11 +941,24 @@
         "destination": "VGcore #1"
       },
       "name": "link_720",
-      "created_date": "Kam Jul 3 15:08:38 2025"
+      "created_date": "Kam Jul 3 15:07:59 2025"
+    },
+    {
+      "source": "GNB #2",
+      "destination": "VGcore #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_168",
+        "type": "ethernet",
+        "source": "GNB #2",
+        "destination": "VGcore #1"
+      },
+      "name": "link_168",
+      "created_date": "Kam Jul 3 15:07:59 2025"
     }
   ],
   "canvas_properties": {
-    "zoom_level": 1.15,
+    "zoom_level": 1.0,
     "show_grid": false
   }
 }

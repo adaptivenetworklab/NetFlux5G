@@ -1,13 +1,6 @@
 volumes:
   mongo:
 
-# networks:
-#   db-network:
-#     driver: bridge
-#     ipam:
-#       config:
-#       - subnet: 172.25.0.0/24
-
 services:
   mongo:
     image: mongo:latest
