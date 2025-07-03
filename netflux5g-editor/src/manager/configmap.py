@@ -61,20 +61,25 @@ class ConfigurationMapper:
     
     @staticmethod
     def map_gnb_config(properties):
-        """Map gNB properties to configuration parameters"""
+        """Map gNB properties to configuration parameters with enhanced AP support"""
         config = {}
         
-        # gNB specific configurations following fixed_topology-upf.py pattern
-        config['amf_ip'] = properties.get('GNB_AMF_IP', '10.0.0.3')
-        config['hostname'] = properties.get('GNB_Hostname', 'mn.gnb')
-        config['mcc'] = properties.get('GNB_MCC', '999')
-        config['mnc'] = properties.get('GNB_MNC', '70')
-        config['sst'] = properties.get('GNB_SST', '1')
-        config['sd'] = properties.get('GNB_SD', '0xffffff')
-        config['tac'] = properties.get('GNB_TAC', '1')
+        # Enhanced 5G configuration using new field names
+        config['amf_hostname'] = properties.get('GNB_AMFHostName', properties.get('5g_amf_hostname', 'amf'))
+        config['gnb_hostname'] = properties.get('GNB_GNBHostName', properties.get('5g_gnb_hostname', 'mn.gnb'))
+        config['mcc'] = properties.get('GNB_MCC', properties.get('5g_mcc', '999'))
+        config['mnc'] = properties.get('GNB_MNC', properties.get('5g_mnc', '70'))
+        config['sst'] = properties.get('GNB_SST', properties.get('5g_sst', '1'))
+        config['sd'] = properties.get('GNB_SD', properties.get('5g_sd', '0xffffff'))
+        config['tac'] = properties.get('GNB_TAC', properties.get('5g_tac', '1'))
         
-        # Power configuration for radio propagation
-        power_fields = ["GNB_Power", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        # Network interfaces configuration
+        config['n2_iface'] = properties.get('GNB_N2_Interface', properties.get('5g_n2_iface', 'eth0'))
+        config['n3_iface'] = properties.get('GNB_N3_Interface', properties.get('5g_n3_iface', 'eth0'))
+        config['radio_iface'] = properties.get('GNB_Radio_Interface', properties.get('5g_radio_iface', 'eth0'))
+        
+        # Wireless configuration for mininet-wifi
+        power_fields = ["GNB_Power", "wireless_txpower", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
         for field in power_fields:
             if properties.get(field):
                 power = str(properties[field]).strip()
@@ -88,7 +93,7 @@ class ConfigurationMapper:
                     break
         
         # Range configuration (coverage area)
-        range_fields = ["GNB_Range", "GNB_Coverage", "spinBox_range"]
+        range_fields = ["GNB_Range", "wireless_range", "GNB_Coverage", "spinBox_range"]
         for field in range_fields:
             if properties.get(field):
                 range_val = str(properties[field]).strip()
@@ -100,6 +105,35 @@ class ConfigurationMapper:
                     except ValueError:
                         pass
                     break
+        
+        # Access Point configuration for Docker environment variables
+        ap_config = {}
+        
+        # Check if AP is enabled
+        ap_enabled = properties.get('GNB_AP_Enabled', properties.get('ap_ap_enabled', 'false'))
+        if ap_enabled == 'true' or ap_enabled is True:
+            ap_config['AP_ENABLED'] = 'true'
+            
+            # AP basic configuration
+            ap_config['AP_SSID'] = properties.get('GNB_AP_SSID', properties.get('ap_ap_ssid', 'gnb-hotspot'))
+            ap_config['AP_CHANNEL'] = str(properties.get('GNB_AP_Channel', properties.get('ap_ap_channel', '6')))
+            ap_config['AP_MODE'] = properties.get('GNB_AP_Mode', properties.get('ap_ap_mode', 'g'))
+            ap_config['AP_PASSWD'] = properties.get('GNB_AP_Password', properties.get('ap_ap_passwd', ''))
+            ap_config['AP_BRIDGE_NAME'] = properties.get('GNB_AP_BridgeName', properties.get('ap_ap_bridge_name', 'br-gnb'))
+            
+            # OpenFlow/OVS configuration
+            ap_config['OVS_CONTROLLER'] = properties.get('GNB_OVS_Controller', properties.get('ap_ovs_controller', ''))
+            ap_config['AP_FAILMODE'] = properties.get('GNB_OVS_FailMode', properties.get('ap_ap_failmode', 'standalone'))
+            ap_config['OPENFLOW_PROTOCOLS'] = properties.get('GNB_OVS_Protocols', properties.get('ap_openflow_protocols', 'OpenFlow14'))
+            
+            # Additional AP configuration
+            ap_config['AP_DATAPATH'] = properties.get('GNB_OVS_Datapath', 'kernel')
+            
+        else:
+            ap_config['AP_ENABLED'] = 'false'
+        
+        # Add AP configuration to main config
+        config['ap_config'] = ap_config
         
         return config
     

@@ -418,11 +418,21 @@ class DockerHostPropertiesWindow(BasePropertiesWindow):
 class GNBPropertiesWindow(BasePropertiesWindow):
     def __init__(self, label_text, parent=None, component=None):
         super().__init__(label_text, parent, component)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "GNB_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle(f"GNB Properties - {label_text}")
+        # Try to load enhanced UI first, fall back to basic UI if not found
+        enhanced_ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "GNB_properties_enhanced.ui")
+        basic_ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "GNB_properties.ui")
+        
+        if os.path.exists(enhanced_ui_file):
+            uic.loadUi(enhanced_ui_file, self)
+            debug_print("DEBUG: Loaded enhanced gNB UI with AP functionality")
+        else:
+            uic.loadUi(basic_ui_file, self)
+            debug_print("DEBUG: Loaded basic gNB UI (enhanced UI not found)")
+            
+        self.setWindowTitle(f"gNB Properties - {label_text}")
         self.setWindowFlags(Qt.Window)
         self.setupConnections()
+        self.setupDefaultValues()
         self.loadProperties()
 
     def setupConnections(self):
@@ -430,8 +440,146 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         self.GNB_OKButton.clicked.connect(self.onOK)
         self.GNB_CancelButton.clicked.connect(self.onCancel)
         
+        # Connect AP enable checkbox to enable/disable AP configuration widgets
+        if hasattr(self, 'GNB_AP_Enabled'):
+            self.GNB_AP_Enabled.toggled.connect(self.onAPEnabledToggled)
+    
+    def setupDefaultValues(self):
+        """Setup default values for the enhanced gNB configuration"""
+        # Set default 5G configuration values
+        if hasattr(self, 'GNB_AMFHostName'):
+            self.GNB_AMFHostName.setText("amf")
+        if hasattr(self, 'GNB_GNBHostName'):
+            self.GNB_GNBHostName.setText("mn.gnb")
+        if hasattr(self, 'GNB_TAC'):
+            self.GNB_TAC.setText("1")
+        if hasattr(self, 'GNB_MCC'):
+            self.GNB_MCC.setText("999")
+        if hasattr(self, 'GNB_MNC'):
+            self.GNB_MNC.setText("70")
+        if hasattr(self, 'GNB_SST'):
+            self.GNB_SST.setText("1")
+        if hasattr(self, 'GNB_SD'):
+            self.GNB_SD.setText("0xffffff")
+        
+        # Set default AP configuration values
+        if hasattr(self, 'GNB_AP_SSID'):
+            self.GNB_AP_SSID.setText("gnb-hotspot")
+        if hasattr(self, 'GNB_AP_BridgeName'):
+            self.GNB_AP_BridgeName.setText("br-gnb")
+        
+        # Set default OpenFlow values
+        if hasattr(self, 'GNB_OVS_FailMode'):
+            self.GNB_OVS_FailMode.setCurrentText("standalone")
+        if hasattr(self, 'GNB_OVS_Protocols'):
+            self.GNB_OVS_Protocols.setCurrentText("OpenFlow14")
+        if hasattr(self, 'GNB_OVS_Datapath'):
+            self.GNB_OVS_Datapath.setCurrentText("kernel")
+            
+        # Set default network interface values
+        if hasattr(self, 'GNB_N2_Interface'):
+            self.GNB_N2_Interface.setText("eth0")
+        if hasattr(self, 'GNB_N3_Interface'):
+            self.GNB_N3_Interface.setText("eth0")
+        if hasattr(self, 'GNB_Radio_Interface'):
+            self.GNB_Radio_Interface.setText("eth0")
+    
+    def onAPEnabledToggled(self, enabled):
+        """Handle AP functionality enable/disable"""
+        debug_print(f"DEBUG: gNB AP functionality {'enabled' if enabled else 'disabled'}")
+        # The UI connection should handle enabling/disabling the widget_ap_config automatically
+        # Additional logic can be added here if needed
+    
+    def getAPConfiguration(self):
+        """Get AP configuration as environment variables for Docker"""
+        ap_config = {}
+        
+        if hasattr(self, 'GNB_AP_Enabled') and self.GNB_AP_Enabled.isChecked():
+            ap_config['AP_ENABLED'] = 'true'
+            
+            if hasattr(self, 'GNB_AP_SSID'):
+                ap_config['AP_SSID'] = self.GNB_AP_SSID.text()
+            if hasattr(self, 'GNB_AP_Channel'):
+                ap_config['AP_CHANNEL'] = str(self.GNB_AP_Channel.value())
+            if hasattr(self, 'GNB_AP_Mode'):
+                ap_config['AP_MODE'] = self.GNB_AP_Mode.currentText()
+            if hasattr(self, 'GNB_AP_Password'):
+                ap_config['AP_PASSWD'] = self.GNB_AP_Password.text()
+            if hasattr(self, 'GNB_AP_BridgeName'):
+                ap_config['AP_BRIDGE_NAME'] = self.GNB_AP_BridgeName.text()
+            
+            # OpenFlow/OVS configuration
+            if hasattr(self, 'GNB_OVS_Controller'):
+                ap_config['OVS_CONTROLLER'] = self.GNB_OVS_Controller.text()
+            if hasattr(self, 'GNB_OVS_FailMode'):
+                ap_config['AP_FAILMODE'] = self.GNB_OVS_FailMode.currentText()
+            if hasattr(self, 'GNB_OVS_Protocols'):
+                ap_config['OPENFLOW_PROTOCOLS'] = self.GNB_OVS_Protocols.currentText()
+        else:
+            ap_config['AP_ENABLED'] = 'false'
+            
+        return ap_config
+    
+    def get5GConfiguration(self):
+        """Get 5G configuration parameters"""
+        config = {}
+        
+        if hasattr(self, 'GNB_AMFHostName'):
+            config['AMF_HOSTNAME'] = self.GNB_AMFHostName.text()
+        if hasattr(self, 'GNB_GNBHostName'):
+            config['GNB_HOSTNAME'] = self.GNB_GNBHostName.text()
+        if hasattr(self, 'GNB_TAC'):
+            config['TAC'] = self.GNB_TAC.text()
+        if hasattr(self, 'GNB_MCC'):
+            config['MCC'] = self.GNB_MCC.text()
+        if hasattr(self, 'GNB_MNC'):
+            config['MNC'] = self.GNB_MNC.text()
+        if hasattr(self, 'GNB_SST'):
+            config['SST'] = self.GNB_SST.text()
+        if hasattr(self, 'GNB_SD'):
+            config['SD'] = self.GNB_SD.text()
+            
+        # Network interfaces
+        if hasattr(self, 'GNB_N2_Interface'):
+            config['N2_IFACE'] = self.GNB_N2_Interface.text()
+        if hasattr(self, 'GNB_N3_Interface'):
+            config['N3_IFACE'] = self.GNB_N3_Interface.text()
+        if hasattr(self, 'GNB_Radio_Interface'):
+            config['RADIO_IFACE'] = self.GNB_Radio_Interface.text()
+            
+        return config
+    
+    def getWirelessConfiguration(self):
+        """Get wireless configuration for mininet-wifi"""
+        config = {}
+        
+        if hasattr(self, 'GNB_Power'):
+            config['txpower'] = self.GNB_Power.value()
+        if hasattr(self, 'GNB_Range'):
+            config['range'] = self.GNB_Range.value()
+            
+        return config
+        
     def onOK(self):
+        """Enhanced save that includes all new configuration options"""
         self.saveProperties()
+        
+        # Store additional configurations in the component
+        if self.component:
+            # Store AP configuration
+            ap_config = self.getAPConfiguration()
+            self.component.properties.update({f"ap_{k.lower()}": v for k, v in ap_config.items()})
+            
+            # Store 5G configuration
+            config_5g = self.get5GConfiguration()
+            self.component.properties.update({f"5g_{k.lower()}": v for k, v in config_5g.items()})
+            
+            # Store wireless configuration
+            wireless_config = self.getWirelessConfiguration()
+            self.component.properties.update({f"wireless_{k}": v for k, v in wireless_config.items()})
+            
+            debug_print(f"DEBUG: Saved enhanced gNB configuration for {self.component_name}")
+            
         self.close()
         
     def onCancel(self):
@@ -1061,30 +1209,6 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 except:
                     pass
         debug_print("=== END DEBUG ===")
-        
-    def onOK(self):
-        self.saveProperties()
-        self.close()
-        
-    def onCancel(self):
-        self.close()
-
-class UPFCore5GPropertiesWindow(BasePropertiesWindow):
-    def __init__(self, label_text, parent=None, component=None):
-        super().__init__(label_text, parent, component)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "UPF_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle(f"UPF Properties - {label_text}")
-        self.setWindowFlags(Qt.Window)
-        self.setupConnections()
-        self.loadProperties()
-
-    def setupConnections(self):
-        # Connect OK and Cancel buttons
-        if hasattr(self, 'UPF_OKButton'):
-            self.UPF_OKButton.clicked.connect(self.onOK)
-        if hasattr(self, 'UPF_CancelButton'):
-            self.UPF_CancelButton.clicked.connect(self.onCancel)
         
     def onOK(self):
         self.saveProperties()

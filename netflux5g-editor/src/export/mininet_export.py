@@ -538,63 +538,72 @@ class MininetExporter:
             f.write('\n')
 
     def write_5g_components(self, f, categorized_nodes):
-        """Write 5G component creation code (gNBs and UEs) following fixed_topology-upf.py pattern."""
+        """Write 5G component creation code (gNBs and UEs) with enhanced AP functionality."""
         # Write 5G Core components first
         self.write_5g_core_components(f, categorized_nodes)
         
-        # Write gNBs following the exact pattern from fixed_topology-upf.py
+        # Write gNBs following the enhanced pattern with AP support
         if categorized_nodes['gnbs']:
             f.write('    info("*** Add gNB\\n")\n')
             for i, gnb in enumerate(categorized_nodes['gnbs'], 1):
                 props = gnb.get('properties', {})
                 gnb_name = self.sanitize_variable_name(gnb['name'])
                 
-                # Build gNB parameters following the exact pattern
+                # Build gNB parameters following the enhanced pattern
                 gnb_params = [f"'{gnb_name}'"]
                 gnb_params.append('cap_add=["net_admin"]')
                 gnb_params.append('network_mode="open5gs-ueransim_default"')
                 gnb_params.append('publish_all_ports=True')
                 gnb_params.append('dcmd="/bin/bash"')
                 gnb_params.append("cls=DockerSta")
-                gnb_params.append("dimage='gradiant/ueransim:3.2.6'")
+                gnb_params.append("dimage='adaptive/ueransim:latest'")  # Use our enhanced image
+                
+                # Add privileged mode for AP functionality
+                gnb_params.append('privileged=True')
+                
+                # Add volumes for host hardware access (needed for AP functionality)
+                volumes = [
+                    '"/sys:/sys"',
+                    '"/lib/modules:/lib/modules"',
+                    '"/sys/kernel/debug:/sys/kernel/debug"'
+                ]
+                gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
                 # Add position
                 position = f"{gnb.get('x', 0):.1f},{gnb.get('y', 0):.1f},0"
                 gnb_params.append(f"position='{position}'")
                 
-                # Add power and range configuration from ConfigurationMapper
+                # Get enhanced configuration from ConfigurationMapper
                 from manager.configmap import ConfigurationMapper
                 gnb_config = ConfigurationMapper.map_gnb_config(props)
                 
-                # Add range (default 116 if not specified)
-                range_val = gnb_config.get('range', 116)
+                # Add range (default 300 if not specified)
+                range_val = gnb_config.get('range', 300)
                 gnb_params.append(f"range={range_val}")
                 
-                # Add txpower if specified
-                if 'txpower' in gnb_config:
-                    gnb_params.append(f"txpower={gnb_config['txpower']}")
+                # Add txpower if specified (default 30)
+                txpower = gnb_config.get('txpower', 30)
+                gnb_params.append(f"txpower={txpower}")
                 
-                # Add gNB specific environment variables following the pattern
-                amf_ip = props.get('GNB_AMF_IP', '10.0.0.3')
-                hostname = props.get('GNB_Hostname', f'mn.{gnb_name}')
-                mcc = props.get('GNB_MCC', '999')
-                mnc = props.get('GNB_MNC', '70')
-                sst = props.get('GNB_SST', '1')
-                sd = props.get('GNB_SD', '0xffffff')
-                tac = props.get('GNB_TAC', '1')
+                # Build environment variables for both 5G and AP functionality
+                env_dict = {}
                 
-                env_dict = {
-                    "AMF_IP": amf_ip,
-                    "GNB_HOSTNAME": hostname,
-                    "N2_IFACE": f"{gnb_name}-wlan0",
-                    "N3_IFACE": f"{gnb_name}-wlan0",
-                    "RADIO_IFACE": f"{gnb_name}-wlan0",
-                    "MCC": mcc,
-                    "MNC": mnc,
-                    "SST": sst,
-                    "SD": sd,
-                    "TAC": tac
-                }
+                # 5G Core configuration
+                env_dict["AMF_IP"] = gnb_config.get('amf_hostname', '10.0.0.3')  # Note: Still using IP for compatibility
+                env_dict["GNB_HOSTNAME"] = gnb_config.get('gnb_hostname', f'mn.{gnb_name}')
+                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', f"{gnb_name}-wlan0")
+                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', f"{gnb_name}-wlan0")
+                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', f"{gnb_name}-wlan0")
+                env_dict["MCC"] = gnb_config.get('mcc', '999')
+                env_dict["MNC"] = gnb_config.get('mnc', '70')
+                env_dict["SST"] = gnb_config.get('sst', '1')
+                env_dict["SD"] = gnb_config.get('sd', '0xffffff')
+                env_dict["TAC"] = gnb_config.get('tac', '1')
+                
+                # Add AP configuration if enabled
+                ap_config = gnb_config.get('ap_config', {})
+                if ap_config:
+                    env_dict.update(ap_config)
                 
                 # Format environment like in the original
                 env_str = str(env_dict).replace("'", '"')

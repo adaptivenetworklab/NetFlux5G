@@ -6,146 +6,553 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>303</width>
-    <height>300</height>
+    <width>450</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>gNB Properties</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(222, 222, 222);</string>
+   <string notr="true">background-color: rgb(242, 242, 242);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="formLayoutWidget">
+   <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>281</width>
-      <height>244</height>
+      <width>430</width>
+      <height>540</height>
      </rect>
     </property>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>AMF Hostname:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>GNB Hostname:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_11">
-       <property name="text">
-        <string>TAC:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_14">
-       <property name="text">
-        <string>MCC:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>MNC:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>SST:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>SD:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="GNB_AMFHostName">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="GNB_GNBHostName">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="GNB_TAC">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="GNB_MCC">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="GNB_MNC">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="GNB_SST">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLineEdit" name="GNB_SD">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_15">
-       <property name="text">
-        <string>Power:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QLineEdit" name="GNB_Power">
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="currentIndex">
+     <number>1</number>
+    </property>
+    <widget class="QWidget" name="tab_5g_config">
+     <attribute name="title">
+      <string>5G Configuration</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>400</width>
+        <height>319</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_5g">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_amf_hostname">
+         <property name="text">
+          <string>AMF Hostname:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="GNB_AMFHostName">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>amf</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_gnb_hostname">
+         <property name="text">
+          <string>gNB Hostname:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="GNB_GNBHostName">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>mn.gnb</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_tac">
+         <property name="text">
+          <string>TAC:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="GNB_TAC">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_mcc">
+         <property name="text">
+          <string>MCC:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="GNB_MCC">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>999</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_mnc">
+         <property name="text">
+          <string>MNC:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="GNB_MNC">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>70</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_sst">
+         <property name="text">
+          <string>SST:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="GNB_SST">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_sd">
+         <property name="text">
+          <string>SD:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="GNB_SD">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>0xffffff</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_power">
+         <property name="text">
+          <string>TX Power:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
+        <widget class="QSpinBox" name="GNB_Power">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="suffix">
+          <string> dBm</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="value">
+          <number>30</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_range">
+         <property name="text">
+          <string>Range:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QSpinBox" name="GNB_Range">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="suffix">
+          <string> meters</string>
+         </property>
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="value">
+          <number>300</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_ap_config">
+     <attribute name="title">
+      <string>Access Point</string>
+     </attribute>
+     <widget class="QWidget" name="groupBox_ap_enable">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>400</width>
+        <height>460</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_ap">
+       <item>
+        <widget class="QCheckBox" name="GNB_AP_Enabled">
+         <property name="toolTip">
+          <string>Enable the gNB to act as a WiFi Access Point for mininet-wifi integration</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font-weight: bold; color: rgb(33, 37, 41);</string>
+         </property>
+         <property name="text">
+          <string>Enable Access Point Functionality</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_ap">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_ap_ssid">
+           <property name="text">
+            <string>SSID:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="GNB_AP_SSID">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string>gnb-hotspot</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_ap_channel">
+           <property name="text">
+            <string>Channel:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="GNB_AP_Channel">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>11</number>
+           </property>
+           <property name="value">
+            <number>6</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_ap_mode">
+           <property name="text">
+            <string>Mode:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="GNB_AP_Mode">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>g</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>a</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>n</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ac</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_ap_password">
+           <property name="text">
+            <string>Password:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="GNB_AP_Password">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="echoMode">
+            <enum>QLineEdit::Password</enum>
+           </property>
+           <property name="placeholderText">
+            <string>Leave empty for open network</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_ap_bridge">
+           <property name="text">
+            <string>Bridge Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="GNB_AP_BridgeName">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string>br-gnb</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_openflow_config">
+     <attribute name="title">
+      <string>OpenFlow/OVS</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget_ovs">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>400</width>
+        <height>200</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_ovs">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_ovs_controller">
+         <property name="text">
+          <string>Controller:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="GNB_OVS_Controller">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="placeholderText">
+          <string>tcp:127.0.0.1:6633</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_ovs_failmode">
+         <property name="text">
+          <string>Fail Mode:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="GNB_OVS_FailMode">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>standalone</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>secure</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_ovs_protocols">
+         <property name="text">
+          <string>OpenFlow Protocols:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="GNB_OVS_Protocols">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>OpenFlow14</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>OpenFlow13</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>OpenFlow10</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_ovs_datapath">
+         <property name="text">
+          <string>Datapath:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QComboBox" name="GNB_OVS_Datapath">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>kernel</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>user</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_interfaces">
+     <attribute name="title">
+      <string>Network Interfaces</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget_interfaces">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>400</width>
+        <height>150</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_interfaces">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_n2_iface">
+         <property name="text">
+          <string>N2 Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="GNB_N2_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_n3_iface">
+         <property name="text">
+          <string>N3 Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="GNB_N3_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_radio_iface">
+         <property name="text">
+          <string>Radio Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="GNB_Radio_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>260</y>
+      <x>150</x>
+      <y>560</y>
       <width>168</width>
       <height>31</height>
      </rect>
@@ -153,6 +560,24 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="GNB_OKButton">
+       <property name="styleSheet">
+        <string notr="true">
+         QPushButton {
+          background-color: rgb(0, 123, 255);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-weight: bold;
+         }
+         QPushButton:hover {
+          background-color: rgb(0, 105, 217);
+         }
+         QPushButton:pressed {
+          background-color: rgb(0, 86, 179);
+         }
+        </string>
+       </property>
        <property name="text">
         <string>OK</string>
        </property>
@@ -160,6 +585,24 @@
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="GNB_CancelButton">
+       <property name="styleSheet">
+        <string notr="true">
+         QPushButton {
+          background-color: rgb(108, 117, 125);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-weight: bold;
+         }
+         QPushButton:hover {
+          background-color: rgb(90, 98, 104);
+         }
+         QPushButton:pressed {
+          background-color: rgb(73, 80, 87);
+         }
+        </string>
+       </property>
        <property name="text">
         <string>Cancel</string>
        </property>
