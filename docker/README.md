@@ -27,7 +27,7 @@ This repository provides a Dockerized environment for running [Mininet-WiFi](htt
 Clone this repository and build the Docker image:
 
 ```sh
-docker build -t mn-wifi:v1 .
+docker build --build-context netflux5g=../netflux5g-editor -t netflux5g:latest .
 ```
 
 ---
@@ -54,6 +54,7 @@ Run the container with the following command:
 
 ```sh
 docker run -it --rm --privileged --pid='host' --net='host' \
+  --name netflux5g-dockerized \
   --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -v /sys/:/sys \
@@ -61,7 +62,7 @@ docker run -it --rm --privileged --pid='host' --net='host' \
   -v /sys/kernel/debug:/sys/kernel/debug \
   -v /var/run/netns:/var/run/netns \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  mn-wifi:v1
+  netflux5g:latest
 ```
 
 ---
