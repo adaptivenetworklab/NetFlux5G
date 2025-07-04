@@ -8,10 +8,11 @@ from manager.debug import debug_print, error_print
 class NetworkLink(QGraphicsItem):
     """Link/connection between two network components using a cable image"""
     
-    def __init__(self, source_node, dest_node):
+    def __init__(self, source_node, dest_node, main_window=None):
         super().__init__()
         self.source_node = source_node
         self.dest_node = dest_node
+        self.main_window = main_window  # Store reference to main window for change notifications
         
         # Set properties
         self.link_type = "ethernet"
@@ -57,6 +58,10 @@ class NetworkLink(QGraphicsItem):
         
         # Update position
         self.updatePosition()
+        
+        # Mark topology as modified when link is created
+        if self.main_window and hasattr(self.main_window, 'onTopologyChanged'):
+            self.main_window.onTopologyChanged()
     
     def get_center_point(self, node):
         """Get the center point of a node's icon (not including coverage circles or text)"""

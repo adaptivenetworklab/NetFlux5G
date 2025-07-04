@@ -346,7 +346,7 @@ class Canvas(QGraphicsView):
                 from .components import NetworkComponent
                 
                 position = self.mapToScene(event.pos())
-                component = NetworkComponent(component_type, icon_path)
+                component = NetworkComponent(component_type, icon_path, main_window=self.app_instance)
                 component.setPosition(position.x(), position.y())
                 
                 self.scene.addItem(component)
@@ -448,7 +448,11 @@ class Canvas(QGraphicsView):
         # Use the icon map from main window
         icon_path = self.app_instance.component_icon_map.get(component_type)
         from .components import NetworkComponent
-        component = NetworkComponent(component_type, icon_path)
+        component = NetworkComponent(component_type, icon_path, main_window=self.app_instance)
         component.setPos(pos)
         self.scene.addItem(component)
         debug_print(f"Placed component '{component_type}' at position: x={pos.x()}, y={pos.y()}")
+        
+        # Mark topology as modified
+        if hasattr(self.app_instance, 'onTopologyChanged'):
+            self.app_instance.onTopologyChanged()

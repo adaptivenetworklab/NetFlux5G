@@ -88,6 +88,13 @@ class BasePropertiesWindow(QMainWindow):
         # Save to component
         self.component.setProperties(properties)
         debug_print(f"DEBUG: Saved properties for {self.component_name}: {len(properties)} properties")
+        
+        # Mark topology as modified when component properties are changed
+        scene = self.component.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and hasattr(view.app_instance, 'onTopologyChanged'):
+                view.app_instance.onTopologyChanged()
 
     def save5GComponentTableData(self, properties):
         """Save data from all 5G component tables."""

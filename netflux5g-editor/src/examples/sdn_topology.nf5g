@@ -3,8 +3,8 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Jum Jul 4 04:38:35 2025",
-    "saved_date": "Jum Jul 4 04:38:35 2025",
+    "created_date": "Jum Jul 4 12:43:37 2025",
+    "saved_date": "Jum Jul 4 12:43:37 2025",
     "canvas_size": {
       "width": 1292,
       "height": 801
@@ -14,159 +14,118 @@
   },
   "nodes": [
     {
-      "name": "UE #1",
-      "type": "UE",
-      "x": -682.1822500000002,
-      "y": -232.19137500000002,
+      "name": "Switch #6",
+      "type": "Switch",
+      "x": 311.7793750000001,
+      "y": -707.2068750000002,
       "properties": {
-        "name": "UE #1",
-        "type": "UE",
-        "x": -682.1822500000002,
-        "y": -232.19137500000002,
-        "UE_GNBHostName": "mn.gnb1",
-        "UE_APN": "internet",
-        "UE_MSISDN": "0000000001",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "name": "Switch #6",
+        "type": "Switch",
+        "x": 311.7793750000001,
+        "y": -707.2068750000002
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106038560
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453121536
     },
     {
-      "name": "UE #2",
-      "type": "UE",
-      "x": -583.8787500000001,
-      "y": 156.37775,
+      "name": "Controller #1",
+      "type": "Controller",
+      "x": -612.2411249999998,
+      "y": -564.3437500000001,
       "properties": {
-        "name": "UE #2",
-        "type": "UE",
-        "x": -583.8787500000001,
-        "y": 156.37775,
-        "UE_GNBHostName": "mn.gnb1",
-        "UE_APN": "internet",
-        "UE_MSISDN": "0000000002",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "name": "Controller #1",
+        "type": "Controller",
+        "x": -612.2411249999998,
+        "y": -564.3437500000001,
+        "Controller_IPAddress": "127.0.0.1",
+        "Controller_Name": "Control1",
+        "Controller_Port": "6633",
+        "Controller_Type": "Remote Controller",
+        "Controller_ProtocolMode": "TCP"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106038416
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453121392
     },
     {
-      "name": "UE #3",
-      "type": "UE",
-      "x": -87.54074999999999,
-      "y": 87.45725000000002,
+      "name": "Switch #5",
+      "type": "Switch",
+      "x": -55.133749999999964,
+      "y": -707.4181249999999,
       "properties": {
-        "name": "UE #3",
-        "type": "UE",
-        "x": -87.54074999999999,
-        "y": 87.45725000000002,
-        "UE_GNBHostName": "mn.gnb1",
-        "UE_APN": "internet2",
-        "UE_MSISDN": "0000000011",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "name": "Switch #5",
+        "type": "Switch",
+        "x": -55.133749999999964,
+        "y": -707.4181249999999
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106038272
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453121248
     },
     {
-      "name": "UE #4",
-      "type": "UE",
-      "x": 319.68143125,
-      "y": -84.49403749999999,
+      "name": "Switch #4",
+      "type": "Switch",
+      "x": -343.4588749999999,
+      "y": -707.8356250000002,
       "properties": {
-        "name": "UE #4",
-        "type": "UE",
-        "x": 319.68143125,
-        "y": -84.49403749999999,
-        "UE_GNBHostName": "mn.gnb1",
-        "UE_APN": "internet2",
-        "UE_MSISDN": "0000000012",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "name": "Switch #4",
+        "type": "Switch",
+        "x": -343.4588749999999,
+        "y": -707.8356250000002
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106038128
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453121104
     },
     {
-      "name": "UE #5",
-      "type": "UE",
-      "x": 557.6854062499999,
-      "y": -264.9841,
+      "name": "Switch #3",
+      "type": "Switch",
+      "x": -343.1355,
+      "y": -593.9363749999997,
       "properties": {
-        "name": "UE #5",
-        "type": "UE",
-        "x": 557.6854062499999,
-        "y": -264.9841,
-        "UE_GNBHostName": "mn.gnb1",
-        "UE_APN": "internet2",
-        "UE_MSISDN": "0000000013",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "name": "Switch #3",
+        "type": "Switch",
+        "x": -343.1355,
+        "y": -593.9363749999997
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106037984
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120960
     },
     {
-      "name": "UE #6",
-      "type": "UE",
-      "x": 421.24701874999994,
-      "y": 80.01987500000001,
+      "name": "Switch #2",
+      "type": "Switch",
+      "x": 313.14887499999986,
+      "y": -514.0081249999998,
       "properties": {
-        "name": "UE #6",
-        "type": "UE",
-        "x": 421.24701874999994,
-        "y": 80.01987500000001,
-        "UE_GNBHostName": "mn.gnb1",
-        "UE_APN": "internet",
-        "UE_MSISDN": "0000000003",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "name": "Switch #2",
+        "type": "Switch",
+        "x": 313.14887499999986,
+        "y": -514.0081249999998
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106037840
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120816
+    },
+    {
+      "name": "Switch #1",
+      "type": "Switch",
+      "x": -7.163874999999962,
+      "y": -559.6912499999999,
+      "properties": {
+        "name": "Switch #1",
+        "type": "Switch",
+        "x": -7.163874999999962,
+        "y": -559.6912499999999
+      },
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120672
     },
     {
       "name": "VGcore #1",
       "type": "VGcore",
-      "x": -654.3291249999999,
-      "y": -678.83425,
+      "x": -617.8281250000001,
+      "y": -707.7308749999999,
       "properties": {
         "name": "VGcore #1",
         "type": "VGcore",
-        "x": -654.3291249999999,
-        "y": -678.83425,
+        "x": -617.8281250000001,
+        "y": -707.7308749999999,
         "UPF_configs": [
           {
             "name": "upf1",
@@ -881,108 +840,221 @@
           }
         ]
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106037552
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120528
     },
     {
-      "name": "Switch #1",
-      "type": "Switch",
-      "x": -26.935249999999968,
-      "y": -511.02324999999973,
+      "name": "UE #6",
+      "type": "UE",
+      "x": 421.24701874999994,
+      "y": 80.01987500000001,
       "properties": {
-        "name": "Switch #1",
-        "type": "Switch",
-        "x": -26.935249999999968,
-        "y": -511.02324999999973
+        "name": "UE #6",
+        "type": "UE",
+        "x": 421.24701874999994,
+        "y": 80.01987500000001,
+        "UE_GNBHostName": "gnb2",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000003",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106037408
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120384
     },
     {
-      "name": "Switch #2",
-      "type": "Switch",
-      "x": 329.8784999999999,
-      "y": -465.3401249999999,
+      "name": "UE #5",
+      "type": "UE",
+      "x": 557.6854062499999,
+      "y": -264.9841,
       "properties": {
-        "name": "Switch #2",
-        "type": "Switch",
-        "x": 329.8784999999999,
-        "y": -465.3401249999999
+        "name": "UE #5",
+        "type": "UE",
+        "x": 557.6854062499999,
+        "y": -264.9841,
+        "UE_GNBHostName": "gnb2",
+        "UE_APN": "internet2",
+        "UE_MSISDN": "0000000013",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106037264
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120240
     },
     {
-      "name": "Switch #3",
-      "type": "Switch",
-      "x": -343.1355,
-      "y": -621.3121249999999,
+      "name": "UE #4",
+      "type": "UE",
+      "x": 319.68143125,
+      "y": -84.49403749999999,
       "properties": {
-        "name": "Switch #3",
-        "type": "Switch",
-        "x": -343.1355,
-        "y": -621.3121249999999
+        "name": "UE #4",
+        "type": "UE",
+        "x": 319.68143125,
+        "y": -84.49403749999999,
+        "UE_GNBHostName": "gnb2",
+        "UE_APN": "internet2",
+        "UE_MSISDN": "0000000012",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106037120
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453120096
     },
     {
-      "name": "Switch #4",
-      "type": "Switch",
-      "x": -27.116875000000004,
-      "y": -683.501625,
+      "name": "UE #3",
+      "type": "UE",
+      "x": -87.54074999999999,
+      "y": 87.45725000000002,
       "properties": {
-        "name": "Switch #4",
-        "type": "Switch",
-        "x": -27.116875000000004,
-        "y": -683.501625
+        "name": "UE #3",
+        "type": "UE",
+        "x": -87.54074999999999,
+        "y": 87.45725000000002,
+        "UE_GNBHostName": "gnb1",
+        "UE_APN": "internet2",
+        "UE_MSISDN": "0000000011",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106036976
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453119952
     },
     {
-      "name": "Switch #5",
-      "type": "Switch",
-      "x": 302.271875,
-      "y": -673.9588749999998,
+      "name": "UE #2",
+      "type": "UE",
+      "x": -583.8787500000001,
+      "y": 156.37775,
       "properties": {
-        "name": "Switch #5",
-        "type": "Switch",
-        "x": 302.271875,
-        "y": -673.9588749999998
+        "name": "UE #2",
+        "type": "UE",
+        "x": -583.8787500000001,
+        "y": 156.37775,
+        "UE_GNBHostName": "gnb1",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000002",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106036832
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453119808
     },
     {
-      "name": "Controller #1",
-      "type": "Controller",
-      "x": -358.2549999999999,
-      "y": -457.88250000000005,
+      "name": "UE #1",
+      "type": "UE",
+      "x": -682.1822500000002,
+      "y": -235.23312500000003,
       "properties": {
-        "name": "Controller #1",
-        "type": "Controller",
-        "x": -358.2549999999999,
-        "y": -457.88250000000005,
-        "Controller_IPAddress": "127.0.0.1",
-        "Controller_Name": "Control1",
-        "Controller_Port": "6633",
-        "Controller_Type": "Remote Controller",
-        "Controller_ProtocolMode": "TCP"
+        "name": "UE #1",
+        "type": "UE",
+        "x": -682.1822500000002,
+        "y": -235.23312500000003,
+        "UE_GNBHostName": "gnb1",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000001",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106036688
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453119664
+    },
+    {
+      "name": "GNB #1",
+      "type": "GNB",
+      "x": -424.33103750000004,
+      "y": -41.28180625,
+      "properties": {
+        "name": "GNB #1",
+        "type": "GNB",
+        "x": -424.33103750000004,
+        "y": -41.28180625,
+        "GNB_AMFHostName": "amf1",
+        "GNB_GNBHostName": "gnb1",
+        "GNB_TAC": "1",
+        "GNB_MCC": "999",
+        "GNB_MNC": "70",
+        "GNB_SST": "1",
+        "GNB_SD": "0xffffff",
+        "GNB_Power": 30,
+        "GNB_AP_SSID": "gnb-hotspot",
+        "qt_spinbox_lineedit": "290 meters",
+        "GNB_AP_Password": "",
+        "GNB_AP_BridgeName": "br-gnb",
+        "GNB_OVS_Controller": "",
+        "GNB_N2_Interface": "eth0",
+        "GNB_N3_Interface": "eth0",
+        "GNB_Radio_Interface": "eth0",
+        "GNB_AP_Mode": "n",
+        "GNB_OVS_FailMode": "standalone",
+        "GNB_OVS_Protocols": "OpenFlow14",
+        "GNB_OVS_Datapath": "kernel",
+        "GNB_AP_Enabled": true,
+        "GNB_AP_Channel": 6,
+        "GNB_Range": 290,
+        "ap_ap_enabled": "true",
+        "5g_amf_hostname": "amf1",
+        "5g_gnb_hostname": "gnb1",
+        "5g_tac": "1",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_n2_iface": "eth0",
+        "5g_n3_iface": "eth0",
+        "5g_radio_iface": "eth0",
+        "wireless_txpower": 30,
+        "wireless_range": 290,
+        "ap_ap_ssid": "gnb-hotspot",
+        "ap_ap_channel": "6",
+        "ap_ap_mode": "n",
+        "ap_ap_passwd": "",
+        "ap_ap_bridge_name": "br-gnb",
+        "ap_ovs_controller": "",
+        "ap_ap_failmode": "standalone",
+        "ap_openflow_protocols": "OpenFlow14"
+      },
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453121824
     },
     {
       "name": "GNB #2",
       "type": "GNB",
-      "x": 520.1913687500002,
-      "y": -59.73708124999999,
+      "x": 454.7937437500002,
+      "y": -58.216206249999985,
       "properties": {
         "name": "GNB #2",
         "type": "GNB",
-        "x": 520.1913687500002,
-        "y": -59.73708124999999,
+        "x": 454.7937437500002,
+        "y": -58.216206249999985,
         "GNB_AMFHostName": "amf1",
         "GNB_GNBHostName": "gnb2",
         "GNB_TAC": "1",
@@ -1028,302 +1100,62 @@
         "ap_ap_failmode": "standalone",
         "ap_openflow_protocols": "OpenFlow14"
       },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106038848
-    },
-    {
-      "name": "GNB #1",
-      "type": "GNB",
-      "x": -360.4542875,
-      "y": -39.760931250000006,
-      "properties": {
-        "name": "GNB #1",
-        "type": "GNB",
-        "x": -360.4542875,
-        "y": -39.760931250000006,
-        "GNB_AMFHostName": "amf1",
-        "GNB_GNBHostName": "gnb1",
-        "GNB_TAC": "1",
-        "GNB_MCC": "999",
-        "GNB_MNC": "70",
-        "GNB_SST": "1",
-        "GNB_SD": "0xffffff",
-        "GNB_Power": 30,
-        "GNB_AP_SSID": "gnb-hotspot",
-        "qt_spinbox_lineedit": "6",
-        "GNB_AP_Password": "",
-        "GNB_AP_BridgeName": "br-gnb",
-        "GNB_OVS_Controller": "",
-        "GNB_N2_Interface": "eth0",
-        "GNB_N3_Interface": "eth0",
-        "GNB_Radio_Interface": "eth0",
-        "GNB_AP_Mode": "n",
-        "GNB_OVS_FailMode": "standalone",
-        "GNB_OVS_Protocols": "OpenFlow14",
-        "GNB_OVS_Datapath": "kernel",
-        "GNB_AP_Enabled": true,
-        "GNB_AP_Channel": 6,
-        "GNB_Range": 300,
-        "ap_ap_enabled": "true",
-        "5g_amf_hostname": "amf1",
-        "5g_gnb_hostname": "gnb1",
-        "5g_tac": "1",
-        "5g_mcc": "999",
-        "5g_mnc": "70",
-        "5g_sst": "1",
-        "5g_sd": "0xffffff",
-        "5g_n2_iface": "eth0",
-        "5g_n3_iface": "eth0",
-        "5g_radio_iface": "eth0",
-        "wireless_txpower": 30,
-        "wireless_range": 300,
-        "ap_ap_ssid": "gnb-hotspot",
-        "ap_ap_channel": "6",
-        "ap_ap_mode": "n",
-        "ap_ap_passwd": "",
-        "ap_ap_bridge_name": "br-gnb",
-        "ap_ovs_controller": "",
-        "ap_ap_failmode": "standalone",
-        "ap_openflow_protocols": "OpenFlow14"
-      },
-      "created_date": "Jum Jul 4 04:38:35 2025",
-      "component_id": 133042106038704
+      "created_date": "Jum Jul 4 12:43:37 2025",
+      "component_id": 123581453121680
     }
   ],
   "links": [
     {
-      "source": "GNB #1",
-      "destination": "Switch #1",
+      "source": "Controller #1",
+      "destination": "Switch #6",
       "type": "ethernet",
       "properties": {
-        "name": "link_240",
+        "name": "link_136",
         "type": "ethernet",
-        "source": "GNB #1",
-        "destination": "Switch #1"
+        "source": "Controller #1",
+        "destination": "Switch #6"
       },
-      "name": "link_240",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "GNB #2",
-      "destination": "Switch #2",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_384",
-        "type": "ethernet",
-        "source": "GNB #2",
-        "destination": "Switch #2"
-      },
-      "name": "link_384",
-      "created_date": "Jum Jul 4 04:38:35 2025"
+      "name": "link_136",
+      "created_date": "Jum Jul 4 12:43:37 2025"
     },
     {
       "source": "Switch #1",
+      "destination": "Switch #6",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_992",
+        "type": "ethernet",
+        "source": "Switch #1",
+        "destination": "Switch #6"
+      },
+      "name": "link_992",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #6",
       "destination": "Switch #2",
       "type": "ethernet",
       "properties": {
-        "name": "link_528",
+        "name": "link_848",
         "type": "ethernet",
-        "source": "Switch #1",
+        "source": "Switch #6",
         "destination": "Switch #2"
       },
-      "name": "link_528",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Switch #4",
-      "destination": "Switch #2",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_672",
-        "type": "ethernet",
-        "source": "Switch #4",
-        "destination": "Switch #2"
-      },
-      "name": "link_672",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Switch #4",
-      "destination": "Switch #1",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_816",
-        "type": "ethernet",
-        "source": "Switch #4",
-        "destination": "Switch #1"
-      },
-      "name": "link_816",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Switch #1",
-      "destination": "Switch #3",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_960",
-        "type": "ethernet",
-        "source": "Switch #1",
-        "destination": "Switch #3"
-      },
-      "name": "link_960",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Switch #3",
-      "destination": "Switch #4",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_104",
-        "type": "ethernet",
-        "source": "Switch #3",
-        "destination": "Switch #4"
-      },
-      "name": "link_104",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "VGcore #1",
-      "destination": "Switch #3",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_248",
-        "type": "ethernet",
-        "source": "VGcore #1",
-        "destination": "Switch #3"
-      },
-      "name": "link_248",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Switch #4",
-      "destination": "VGcore #1",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_392",
-        "type": "ethernet",
-        "source": "Switch #4",
-        "destination": "VGcore #1"
-      },
-      "name": "link_392",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Switch #4",
-      "destination": "Switch #5",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_680",
-        "type": "ethernet",
-        "source": "Switch #4",
-        "destination": "Switch #5"
-      },
-      "name": "link_680",
-      "created_date": "Jum Jul 4 04:38:35 2025"
+      "name": "link_848",
+      "created_date": "Jum Jul 4 12:43:37 2025"
     },
     {
       "source": "Switch #5",
-      "destination": "Switch #2",
+      "destination": "Switch #6",
       "type": "ethernet",
       "properties": {
-        "name": "link_824",
+        "name": "link_704",
         "type": "ethernet",
         "source": "Switch #5",
-        "destination": "Switch #2"
+        "destination": "Switch #6"
       },
-      "name": "link_824",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "GNB #1",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_112",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "GNB #1"
-      },
-      "name": "link_112",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "VGcore #1",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_256",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "VGcore #1"
-      },
-      "name": "link_256",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "Switch #3",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_400",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "Switch #3"
-      },
-      "name": "link_400",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "Switch #4",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_544",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "Switch #4"
-      },
-      "name": "link_544",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "Switch #1",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_688",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "Switch #1"
-      },
-      "name": "link_688",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "Switch #5",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_832",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "Switch #5"
-      },
-      "name": "link_832",
-      "created_date": "Jum Jul 4 04:38:35 2025"
-    },
-    {
-      "source": "Controller #1",
-      "destination": "Switch #2",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_976",
-        "type": "ethernet",
-        "source": "Controller #1",
-        "destination": "Switch #2"
-      },
-      "name": "link_976",
-      "created_date": "Jum Jul 4 04:38:35 2025"
+      "name": "link_704",
+      "created_date": "Jum Jul 4 12:43:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1336,7 +1168,241 @@
         "destination": "GNB #2"
       },
       "name": "link_120",
-      "created_date": "Jum Jul 4 04:38:35 2025"
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_976",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "Switch #2"
+      },
+      "name": "link_976",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "Switch #5",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_832",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "Switch #5"
+      },
+      "name": "link_832",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "Switch #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_688",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "Switch #1"
+      },
+      "name": "link_688",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "Switch #4",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_544",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "Switch #4"
+      },
+      "name": "link_544",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "Switch #3",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_400",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "Switch #3"
+      },
+      "name": "link_400",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "VGcore #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_256",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "VGcore #1"
+      },
+      "name": "link_256",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Controller #1",
+      "destination": "GNB #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_112",
+        "type": "ethernet",
+        "source": "Controller #1",
+        "destination": "GNB #1"
+      },
+      "name": "link_112",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #5",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_824",
+        "type": "ethernet",
+        "source": "Switch #5",
+        "destination": "Switch #2"
+      },
+      "name": "link_824",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #4",
+      "destination": "Switch #5",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_680",
+        "type": "ethernet",
+        "source": "Switch #4",
+        "destination": "Switch #5"
+      },
+      "name": "link_680",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #4",
+      "destination": "VGcore #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_392",
+        "type": "ethernet",
+        "source": "Switch #4",
+        "destination": "VGcore #1"
+      },
+      "name": "link_392",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "VGcore #1",
+      "destination": "Switch #3",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_248",
+        "type": "ethernet",
+        "source": "VGcore #1",
+        "destination": "Switch #3"
+      },
+      "name": "link_248",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #3",
+      "destination": "Switch #4",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_104",
+        "type": "ethernet",
+        "source": "Switch #3",
+        "destination": "Switch #4"
+      },
+      "name": "link_104",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #1",
+      "destination": "Switch #3",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_960",
+        "type": "ethernet",
+        "source": "Switch #1",
+        "destination": "Switch #3"
+      },
+      "name": "link_960",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #4",
+      "destination": "Switch #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_816",
+        "type": "ethernet",
+        "source": "Switch #4",
+        "destination": "Switch #1"
+      },
+      "name": "link_816",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #4",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_672",
+        "type": "ethernet",
+        "source": "Switch #4",
+        "destination": "Switch #2"
+      },
+      "name": "link_672",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "Switch #1",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_528",
+        "type": "ethernet",
+        "source": "Switch #1",
+        "destination": "Switch #2"
+      },
+      "name": "link_528",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "GNB #2",
+      "destination": "Switch #2",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_384",
+        "type": "ethernet",
+        "source": "GNB #2",
+        "destination": "Switch #2"
+      },
+      "name": "link_384",
+      "created_date": "Jum Jul 4 12:43:37 2025"
+    },
+    {
+      "source": "GNB #1",
+      "destination": "Switch #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_240",
+        "type": "ethernet",
+        "source": "GNB #1",
+        "destination": "Switch #1"
+      },
+      "name": "link_240",
+      "created_date": "Jum Jul 4 12:43:37 2025"
     }
   ],
   "canvas_properties": {

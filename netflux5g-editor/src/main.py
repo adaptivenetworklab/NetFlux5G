@@ -1,7 +1,7 @@
 import os
 import sys
 import traceback
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QMenuBar, QMenu, QAction
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSplitter, QMenuBar, QMenu, QAction, QMessageBox
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QCursor
 from PyQt5 import uic
@@ -74,8 +74,11 @@ class NetFlux5GApp(QMainWindow):
         # Initialize attributes
         self.current_link_source = None
         self.current_file = None
+        self.is_template_loaded = False  # Flag to track if a template is loaded
+        self.template_name = None  # Name of the loaded template
         self.current_tool = "pick"
         self.selected_component = None
+        self.has_unsaved_changes = False  # Track if there are unsaved changes
         self.placement_mode = False
         self.placement_component_type = None
         
@@ -84,6 +87,9 @@ class NetFlux5GApp(QMainWindow):
 
         # Debug menu actions
         self.debugMenuActions()
+
+        # Initialize window title
+        self.updateWindowTitle()
 
         # Show helpful shortcut information
         self.showShortcutHelp()
@@ -404,6 +410,31 @@ class NetFlux5GApp(QMainWindow):
     def closeEvent(self, event):
         """Handle application close event."""
         try:
+            # Check for unsaved changes
+            if self.has_unsaved_changes:
+                reply = QMessageBox.question(
+                    self,
+                    "Unsaved Changes",
+                    "You have unsaved changes in your topology.\n\n"
+                    "Do you want to save your changes before exiting?",
+                    QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel,
+                    QMessageBox.Save
+                )
+                
+                if reply == QMessageBox.Save:
+                    # Try to save the file
+                    self.file_manager.saveTopology()
+                    # Check if save was successful (user didn't cancel save dialog)
+                    if self.has_unsaved_changes:
+                        # Save was cancelled, so don't close
+                        event.ignore()
+                        return
+                elif reply == QMessageBox.Cancel:
+                    # User cancelled, don't close
+                    event.ignore()
+                    return
+                # If Discard was chosen, continue with closing
+            
             # Stop any running automation
             if hasattr(self, 'automation_runner'):
                 self.automation_runner.stop_all()
@@ -511,6 +542,41 @@ class NetFlux5GApp(QMainWindow):
         if hasattr(self, 'file_manager'):
             return self.file_manager.extractTopology()
         return [], []
+
+    def markAsModified(self):
+        """Mark the current topology as having unsaved changes."""
+        if not self.has_unsaved_changes:
+            self.has_unsaved_changes = True
+            self.updateWindowTitle()
+            debug_print("Topology marked as modified")
+    
+    def markAsSaved(self):
+        """Mark the current topology as saved (no unsaved changes)."""
+        if self.has_unsaved_changes:
+            self.has_unsaved_changes = False
+            self.updateWindowTitle()
+            debug_print("Topology marked as saved")
+    
+    def updateWindowTitle(self):
+        """Update the window title to reflect current file and modification status."""
+        title = "NetFlux 5G Editor"
+        
+        if self.current_file:
+            filename = os.path.basename(self.current_file)
+            title += f" - {filename}"
+        elif self.is_template_loaded and self.template_name:
+            title += f" - {self.template_name} (Template)"
+        else:
+            title += " - Untitled"
+        
+        if self.has_unsaved_changes:
+            title += " *"
+        
+        self.setWindowTitle(title)
+
+    def onTopologyChanged(self):
+        """Called when the topology is changed (components added/removed/modified)."""
+        self.markAsModified()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

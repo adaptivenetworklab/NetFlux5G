@@ -34,10 +34,11 @@ class NetworkComponent(QGraphicsPixmapItem):
     }
     copied_properties = None  # Class-level clipboard for properties
     
-    def __init__(self, component_type, icon_path, parent=None):
+    def __init__(self, component_type, icon_path, parent=None, main_window=None):
         super().__init__(parent)
         self.component_type = component_type
         self.icon_path = icon_path
+        self.main_window = main_window  # Store reference to main window for change notifications
 
         # Assign the lowest available number or increment
         if NetworkComponent.available_numbers[component_type]:
@@ -253,6 +254,10 @@ class NetworkComponent(QGraphicsPixmapItem):
             # Final position update after the move is complete
             self.updatePositionProperties()
             
+            # Mark topology as modified when component is moved
+            if self.main_window and hasattr(self.main_window, 'onTopologyChanged'):
+                self.main_window.onTopologyChanged()
+            
             # Force a comprehensive scene update to clear any traces
             if self.scene():
                 # Update a larger area around the component to ensure text traces are cleared
@@ -382,6 +387,14 @@ class NetworkComponent(QGraphicsPixmapItem):
             if hasattr(view, 'app_instance'):
                 num_links = len(self.connected_links) if hasattr(self, 'connected_links') and self.connected_links else 0
                 view.app_instance.showCanvasStatus(f"Deleted component and {num_links} connected link(s)")
+                
+        # Mark topology as modified using stored reference first, fallback to scene traversal
+        if self.main_window and hasattr(self.main_window, 'onTopologyChanged'):
+            self.main_window.onTopologyChanged()
+        elif scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and hasattr(view.app_instance, 'onTopologyChanged'):
+                view.app_instance.onTopologyChanged()
 
     def deleteComponent(self):
         """Call this when the component is deleted to free up its number."""

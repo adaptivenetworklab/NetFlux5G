@@ -15,11 +15,24 @@ class FileManager:
         if hasattr(self.main_window, 'canvas_view') and hasattr(self.main_window.canvas_view, 'scene'):
             self.main_window.canvas_view.scene.clear()
         self.main_window.current_file = None
+        # Clear template flags
+        self.main_window.is_template_loaded = False
+        if hasattr(self.main_window, 'template_name'):
+            del self.main_window.template_name
+        # Mark as saved since new topology is clean
+        if hasattr(self.main_window, 'markAsSaved'):
+            self.main_window.markAsSaved()
+        else:
+            # Fallback for older versions
+            if hasattr(self.main_window, 'setWindowTitle'):
+                self.main_window.setWindowTitle("NetFlux5G Editor - New Topology")
         self.main_window.status_manager.showCanvasStatus("New topology created")
             
     def saveTopology(self):
-        """Save the current topology. If no file is set, prompt for save location."""
-        if self.main_window.current_file:
+        """Save the current topology. If no file is set or a template is loaded, prompt for save location."""
+        # If a template is loaded, always use Save As behavior
+        if (self.main_window.current_file and 
+            not getattr(self.main_window, 'is_template_loaded', False)):
             self.saveTopologyToFile(self.main_window.current_file)
         else:
             self.saveTopologyAs()
@@ -52,9 +65,18 @@ class FileManager:
             with open(filename, 'w') as f:
                 json.dump(topology_data, f, indent=2, ensure_ascii=False)
             self.main_window.current_file = filename
-            # Update window title to reflect new file
-            if hasattr(self.main_window, 'setWindowTitle'):
-                self.main_window.setWindowTitle(f"NetFlux5G Editor - {os.path.basename(filename)}")
+            # Clear template flags when saving as a new file
+            if hasattr(self.main_window, 'is_template_loaded'):
+                self.main_window.is_template_loaded = False
+            if hasattr(self.main_window, 'template_name'):
+                del self.main_window.template_name
+            # Mark as saved
+            if hasattr(self.main_window, 'markAsSaved'):
+                self.main_window.markAsSaved()
+            else:
+                # Fallback for older versions
+                if hasattr(self.main_window, 'setWindowTitle'):
+                    self.main_window.setWindowTitle(f"NetFlux5G Editor - {os.path.basename(filename)}")
             self.main_window.status_manager.showCanvasStatus(f"Topology saved as {os.path.basename(filename)}")
             debug_print(f"DEBUG: Topology saved successfully to {filename}")
             debug_print(f"DEBUG: Saved {len(nodes)} nodes and {len(links)} links")
@@ -213,6 +235,17 @@ class FileManager:
             QApplication.processEvents()
             
             self.main_window.current_file = filename
+            # Clear template flags when loading a regular file
+            self.main_window.is_template_loaded = False
+            if hasattr(self.main_window, 'template_name'):
+                del self.main_window.template_name
+            # Mark as saved since file was just loaded
+            if hasattr(self.main_window, 'markAsSaved'):
+                self.main_window.markAsSaved()
+            else:
+                # Fallback for older versions
+                if hasattr(self.main_window, 'setWindowTitle'):
+                    self.main_window.setWindowTitle(f"NetFlux5G Editor - {os.path.basename(filename)}")
             self.main_window.status_manager.showCanvasStatus(f"Topology loaded: {len(nodes)} components, {len(links)} links")
             debug_print(f"DEBUG: Topology loaded successfully from {filename}")
             
@@ -387,13 +420,16 @@ class FileManager:
                 return None
             
             from gui.components import NetworkComponent
-            component = NetworkComponent(component_type, icon_path)
+            component = NetworkComponent(component_type, icon_path, main_window=self.main_window)
             
             # Set position
             component.setPosition(x, y)
             
             # Restore name and properties
             component.display_name = name
+            # Resolve relative config file paths before setting properties
+            if component_type == 'VGcore':
+                self.resolveConfigFilePaths(properties)
             component.setProperties(properties)
             
             # Add to scene
@@ -410,6 +446,38 @@ class FileManager:
             error_print(f"ERROR: Failed to create component from data: {e}")
             traceback.print_exc()
             return None
+
+    def resolveConfigFilePaths(self, properties):
+        """Resolve relative config file paths to absolute paths based on project root."""
+        try:
+            # Get the project root directory (where main.py is located)
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            
+            # Component types that might have configurations
+            component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
+            
+            for comp_type in component_types:
+                config_key = f"{comp_type}_configs"
+                if config_key in properties:
+                    configs = properties[config_key]
+                    if isinstance(configs, list):
+                        for config in configs:
+                            if 'config_file_path' in config:
+                                file_path = config['config_file_path']
+                                # If it's a relative path starting with ./
+                                if file_path.startswith('./'):
+                                    # Convert to absolute path relative to project root
+                                    absolute_path = os.path.join(project_root, file_path[2:])
+                                    config['config_file_path'] = absolute_path
+                                    debug_print(f"DEBUG: Resolved config path: {file_path} -> {absolute_path}")
+                                elif not os.path.isabs(file_path) and file_path:
+                                    # Handle other relative paths
+                                    absolute_path = os.path.join(project_root, file_path)
+                                    config['config_file_path'] = absolute_path
+                                    debug_print(f"DEBUG: Resolved relative config path: {file_path} -> {absolute_path}")
+            
+        except Exception as e:
+            warning_print(f"WARNING: Failed to resolve config file paths: {e}")
 
     def restore5GCoreConfigurations(self, component, properties):
         """Restore 5G Core component configurations including imported YAML files."""
@@ -454,7 +522,7 @@ class FileManager:
                     return None
             
             from gui.links import NetworkLink
-            link = NetworkLink(source_component, dest_component)
+            link = NetworkLink(source_component, dest_component, main_window=self.main_window)
             link.link_type = link_type
             link.properties = properties
             
@@ -657,6 +725,13 @@ class FileManager:
                 template_file = os.path.join(examples_path, template_files[template_name])
                 if os.path.exists(template_file):
                     self.loadTopologyFromFile(template_file)
+                    # Mark as template - clear current_file to force Save As behavior
+                    self.main_window.current_file = None
+                    self.main_window.is_template_loaded = True
+                    self.main_window.template_name = template_name
+                    # Update window title to show template status
+                    if hasattr(self.main_window, 'setWindowTitle'):
+                        self.main_window.setWindowTitle(f"NetFlux5G Editor - Template: {template_name} (Unsaved)")
                     self.main_window.status_manager.showCanvasStatus(f"Loaded template: {template_name}")
                     debug_print(f"DEBUG: Template {template_name} loaded from {template_file}")
                     return True

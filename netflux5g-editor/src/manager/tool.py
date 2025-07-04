@@ -77,7 +77,7 @@ class ToolManager:
         debug_print(f"DEBUG: Creating link between {source} and {destination}")
         
         # Create a new NetworkLink with cable visualization
-        link = NetworkLink(source, destination)
+        link = NetworkLink(source, destination, main_window=self.main_window)
         
         # Add the link to the scene
         self.main_window.canvas_view.scene.addItem(link)
