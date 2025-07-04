@@ -280,9 +280,11 @@ class MininetExporter:
         if dynamic_network_name:
             f.write(f'    # Dynamic network mode based on topology file: {os.path.basename(self.main_window.current_file) if self.main_window.current_file else "Unknown"}\n')
             f.write(f'    NETWORK_MODE = "{dynamic_network_name}"\n')
+            f.write(f'    info(f"*** Using Docker network: {{NETWORK_MODE}}\\n")\n')
         else:
             f.write(f'    # Default network mode when no file is loaded\n')
             f.write(f'    NETWORK_MODE = "open5gs-ueransim_default"\n')
+            f.write(f'    info(f"*** Using default Docker network: {{NETWORK_MODE}}\\n")\n')
         f.write('    \n')
         
         # Initialize network
@@ -598,7 +600,7 @@ class MininetExporter:
                 # Build gNB parameters following the enhanced pattern
                 gnb_params = [f"'{gnb_name}'"]
                 gnb_params.append('cap_add=["net_admin"]')
-                gnb_params.append('network_mode=NETWORK_MODE')
+                gnb_params.append('network_mode=NETWORK_MODE')  # This will be replaced with actual variable reference
                 gnb_params.append('publish_all_ports=True')
                 gnb_params.append('dcmd="/bin/bash"')
                 gnb_params.append("cls=DockerSta")
@@ -655,7 +657,11 @@ class MininetExporter:
                 env_str = str(env_dict).replace("'", '"')
                 gnb_params.append(f"environment={env_str}")
                 
-                f.write(f'    {gnb_name} = net.addStation({", ".join(gnb_params)})\n')
+                # Join parameters and replace network_mode placeholder with actual variable reference
+                params_str = ", ".join(gnb_params)
+                params_str = params_str.replace("'network_mode=NETWORK_MODE'", "network_mode=NETWORK_MODE")
+                
+                f.write(f'    {gnb_name} = net.addStation({params_str})\n')
             f.write('\n')
         
         # Write UEs following the exact pattern from fixed_topology-upf.py
@@ -730,7 +736,11 @@ class MininetExporter:
                 env_str = str(env_dict).replace("'", '"')
                 ue_params.append(f"environment={env_str}")
                 
-                f.write(f'    {ue_name} = net.addStation({", ".join(ue_params)})\n')
+                # Join parameters and replace network_mode placeholder with actual variable reference
+                params_str = ", ".join(ue_params)
+                params_str = params_str.replace("'network_mode=NETWORK_MODE'", "network_mode=NETWORK_MODE")
+                
+                f.write(f'    {ue_name} = net.addStation({params_str})\n')
             f.write('\n')
         
         if categorized_nodes['gnbs'] or categorized_nodes['ues'] or categorized_nodes['core5g']:
@@ -876,7 +886,11 @@ class MininetExporter:
                     config_file = component.get('config_file', config['default_config'])
                     comp_params.append(f'volumes=[cwd + "/config/{config_file}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
                     
-                    f.write(f'    {comp_name} = net.addStation({", ".join(comp_params)})\n')
+                    # Join parameters and replace network_mode placeholder with actual variable reference
+                    params_str = ", ".join(comp_params)
+                    params_str = params_str.replace("'network_mode=NETWORK_MODE'", "network_mode=NETWORK_MODE")
+                    
+                    f.write(f'    {comp_name} = net.addStation({params_str})\n')
         
         f.write('\n')
 
