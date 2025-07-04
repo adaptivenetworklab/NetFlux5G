@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+# Import OVS setup functions
+source /opt/open5gs/bin/ovs-setup.sh
 
 # tun iface create
 function tun_create {
@@ -52,6 +54,20 @@ function tun_create {
 }
  
  COMMAND=$1
+
+# Setup OpenFlow/OVS integration before starting the service
+echo "Initializing Open5GS container with command: $COMMAND"
+
+# Setup OVS if enabled (run in background)
+if [ "$OVS_ENABLED" = "true" ]; then
+    echo "Setting up OpenFlow/OVS integration..."
+    /opt/open5gs/bin/ovs-setup.sh &
+    OVS_SETUP_PID=$!
+    
+    # Wait a moment for OVS to initialize
+    sleep 3
+fi
+
 if [[ "$COMMAND"  == *"open5gs-pgwd" ]] || [[ "$COMMAND"  == *"open5gs-upfd" ]]; then
 tun_create
 fi
@@ -70,6 +86,26 @@ if [[ "$COMMAND"  == *"open5gs-pcrfd" ]] \
 sleep 10
 fi
 
+# Add debugging information for network setup
+echo "=== Network Configuration ==="
+echo "Network interfaces:"
+ip link show
+echo ""
+echo "IP addresses:"
+ip addr show
+echo ""
+echo "Routing table:"
+ip route show
+echo ""
+
+if [ "$OVS_ENABLED" = "true" ]; then
+    echo "OVS bridges:"
+    ovs-vsctl list-br 2>/dev/null || echo "OVS not ready yet"
+fi
+echo "================================"
+
+# Start the main Open5GS service
+echo "Starting Open5GS service: $@"
 $@
 
 exit 1

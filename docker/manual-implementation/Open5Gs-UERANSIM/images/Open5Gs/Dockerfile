@@ -58,9 +58,13 @@ RUN	mkdir -p /opt/open5gs && cd /tmp && git clone https://github.com/open5gs/ope
     ninja -C build install
 
 
-RUN apt-get update && apt-get install -y net-tools iputils-ping iproute2 dnsutils gettext-base iptables
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y net-tools iputils-ping iproute2 dnsutils gettext-base iptables \
+    openvswitch-switch openvswitch-common \
+    bridge-utils \
+    python3 python3-pip \
+    util-linux \
+    jq
 
-## Replace default config values to work in containers (use dev eth0 and reference other containers by name)
 COPY configs/open5gs/* /opt/open5gs/etc/open5gs/
 COPY configs/freeDiameter/* /opt/open5gs/etc/freeDiameter/
 
@@ -75,7 +79,7 @@ LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" 
       org.opencontainers.image.licenses="Apache-2.0" \
       org.opencontainers.image.version="$version"
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
     libtalloc2 \
     libgnutls30 \
@@ -91,7 +95,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     libcurl4 \
     libmicrohttpd12 \
     libnghttp2-14 \
-    wondershaper iproute2 iputils-ping procps net-tools iptables iperf iperf3 traceroute tcpdump iw wireless-tools ethtool procps tshark speedtest-cli && \
+    wondershaper iproute2 iputils-ping procps net-tools iptables iperf iperf3 traceroute tcpdump iw wireless-tools ethtool procps tshark speedtest-cli \
+    openvswitch-switch openvswitch-common \
+    bridge-utils \
+    python3 python3-pip \
+    jq \
+    nmap netcat-openbsd \
+    vlan \
+    supervisor && \
     rm -rf /var/lib/apt/lists/*
 
 ENV APP_ROOT=/opt/open5gs
@@ -100,7 +111,16 @@ COPY --from=builder /opt/open5gs ${APP_ROOT}
 RUN cd ${APP_ROOT}/lib && ln -s $(uname -m)-linux-gnu/freeDiameter .
 ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
 WORKDIR ${APP_ROOT}
+
+# Copy scripts and make them executable
 COPY entrypoint.sh /opt/open5gs/etc/open5gs/entrypoint.sh
+COPY ovs-setup.sh /opt/open5gs/bin/ovs-setup.sh
+COPY open5gs-ovs-config.sh /opt/open5gs/bin/open5gs-ovs-config.sh
+COPY supervisord.conf /etc/supervisor/conf.d/open5gs.conf
+RUN chmod +x /opt/open5gs/etc/open5gs/entrypoint.sh /opt/open5gs/bin/ovs-setup.sh /opt/open5gs/bin/open5gs-ovs-config.sh
+
+# Create required directories for OVS
+RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /var/log/supervisor
 
 #Run with non-root user
 # RUN groupadd -r open5gs && useradd --no-log-init -r -g open5gs open5gs
@@ -110,12 +130,24 @@ COPY entrypoint.sh /opt/open5gs/etc/open5gs/entrypoint.sh
 #Default CONF values
 ENV DB_URI=mongodb://mongo/open5gs
 
-# ENV IPV4_TUN_SUBNET="10.45.0.0/16" \
-#     IPV4_TUN_ADDR="10.45.0.1/16" \
-#     IPV6_TUN_ADDR="cafe::1/64" \
-#     ENABLE_NAT=true
-
 ENV ENABLE_NAT=true
+
+# OpenFlow/SDN Controller Configuration
+ENV OVS_ENABLED=false \
+    OVS_CONTROLLER="" \
+    OVS_BRIDGE_NAME="br-open5gs" \
+    OVS_FAIL_MODE="standalone" \
+    OPENFLOW_PROTOCOLS="OpenFlow14" \
+    OVS_DATAPATH="kernel" \
+    CONTROLLER_IP="" \
+    CONTROLLER_PORT="6633" \
+    BRIDGE_INTERFACES="" \
+    OVS_AUTO_SETUP=true
+
+# Network interface configuration for mininet-wifi integration
+ENV NETWORK_INTERFACE="eth0" \
+    BRIDGE_PRIORITY="32768" \
+    STP_ENABLED=false
 
 CMD ["/bin/bash"]
 ENTRYPOINT [ "/opt/open5gs/etc/open5gs/entrypoint.sh" ]

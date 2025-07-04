@@ -754,102 +754,192 @@ class MininetExporter:
             f.write('\n')
 
     def write_5g_core_components(self, f, categorized_nodes):
-        """Write 5G Core components with proper Open5GS integration based on fixed_topology-upf.py."""
+        """
+        Write 5G Core components with enhanced Open5GS integration and dynamic configuration.
+        
+        This function generates Docker-based 5G Core components that follow the latest Open5GS
+        architecture and container configuration. Features include:
+        
+        - Dynamic Docker image configuration from UI
+        - Environment variable injection for runtime configuration
+        - Support for latest Open5GS component structure
+        - OVS/OpenFlow integration for SDN functionality
+        - Proper network interface binding
+        - MongoDB database connectivity
+        - Configuration file volume mounting
+        - Component-specific startup commands
+        
+        The generated components are compatible with mininet-wifi and follow the
+        patterns established in the latest Open5GS Docker implementations.
+        """
         if not categorized_nodes['core5g']:
             return
             
         # Extract 5G core components from VGcore configurations
         core_components = self.extract_5g_components_by_type(categorized_nodes['core5g'])
         
-        # Mapping of component types to their configurations based on fixed_topology-upf.py
+        # Import configuration mapper for VGcore properties
+        from manager.configmap import ConfigurationMapper
+        
+        # Get VGcore component configuration (if available)
+        vgcore_config = {}
+        if categorized_nodes['core5g']:
+            vgcore_node = categorized_nodes['core5g'][0]  # Use first VGcore node
+            vgcore_properties = vgcore_node.get('properties', {})
+            vgcore_config = ConfigurationMapper.map_vgcore_config(vgcore_properties)
+        
+        # Debug: Print extracted VGcore configuration for troubleshooting
+        if vgcore_config:
+            debug_print("DEBUG: VGcore configuration extracted:")
+            for key, value in vgcore_config.items():
+                debug_print(f"  {key}: {value}")
+        else:
+            debug_print("DEBUG: No VGcore configuration found, using defaults")
+        
+        # Mapping of component types to their configurations based on latest Open5GS
         component_config = {
             'UPF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'upf.yaml',
-                'startup_cmd': '/entrypoint.sh open5gs-upfd',
+                'startup_cmd': 'open5gs-upfd',
                 'privileged': True,
                 'requires_tun': False,
-                'terminal_startup': True
+                'terminal_startup': True,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'ENABLE_NAT': 'true' if vgcore_config.get('enable_nat', True) else 'false',
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0'),
+                    'OVS_ENABLED': 'true' if vgcore_config.get('ovs_enabled', False) else 'false',
+                    'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
+                    'OVS_BRIDGE_NAME': vgcore_config.get('ovs_bridge_name', 'br-open5gs'),
+                    'OVS_FAIL_MODE': vgcore_config.get('ovs_fail_mode', 'standalone'),
+                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow14'),
+                    'OVS_DATAPATH': vgcore_config.get('ovs_datapath', 'kernel'),
+                    'CONTROLLER_PORT': vgcore_config.get('controller_port', '6633'),
+                    'BRIDGE_PRIORITY': vgcore_config.get('bridge_priority', '32768'),
+                    'STP_ENABLED': 'true' if vgcore_config.get('stp_enabled', False) else 'false'
+                }
             },
             'AMF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'amf.yaml',
                 'startup_cmd': 'open5gs-amfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': True
+                'terminal_startup': True,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0'),
+                    'MCC': vgcore_config.get('mcc', '999'),
+                    'MNC': vgcore_config.get('mnc', '70'),
+                    'TAC': vgcore_config.get('tac', '1'),
+                    'SST': vgcore_config.get('sst', '1'),
+                    'SD': vgcore_config.get('sd', '0xffffff')
+                }
             },
             'SMF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'smf.yaml',
                 'startup_cmd': 'open5gs-smfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'NRF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'nrf.yaml',
                 'startup_cmd': 'open5gs-nrfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'SCP': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'scp.yaml',
-                'startup_cmd': 'open5gs-scpd',
-                'privileged': False,
-                'requires_tun': False,
-                'terminal_startup': False
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'AUSF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'ausf.yaml',
                 'startup_cmd': 'open5gs-ausfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'BSF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'bsf.yaml',
                 'startup_cmd': 'open5gs-bsfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'NSSF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'nssf.yaml',
                 'startup_cmd': 'open5gs-nssfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'PCF': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'pcf.yaml',
                 'startup_cmd': 'open5gs-pcfd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'UDM': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'udm.yaml',
                 'startup_cmd': 'open5gs-udmd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             },
             'UDR': {
-                'image': 'adaptive/open5gs:1.0',
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
                 'default_config': 'udr.yaml',
                 'startup_cmd': 'open5gs-udrd',
                 'privileged': False,
                 'requires_tun': False,
-                'terminal_startup': False
+                'terminal_startup': False,
+                'env_vars': {
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                }
             }
         }
         
@@ -892,6 +982,14 @@ class MininetExporter:
                     # Add volume mount for configuration
                     config_file = component.get('config_file', config['default_config'])
                     comp_params.append(f'volumes=[cwd + "/config/{config_file}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
+                    
+                    # Add environment variables for configuration
+                    if 'env_vars' in config and config['env_vars']:
+                        env_list = []
+                        for env_key, env_value in config['env_vars'].items():
+                            env_list.append(f'"{env_key}={env_value}"')
+                        if env_list:
+                            comp_params.append(f'environment=[{", ".join(env_list)}]')
                     
                     # Join parameters and replace network_mode placeholder with actual variable reference
                     params_str = ", ".join(comp_params)
@@ -967,9 +1065,9 @@ class MininetExporter:
         f.write('    info("*** Capture all initialization flow and slice packet\\n")\n')
         f.write('    Capture1 = cwd + "/capture-initialization-fixed.sh"\n')
         f.write('    CLI(net, script=Capture1)\n\n')
-        
+
         f.write('    CLI.do_sh(net, "sleep 20")\n\n')
-        
+
         f.write('    info("*** pingall for testing and flow tables update\\n")\n')
         f.write('    net.pingAll()\n\n')
         

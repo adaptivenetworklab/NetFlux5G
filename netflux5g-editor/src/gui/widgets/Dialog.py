@@ -755,15 +755,22 @@ class UEPropertiesWindow(BasePropertiesWindow):
 class Component5GPropertiesWindow(BasePropertiesWindow):
     def __init__(self, label_text, parent=None, component=None):
         super().__init__(label_text, parent, component)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Component5G_properties.ui")
-        uic.loadUi(ui_file, self)
-        self.setWindowTitle(f"5G Component Properties - {label_text}")
+        # Try to load enhanced UI first, fall back to basic UI if not found
+        enhanced_ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Component5G_properties_enhanced.ui")
+        basic_ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "Component5G_properties.ui")
+        
+        if os.path.exists(enhanced_ui_file):
+            uic.loadUi(enhanced_ui_file, self)
+            debug_print("DEBUG: Loaded enhanced 5G Core UI with Open5GS configuration")
+        else:
+            uic.loadUi(basic_ui_file, self)
+            debug_print("DEBUG: Loaded basic 5G Core UI (enhanced UI not found)")
+            
+        self.setWindowTitle(f"5G Core Properties - {label_text}")
         self.setWindowFlags(Qt.Window)
         
-        # Temporary debug - remove this after fixing the issue
-        self.debug_ui_elements()
-        
         self.setupConnections()
+        self.setupDefaultValues()
         self.loadProperties()
 
     def setupConnections(self):
@@ -772,6 +779,12 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             self.Component5G_OKButton.clicked.connect(self.onOK)
         if hasattr(self, 'Component5G_CancelButton'):
             self.Component5G_CancelButton.clicked.connect(self.onCancel)
+            
+        # Connect Docker configuration toggles if they exist
+        if hasattr(self, 'VGCore_DockerEnabled'):
+            self.VGCore_DockerEnabled.toggled.connect(self.onDockerToggled)
+        if hasattr(self, 'VGCore_OVSEnabled'):
+            self.VGCore_OVSEnabled.toggled.connect(self.onOVSToggled)
             
         # Connect add buttons for each component type - FIXED: Remove duplicate connections
         component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
@@ -820,6 +833,210 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     
                 # Use functools.partial to properly capture the component type
                 table.customContextMenuRequested.connect(partial(self.showTableContextMenu, comp_type))
+    
+    def setupDefaultValues(self):
+        """Setup default values for the enhanced 5G Core configuration"""
+        # Set default Docker configuration values
+        if hasattr(self, 'VGCore_DockerImage'):
+            self.VGCore_DockerImage.setText("adaptive/open5gs:1.0")
+        if hasattr(self, 'VGCore_DockerNetwork'):
+            self.VGCore_DockerNetwork.setText("open5gs-ueransim_default")
+        if hasattr(self, 'VGCore_DatabaseURI'):
+            self.VGCore_DatabaseURI.setText("mongodb://mongo/open5gs")
+        if hasattr(self, 'VGCore_DockerEnabled'):
+            self.VGCore_DockerEnabled.setChecked(True)
+            
+        # Set default Open5GS configuration values
+        if hasattr(self, 'VGCore_NetworkInterface'):
+            self.VGCore_NetworkInterface.setText("eth0")
+        if hasattr(self, 'VGCore_MCC'):
+            self.VGCore_MCC.setText("999")
+        if hasattr(self, 'VGCore_MNC'):
+            self.VGCore_MNC.setText("70")
+        if hasattr(self, 'VGCore_TAC'):
+            self.VGCore_TAC.setText("1")
+        if hasattr(self, 'VGCore_SST'):
+            self.VGCore_SST.setText("1")
+        if hasattr(self, 'VGCore_SD'):
+            self.VGCore_SD.setText("0xffffff")
+            
+        # Set default OVS/OpenFlow configuration values
+        if hasattr(self, 'VGCore_OVSEnabled'):
+            self.VGCore_OVSEnabled.setChecked(False)
+        if hasattr(self, 'VGCore_OVSBridgeName'):
+            self.VGCore_OVSBridgeName.setText("br-open5gs")
+        if hasattr(self, 'VGCore_OVSFailMode'):
+            self.VGCore_OVSFailMode.setCurrentText("standalone")
+        if hasattr(self, 'VGCore_OpenFlowProtocols'):
+            self.VGCore_OpenFlowProtocols.setText("OpenFlow14")
+        if hasattr(self, 'VGCore_OVSDatapath'):
+            self.VGCore_OVSDatapath.setCurrentText("kernel")
+            
+        # Set default network configuration
+        if hasattr(self, 'VGCore_EnableNAT'):
+            self.VGCore_EnableNAT.setChecked(True)
+        if hasattr(self, 'VGCore_BridgePriority'):
+            self.VGCore_BridgePriority.setText("32768")
+        if hasattr(self, 'VGCore_STPEnabled'):
+            self.VGCore_STPEnabled.setChecked(False)
+    
+    def onDockerToggled(self, enabled):
+        """Handle Docker functionality enable/disable"""
+        debug_print(f"DEBUG: VGCore Docker {'enabled' if enabled else 'disabled'}")
+        # Enable/disable docker-related fields
+        docker_widgets = ['VGCore_DockerImage', 'VGCore_DockerNetwork', 'VGCore_DatabaseURI']
+        for widget_name in docker_widgets:
+            widget = getattr(self, widget_name, None)
+            if widget:
+                widget.setEnabled(enabled)
+    
+    def onOVSToggled(self, enabled):
+        """Handle OVS functionality enable/disable"""
+        debug_print(f"DEBUG: VGCore OVS {'enabled' if enabled else 'disabled'}")
+        # Enable/disable OVS-related fields
+        ovs_widgets = ['VGCore_OVSController', 'VGCore_OVSBridgeName', 'VGCore_OVSFailMode', 
+                      'VGCore_OpenFlowProtocols', 'VGCore_OVSDatapath', 'VGCore_ControllerPort']
+        for widget_name in ovs_widgets:
+            widget = getattr(self, widget_name, None)
+            if widget:
+                widget.setEnabled(enabled)
+    
+    def getDockerConfiguration(self):
+        """Get Docker configuration parameters - fallback implementation for backward compatibility"""
+        config = {}
+        
+        # If enhanced UI fields are not available, use defaults
+        if hasattr(self, 'VGCore_DockerEnabled'):
+            config['DOCKER_ENABLED'] = self.VGCore_DockerEnabled.isChecked()
+        else:
+            config['DOCKER_ENABLED'] = True
+            
+        if hasattr(self, 'VGCore_DockerImage'):
+            config['DOCKER_IMAGE'] = self.VGCore_DockerImage.text()
+        else:
+            config['DOCKER_IMAGE'] = 'adaptive/open5gs:1.0'
+            
+        if hasattr(self, 'VGCore_DockerNetwork'):
+            config['DOCKER_NETWORK'] = self.VGCore_DockerNetwork.text()
+        else:
+            config['DOCKER_NETWORK'] = 'open5gs-ueransim_default'
+            
+        if hasattr(self, 'VGCore_DatabaseURI'):
+            config['DATABASE_URI'] = self.VGCore_DatabaseURI.text()
+        else:
+            config['DATABASE_URI'] = 'mongodb://mongo/open5gs'
+            
+        return config
+    
+    def get5GCoreConfiguration(self):
+        """Get 5G Core configuration parameters - fallback implementation for backward compatibility"""
+        config = {}
+        
+        # Network configuration with fallbacks
+        config['NETWORK_INTERFACE'] = getattr(self, 'VGCore_NetworkInterface', None)
+        if hasattr(config['NETWORK_INTERFACE'], 'text'):
+            config['NETWORK_INTERFACE'] = config['NETWORK_INTERFACE'].text()
+        else:
+            config['NETWORK_INTERFACE'] = 'eth0'
+            
+        config['MCC'] = getattr(self, 'VGCore_MCC', None)
+        if hasattr(config['MCC'], 'text'):
+            config['MCC'] = config['MCC'].text()
+        else:
+            config['MCC'] = '999'
+            
+        config['MNC'] = getattr(self, 'VGCore_MNC', None)
+        if hasattr(config['MNC'], 'text'):
+            config['MNC'] = config['MNC'].text()
+        else:
+            config['MNC'] = '70'
+            
+        config['TAC'] = getattr(self, 'VGCore_TAC', None)
+        if hasattr(config['TAC'], 'text'):
+            config['TAC'] = config['TAC'].text()
+        else:
+            config['TAC'] = '1'
+            
+        config['SST'] = getattr(self, 'VGCore_SST', None)
+        if hasattr(config['SST'], 'text'):
+            config['SST'] = config['SST'].text()
+        else:
+            config['SST'] = '1'
+            
+        config['SD'] = getattr(self, 'VGCore_SD', None)
+        if hasattr(config['SD'], 'text'):
+            config['SD'] = config['SD'].text()
+        else:
+            config['SD'] = '0xffffff'
+            
+        config['ENABLE_NAT'] = getattr(self, 'VGCore_EnableNAT', None)
+        if hasattr(config['ENABLE_NAT'], 'isChecked'):
+            config['ENABLE_NAT'] = config['ENABLE_NAT'].isChecked()
+        else:
+            config['ENABLE_NAT'] = True
+            
+        return config
+    
+    def getOVSConfiguration(self):
+        """Get OVS/OpenFlow configuration parameters - fallback implementation for backward compatibility"""
+        config = {}
+        
+        # OVS configuration with fallbacks
+        config['OVS_ENABLED'] = getattr(self, 'VGCore_OVSEnabled', None)
+        if hasattr(config['OVS_ENABLED'], 'isChecked'):
+            config['OVS_ENABLED'] = config['OVS_ENABLED'].isChecked()
+        else:
+            config['OVS_ENABLED'] = False
+            
+        config['OVS_CONTROLLER'] = getattr(self, 'VGCore_OVSController', None)
+        if hasattr(config['OVS_CONTROLLER'], 'text'):
+            config['OVS_CONTROLLER'] = config['OVS_CONTROLLER'].text()
+        else:
+            config['OVS_CONTROLLER'] = ''
+            
+        config['OVS_BRIDGE_NAME'] = getattr(self, 'VGCore_OVSBridgeName', None)
+        if hasattr(config['OVS_BRIDGE_NAME'], 'text'):
+            config['OVS_BRIDGE_NAME'] = config['OVS_BRIDGE_NAME'].text()
+        else:
+            config['OVS_BRIDGE_NAME'] = 'br-open5gs'
+            
+        config['OVS_FAIL_MODE'] = getattr(self, 'VGCore_OVSFailMode', None)
+        if hasattr(config['OVS_FAIL_MODE'], 'currentText'):
+            config['OVS_FAIL_MODE'] = config['OVS_FAIL_MODE'].currentText()
+        else:
+            config['OVS_FAIL_MODE'] = 'standalone'
+            
+        config['OPENFLOW_PROTOCOLS'] = getattr(self, 'VGCore_OpenFlowProtocols', None)
+        if hasattr(config['OPENFLOW_PROTOCOLS'], 'text'):
+            config['OPENFLOW_PROTOCOLS'] = config['OPENFLOW_PROTOCOLS'].text()
+        else:
+            config['OPENFLOW_PROTOCOLS'] = 'OpenFlow14'
+            
+        config['OVS_DATAPATH'] = getattr(self, 'VGCore_OVSDatapath', None)
+        if hasattr(config['OVS_DATAPATH'], 'currentText'):
+            config['OVS_DATAPATH'] = config['OVS_DATAPATH'].currentText()
+        else:
+            config['OVS_DATAPATH'] = 'kernel'
+            
+        config['CONTROLLER_PORT'] = getattr(self, 'VGCore_ControllerPort', None)
+        if hasattr(config['CONTROLLER_PORT'], 'text'):
+            config['CONTROLLER_PORT'] = config['CONTROLLER_PORT'].text()
+        else:
+            config['CONTROLLER_PORT'] = '6633'
+            
+        config['BRIDGE_PRIORITY'] = getattr(self, 'VGCore_BridgePriority', None)
+        if hasattr(config['BRIDGE_PRIORITY'], 'text'):
+            config['BRIDGE_PRIORITY'] = config['BRIDGE_PRIORITY'].text()
+        else:
+            config['BRIDGE_PRIORITY'] = '32768'
+            
+        config['STP_ENABLED'] = getattr(self, 'VGCore_STPEnabled', None)
+        if hasattr(config['STP_ENABLED'], 'isChecked'):
+            config['STP_ENABLED'] = config['STP_ENABLED'].isChecked()
+        else:
+            config['STP_ENABLED'] = False
+            
+        return config
 
     def onTableCellDoubleClicked(self, component_type, row, column):
         """Handle double-click on table cells, especially for Import YAML column."""
@@ -1356,7 +1573,25 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         debug_print("=== END DEBUG ===")
         
     def onOK(self):
+        """Enhanced save that includes all new configuration options"""
         self.saveProperties()
+        
+        # Store additional configurations in the component
+        if self.component:
+            # Store Docker configuration
+            docker_config = self.getDockerConfiguration()
+            self.component.properties.update({f"docker_{k.lower()}": v for k, v in docker_config.items()})
+            
+            # Store 5G Core configuration
+            core_config = self.get5GCoreConfiguration()
+            self.component.properties.update({f"5gcore_{k.lower()}": v for k, v in core_config.items()})
+            
+            # Store OVS configuration
+            ovs_config = self.getOVSConfiguration()
+            self.component.properties.update({f"ovs_{k.lower()}": v for k, v in ovs_config.items()})
+            
+            debug_print(f"DEBUG: Enhanced 5G Core configuration saved for {self.component_name}")
+            
         self.close()
         
     def onCancel(self):

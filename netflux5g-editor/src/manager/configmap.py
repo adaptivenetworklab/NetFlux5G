@@ -479,6 +479,65 @@ class ConfigurationMapper:
         return opts
     
     @staticmethod
+    def map_vgcore_config(properties):
+        """Enhanced map VGCore properties to configuration parameters with Open5GS support"""
+        config = {}
+        
+        # Docker configuration
+        config['docker_enabled'] = properties.get('VGCore_DockerEnabled', 
+                                                 properties.get('docker_docker_enabled', True))
+        config['docker_image'] = properties.get('VGCore_DockerImage', 
+                                               properties.get('docker_docker_image', 'adaptive/open5gs:1.0'))
+        config['docker_network'] = properties.get('VGCore_DockerNetwork', 
+                                                 properties.get('docker_docker_network', 'open5gs-ueransim_default'))
+        config['database_uri'] = properties.get('VGCore_DatabaseURI', 
+                                               properties.get('docker_database_uri', 'mongodb://mongo/open5gs'))
+        
+        # 5G Core network configuration
+        config['network_interface'] = properties.get('VGCore_NetworkInterface', 
+                                                    properties.get('5gcore_network_interface', 'eth0'))
+        config['mcc'] = properties.get('VGCore_MCC', 
+                                     properties.get('5gcore_mcc', '999'))
+        config['mnc'] = properties.get('VGCore_MNC', 
+                                     properties.get('5gcore_mnc', '70'))
+        config['tac'] = properties.get('VGCore_TAC', 
+                                     properties.get('5gcore_tac', '1'))
+        config['sst'] = properties.get('VGCore_SST', 
+                                     properties.get('5gcore_sst', '1'))
+        config['sd'] = properties.get('VGCore_SD', 
+                                    properties.get('5gcore_sd', '0xffffff'))
+        config['enable_nat'] = properties.get('VGCore_EnableNAT', 
+                                            properties.get('5gcore_enable_nat', True))
+        
+        # OVS/OpenFlow configuration
+        config['ovs_enabled'] = properties.get('VGCore_OVSEnabled', 
+                                              properties.get('ovs_ovs_enabled', False))
+        config['ovs_controller'] = properties.get('VGCore_OVSController', 
+                                                 properties.get('ovs_ovs_controller', ''))
+        config['ovs_bridge_name'] = properties.get('VGCore_OVSBridgeName', 
+                                                  properties.get('ovs_ovs_bridge_name', 'br-open5gs'))
+        config['ovs_fail_mode'] = properties.get('VGCore_OVSFailMode', 
+                                                properties.get('ovs_ovs_fail_mode', 'standalone'))
+        config['openflow_protocols'] = properties.get('VGCore_OpenFlowProtocols', 
+                                                     properties.get('ovs_openflow_protocols', 'OpenFlow14'))
+        config['ovs_datapath'] = properties.get('VGCore_OVSDatapath', 
+                                               properties.get('ovs_ovs_datapath', 'kernel'))
+        config['controller_port'] = properties.get('VGCore_ControllerPort', 
+                                                  properties.get('ovs_controller_port', '6633'))
+        config['bridge_priority'] = properties.get('VGCore_BridgePriority', 
+                                                  properties.get('ovs_bridge_priority', '32768'))
+        config['stp_enabled'] = properties.get('VGCore_STPEnabled', 
+                                              properties.get('ovs_stp_enabled', False))
+        
+        # Component configurations (from table data)
+        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
+        for comp_type in component_types:
+            config_key = f"{comp_type.lower()}_configs"
+            config[config_key] = properties.get(f"{comp_type}_configs", [])
+        
+        return config
+    
+    @staticmethod
     def get_component_config(node_type, properties):
         """Get the complete configuration for a component type"""
         config_map = {
@@ -488,6 +547,7 @@ class ConfigurationMapper:
             "AP": ConfigurationMapper.map_ap_config,
             "Controller": ConfigurationMapper.map_controller_config,
             "GNB": ConfigurationMapper.map_gnb_config,
+            "VGcore": ConfigurationMapper.map_vgcore_config,
         }
         
         mapper = config_map.get(node_type, lambda p: [])

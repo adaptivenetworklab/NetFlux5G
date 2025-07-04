@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>619</width>
-    <height>404</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>5G Core Properties - Enhanced</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(222, 222, 222);</string>
+   <string notr="true">background-color: rgb(240, 240, 240);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="Component5G">
@@ -22,13 +22,606 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>601</width>
-      <height>341</height>
+      <width>780</width>
+      <height>540</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>10</number>
+     <number>0</number>
     </property>
+    
+    <!-- New Enhanced Configuration Tab -->
+    <widget class="QWidget" name="ConfigurationTab">
+     <attribute name="title">
+      <string>Configuration</string>
+     </attribute>
+     
+     <!-- Docker Configuration Group -->
+     <widget class="QGroupBox" name="DockerConfigGroup">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>750</width>
+        <height>120</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Docker Configuration</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QGroupBox { font-weight: bold; }</string>
+      </property>
+      
+      <widget class="QCheckBox" name="VGCore_DockerEnabled">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>25</y>
+         <width>120</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable Docker</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_docker_image">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Docker Image:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_DockerImage">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>50</y>
+         <width>250</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>adaptive/open5gs:1.0</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_docker_network">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>50</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Network:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_DockerNetwork">
+       <property name="geometry">
+        <rect>
+         <x>480</x>
+         <y>50</y>
+         <width>250</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>open5gs-ueransim_default</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_database_uri">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>85</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Database URI:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_DatabaseURI">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>85</y>
+         <width>610</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>mongodb://mongo/open5gs</string>
+       </property>
+      </widget>
+     </widget>
+     
+     <!-- 5G Core Configuration Group -->
+     <widget class="QGroupBox" name="CoreConfigGroup">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>140</y>
+        <width>750</width>
+        <height>160</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>5G Core Configuration</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QGroupBox { font-weight: bold; }</string>
+      </property>
+      
+      <widget class="QLabel" name="label_network_interface">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>25</y>
+         <width>120</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Network Interface:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_NetworkInterface">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>25</y>
+         <width>100</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>eth0</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_mcc">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>25</y>
+         <width>40</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>MCC:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_MCC">
+       <property name="geometry">
+        <rect>
+         <x>310</x>
+         <y>25</y>
+         <width>60</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>999</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_mnc">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>25</y>
+         <width>40</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>MNC:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_MNC">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>25</y>
+         <width>60</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>70</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_tac">
+       <property name="geometry">
+        <rect>
+         <x>500</x>
+         <y>25</y>
+         <width>40</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TAC:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_TAC">
+       <property name="geometry">
+        <rect>
+         <x>550</x>
+         <y>25</y>
+         <width>60</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_sst">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>40</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>SST:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_SST">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>60</y>
+         <width>60</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_sd">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>60</y>
+         <width>30</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>SD:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_SD">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>60</y>
+         <width>100</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>0xffffff</string>
+       </property>
+      </widget>
+      
+      <widget class="QCheckBox" name="VGCore_EnableNAT">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>60</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable NAT</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_bridge_priority">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>95</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Bridge Priority:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_BridgePriority">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>95</y>
+         <width>80</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>32768</string>
+       </property>
+      </widget>
+      
+      <widget class="QCheckBox" name="VGCore_STPEnabled">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>95</y>
+         <width>120</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable STP</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+     
+     <!-- OVS/OpenFlow Configuration Group -->
+     <widget class="QGroupBox" name="OVSConfigGroup">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>310</y>
+        <width>750</width>
+        <height>180</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>OVS/OpenFlow Configuration</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QGroupBox { font-weight: bold; }</string>
+      </property>
+      
+      <widget class="QCheckBox" name="VGCore_OVSEnabled">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>25</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable OVS</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_ovs_controller">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>55</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Controller:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_OVSController">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>55</y>
+         <width>200</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="placeholderText">
+        <string>Controller IP:Port</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_controller_port">
+       <property name="geometry">
+        <rect>
+         <x>340</x>
+         <y>55</y>
+         <width>80</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Port:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_ControllerPort">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>55</y>
+         <width>80</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>6633</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_bridge_name">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Bridge Name:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_OVSBridgeName">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>90</y>
+         <width>150</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>br-open5gs</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_fail_mode">
+       <property name="geometry">
+        <rect>
+         <x>290</x>
+         <y>90</y>
+         <width>80</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Fail Mode:</string>
+       </property>
+      </widget>
+      
+      <widget class="QComboBox" name="VGCore_OVSFailMode">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>90</y>
+         <width>120</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>standalone</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>secure</string>
+        </property>
+       </item>
+      </widget>
+      
+      <widget class="QLabel" name="label_openflow_protocols">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>125</y>
+         <width>120</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>OpenFlow Protocols:</string>
+       </property>
+      </widget>
+      
+      <widget class="QLineEdit" name="VGCore_OpenFlowProtocols">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>125</y>
+         <width>130</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>OpenFlow14</string>
+       </property>
+      </widget>
+      
+      <widget class="QLabel" name="label_datapath">
+       <property name="geometry">
+        <rect>
+         <x>290</x>
+         <y>125</y>
+         <width>80</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Datapath:</string>
+       </property>
+      </widget>
+      
+      <widget class="QComboBox" name="VGCore_OVSDatapath">
+       <property name="geometry">
+        <rect>
+         <x>380</x>
+         <y>125</y>
+         <width>120</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>kernel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>netdev</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
+    </widget>
+    
+    <!-- UPF Tab -->
     <widget class="QWidget" name="UPF_2">
      <attribute name="title">
       <string>UPF</string>
@@ -38,15 +631,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>175</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -80,18 +673,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_43">
          <property name="text">
-          <string>Add  UPF:</string>
+          <string>Add UPF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddUPFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveUPFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_44">
       <property name="geometry">
@@ -107,6 +713,8 @@
       </property>
      </widget>
     </widget>
+    
+    <!-- SMF Tab -->
     <widget class="QWidget" name="SMF_2">
      <attribute name="title">
       <string>SMF</string>
@@ -124,18 +732,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_45">
          <property name="text">
-          <string>Add  SMF:</string>
+          <string>Add SMF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddSMFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveSMFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_46">
       <property name="geometry">
@@ -155,15 +776,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>175</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -185,6 +806,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- AMF Tab -->
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
       <string>AMF</string>
@@ -202,18 +825,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_47">
          <property name="text">
-          <string>Add  AMF:</string>
+          <string>Add AMF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddAMFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveAMFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_48">
       <property name="geometry">
@@ -233,15 +869,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -258,6 +894,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- SCP Tab -->
     <widget class="QWidget" name="SCP_2">
      <attribute name="title">
       <string>SCP</string>
@@ -275,18 +913,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_49">
          <property name="text">
-          <string>Add  SCP:</string>
+          <string>Add SCP:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddSCPButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveSCPButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_50">
       <property name="geometry">
@@ -306,15 +957,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -331,6 +982,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- AUSF Tab -->
     <widget class="QWidget" name="AUSF_2">
      <attribute name="title">
       <string>AUSF</string>
@@ -348,18 +1001,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_51">
          <property name="text">
-          <string>Add  AUSF:</string>
+          <string>Add AUSF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddAUSFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveAUSFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_52">
       <property name="geometry">
@@ -379,15 +1045,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -404,6 +1070,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- BSF Tab -->
     <widget class="QWidget" name="BSF_2">
      <attribute name="title">
       <string>BSF</string>
@@ -421,18 +1089,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_53">
          <property name="text">
-          <string>Add  BSF:</string>
+          <string>Add BSF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddBSFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveBSFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_54">
       <property name="geometry">
@@ -452,15 +1133,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -477,6 +1158,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- NRF Tab -->
     <widget class="QWidget" name="NRF_2">
      <attribute name="title">
       <string>NRF</string>
@@ -494,18 +1177,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_55">
          <property name="text">
-          <string>Add  NRF:</string>
+          <string>Add NRF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddNRFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveNRFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_56">
       <property name="geometry">
@@ -525,15 +1221,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -550,6 +1246,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- UDR Tab -->
     <widget class="QWidget" name="UDR_2">
      <attribute name="title">
       <string>UDR</string>
@@ -567,18 +1265,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_57">
          <property name="text">
-          <string>Add  UDR:</string>
+          <string>Add UDR:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddUDRButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveUDRButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_58">
       <property name="geometry">
@@ -598,15 +1309,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -623,6 +1334,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- NSSF Tab -->
     <widget class="QWidget" name="NSSF_2">
      <attribute name="title">
       <string>NSSF</string>
@@ -640,18 +1353,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_59">
          <property name="text">
-          <string>Add  NSSF:</string>
+          <string>Add NSSF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddNSSFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveNSSFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_60">
       <property name="geometry">
@@ -671,15 +1397,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -696,6 +1422,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- UDM Tab -->
     <widget class="QWidget" name="UDM_2">
      <attribute name="title">
       <string>UDM</string>
@@ -713,18 +1441,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_61">
          <property name="text">
-          <string>Add  UDM:</string>
+          <string>Add UDM:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddUDMButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemoveUDMButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_62">
       <property name="geometry">
@@ -744,15 +1485,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -769,6 +1510,8 @@
       </column>
      </widget>
     </widget>
+    
+    <!-- PCF Tab -->
     <widget class="QWidget" name="PCF_2">
      <attribute name="title">
       <string>PCF</string>
@@ -786,18 +1529,31 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_65">
          <property name="text">
-          <string>Add  PCF:</string>
+          <string>Add PCF:</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
         <widget class="QPushButton" name="Component5G_AddPCFButton">
          <property name="text">
-          <string>add</string>
+          <string>Add</string>
          </property>
         </widget>
        </item>
       </layout>
+     </widget>
+     <widget class="QPushButton" name="Component5G_RemovePCFButton">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>17</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
      </widget>
      <widget class="QLabel" name="label_66">
       <property name="geometry">
@@ -817,15 +1573,15 @@
        <rect>
         <x>10</x>
         <y>70</y>
-        <width>541</width>
-        <height>231</height>
+        <width>750</width>
+        <height>420</height>
        </rect>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>263</number>
+       <number>375</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -843,11 +1599,13 @@
      </widget>
     </widget>
    </widget>
+   
+   <!-- OK/Cancel Buttons -->
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>360</y>
+      <y>560</y>
       <width>168</width>
       <height>31</height>
      </rect>
