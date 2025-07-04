@@ -17,7 +17,7 @@ the mininet-wifi examples structure.
 import os
 import re
 import traceback
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import QDateTime
 from manager.configmap import ConfigurationMapper
 from manager.debug import debug_print, error_print, warning_print
@@ -28,8 +28,21 @@ class MininetExporter:
     def __init__(self, main_window):
         self.main_window = main_window
         
-    def export_to_mininet(self):
-        """Export the current topology to a Mininet script."""
+    def export_to_mininet(self, skip_save_check=False):
+        """Export the current topology to a Mininet script.
+        
+        This method first checks if there are unsaved changes or if the topology
+        hasn't been saved to a file yet. If so, it prompts the user to save first
+        to ensure proper Docker network naming and configuration consistency.
+        
+        Args:
+            skip_save_check (bool): If True, skip the unsaved changes check.
+                                   Useful for automated exports.
+        """
+        # Check for unsaved changes or unsaved file (unless skipped)
+        if not skip_save_check and not self._check_save_status():
+            return  # User cancelled or chose not to proceed
+        
         filename, _ = QFileDialog.getSaveFileName(
             self.main_window, 
             "Export to Mininet Script", 
@@ -116,6 +129,20 @@ class MininetExporter:
         f.write('\n')
         f.write('This script creates a network topology using mininet-wifi\n')
         f.write('with dynamic configuration from the NetFlux5G UI.\n')
+        f.write('\n')
+        f.write('Network Mode Configuration:\n')
+        f.write('- 5G components (UEs, gNBs, VGCore) will use the Docker network\n')
+        f.write('  derived from the topology filename\n')
+        
+        # Get dynamic network name for documentation
+        if hasattr(self.main_window, 'docker_network_manager'):
+            network_name = self.main_window.docker_network_manager.get_current_network_name()
+            if network_name:
+                f.write(f'- Current network mode: {network_name}\n')
+            else:
+                f.write('- Default network mode: open5gs-ueransim_default (when no file loaded)\n')
+        else:
+            f.write('- Default network mode: open5gs-ueransim_default\n')
         
         # Add Docker network usage note
         if hasattr(self.main_window, 'docker_network_manager'):
@@ -225,19 +252,38 @@ class MininetExporter:
                 f.write('        return False\n\n')
 
     def write_topology_function(self, f, nodes, links, categorized_nodes):
-        """Write the main topology function following mininet-wifi patterns."""
+        """Write the main topology function following mininet-wifi patterns.
+        
+        Network Mode Behavior:
+        - When a topology file is loaded, the Docker network mode for 5G components 
+          (UEs, gNBs, VGCore) is dynamically set based on the filename
+        - Network name format: "netflux5g_{sanitized_filename}"
+        - Falls back to "open5gs-ueransim_default" when no file is loaded
+        """
         f.write('def topology(args):\n')
         f.write('    """Create network topology."""\n')
         
-        # Add Docker network setup if needed
+        # Get dynamic network name for 5G components
+        dynamic_network_name = None
         if hasattr(self.main_window, 'docker_network_manager'):
-            network_name = self.main_window.docker_network_manager.get_current_network_name()
-            if network_name:
-                f.write('    \n')
-                f.write('    # Setup Docker network\n')
-                f.write('    info("*** Setting up Docker network\\n")\n')
-                f.write('    create_docker_network_if_needed()\n')
-                f.write('    \n')
+            dynamic_network_name = self.main_window.docker_network_manager.get_current_network_name()
+        
+        # Add Docker network setup if needed
+        if dynamic_network_name:
+            f.write('    \n')
+            f.write('    # Setup Docker network\n')
+            f.write('    info("*** Setting up Docker network\\n")\n')
+            f.write('    create_docker_network_if_needed()\n')
+            f.write('    \n')
+        
+        # Store network name for use in component creation
+        if dynamic_network_name:
+            f.write(f'    # Dynamic network mode based on topology file: {os.path.basename(self.main_window.current_file) if self.main_window.current_file else "Unknown"}\n')
+            f.write(f'    NETWORK_MODE = "{dynamic_network_name}"\n')
+        else:
+            f.write(f'    # Default network mode when no file is loaded\n')
+            f.write(f'    NETWORK_MODE = "open5gs-ueransim_default"\n')
+        f.write('    \n')
         
         # Initialize network
         self.write_network_initialization(f, categorized_nodes)
@@ -552,7 +598,7 @@ class MininetExporter:
                 # Build gNB parameters following the enhanced pattern
                 gnb_params = [f"'{gnb_name}'"]
                 gnb_params.append('cap_add=["net_admin"]')
-                gnb_params.append('network_mode="open5gs-ueransim_default"')
+                gnb_params.append('network_mode=NETWORK_MODE')
                 gnb_params.append('publish_all_ports=True')
                 gnb_params.append('dcmd="/bin/bash"')
                 gnb_params.append("cls=DockerSta")
@@ -636,7 +682,7 @@ class MininetExporter:
                 if 'txpower' in ue_config:
                     ue_params.append(f"txpower={ue_config['txpower']}")
                 
-                ue_params.append('network_mode="open5gs-ueransim_default"')
+                ue_params.append('network_mode=NETWORK_MODE')
                 ue_params.append('dcmd="/bin/bash"')
                 ue_params.append("cls=DockerSta")
                 ue_params.append("dimage='gradiant/ueransim:3.2.6'")
@@ -809,7 +855,7 @@ class MininetExporter:
                     if config['requires_tun']:
                         comp_params.append('devices=["/dev/net/tun"]')
                     comp_params.append('cap_add=["net_admin"]')
-                    comp_params.append('network_mode="open5gs-ueransim_default"')
+                    comp_params.append('network_mode=NETWORK_MODE')
                     
                     if config['privileged']:
                         comp_params.append('privileged=True')
@@ -1136,3 +1182,108 @@ class MininetExporter:
         if clean_name and clean_name[0].isdigit():
             clean_name = '_' + clean_name
         return clean_name or 'node'
+    
+    def _check_save_status(self):
+        """Check if topology should be saved before export and prompt user if needed.
+        
+        Returns:
+            bool: True if export should continue, False if user cancelled
+        """
+        debug_print("Checking save status before export...")
+        
+        # Check if there are unsaved changes or no file is saved
+        has_unsaved = getattr(self.main_window, 'has_unsaved_changes', False)
+        current_file = getattr(self.main_window, 'current_file', None)
+        
+        debug_print(f"Save status: has_unsaved={has_unsaved}, current_file={current_file}")
+        
+        # Get topology info for better messaging
+        nodes, _ = self.main_window.extractTopology()
+        has_components = len(nodes) > 0
+        
+        debug_print(f"Topology info: {len(nodes)} components found")
+        
+        if has_unsaved or not current_file:
+            # Determine the message based on the situation
+            if not current_file:
+                title = "Unsaved Topology"
+                if has_components:
+                    message = (f"The topology has {len(nodes)} component(s) but has not been saved to a file yet.\n\n"
+                              "It is recommended to save the topology first to ensure:\n"
+                              "• Proper Docker network naming based on filename\n"
+                              "• Configuration persistence\n"
+                              "• Easier topology management\n\n"
+                              "Do you want to save the topology first?")
+                else:
+                    message = ("The topology has not been saved to a file yet.\n\n"
+                              "Although there are no components currently, saving the file first\n"
+                              "will ensure proper Docker network naming for any components\n"
+                              "you may add to the exported script.\n\n"
+                              "Do you want to save the topology first?")
+            else:
+                title = "Unsaved Changes"
+                message = ("The topology has unsaved changes.\n\n"
+                          "It is recommended to save the changes first to ensure:\n"
+                          "• Latest configuration is used in export\n"
+                          "• Proper Docker network naming\n"
+                          "• Configuration consistency\n\n"
+                          "Do you want to save the changes first?")
+            
+            # Show dialog with options
+            reply = QMessageBox.question(
+                self.main_window,
+                title,
+                message,
+                QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
+                QMessageBox.Yes  # Default to Yes
+            )
+            
+            if reply == QMessageBox.Yes:
+                debug_print("User chose to save before export")
+                # Try to save the file
+                if hasattr(self.main_window, 'file_manager'):
+                    # Store current state to check if save was successful
+                    old_file = getattr(self.main_window, 'current_file', None)
+                    old_unsaved = getattr(self.main_window, 'has_unsaved_changes', False)
+                    
+                    if not current_file:
+                        # No file exists, use Save As
+                        self.main_window.file_manager.saveTopologyAs()
+                    else:
+                        # File exists, just save
+                        self.main_window.file_manager.saveTopology()
+                    
+                    # Check if save was successful by verifying file state changed
+                    new_file = getattr(self.main_window, 'current_file', None)
+                    new_unsaved = getattr(self.main_window, 'has_unsaved_changes', False)
+                    
+                    if not current_file and not new_file:
+                        # Save As was cancelled (no file selected)
+                        return False
+                    elif current_file and new_unsaved == old_unsaved and old_unsaved:
+                        # Save failed (unsaved state didn't change when it should have)
+                        QMessageBox.warning(
+                            self.main_window,
+                            "Save Failed", 
+                            "Failed to save the topology. Please try again."
+                        )
+                        return False
+                        
+                else:
+                    QMessageBox.warning(
+                        self.main_window,
+                        "Save Error", 
+                        "Unable to save topology. File manager not available."
+                    )
+                    return False
+                    
+            elif reply == QMessageBox.Cancel:
+                debug_print("User cancelled export")
+                # User cancelled the operation
+                return False
+                
+            # If reply == QMessageBox.No, continue with export anyway
+            debug_print("User chose to continue export without saving")
+        
+        debug_print("Save status check passed, proceeding with export")
+        return True

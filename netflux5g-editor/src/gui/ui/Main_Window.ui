@@ -219,7 +219,7 @@ QFrame {
   </action>
   <action name="actionExport_to_Level_2_Script">
    <property name="text">
-    <string>Export to Level 2 Script</string>
+    <string>Export to Mininet Script</string>
    </property>
   </action>
   <action name="actionQuit">
