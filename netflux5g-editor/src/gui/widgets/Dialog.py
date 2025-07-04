@@ -595,11 +595,21 @@ class GNBPropertiesWindow(BasePropertiesWindow):
 class UEPropertiesWindow(BasePropertiesWindow):
     def __init__(self, label_text, parent=None, component=None):
         super().__init__(label_text, parent, component)
-        ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "UE_properties.ui")
-        uic.loadUi(ui_file, self)
+        # Try to load enhanced UI first, fall back to basic UI if not found
+        enhanced_ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "UE_properties_enhanced.ui")
+        basic_ui_file = os.path.join(os.path.dirname(__file__), "..", "ui", "UE_properties.ui")
+        
+        if os.path.exists(enhanced_ui_file):
+            uic.loadUi(enhanced_ui_file, self)
+            debug_print("DEBUG: Loaded enhanced UE UI with wireless and network functionality")
+        else:
+            uic.loadUi(basic_ui_file, self)
+            debug_print("DEBUG: Loaded basic UE UI (enhanced UI not found)")
+            
         self.setWindowTitle(f"UE Properties - {label_text}")
         self.setWindowFlags(Qt.Window)
         self.setupConnections()
+        self.setupDefaultValues()
         self.loadProperties()
 
     def setupConnections(self):
@@ -607,8 +617,136 @@ class UEPropertiesWindow(BasePropertiesWindow):
         self.UE_OKButton.clicked.connect(self.onOK)
         self.UE_CancelButton.clicked.connect(self.onCancel)
         
+        # Connect mobility checkbox to enable additional mobility settings if needed
+        if hasattr(self, 'UE_Mobility'):
+            self.UE_Mobility.toggled.connect(self.onMobilityToggled)
+    
+    def setupDefaultValues(self):
+        """Setup default values for the enhanced UE configuration"""
+        # Set default UE configuration values
+        if hasattr(self, 'UE_GNBHostName'):
+            self.UE_GNBHostName.setText("mn.gnb")
+        if hasattr(self, 'UE_APN'):
+            self.UE_APN.setText("internet")
+        if hasattr(self, 'UE_MSISDN'):
+            self.UE_MSISDN.setText("0000000001")
+        if hasattr(self, 'UE_MCC'):
+            self.UE_MCC.setText("999")
+        if hasattr(self, 'UE_MNC'):
+            self.UE_MNC.setText("70")
+        if hasattr(self, 'UE_KEY'):
+            self.UE_KEY.setText("465B5CE8B199B49FAA5F0A2EE238A6BC")
+        if hasattr(self, 'UE_OPType'):
+            self.UE_OPType.setCurrentText("OPC")
+        if hasattr(self, 'UE_OP'):
+            self.UE_OP.setText("E8ED289DEBA952E4283B54E88E6183CA")
+        if hasattr(self, 'UE_SST'):
+            self.UE_SST.setText("1")
+        if hasattr(self, 'UE_SD'):
+            self.UE_SD.setText("0xffffff")
+        if hasattr(self, 'UE_IMEI'):
+            self.UE_IMEI.setText("356938035643803")
+        if hasattr(self, 'UE_IMEISV'):
+            self.UE_IMEISV.setText("4370816125816151")
+            
+        # Set default wireless configuration values
+        if hasattr(self, 'UE_TunnelInterface'):
+            self.UE_TunnelInterface.setText("uesimtun0")
+        if hasattr(self, 'UE_RadioInterface'):
+            self.UE_RadioInterface.setText("eth0")
+        if hasattr(self, 'UE_AssociationMode'):
+            self.UE_AssociationMode.setCurrentText("auto")
+        if hasattr(self, 'UE_SessionType'):
+            self.UE_SessionType.setCurrentText("IPv4")
+            
+    def onMobilityToggled(self, enabled):
+        """Handle mobility functionality enable/disable"""
+        debug_print(f"DEBUG: UE mobility {'enabled' if enabled else 'disabled'}")
+        # Additional logic can be added here for mobility settings
+    
+    def get5GConfiguration(self):
+        """Get 5G/UE configuration parameters"""
+        config = {}
+        
+        if hasattr(self, 'UE_GNBHostName'):
+            config['GNB_HOSTNAME'] = self.UE_GNBHostName.text()
+        if hasattr(self, 'UE_APN'):
+            config['APN'] = self.UE_APN.text()
+        if hasattr(self, 'UE_MSISDN'):
+            config['MSISDN'] = self.UE_MSISDN.text()
+        if hasattr(self, 'UE_MCC'):
+            config['MCC'] = self.UE_MCC.text()
+        if hasattr(self, 'UE_MNC'):
+            config['MNC'] = self.UE_MNC.text()
+        if hasattr(self, 'UE_KEY'):
+            config['KEY'] = self.UE_KEY.text()
+        if hasattr(self, 'UE_OPType'):
+            config['OP_TYPE'] = self.UE_OPType.currentText()
+        if hasattr(self, 'UE_OP'):
+            config['OP'] = self.UE_OP.text()
+        if hasattr(self, 'UE_SST'):
+            config['SST'] = self.UE_SST.text()
+        if hasattr(self, 'UE_SD'):
+            config['SD'] = self.UE_SD.text()
+        if hasattr(self, 'UE_IMEI'):
+            config['IMEI'] = self.UE_IMEI.text()
+        if hasattr(self, 'UE_IMEISV'):
+            config['IMEISV'] = self.UE_IMEISV.text()
+            
+        return config
+    
+    def getWirelessConfiguration(self):
+        """Get wireless configuration for mininet-wifi"""
+        config = {}
+        
+        if hasattr(self, 'UE_Power'):
+            config['txpower'] = self.UE_Power.value()
+        if hasattr(self, 'UE_Range'):
+            config['range'] = self.UE_Range.value()
+        if hasattr(self, 'UE_AssociationMode'):
+            config['association'] = self.UE_AssociationMode.currentText()
+        if hasattr(self, 'UE_Mobility'):
+            config['mobility'] = self.UE_Mobility.isChecked()
+            
+        return config
+        
+    def getNetworkConfiguration(self):
+        """Get network configuration parameters"""
+        config = {}
+        
+        if hasattr(self, 'UE_GNB_IP'):
+            config['GNB_IP'] = self.UE_GNB_IP.text()
+        if hasattr(self, 'UE_TunnelInterface'):
+            config['TUNNEL_IFACE'] = self.UE_TunnelInterface.text()
+        if hasattr(self, 'UE_RadioInterface'):
+            config['RADIO_IFACE'] = self.UE_RadioInterface.text()
+        if hasattr(self, 'UE_PDUSessions'):
+            config['PDU_SESSIONS'] = str(self.UE_PDUSessions.value())
+        if hasattr(self, 'UE_SessionType'):
+            config['SESSION_TYPE'] = self.UE_SessionType.currentText()
+            
+        return config
+        
     def onOK(self):
+        """Enhanced save that includes all new configuration options"""
         self.saveProperties()
+        
+        # Store additional configurations in the component
+        if self.component:
+            # Store 5G/UE configuration
+            config_5g = self.get5GConfiguration()
+            self.component.properties.update({f"ue_{k.lower()}": v for k, v in config_5g.items()})
+            
+            # Store wireless configuration
+            wireless_config = self.getWirelessConfiguration()
+            self.component.properties.update({f"wireless_{k}": v for k, v in wireless_config.items()})
+            
+            # Store network configuration
+            network_config = self.getNetworkConfiguration()
+            self.component.properties.update({f"network_{k.lower()}": v for k, v in network_config.items()})
+            
+            debug_print(f"DEBUG: Enhanced UE configuration saved for {self.component_name}")
+            
         self.close()
         
     def onCancel(self):

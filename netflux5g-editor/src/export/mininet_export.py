@@ -676,7 +676,7 @@ class MininetExporter:
                 ue_params.append('devices=["/dev/net/tun"]')
                 ue_params.append('cap_add=["net_admin"]')
                 
-                # Add power and range configuration from ConfigurationMapper
+                # Add enhanced power and range configuration from ConfigurationMapper
                 from manager.configmap import ConfigurationMapper
                 ue_config = ConfigurationMapper.map_ue_config(props)
                 
@@ -688,6 +688,10 @@ class MininetExporter:
                 if 'txpower' in ue_config:
                     ue_params.append(f"txpower={ue_config['txpower']}")
                 
+                # Add association mode if specified
+                if 'association' in ue_config and ue_config['association'] != 'auto':
+                    ue_params.append(f"associationMode='{ue_config['association']}'")
+                
                 ue_params.append('network_mode=NETWORK_MODE')
                 ue_params.append('dcmd="/bin/bash"')
                 ue_params.append("cls=DockerSta")
@@ -697,40 +701,43 @@ class MininetExporter:
                 position = f"{ue.get('x', 0):.1f},{ue.get('y', 0):.1f},0"
                 ue_params.append(f"position='{position}'")
                 
-                # Add UE specific environment variables following the pattern
-                # CHANGE: Use gNB hostname instead of gNB IP
-                gnb_hostname = props.get('UE_GNB_HOSTNAME')
-                if not gnb_hostname:
-                    # Try to find a gNB in the topology and use its hostname
-                    gnbs = categorized_nodes.get('gnbs', [])
-                    if gnbs:
-                        gnb_hostname = gnbs[0].get('properties', {}).get('GNB_Hostname') or self.sanitize_variable_name(gnbs[0]['name'])
-                    else:
-                        gnb_hostname = 'mn.gnb'  # fallback
-                apn = props.get('UE_APN', 'internet')
-                msisdn = props.get('UE_MSISDN', f'000000000{i:01d}')
-                mcc = props.get('UE_MCC', '999')
-                mnc = props.get('UE_MNC', '70')
-                sst = props.get('UE_SST', '1')
-                sd = props.get('UE_SD', '0xffffff')
-                tac = props.get('UE_TAC', '1')
-                key = props.get('UE_Key', '465B5CE8B199B49FAA5F0A2EE238A6BC')
-                op_type = props.get('UE_OP_Type', 'OPC')
-                op = props.get('UE_OP', 'E8ED289DEBA952E4283B54E88E6183CA')
+                # Enhanced UE environment variables with all new configuration options
+                gnb_hostname = ue_config.get('gnb_hostname', 'mn.gnb')
                 
+                # Build comprehensive environment dictionary
                 env_dict = {
+                    # Core 5G Configuration
                     "GNB_HOSTNAME": gnb_hostname,
-                    "APN": apn,
-                    "MSISDN": msisdn,
-                    "MCC": mcc,
-                    "MNC": mnc,
-                    "SST": sst,
-                    "SD": sd,
-                    "TAC": tac,
-                    "KEY": key,
-                    "OP_TYPE": op_type,
-                    "OP": op
+                    "APN": ue_config.get('apn', 'internet'),
+                    "MSISDN": ue_config.get('msisdn', f'000000000{i:01d}'),
+                    "MCC": ue_config.get('mcc', '999'),
+                    "MNC": ue_config.get('mnc', '70'),
+                    "SST": ue_config.get('sst', '1'),
+                    "SD": ue_config.get('sd', '0xffffff'),
+                    "TAC": ue_config.get('tac', '1'),
+                    
+                    # Authentication Configuration
+                    "KEY": ue_config.get('key', '465B5CE8B199B49FAA5F0A2EE238A6BC'),
+                    "OP_TYPE": ue_config.get('op_type', 'OPC'),
+                    "OP": ue_config.get('op', 'E8ED289DEBA952E4283B54E88E6183CA'),
+                    
+                    # Device Identifiers
+                    "IMEI": ue_config.get('imei', '356938035643803'),
+                    "IMEISV": ue_config.get('imeisv', '4370816125816151'),
+                    
+                    # Network Configuration
+                    "TUNNEL_IFACE": ue_config.get('tunnel_iface', 'uesimtun0'),
+                    "RADIO_IFACE": ue_config.get('radio_iface', 'eth0'),
+                    "SESSION_TYPE": ue_config.get('session_type', 'IPv4'),
+                    "PDU_SESSIONS": str(ue_config.get('pdu_sessions', 1)),
+                    
+                    # Mobility Configuration
+                    "MOBILITY_ENABLED": 'true' if ue_config.get('mobility', False) else 'false'
                 }
+                
+                # Add gNB IP if specified
+                if 'gnb_ip' in ue_config:
+                    env_dict["GNB_IP"] = ue_config['gnb_ip']
                 
                 # Format environment like in the original
                 env_str = str(env_dict).replace("'", '"')

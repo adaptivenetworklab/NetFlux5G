@@ -139,15 +139,17 @@ class ConfigurationMapper:
     
     @staticmethod
     def map_ue_config(properties):
-        """Map UE properties to configuration parameters"""
+        """Enhanced map UE properties to configuration parameters with expanded support"""
         config = {}
-        # Use gNB hostname instead of IP
-        gnb_hostname = properties.get('UE_GNB_HOSTNAME')
+        
+        # Core 5G/UE Configuration
+        gnb_hostname = properties.get('UE_GNBHostName') or properties.get('UE_GNB_HOSTNAME')
         if not gnb_hostname:
             # Try to find a gNB hostname in the topology if available (not possible here, so fallback)
             gnb_hostname = 'mn.gnb'
         config['gnb_hostname'] = gnb_hostname
-        # Deprecated: config['gnb_ip'] = properties.get('UE_GNB_IP', '10.0.0.4')
+        
+        # Basic UE parameters
         config['apn'] = properties.get('UE_APN', 'internet')
         config['msisdn'] = properties.get('UE_MSISDN', '0000000001')
         config['mcc'] = properties.get('UE_MCC', '999')
@@ -155,10 +157,36 @@ class ConfigurationMapper:
         config['sst'] = properties.get('UE_SST', '1')
         config['sd'] = properties.get('UE_SD', '0xffffff')
         config['tac'] = properties.get('UE_TAC', '1')
-        config['key'] = properties.get('UE_Key', '465B5CE8B199B49FAA5F0A2EE238A6BC')
-        config['op_type'] = properties.get('UE_OP_Type', 'OPC')
+        
+        # Authentication parameters
+        config['key'] = properties.get('UE_KEY') or properties.get('UE_Key', '465B5CE8B199B49FAA5F0A2EE238A6BC')
+        config['op_type'] = properties.get('UE_OPType') or properties.get('UE_OP_Type', 'OPC')
         config['op'] = properties.get('UE_OP', 'E8ED289DEBA952E4283B54E88E6183CA')
         
+        # Device identifiers
+        config['imei'] = properties.get('UE_IMEI', '356938035643803')
+        config['imeisv'] = properties.get('UE_IMEISV', '4370816125816151')
+        
+        # Network configuration
+        gnb_ip = properties.get('UE_GNB_IP')
+        if gnb_ip and gnb_ip.strip():
+            config['gnb_ip'] = gnb_ip.strip()
+        
+        config['tunnel_iface'] = properties.get('UE_TunnelInterface', 'uesimtun0')
+        config['radio_iface'] = properties.get('UE_RadioInterface', 'eth0')
+        config['session_type'] = properties.get('UE_SessionType', 'IPv4')
+        
+        # PDU sessions
+        pdu_sessions = properties.get('UE_PDUSessions')
+        if pdu_sessions:
+            try:
+                config['pdu_sessions'] = int(pdu_sessions)
+            except (ValueError, TypeError):
+                config['pdu_sessions'] = 1
+        else:
+            config['pdu_sessions'] = 1
+        
+        # Wireless configuration for mininet-wifi
         # Power configuration for radio propagation
         power_fields = ["UE_Power", "UE_TxPower", "lineEdit_power", "doubleSpinBox_power"]
         for field in power_fields:
@@ -172,6 +200,26 @@ class ConfigurationMapper:
                     except ValueError:
                         pass
                     break
+        
+        # Range configuration
+        range_fields = ["UE_Range", "UE_TxRange", "lineEdit_range", "doubleSpinBox_range"]
+        for field in range_fields:
+            if properties.get(field):
+                range_val = str(properties[field]).strip()
+                if range_val:
+                    try:
+                        range_value = float(range_val)
+                        if range_value > 0:
+                            config['range'] = range_value
+                    except ValueError:
+                        pass
+                    break
+        
+        # Association and mobility
+        config['association'] = properties.get('UE_AssociationMode', 'auto')
+        config['mobility'] = properties.get('UE_Mobility', False)
+        
+        return config
         
         # Range configuration (coverage area)
         range_fields = ["UE_Range", "UE_Coverage", "spinBox_range"]
