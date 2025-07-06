@@ -15,6 +15,7 @@ from manager.tool import ToolManager
 from manager.canvas import CanvasManager
 from manager.automation import AutomationManager
 from manager.keyboard import KeyboardManager
+from manager.component_operations import ComponentOperationsManager
 from manager.debug import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
 from manager.welcome import WelcomeScreenManager
 from manager.docker_network import DockerNetworkManager
@@ -48,6 +49,7 @@ class NetFlux5GApp(QMainWindow):
         self.canvas_manager = CanvasManager(self)
         self.automation_manager = AutomationManager(self)
         self.keyboard_manager = KeyboardManager(self)
+        self.component_operations_manager = ComponentOperationsManager(self)
         self.welcome_manager = WelcomeScreenManager(self)
         self.docker_network_manager = DockerNetworkManager(self)
         self.database_manager = DatabaseManager(self)
@@ -178,6 +180,14 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionExport_to_Level_2_Script'):
                 self.actionExport_to_Level_2_Script.triggered.connect(self.automation_manager.exportToMininet)
 
+            # Edit menu connections - Cut, Copy, Paste
+            if hasattr(self, 'actionCut'):
+                self.actionCut.triggered.connect(self.component_operations_manager.cutComponent)
+            if hasattr(self, 'actionCopy'):
+                self.actionCopy.triggered.connect(self.component_operations_manager.copyComponent)
+            if hasattr(self, 'actionPaste'):
+                self.actionPaste.triggered.connect(self.component_operations_manager.pasteComponent)
+
             # Tool connections
             if hasattr(self, 'actionPickTool'):
                 self.actionPickTool.triggered.connect(self.tool_manager.enablePickTool)
@@ -300,6 +310,19 @@ class NetFlux5GApp(QMainWindow):
         """Delegate to canvas manager."""
         self.canvas_manager.toggleGrid()
 
+    # Component operations delegates
+    def cutComponent(self):
+        """Delegate to component operations manager."""
+        self.component_operations_manager.cutComponent()
+
+    def copyComponent(self):
+        """Delegate to component operations manager."""
+        self.component_operations_manager.copyComponent()
+
+    def pasteComponent(self):
+        """Delegate to component operations manager."""
+        self.component_operations_manager.pasteComponent()
+
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""
         try:
@@ -402,6 +425,7 @@ class NetFlux5GApp(QMainWindow):
         help_message = (
             "Mouse Navigation: Middle-click + drag to pan | Ctrl + Mouse wheel to zoom | "
             "Keyboard: P=Pick, D=Delete, L=Link, G=Grid, +/-=Zoom, 0=Reset Zoom, ESC=Pick Tool | "
+            "Edit: Ctrl+X=Cut, Ctrl+C=Copy, Ctrl+V=Paste | "
             "Debug: Ctrl+Shift+D=Toggle Debug"
         )
         # Show for 5 seconds, then return to ready state
@@ -438,6 +462,10 @@ class NetFlux5GApp(QMainWindow):
             # Stop any running automation
             if hasattr(self, 'automation_runner'):
                 self.automation_runner.stop_all()
+            
+            # Clear component operations clipboard
+            if hasattr(self, 'component_operations_manager'):
+                self.component_operations_manager.clearClipboard()
             
             # Clean up status timer
             if hasattr(self.status_manager, '_status_timer') and self.status_manager._status_timer:

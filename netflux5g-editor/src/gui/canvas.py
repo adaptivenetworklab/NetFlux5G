@@ -345,6 +345,9 @@ class Canvas(QGraphicsView):
             if icon_path and os.path.exists(icon_path):
                 from .components import NetworkComponent
                 
+                # Scan and initialize numbering before creating component
+                NetworkComponent.scanAndInitializeNumbering(self.app_instance)
+                
                 position = self.mapToScene(event.pos())
                 component = NetworkComponent(component_type, icon_path, main_window=self.app_instance)
                 component.setPosition(position.x(), position.y())
@@ -448,6 +451,10 @@ class Canvas(QGraphicsView):
         # Use the icon map from main window
         icon_path = self.app_instance.component_icon_map.get(component_type)
         from .components import NetworkComponent
+        
+        # Scan and initialize numbering before creating component
+        NetworkComponent.scanAndInitializeNumbering(self.app_instance)
+        
         component = NetworkComponent(component_type, icon_path, main_window=self.app_instance)
         component.setPos(pos)
         self.scene.addItem(component)
@@ -456,3 +463,52 @@ class Canvas(QGraphicsView):
         # Mark topology as modified
         if hasattr(self.app_instance, 'onTopologyChanged'):
             self.app_instance.onTopologyChanged()
+
+    def contextMenuEvent(self, event):
+        """Handle right-click context menu on canvas."""
+        # Check if we clicked on an empty area (no items under the cursor)
+        item_at_pos = self.itemAt(event.pos())
+        
+        if item_at_pos is None:
+            # Empty area - show canvas context menu with paste option
+            menu = QMenu(self)
+            menu.setStyleSheet("""
+                QMenu {
+                    background-color: #f0f0f0;
+                    border: 1px solid #000000;
+                }
+                QMenu::item:selected {
+                    background-color: #cccccc;
+                }
+            """)
+            
+            # Check if there's something to paste
+            has_clipboard_content = False
+            if (hasattr(self, 'app_instance') and 
+                hasattr(self.app_instance, 'component_operations_manager')):
+                has_clipboard_content = self.app_instance.component_operations_manager.hasClipboardContent()
+            
+            paste_action = menu.addAction("Paste")
+            paste_action.setEnabled(has_clipboard_content)
+            
+            if has_clipboard_content:
+                clipboard_info = self.app_instance.component_operations_manager.getClipboardInfo()
+                if clipboard_info:
+                    paste_action.setText(f"Paste {clipboard_info['type']}")
+            
+            # Connect the paste action
+            paste_action.triggered.connect(lambda: self._pasteAtPosition(event.pos()))
+            
+            # Show the menu
+            menu.exec_(event.globalPos())
+        else:
+            # Item was clicked - let the item handle its own context menu
+            super().contextMenuEvent(event)
+
+    def _pasteAtPosition(self, view_pos):
+        """Paste component at the specified view position."""
+        if (hasattr(self, 'app_instance') and 
+            hasattr(self.app_instance, 'component_operations_manager')):
+            # Convert view position to scene position
+            scene_pos = self.mapToScene(view_pos)
+            self.app_instance.component_operations_manager.pasteComponent(scene_pos)

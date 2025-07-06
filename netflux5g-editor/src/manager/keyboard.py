@@ -38,6 +38,18 @@ class KeyboardManager:
                 self.main_window.file_manager.newTopology()
             elif event.key() == Qt.Key_O:
                 self.main_window.file_manager.openTopology()
+            elif event.key() == Qt.Key_X:
+                # Ctrl+X for cut component
+                if hasattr(self.main_window, 'component_operations_manager'):
+                    self.main_window.component_operations_manager.cutComponent()
+            elif event.key() == Qt.Key_C:
+                # Ctrl+C for copy component
+                if hasattr(self.main_window, 'component_operations_manager'):
+                    self.main_window.component_operations_manager.copyComponent()
+            elif event.key() == Qt.Key_V:
+                # Ctrl+V for paste component
+                if hasattr(self.main_window, 'component_operations_manager'):
+                    self.main_window.component_operations_manager.pasteComponent()
         # Add shortcuts for RunAll and StopAll
         elif event.key() == Qt.Key_R and event.modifiers() & Qt.ControlModifier:
             if hasattr(self.main_window, 'actionRunAll') and self.main_window.actionRunAll.isEnabled():

@@ -14,6 +14,22 @@ class FileManager:
         """Create a new topology."""
         if hasattr(self.main_window, 'canvas_view') and hasattr(self.main_window.canvas_view, 'scene'):
             self.main_window.canvas_view.scene.clear()
+        
+        # Reset component numbering system
+        from gui.components import NetworkComponent
+        NetworkComponent.component_counts = {
+            "Host": 0, "STA": 0, "UE": 0, "GNB": 0, "DockerHost": 0,
+            "AP": 0, "VGcore": 0, "Controller": 0, "Router": 0, "Switch": 0,
+        }
+        NetworkComponent.available_numbers = {
+            "Host": set(), "STA": set(), "UE": set(), "GNB": set(), "DockerHost": set(),
+            "AP": set(), "VGcore": set(), "Controller": set(), "Router": set(), "Switch": set(),
+        }
+        
+        # Clear component operations clipboard
+        if hasattr(self.main_window, 'component_operations_manager'):
+            self.main_window.component_operations_manager.clearClipboard()
+            
         self.main_window.current_file = None
         # Clear template flags
         self.main_window.is_template_loaded = False
@@ -230,6 +246,10 @@ class FileManager:
             
             # Restore component counts if available
             self.restoreComponentCounts(topology_data)
+            
+            # Scan and initialize numbering based on loaded components
+            from gui.components import NetworkComponent
+            NetworkComponent.scanAndInitializeNumbering(self.main_window)
             
             progress.setValue(100)
             QApplication.processEvents()

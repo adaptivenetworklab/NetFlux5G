@@ -1,7 +1,7 @@
 import os
 from .links import NetworkLink
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
-from PyQt5.QtCore import Qt, QRectF, QPoint
+from PyQt5.QtCore import Qt, QRectF, QPoint, QPointF
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
 from manager.debug import debug_print, error_print, warning_print
@@ -301,13 +301,36 @@ class NetworkComponent(QGraphicsPixmapItem):
         else:
             menu.addAction("Properties", self.openPropertiesDialog)
             menu.addSeparator()
+            # Add component operations
+            cut_action = menu.addAction("Cut")
+            copy_action = menu.addAction("Copy")
+            paste_action = menu.addAction("Paste")
+            
+            # Enable paste only if there's something in the clipboard
+            clipboard_info = None
+            if (hasattr(self, 'scene') and self.scene() and 
+                hasattr(self.scene(), 'views') and self.scene().views() and
+                hasattr(self.scene().views()[0], 'app_instance') and
+                hasattr(self.scene().views()[0].app_instance, 'component_operations_manager')):
+                clipboard_info = self.scene().views()[0].app_instance.component_operations_manager.getClipboardInfo()
+            
+            paste_action.setEnabled(clipboard_info is not None)
+            
+            # Connect actions
+            cut_action.triggered.connect(self._cutComponent)
+            copy_action.triggered.connect(self._copyComponent)
+            paste_action.triggered.connect(self._pasteComponent)
+            
+            menu.addSeparator()
             menu.addAction("Delete", lambda: self._delete_and_cleanup())
+            
+            menu.addSeparator()
             # Add copy/paste properties actions
-            copy_action = menu.addAction("Copy Properties")
-            paste_action = menu.addAction("Paste Properties")
-            paste_action.setEnabled(NetworkComponent.copied_properties is not None and (NetworkComponent.copied_properties.get('type') == self.component_type))
-            copy_action.triggered.connect(self.copy_properties)
-            paste_action.triggered.connect(self.paste_properties)
+            copy_props_action = menu.addAction("Copy Properties")
+            paste_props_action = menu.addAction("Paste Properties")
+            paste_props_action.setEnabled(NetworkComponent.copied_properties is not None and (NetworkComponent.copied_properties.get('type') == self.component_type))
+            copy_props_action.triggered.connect(self.copy_properties)
+            paste_props_action.triggered.connect(self.paste_properties)
         menu.exec_(event.screenPos())
         # After menu closes, ensure dragging state and offset are reset
         self.dragging = False
@@ -361,6 +384,40 @@ class NetworkComponent(QGraphicsPixmapItem):
             debug_print(f"Pasted properties to {self.display_name}: {props}")
         else:
             debug_print(f"Paste failed: clipboard type {props.get('type') if props else None} does not match {self.component_type}")
+
+    def _cutComponent(self):
+        """Cut this component via the operations manager."""
+        scene = self.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and hasattr(view.app_instance, 'component_operations_manager'):
+                # Select this component first
+                scene.clearSelection()
+                self.setSelected(True)
+                # Call cut operation
+                view.app_instance.component_operations_manager.cutComponent()
+
+    def _copyComponent(self):
+        """Copy this component via the operations manager."""
+        scene = self.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and hasattr(view.app_instance, 'component_operations_manager'):
+                # Select this component first
+                scene.clearSelection()
+                self.setSelected(True)
+                # Call copy operation
+                view.app_instance.component_operations_manager.copyComponent()
+
+    def _pasteComponent(self):
+        """Paste component at this component's position via the operations manager."""
+        scene = self.scene()
+        if scene and scene.views():
+            view = scene.views()[0]
+            if hasattr(view, 'app_instance') and hasattr(view.app_instance, 'component_operations_manager'):
+                # Paste at a slight offset from this component
+                paste_pos = self.pos() + QPointF(60, 60)
+                view.app_instance.component_operations_manager.pasteComponent(paste_pos)
 
     def _delete_and_cleanup(self):
         # Remove any connected links first (same as before)
@@ -540,3 +597,82 @@ class NetworkComponent(QGraphicsPixmapItem):
         
         # Return default power if not specified
         return 14.0 if self.component_type == "AP" else 20.0
+
+    @staticmethod
+    def scanAndInitializeNumbering(main_window=None):
+        """
+        Scan all existing components and properly initialize the numbering system.
+        This ensures that component_counts and available_numbers are accurate.
+        """
+        # Reset the tracking systems
+        NetworkComponent.component_counts = {
+            "Host": 0, "STA": 0, "UE": 0, "GNB": 0, "DockerHost": 0,
+            "AP": 0, "VGcore": 0, "Controller": 0, "Router": 0, "Switch": 0,
+        }
+        NetworkComponent.available_numbers = {
+            "Host": set(), "STA": set(), "UE": set(), "GNB": set(), "DockerHost": set(),
+            "AP": set(), "VGcore": set(), "Controller": set(), "Router": set(), "Switch": set(),
+        }
+        
+        # Find the scene to scan components
+        scene = None
+        
+        # Try to get scene from provided main_window
+        if main_window and hasattr(main_window, 'canvas_view') and hasattr(main_window.canvas_view, 'scene'):
+            scene = main_window.canvas_view.scene
+        else:
+            # Fallback: find a canvas widget with scene
+            import PyQt5.QtWidgets as widgets
+            app = widgets.QApplication.instance()
+            if app:
+                for widget in app.allWidgets():
+                    widget_scene = None
+                    
+                    # Handle different ways widgets can have a scene
+                    if hasattr(widget, 'scene'):
+                        if callable(widget.scene):
+                            try:
+                                widget_scene = widget.scene()
+                            except:
+                                continue
+                        else:
+                            widget_scene = widget.scene
+                    
+                    # Check if this is a canvas widget with an app_instance
+                    if widget_scene and hasattr(widget, 'app_instance'):
+                        scene = widget_scene
+                        break
+        
+        if not scene:
+            debug_print("No scene found for component scanning")
+            return
+            
+        # Scan all components in the scene
+        components_by_type = {}
+        for item in scene.items():
+            if isinstance(item, NetworkComponent):
+                comp_type = item.component_type
+                comp_number = getattr(item, 'component_number', 0)
+                if comp_number > 0:
+                    if comp_type not in components_by_type:
+                        components_by_type[comp_type] = []
+                    components_by_type[comp_type].append(comp_number)
+        
+        # Update counts and find available numbers
+        for comp_type in NetworkComponent.component_counts:
+            if comp_type in components_by_type:
+                numbers = components_by_type[comp_type]
+                max_number = max(numbers) if numbers else 0
+                NetworkComponent.component_counts[comp_type] = max_number
+                
+                # Find gaps in the sequence (available numbers)
+                used_numbers = set(numbers)
+                for i in range(1, max_number + 1):
+                    if i not in used_numbers:
+                        NetworkComponent.available_numbers[comp_type].add(i)
+            else:
+                NetworkComponent.component_counts[comp_type] = 0
+        
+        debug_print(f"Scanned and initialized numbering:")
+        debug_print(f"  Component counts: {NetworkComponent.component_counts}")
+        debug_print(f"  Available numbers: {NetworkComponent.available_numbers}")
