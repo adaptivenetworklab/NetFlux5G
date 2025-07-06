@@ -162,13 +162,15 @@ class BasePropertiesWindow(QMainWindow):
                         row_data['config_filename'] = f"{component_type.lower()}.yaml"
                         row_data['config_file_path'] = ''
                     
-                    # Settings (column 2, if exists)
+                    # Config Path (column 2, if exists)
                     if table.columnCount() > 2:
-                        settings_item = table.item(row, 2)
-                        if settings_item:
-                            row_data['settings'] = settings_item.text()
+                        config_path_item = table.item(row, 2)
+                        if config_path_item:
+                            row_data['config_path'] = config_path_item.text()
                         else:
-                            row_data['settings'] = ""
+                            row_data['config_path'] = ""
+                    else:
+                        row_data['config_path'] = ""
                     
                     # Add default values
                     row_data['image'] = 'adaptive/open5gs:1.0'
@@ -300,11 +302,11 @@ class BasePropertiesWindow(QMainWindow):
                         
                 table.setItem(i, 1, config_item)
                 
-                # Settings (column 2, if exists)
+                # Config Path (column 2, if exists)
                 if table.columnCount() > 2:
-                    settings_item = QTableWidgetItem(row_data.get('settings', ''))
-                    settings_item.setToolTip("Double-click to edit component settings")
-                    table.setItem(i, 2, settings_item)
+                    config_path_item = QTableWidgetItem(row_data.get('config_path', ''))
+                    config_path_item.setToolTip("Path to imported configuration file")
+                    table.setItem(i, 2, config_path_item)
             
             debug_print(f"DEBUG: Loaded {len(table_data)} {component_type} configurations into table")
 
@@ -1046,11 +1048,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if not table:
             return
             
-        # Check if this is the "Import YAML" column (typically column 1)
+        # Check if this is the "Import YAML" column (column 1)
         if column == 1:  # Import YAML column
             self.importYamlForComponent(component_type, row)
-        elif column == 2 and table.columnCount() > 2:  # Settings column if it exists
-            self.editComponentSettings(component_type, row)
+        elif column == 2 and table.columnCount() > 2:  # Config Path column - allow browsing to file
+            self.browseConfigPath(component_type, row)
 
     def showTableContextMenu(self, component_type, position):
         """Show context menu for table operations."""
@@ -1073,9 +1075,9 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if column == 1:  # Import YAML column
             menu.addAction("Import YAML Configuration", lambda: self.importYamlForComponent(component_type, row))
             menu.addAction("Clear Configuration", lambda: self.clearComponentConfiguration(component_type, row))
-        elif column == 2:  # Settings column
-            menu.addAction("Edit Settings", lambda: self.editComponentSettings(component_type, row))
-            menu.addAction("Clear Settings", lambda: self.clearComponentSettings(component_type, row))
+        elif column == 2:  # Config Path column
+            menu.addAction("Browse Config Path", lambda: self.browseConfigPath(component_type, row))
+            menu.addAction("Clear Config Path", lambda: self.clearComponentSettings(component_type, row))
         
         menu.addSeparator()
         menu.addAction("Remove Component", lambda: self.removeSpecificComponent(component_type, row))
@@ -1135,9 +1137,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         
         # Add additional default columns if table has more columns
         if table.columnCount() > 2:
-            settings_item = QTableWidgetItem("")
-            settings_item.setToolTip("Double-click to edit component settings")
-            table.setItem(row_position, 2, settings_item)
+            # Column 2 should be Config Path (based on UI definition)
+            config_path_item = QTableWidgetItem("")
+            config_path_item.setToolTip("Path to imported configuration file")
+            table.setItem(row_position, 2, config_path_item)
+            debug_print(f"DEBUG: Initialized Config Path column for {component_type} at row {row_position}")
         
         debug_print(f"DEBUG: Successfully added {component_type} component: {default_name} at row {row_position}")
 
@@ -1195,27 +1199,37 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 config_item.setToolTip("Double-click to import YAML configuration file")
                 config_item.setData(Qt.UserRole, None)
                 
-                # Update stored configurations
-                if self.component:
-                    properties = self.component.getProperties()
-                    config_key = f"{component_type}_configs"
-                    if config_key in properties and row < len(properties[config_key]):
-                        config = properties[config_key][row]
-                        config['imported'] = False
-                        config['config_content'] = {}
-                        config['config_file_path'] = ''
-                        config['config_file'] = f"{config.get('name', component_type.lower())}.yaml"
-                        self.component.setProperties(properties)
+            # Clear the Config Path column (column 2) as well
+            if table.columnCount() > 2:
+                config_path_item = table.item(row, 2)
+                if config_path_item:
+                    config_path_item.setText("")
+                    config_path_item.setToolTip("")
+                    debug_print(f"DEBUG: Cleared Config Path column for {component_type} row {row}")
+                
+            # Update stored configurations
+            if self.component:
+                properties = self.component.getProperties()
+                config_key = f"{component_type}_configs"
+                if config_key in properties and row < len(properties[config_key]):
+                    config = properties[config_key][row]
+                    config['imported'] = False
+                    config['config_content'] = {}
+                    config['config_file_path'] = ''
+                    config['config_file'] = f"{config.get('name', component_type.lower())}.yaml"
+                    self.component.setProperties(properties)
 
     def clearComponentSettings(self, component_type, row):
-        """Clear the settings for a component."""
+        """Clear the config path for a component (column 2 is Config Path, not settings)."""
         table_name = f'Component5G_{component_type}table'
         table = getattr(self, table_name, None)
         
         if table and row < table.rowCount() and table.columnCount() > 2:
-            settings_item = table.item(row, 2)
-            if settings_item:
-                settings_item.setText("")
+            config_path_item = table.item(row, 2)
+            if config_path_item:
+                config_path_item.setText("")
+                config_path_item.setToolTip("Path to imported configuration file")
+                debug_print(f"DEBUG: Cleared Config Path for {component_type} row {row}")
 
     def removeSpecificComponent(self, component_type, row):
         """Remove a specific component row."""
@@ -1326,6 +1340,17 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 config_item.config_file_path = file_path
                 config_item.config_filename = os.path.basename(file_path)
                 
+                # Update the Config Path column (column 2) to show the file path
+                if table.columnCount() > 2:  # Ensure Config Path column exists
+                    config_path_item = table.item(row, 2)
+                    if not config_path_item:
+                        config_path_item = QTableWidgetItem()
+                        table.setItem(row, 2, config_path_item)
+                    
+                    config_path_item.setText(file_path)
+                    config_path_item.setToolTip(f"Configuration file: {file_path}")
+                    debug_print(f"DEBUG: Updated Config Path column for {component_type} row {row}: {file_path}")
+                
                 # Also store the configuration in component properties
                 self.storeComponentConfiguration(component_type, row, file_path, yaml_content)
                 
@@ -1379,6 +1404,70 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         # Check if the expected section exists in the YAML
         return expected_section in yaml_content
 
+    def browseConfigPath(self, component_type, row):
+        """Browse and select a configuration file path for the Config Path column."""
+        table_name = f'Component5G_{component_type}table'
+        table = getattr(self, table_name, None)
+        
+        if not table:
+            # Try alternative table names
+            possible_names = [f'{component_type}table', f'{component_type}Table', f'Component5G_{component_type}Table']
+            for name in possible_names:
+                if hasattr(self, name):
+                    table = getattr(self, name)
+                    break
+        
+        if not table:
+            error_print(f"ERROR: Could not find table for {component_type}")
+            return
+            
+        # Get the component name from the first column
+        name_item = table.item(row, 0)
+        if not name_item:
+            QMessageBox.warning(self, "No Component Name", "Please enter a component name first.")
+            return
+            
+        component_name = name_item.text().strip()
+        if not component_name:
+            QMessageBox.warning(self, "No Component Name", "Please enter a component name first.")
+            return
+        
+        # Open file dialog to select YAML file
+        # Dynamically find the 5g-configs directory relative to this script
+        config_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "export", "5g-configs"))
+        initial_dir = config_dir if os.path.exists(config_dir) else ""
+        
+        # Suggest a default filename based on component type
+        default_filename = f"{component_type.lower()}.yaml"
+        initial_file = os.path.join(initial_dir, default_filename) if initial_dir else default_filename
+        
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            f"Select Configuration File Path for {component_name} ({component_type})",
+            initial_file,
+            "YAML Files (*.yaml *.yml);;All Files (*)"
+        )
+        
+        if file_path:
+            # Update the Config Path column (column 2) to show the file path
+            if table.columnCount() > 2:
+                config_path_item = table.item(row, 2)
+                if not config_path_item:
+                    config_path_item = QTableWidgetItem()
+                    table.setItem(row, 2, config_path_item)
+                
+                config_path_item.setText(file_path)
+                config_path_item.setToolTip(f"Configuration file: {file_path}")
+                debug_print(f"DEBUG: Set Config Path for {component_type} row {row}: {file_path}")
+                
+                QMessageBox.information(
+                    self,
+                    "Config Path Updated",
+                    f"Configuration path set for {component_name}!\n\n"
+                    f"Path: {file_path}\n"
+                    f"Remember to click 'OK' to save all changes."
+                )
+
     def storeComponentConfiguration(self, component_type, row, file_path, yaml_content):
         """Store the component configuration in the component's properties."""
         if not self.component:
@@ -1419,32 +1508,9 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         self.component.setProperties(properties)
 
     def editComponentSettings(self, component_type, row):
-        """Edit component-specific settings."""
-        table_name = f'Component5G_{component_type}table'
-        table = getattr(self, table_name, None)
-        
-        if not table or table.columnCount() <= 2:
-            return
-            
-        # Get current settings
-        settings_item = table.item(row, 2)
-        current_settings = settings_item.text() if settings_item else ""
-        
-        # Create a simple input dialog for settings
-        from PyQt5.QtWidgets import QInputDialog
-        
-        settings, ok = QInputDialog.getMultiLineText(
-            self,
-            f"Edit Settings for {component_type}",
-            "Enter component-specific settings (key=value, one per line):",
-            current_settings
-        )
-        
-        if ok:
-            if not settings_item:
-                settings_item = QTableWidgetItem()
-                table.setItem(row, 2, settings_item)
-            settings_item.setText(settings)
+        """Edit component config path manually (deprecated - use browseConfigPath instead)."""
+        warning_print("WARNING: editComponentSettings is deprecated. Use browseConfigPath instead.")
+        self.browseConfigPath(component_type, row)
 
     def extractTableData(self, component_type):
         """Extract data from a component type table including imported configurations."""

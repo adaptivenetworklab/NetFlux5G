@@ -29,14 +29,10 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    
-    <!-- New Enhanced Configuration Tab -->
     <widget class="QWidget" name="ConfigurationTab">
      <attribute name="title">
       <string>Configuration</string>
      </attribute>
-     
-     <!-- Docker Configuration Group -->
      <widget class="QGroupBox" name="DockerConfigGroup">
       <property name="geometry">
        <rect>
@@ -46,13 +42,12 @@
         <height>120</height>
        </rect>
       </property>
-      <property name="title">
-       <string>Docker Configuration</string>
-      </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox { font-weight: bold; }</string>
       </property>
-      
+      <property name="title">
+       <string>Docker Configuration</string>
+      </property>
       <widget class="QCheckBox" name="VGCore_DockerEnabled">
        <property name="geometry">
         <rect>
@@ -69,7 +64,6 @@
         <bool>true</bool>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_docker_image">
        <property name="geometry">
         <rect>
@@ -83,7 +77,6 @@
         <string>Docker Image:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_DockerImage">
        <property name="geometry">
         <rect>
@@ -97,7 +90,6 @@
         <string>adaptive/open5gs:1.0</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_docker_network">
        <property name="geometry">
         <rect>
@@ -111,7 +103,6 @@
         <string>Network:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_DockerNetwork">
        <property name="geometry">
         <rect>
@@ -125,7 +116,6 @@
         <string>open5gs-ueransim_default</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_database_uri">
        <property name="geometry">
         <rect>
@@ -139,7 +129,6 @@
         <string>Database URI:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_DatabaseURI">
        <property name="geometry">
         <rect>
@@ -154,8 +143,6 @@
        </property>
       </widget>
      </widget>
-     
-     <!-- 5G Core Configuration Group -->
      <widget class="QGroupBox" name="CoreConfigGroup">
       <property name="geometry">
        <rect>
@@ -165,13 +152,12 @@
         <height>160</height>
        </rect>
       </property>
-      <property name="title">
-       <string>5G Core Configuration</string>
-      </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox { font-weight: bold; }</string>
       </property>
-      
+      <property name="title">
+       <string>5G Core Configuration</string>
+      </property>
       <widget class="QLabel" name="label_network_interface">
        <property name="geometry">
         <rect>
@@ -185,7 +171,6 @@
         <string>Network Interface:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_NetworkInterface">
        <property name="geometry">
         <rect>
@@ -199,7 +184,6 @@
         <string>eth0</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_mcc">
        <property name="geometry">
         <rect>
@@ -213,7 +197,6 @@
         <string>MCC:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_MCC">
        <property name="geometry">
         <rect>
@@ -227,7 +210,6 @@
         <string>999</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_mnc">
        <property name="geometry">
         <rect>
@@ -241,7 +223,6 @@
         <string>MNC:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_MNC">
        <property name="geometry">
         <rect>
@@ -255,7 +236,6 @@
         <string>70</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_tac">
        <property name="geometry">
         <rect>
@@ -269,7 +249,6 @@
         <string>TAC:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_TAC">
        <property name="geometry">
         <rect>
@@ -283,7 +262,6 @@
         <string>1</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_sst">
        <property name="geometry">
         <rect>
@@ -297,7 +275,6 @@
         <string>SST:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_SST">
        <property name="geometry">
         <rect>
@@ -311,7 +288,6 @@
         <string>1</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_sd">
        <property name="geometry">
         <rect>
@@ -325,7 +301,6 @@
         <string>SD:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_SD">
        <property name="geometry">
         <rect>
@@ -339,7 +314,6 @@
         <string>0xffffff</string>
        </property>
       </widget>
-      
       <widget class="QCheckBox" name="VGCore_EnableNAT">
        <property name="geometry">
         <rect>
@@ -356,7 +330,6 @@
         <bool>true</bool>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_bridge_priority">
        <property name="geometry">
         <rect>
@@ -370,7 +343,6 @@
         <string>Bridge Priority:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_BridgePriority">
        <property name="geometry">
         <rect>
@@ -384,7 +356,6 @@
         <string>32768</string>
        </property>
       </widget>
-      
       <widget class="QCheckBox" name="VGCore_STPEnabled">
        <property name="geometry">
         <rect>
@@ -402,8 +373,6 @@
        </property>
       </widget>
      </widget>
-     
-     <!-- OVS/OpenFlow Configuration Group -->
      <widget class="QGroupBox" name="OVSConfigGroup">
       <property name="geometry">
        <rect>
@@ -413,13 +382,12 @@
         <height>180</height>
        </rect>
       </property>
-      <property name="title">
-       <string>OVS/OpenFlow Configuration</string>
-      </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox { font-weight: bold; }</string>
       </property>
-      
+      <property name="title">
+       <string>OVS/OpenFlow Configuration</string>
+      </property>
       <widget class="QCheckBox" name="VGCore_OVSEnabled">
        <property name="geometry">
         <rect>
@@ -436,7 +404,6 @@
         <bool>false</bool>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_ovs_controller">
        <property name="geometry">
         <rect>
@@ -450,7 +417,6 @@
         <string>Controller:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_OVSController">
        <property name="geometry">
         <rect>
@@ -461,10 +427,9 @@
         </rect>
        </property>
        <property name="placeholderText">
-        <string>Controller IP:Port</string>
+        <string>Controller IP</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_controller_port">
        <property name="geometry">
         <rect>
@@ -478,7 +443,6 @@
         <string>Port:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_ControllerPort">
        <property name="geometry">
         <rect>
@@ -492,7 +456,6 @@
         <string>6633</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_bridge_name">
        <property name="geometry">
         <rect>
@@ -506,7 +469,6 @@
         <string>Bridge Name:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_OVSBridgeName">
        <property name="geometry">
         <rect>
@@ -520,7 +482,6 @@
         <string>br-open5gs</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_fail_mode">
        <property name="geometry">
         <rect>
@@ -534,7 +495,6 @@
         <string>Fail Mode:</string>
        </property>
       </widget>
-      
       <widget class="QComboBox" name="VGCore_OVSFailMode">
        <property name="geometry">
         <rect>
@@ -555,7 +515,6 @@
         </property>
        </item>
       </widget>
-      
       <widget class="QLabel" name="label_openflow_protocols">
        <property name="geometry">
         <rect>
@@ -569,7 +528,6 @@
         <string>OpenFlow Protocols:</string>
        </property>
       </widget>
-      
       <widget class="QLineEdit" name="VGCore_OpenFlowProtocols">
        <property name="geometry">
         <rect>
@@ -583,7 +541,6 @@
         <string>OpenFlow14</string>
        </property>
       </widget>
-      
       <widget class="QLabel" name="label_datapath">
        <property name="geometry">
         <rect>
@@ -597,7 +554,6 @@
         <string>Datapath:</string>
        </property>
       </widget>
-      
       <widget class="QComboBox" name="VGCore_OVSDatapath">
        <property name="geometry">
         <rect>
@@ -620,8 +576,6 @@
       </widget>
      </widget>
     </widget>
-    
-    <!-- UPF Tab -->
     <widget class="QWidget" name="UPF_2">
      <attribute name="title">
       <string>UPF</string>
@@ -656,7 +610,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Session Settings</string>
+        <string>Config Path</string>
        </property>
       </column>
      </widget>
@@ -713,8 +667,6 @@
       </property>
      </widget>
     </widget>
-    
-    <!-- SMF Tab -->
     <widget class="QWidget" name="SMF_2">
      <attribute name="title">
       <string>SMF</string>
@@ -801,13 +753,11 @@
       </column>
       <column>
        <property name="text">
-        <string>Client Settings</string>
+        <string>Config Path</string>
        </property>
       </column>
      </widget>
     </widget>
-    
-    <!-- AMF Tab -->
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
       <string>AMF</string>
@@ -877,7 +827,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -892,10 +842,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- SCP Tab -->
     <widget class="QWidget" name="SCP_2">
      <attribute name="title">
       <string>SCP</string>
@@ -965,7 +918,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -980,10 +933,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- AUSF Tab -->
     <widget class="QWidget" name="AUSF_2">
      <attribute name="title">
       <string>AUSF</string>
@@ -1053,7 +1009,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1068,10 +1024,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- BSF Tab -->
     <widget class="QWidget" name="BSF_2">
      <attribute name="title">
       <string>BSF</string>
@@ -1141,7 +1100,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1156,10 +1115,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- NRF Tab -->
     <widget class="QWidget" name="NRF_2">
      <attribute name="title">
       <string>NRF</string>
@@ -1229,7 +1191,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1244,10 +1206,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- UDR Tab -->
     <widget class="QWidget" name="UDR_2">
      <attribute name="title">
       <string>UDR</string>
@@ -1317,7 +1282,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1332,10 +1297,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- NSSF Tab -->
     <widget class="QWidget" name="NSSF_2">
      <attribute name="title">
       <string>NSSF</string>
@@ -1405,7 +1373,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1420,10 +1388,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- UDM Tab -->
     <widget class="QWidget" name="UDM_2">
      <attribute name="title">
       <string>UDM</string>
@@ -1493,7 +1464,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1508,10 +1479,13 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
-    
-    <!-- PCF Tab -->
     <widget class="QWidget" name="PCF_2">
      <attribute name="title">
       <string>PCF</string>
@@ -1581,7 +1555,7 @@
        <string notr="true">background-color: rgb(255, 255, 255);</string>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>375</number>
+       <number>245</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -1596,11 +1570,14 @@
         <string>Import YAML</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Config Path</string>
+       </property>
+      </column>
      </widget>
     </widget>
    </widget>
-   
-   <!-- OK/Cancel Buttons -->
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
