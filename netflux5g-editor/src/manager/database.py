@@ -22,7 +22,8 @@ class DatabaseDeploymentWorker(QThread):
         self.operation = operation  # 'deploy', 'stop', or 'cleanup'
         self.container_name = container_name
         self.volume_name = volume_name
-        self.network_name = network_name
+        # Use netflux5g network for service deployments
+        self.network_name = "netflux5g"
         self.mutex = QMutex()
         
     def run(self):
@@ -95,15 +96,11 @@ class DatabaseDeploymentWorker(QThread):
                 'docker', 'run', '-d',
                 '--name', self.container_name,
                 '--restart', 'always',
+                '--network', self.network_name,
                 '-e', 'MONGO_INITDB_DATABASE=open5gs',
                 '-p', '27017:27017',
                 '-v', f'{self.volume_name}:/data/db'
             ]
-            
-            # Add network if specified
-            if self.network_name:
-                run_cmd.extend(['--network', self.network_name])
-                debug_print(f"Deploying MongoDB container to network: {self.network_name}")
             
             run_cmd.append('mongo:latest')
             
@@ -125,8 +122,7 @@ class DatabaseDeploymentWorker(QThread):
                 time.sleep(1)
             
             self.progress_updated.emit(100)
-            network_info = f" on network '{self.network_name}'" if self.network_name else ""
-            self.operation_finished.emit(True, f"Database container '{self.container_name}' deployed successfully{network_info}")
+            self.operation_finished.emit(True, f"Database container '{self.container_name}' deployed successfully")
             
         except subprocess.TimeoutExpired:
             self.operation_finished.emit(False, "Operation timed out")
@@ -257,26 +253,19 @@ class DatabaseDeploymentWorker(QThread):
             self.status_updated.emit("Creating Web UI container...")
             self.progress_updated.emit(60)
             
-            # Get MongoDB container name for dependency
-            mongo_container_name = self.container_name.replace('webui_', 'mongo_')
+            # Get MongoDB container name for dependency - use fixed naming
+            mongo_container_name = "netflux5g-mongodb"
             
             run_cmd = [
                 'docker', 'run', '-d',
                 '--name', self.container_name,
                 '--restart', 'on-failure',
+                '--network', self.network_name,
                 '-p', '9999:9999'
             ]
             
-            # Add network if specified
-            if self.network_name:
-                run_cmd.extend(['--network', self.network_name])
-                # When using custom network, use container name for DB_URI
-                run_cmd.extend(['-e', f'DB_URI=mongodb://{mongo_container_name}:27017/open5gs'])
-                debug_print(f"Deploying Web UI container to network: {self.network_name}")
-            else:
-                # When using default network, use link and localhost
-                run_cmd.extend(['--link', f'{mongo_container_name}:mongo'])
-                run_cmd.extend(['-e', f'DB_URI=mongodb://mongo:27017/open5gs'])
+            # Use network-based container communication since we're on the same network
+            run_cmd.extend(['-e', f'DB_URI=mongodb://{mongo_container_name}:27017/open5gs'])
             
             # Add environment variable
             run_cmd.extend(['-e', 'NODE_ENV=dev'])
@@ -301,8 +290,7 @@ class DatabaseDeploymentWorker(QThread):
                 time.sleep(1)
             
             self.progress_updated.emit(100)
-            network_info = f" on network '{self.network_name}'" if self.network_name else ""
-            self.operation_finished.emit(True, f"Web UI container '{self.container_name}' deployed successfully{network_info}")
+            self.operation_finished.emit(True, f"Web UI container '{self.container_name}' deployed successfully")
             
         except subprocess.TimeoutExpired:
             self.operation_finished.emit(False, "Web UI deployment timed out")
@@ -324,27 +312,21 @@ class DatabaseManager:
         """Deploy MongoDB database container."""
         debug_print("Deploy Database triggered")
         
-        # Check if file is saved
-        if not self._check_file_saved():
-            return
-        
-        # Get container and volume names from current file
-        container_name, volume_name = self._get_container_names()
-        
-        if not container_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Error",
-                "Could not determine container name from current file."
-            )
-            return
-        
-        # Get the Docker network name
-        network_name = self._get_docker_network_name()
+        # Use fixed service names instead of file-based naming
+        container_name = "netflux5g-mongodb"
+        volume_name = "netflux5g-mongodb-data"
         
         # Check if Docker is available
         if not self._check_docker_available():
             return
+        
+        # Check if netflux5g network exists, prompt to create if not
+        if hasattr(self.main_window, 'docker_network_manager'):
+            if not self.main_window.docker_network_manager.prompt_create_netflux5g_network():
+                self.main_window.status_manager.showCanvasStatus("Database deployment cancelled - netflux5g network required")
+                return
+        else:
+            warning_print("Docker network manager not available, proceeding without network check")
         
         # Check if already running
         if self._is_container_running(container_name):
@@ -361,47 +343,16 @@ class DatabaseManager:
             
             # Stop first, then deploy
             self._stop_container_sync(container_name)
-        
-        # Check if network exists and offer to create it
-        if network_name and not self._network_exists(network_name):
-            reply = QMessageBox.question(
-                self.main_window,
-                "Docker Network Not Found",
-                f"The Docker network '{network_name}' does not exist.\n\n"
-                f"Do you want to create it first?\n\n"
-                f"(The database will be deployed without a custom network if you choose No)",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                if hasattr(self.main_window, 'docker_network_manager'):
-                    if not self.main_window.docker_network_manager.create_docker_network():
-                        QMessageBox.warning(
-                            self.main_window,
-                            "Network Creation Failed",
-                            "Failed to create Docker network. Deploying database without custom network."
-                        )
-                        network_name = None
-                else:
-                    QMessageBox.warning(
-                        self.main_window,
-                        "Docker Network Manager Not Available",
-                        "Cannot create Docker network. Deploying database without custom network."
-                    )
-                    network_name = None
-            else:
-                network_name = None
-        
+
         # Show confirmation dialog
-        network_info = f"\n• Network: {network_name}" if network_name else "\n• Network: default (bridge)"
         reply = QMessageBox.question(
             self.main_window,
             "Deploy Database",
             f"This will create a MongoDB container with:\n"
             f"• Container name: {container_name}\n"
             f"• Volume name: {volume_name}\n"
-            f"• Port: 27017{network_info}\n"
+            f"• Port: 27017\n"
+            f"• Network: netflux5g\n"
             f"• Database: open5gs\n\n"
             f"Do you want to continue?",
             QMessageBox.Yes | QMessageBox.No,
@@ -411,26 +362,16 @@ class DatabaseManager:
         if reply == QMessageBox.No:
             return
         
-        # Start deployment
-        self._start_operation('deploy', container_name, volume_name, network_name)
+        # Start deployment with netflux5g network
+        self._start_operation('deploy', container_name, volume_name, "netflux5g")
     
     def stopDatabase(self):
         """Stop and remove MongoDB database container."""
         debug_print("Stop Database triggered")
         
-        # Check if file is saved to get container name
-        if not self._check_file_saved():
-            return
-        
-        container_name, volume_name = self._get_container_names()
-        
-        if not container_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Error",
-                "Could not determine container name from current file."
-            )
-            return
+        # Use fixed service names instead of file-based naming
+        container_name = "netflux5g-mongodb"
+        volume_name = "netflux5g-mongodb-data"
         
         # Check if Docker is available
         if not self._check_docker_available():
@@ -522,30 +463,23 @@ class DatabaseManager:
         """Deploy Web UI container."""
         debug_print("Deploy Web UI triggered")
         
-        # Check if file is saved
-        if not self._check_file_saved():
-            return
-        
-        # Get container and volume names from current file
-        container_name, volume_name = self._get_webui_container_names()
-        
-        if not container_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Error",
-                "Could not determine container name from current file."
-            )
-            return
-        
-        # Get the Docker network name
-        network_name = self._get_docker_network_name()
+        # Use fixed service names instead of file-based naming
+        container_name = "netflux5g-webui"
+        mongo_container_name = "netflux5g-mongodb"
         
         # Check if Docker is available
         if not self._check_docker_available():
             return
         
+        # Check if netflux5g network exists, prompt to create if not
+        if hasattr(self.main_window, 'docker_network_manager'):
+            if not self.main_window.docker_network_manager.prompt_create_netflux5g_network():
+                self.main_window.status_manager.showCanvasStatus("Web UI deployment cancelled - netflux5g network required")
+                return
+        else:
+            warning_print("Docker network manager not available, proceeding without network check")
+        
         # Check if MongoDB container exists (dependency)
-        mongo_container_name, _ = self._get_container_names()
         if not self._container_exists(mongo_container_name):
             reply = QMessageBox.question(
                 self.main_window,
@@ -608,45 +542,14 @@ class DatabaseManager:
             # Stop first, then deploy
             self._stop_container_sync(container_name)
         
-        # Check if network exists and offer to create it
-        if network_name and not self._network_exists(network_name):
-            reply = QMessageBox.question(
-                self.main_window,
-                "Docker Network Not Found",
-                f"The Docker network '{network_name}' does not exist.\n\n"
-                f"Do you want to create it first?\n\n"
-                f"(The Web UI will be deployed without a custom network if you choose No)",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                if hasattr(self.main_window, 'docker_network_manager'):
-                    if not self.main_window.docker_network_manager.create_docker_network():
-                        QMessageBox.warning(
-                            self.main_window,
-                            "Network Creation Failed",
-                            "Failed to create Docker network. Deploying Web UI without custom network."
-                        )
-                        network_name = None
-                else:
-                    QMessageBox.warning(
-                        self.main_window,
-                        "Docker Network Manager Not Available",
-                        "Cannot create Docker network. Deploying Web UI without custom network."
-                    )
-                    network_name = None
-            else:
-                network_name = None
-        
         # Show confirmation dialog
-        network_info = f"\n• Network: {network_name}" if network_name else "\n• Network: default (bridge)"
         reply = QMessageBox.question(
             self.main_window,
             "Deploy Web UI",
             f"This will create a Web UI container with:\n"
             f"• Container name: {container_name}\n"
-            f"• Port: 9999{network_info}\n"
+            f"• Port: 9999\n"
+            f"• Network: netflux5g\n"
             f"• MongoDB dependency: {mongo_container_name}\n"
             f"• Environment: development\n\n"
             f"Do you want to continue?",
@@ -657,26 +560,15 @@ class DatabaseManager:
         if reply == QMessageBox.No:
             return
         
-        # Start deployment
-        self._start_operation('deploy_webui', container_name, volume_name, network_name)
+        # Start deployment with netflux5g network
+        self._start_operation('deploy_webui', container_name, None, "netflux5g")
     
     def stopWebUI(self):
         """Stop and remove Web UI container."""
         debug_print("Stop Web UI triggered")
         
-        # Check if file is saved to get container name
-        if not self._check_file_saved():
-            return
-        
-        container_name, volume_name = self._get_webui_container_names()
-        
-        if not container_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Error",
-                "Could not determine container name from current file."
-            )
-            return
+        # Use fixed service names instead of file-based naming
+        container_name = "netflux5g-webui"
         
         # Check if Docker is available
         if not self._check_docker_available():
@@ -916,13 +808,10 @@ class DatabaseManager:
             self.current_worker = None
     
     def getContainerStatus(self):
-        """Get the status of the current topology's database container."""
-        if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
-            return "No file open"
-        
-        container_name, volume_name = self._get_container_names()
-        if not container_name:
-            return "Invalid filename"
+        """Get the status of the database container."""
+        # Use fixed service names instead of file-based naming
+        container_name = "netflux5g-mongodb"
+        volume_name = "netflux5g-mongodb-data"
         
         try:
             # Check if container exists and is running
@@ -937,16 +826,8 @@ class DatabaseManager:
             volume_exists = self._volume_exists(volume_name)
             volume_status = " (with data)" if volume_exists else " (no data)"
             
-            # Check network information
-            network_name = self._get_docker_network_name()
-            network_status = ""
-            if network_name and self._network_exists(network_name):
-                network_status = f" [network: {network_name}]"
-            elif network_name:
-                network_status = f" [network: {network_name} - not found]"
-            
             if result.stdout.strip():
-                return f"Running: {container_name}{volume_status}{network_status}"
+                return f"Running: {container_name}{volume_status}"
             
             # Check if container exists but is stopped
             result = subprocess.run(
@@ -957,232 +838,17 @@ class DatabaseManager:
             )
             
             if result.stdout.strip():
-                return f"Stopped: {container_name}{volume_status}{network_status}"
+                return f"Stopped: {container_name}{volume_status}"
             
-            return f"Not deployed: {container_name}{volume_status}{network_status}"
+            return f"Not deployed: {container_name}{volume_status}"
             
         except:
             return "Docker not available"
     
-    def deployWebUI(self):
-        """Deploy Web UI container."""
-        debug_print("Deploy Web UI triggered")
-        
-        # Check if file is saved
-        if not self._check_file_saved():
-            return
-        
-        # Get container and volume names from current file
-        container_name, volume_name = self._get_webui_container_names()
-        
-        if not container_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Error",
-                "Could not determine container name from current file."
-            )
-            return
-        
-        # Get the Docker network name
-        network_name = self._get_docker_network_name()
-        
-        # Check if Docker is available
-        if not self._check_docker_available():
-            return
-        
-        # Check if MongoDB container exists (dependency)
-        mongo_container_name, _ = self._get_container_names()
-        if not self._container_exists(mongo_container_name):
-            reply = QMessageBox.question(
-                self.main_window,
-                "MongoDB Required",
-                f"Web UI requires MongoDB to be running.\n\n"
-                f"MongoDB container '{mongo_container_name}' does not exist.\n\n"
-                f"Do you want to deploy MongoDB first?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                self.deployDatabase()
-                return
-            else:
-                self.main_window.status_manager.showCanvasStatus("Web UI deployment cancelled - MongoDB required")
-                return
-        
-        # Check if MongoDB is running
-        if not self._is_container_running(mongo_container_name):
-            reply = QMessageBox.question(
-                self.main_window,
-                "MongoDB Not Running",
-                f"Web UI requires MongoDB to be running.\n\n"
-                f"MongoDB container '{mongo_container_name}' exists but is not running.\n\n"
-                f"Do you want to start MongoDB first?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                # Start MongoDB container
-                try:
-                    subprocess.run(['docker', 'start', mongo_container_name], check=True, timeout=30)
-                    self.main_window.status_manager.showCanvasStatus(f"Started MongoDB container: {mongo_container_name}")
-                except Exception as e:
-                    QMessageBox.critical(
-                        self.main_window,
-                        "Failed to Start MongoDB",
-                        f"Could not start MongoDB container: {e}"
-                    )
-                    return
-            else:
-                self.main_window.status_manager.showCanvasStatus("Web UI deployment cancelled - MongoDB not running")
-                return
-        
-        # Check if already running
-        if self._is_container_running(container_name):
-            reply = QMessageBox.question(
-                self.main_window,
-                "Container Already Running",
-                f"Web UI container '{container_name}' is already running.\n\nDo you want to restart it?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
-            )
-            
-            if reply == QMessageBox.No:
-                return
-            
-            # Stop first, then deploy
-            self._stop_container_sync(container_name)
-        
-        # Check if network exists and offer to create it
-        if network_name and not self._network_exists(network_name):
-            reply = QMessageBox.question(
-                self.main_window,
-                "Docker Network Not Found",
-                f"The Docker network '{network_name}' does not exist.\n\n"
-                f"Do you want to create it first?\n\n"
-                f"(The Web UI will be deployed without a custom network if you choose No)",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                if hasattr(self.main_window, 'docker_network_manager'):
-                    if not self.main_window.docker_network_manager.create_docker_network():
-                        QMessageBox.warning(
-                            self.main_window,
-                            "Network Creation Failed",
-                            "Failed to create Docker network. Deploying Web UI without custom network."
-                        )
-                        network_name = None
-                else:
-                    QMessageBox.warning(
-                        self.main_window,
-                        "Docker Network Manager Not Available",
-                        "Cannot create Docker network. Deploying Web UI without custom network."
-                    )
-                    network_name = None
-            else:
-                network_name = None
-        
-        # Show confirmation dialog
-        network_info = f"\n• Network: {network_name}" if network_name else "\n• Network: default (bridge)"
-        reply = QMessageBox.question(
-            self.main_window,
-            "Deploy Web UI",
-            f"This will create a Web UI container with:\n"
-            f"• Container name: {container_name}\n"
-            f"• Port: 9999{network_info}\n"
-            f"• MongoDB dependency: {mongo_container_name}\n"
-            f"• Environment: development\n\n"
-            f"Do you want to continue?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.Yes
-        )
-        
-        if reply == QMessageBox.No:
-            return
-        
-        # Start deployment
-        self._start_operation('deploy_webui', container_name, volume_name, network_name)
-    
-    def stopWebUI(self):
-        """Stop and remove Web UI container."""
-        debug_print("Stop Web UI triggered")
-        
-        # Check if file is saved to get container name
-        if not self._check_file_saved():
-            return
-        
-        container_name, volume_name = self._get_webui_container_names()
-        
-        if not container_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Error",
-                "Could not determine container name from current file."
-            )
-            return
-        
-        # Check if Docker is available
-        if not self._check_docker_available():
-            return
-        
-        # Check if container exists
-        if not self._container_exists(container_name):
-            QMessageBox.information(
-                self.main_window,
-                "Container Not Found",
-                f"Web UI container '{container_name}' does not exist."
-            )
-            return
-        
-        # Show confirmation dialog
-        reply = QMessageBox.question(
-            self.main_window,
-            "Stop Web UI",
-            f"This will stop and remove the container:\n"
-            f"• Container: {container_name}\n\n"
-            f"The Web UI will be stopped but MongoDB will remain running.\n\n"
-            f"Are you sure you want to continue?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-        
-        if reply == QMessageBox.No:
-            return
-        
-        # Start stop operation (without volume removal)
-        self._start_operation('stop_webui', container_name, None, None)
-    
-    def _get_webui_container_names(self):
-        """Get Web UI container and volume names from current file."""
-        if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
-            return None, None
-        
-        # Get filename without extension
-        filename = os.path.basename(self.main_window.current_file)
-        name_without_ext = os.path.splitext(filename)[0]
-        
-        # Clean name for Docker (remove invalid characters)
-        clean_name = "".join(c for c in name_without_ext if c.isalnum() or c in '-_').lower()
-        
-        if not clean_name:
-            clean_name = "netflux5g_topology"
-        
-        container_name = f"webui_{clean_name}"
-        volume_name = f"webui_data_{clean_name}"  # Not used for webui but keeping consistent
-        
-        return container_name, volume_name
-    
     def getWebUIStatus(self):
-        """Get the status of the current topology's Web UI container."""
-        if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
-            return "No file open"
-        
-        container_name, _ = self._get_webui_container_names()
-        if not container_name:
-            return "Invalid filename"
+        """Get the status of the Web UI container."""
+        # Use fixed service names instead of file-based naming
+        container_name = "netflux5g-webui"
         
         try:
             # Check if container exists and is running
@@ -1193,16 +859,8 @@ class DatabaseManager:
                 timeout=5
             )
             
-            # Check network information
-            network_name = self._get_docker_network_name()
-            network_status = ""
-            if network_name and self._network_exists(network_name):
-                network_status = f" [network: {network_name}]"
-            elif network_name:
-                network_status = f" [network: {network_name} - not found]"
-            
             if result.stdout.strip():
-                return f"Running: {container_name}{network_status}"
+                return f"Running: {container_name}"
             
             # Check if container exists but is stopped
             result = subprocess.run(
@@ -1213,9 +871,9 @@ class DatabaseManager:
             )
             
             if result.stdout.strip():
-                return f"Stopped: {container_name}{network_status}"
+                return f"Stopped: {container_name}"
             
-            return f"Not deployed: {container_name}{network_status}"
+            return f"Not deployed: {container_name}"
             
         except:
             return "Docker not available"

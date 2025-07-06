@@ -232,22 +232,18 @@ class DockerNetworkManager:
         try:
             debug_print(f"Deleting Docker network: {network_name}")
             
-            result = subprocess.run(
-                ["docker", "network", "rm", network_name],
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
+            cmd = ["docker", "network", "rm", network_name]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
             
             if result.returncode == 0:
-                debug_print(f"Successfully deleted Docker network: {network_name}")
+                debug_print(f"Successfully deleted network: {network_name}")
                 return True
             else:
-                error_print(f"Failed to delete Docker network: {result.stderr}")
+                error_print(f"Failed to delete network {network_name}: {result.stderr}")
                 QMessageBox.critical(
                     self.main_window,
-                    "Network Deletion Failed",
-                    f"Failed to delete Docker network '{network_name}':\n\n{result.stderr}"
+                    "Network Deletion Error",
+                    f"Error deleting Docker network '{network_name}':\n\n{result.stderr}"
                 )
                 return False
                 
@@ -259,23 +255,75 @@ class DockerNetworkManager:
                 f"Error deleting Docker network '{network_name}':\n\n{str(e)}"
             )
             return False
-    
+
+    def check_netflux5g_network_exists(self):
+        """Check if the dedicated 'netflux5g' network exists."""
+        return self._network_exists("netflux5g")
+
+    def create_netflux5g_network_if_needed(self):
+        """Create the dedicated 'netflux5g' network if it doesn't exist."""
+        if self.check_netflux5g_network_exists():
+            debug_print("netflux5g network already exists")
+            return True
+        
+        debug_print("Creating netflux5g network for service deployments")
+        return self._create_network("netflux5g")
+
+    def prompt_create_netflux5g_network(self):
+        """Prompt user to create the netflux5g network if it doesn't exist."""
+        if self.check_netflux5g_network_exists():
+            return True
+        
+        reply = QMessageBox.question(
+            self.main_window,
+            "NetFlux5G Network Required",
+            "The 'netflux5g' Docker network is required for deploying services but does not exist.\n\n"
+            "This network is used by:\n"
+            "• Database (MongoDB)\n"
+            "• Web UI (User Manager)\n"
+            "• Monitoring stack (Prometheus, Grafana, etc.)\n\n"
+            "Do you want to create the 'netflux5g' network now?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.Yes
+        )
+        
+        if reply == QMessageBox.Yes:
+            success = self.create_netflux5g_network_if_needed()
+            if success:
+                QMessageBox.information(
+                    self.main_window,
+                    "Network Created",
+                    "The 'netflux5g' Docker network has been created successfully.\n\n"
+                    "All service containers will now connect to this network."
+                )
+                return True
+            else:
+                QMessageBox.critical(
+                    self.main_window,
+                    "Network Creation Failed",
+                    "Failed to create the 'netflux5g' Docker network.\n\n"
+                    "Please check Docker is running and try again."
+                )
+                return False
+        else:
+            return False
+
     def get_current_network_name(self):
-        """Get the current network name based on the open file."""
+        """Get the current topology-specific network name."""
         return self._get_network_name_from_file()
-    
+
     def list_netflux_networks(self):
         """List all NetFlux5G Docker networks."""
         try:
             result = subprocess.run(
-                ["docker", "network", "ls", "--filter", "name=netflux5g_", "--format", "{{.Name}}"],
+                ["docker", "network", "ls", "--filter", "name=netflux5g", "--format", "{{.Name}}"],
                 capture_output=True,
                 text=True,
                 timeout=10
             )
             
             if result.returncode == 0:
-                networks = [name.strip() for name in result.stdout.strip().split('\n') if name.strip()]
+                networks = [net.strip() for net in result.stdout.strip().split('\n') if net.strip()]
                 return networks
             else:
                 warning_print(f"Failed to list networks: {result.stderr}")
@@ -284,7 +332,7 @@ class DockerNetworkManager:
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired) as e:
             error_print(f"Error listing Docker networks: {e}")
             return []
-    
+
     def get_network_info(self, network_name):
         """Get detailed information about a Docker network."""
         try:

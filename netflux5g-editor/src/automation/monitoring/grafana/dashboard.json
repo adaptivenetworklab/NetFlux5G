@@ -22,7 +22,10 @@
           "h": 6
         },
         "id": 1,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "up",
@@ -68,7 +71,10 @@
           "h": 6
         },
         "id": 2,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
@@ -114,7 +120,10 @@
           "h": 6
         },
         "id": 3,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "node_load1",
@@ -160,7 +169,10 @@
           "h": 6
         },
         "id": 4,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)",
@@ -206,7 +218,10 @@
           "h": 6
         },
         "id": 5,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "(node_filesystem_size_bytes{fstype!~\"tmpfs\"} - node_filesystem_free_bytes{fstype!~\"tmpfs\"})",
@@ -252,7 +267,10 @@
           "h": 6
         },
         "id": 6,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "rate(node_network_receive_bytes_total{device!~\"lo\"}[1m])",
@@ -298,7 +316,10 @@
           "h": 6
         },
         "id": 7,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "rate(node_network_transmit_bytes_total{device!~\"lo\"}[1m])",
@@ -344,7 +365,10 @@
           "h": 6
         },
         "id": 8,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "rate(node_network_receive_packets_total{device!~\"lo\"}[1m])",
@@ -390,7 +414,10 @@
           "h": 6
         },
         "id": 9,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "rate(node_network_transmit_bytes_total{device=\"eth0\"}[1m])",
@@ -436,7 +463,10 @@
           "h": 6
         },
         "id": 10,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "avg(rate(node_network_transmit_bytes_total[1m]))",
@@ -482,7 +512,10 @@
           "h": 6
         },
         "id": 11,
-        "datasource": "Prometheus",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "targets": [
           {
             "expr": "probe_ping_duration_seconds",

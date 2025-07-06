@@ -129,3 +129,19 @@ class AutomationManager:
         if hasattr(self.main_window, 'database_manager'):
             return self.main_window.database_manager.getWebUIStatus()
         return "Database manager not available"
+
+    def deployMonitoring(self):
+        """Deploy monitoring stack for the current topology."""
+        if hasattr(self.main_window, 'monitoring_manager'):
+            self.main_window.monitoring_manager.deployMonitoring()
+
+    def stopMonitoring(self):
+        """Stop monitoring stack for the current topology."""
+        if hasattr(self.main_window, 'monitoring_manager'):
+            self.main_window.monitoring_manager.stopMonitoring()
+
+    def getMonitoringStatus(self):
+        """Get the current monitoring status."""
+        if hasattr(self.main_window, 'monitoring_manager'):
+            return self.main_window.monitoring_manager.getMonitoringStatus()
+        return "Monitoring manager not available"

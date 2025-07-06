@@ -20,6 +20,7 @@ from manager.debug import DebugManager, debug_print, error_print, warning_print,
 from manager.welcome import WelcomeScreenManager
 from manager.docker_network import DockerNetworkManager
 from manager.database import DatabaseManager
+from manager.monitoring import MonitoringManager
 
 # Import existing modules
 from gui.canvas import Canvas, MovableLabel
@@ -53,6 +54,7 @@ class NetFlux5GApp(QMainWindow):
         self.welcome_manager = WelcomeScreenManager(self)
         self.docker_network_manager = DockerNetworkManager(self)
         self.database_manager = DatabaseManager(self)
+        self.monitoring_manager = MonitoringManager(self)
         
         # Initialize other components
         self.toolbar_functions = ToolbarFunctions(self)
@@ -223,6 +225,12 @@ class NetFlux5GApp(QMainWindow):
                 self.actionDeploy_User_Manager.triggered.connect(self.database_manager.deployWebUI)
             if hasattr(self, 'actionStop_User_Manager'):
                 self.actionStop_User_Manager.triggered.connect(self.database_manager.stopWebUI)
+
+            # Monitoring connections
+            if hasattr(self, 'actionDeploy_Monitoring'):
+                self.actionDeploy_Monitoring.triggered.connect(self.monitoring_manager.deployMonitoring)
+            if hasattr(self, 'actionStop_Monitoring'):
+                self.actionStop_Monitoring.triggered.connect(self.monitoring_manager.stopMonitoring)
 
             # Component button connections
             if hasattr(self.component_panel_manager, 'component_widgets'):

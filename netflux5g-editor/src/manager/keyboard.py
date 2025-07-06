@@ -84,6 +84,15 @@ class KeyboardManager:
             # Ctrl+Shift+W for stop Web UI
             if hasattr(self.main_window, 'database_manager'):
                 self.main_window.database_manager.stopWebUI()
+        # Add shortcuts for Monitoring operations
+        elif event.key() == Qt.Key_M and event.modifiers() & Qt.ControlModifier and event.modifiers() & Qt.ShiftModifier:
+            # Ctrl+Shift+M for deploy monitoring
+            if hasattr(self.main_window, 'monitoring_manager'):
+                self.main_window.monitoring_manager.deployMonitoring()
+        elif event.key() == Qt.Key_N and event.modifiers() & Qt.ControlModifier and event.modifiers() & Qt.ShiftModifier:
+            # Ctrl+Shift+N for stop monitoring
+            if hasattr(self.main_window, 'monitoring_manager'):
+                self.main_window.monitoring_manager.stopMonitoring()
         else:
             return False
         

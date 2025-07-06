@@ -52,7 +52,9 @@ class ToolbarFunctions:
             'actionDeploy_Database': "Deploy Database - Deploy MongoDB container (Ctrl+Shift+B)",
             'actionStop_Database': "Stop Database - Stop MongoDB container (Ctrl+Shift+D)",
             'actionDeploy_User_Manager': "Deploy Web UI - Deploy Open5GS WebUI container (Ctrl+Shift+U)",
-            'actionStop_User_Manager': "Stop Web UI - Stop Open5GS WebUI container (Ctrl+Shift+W)"
+            'actionStop_User_Manager': "Stop Web UI - Stop Open5GS WebUI container (Ctrl+Shift+W)",
+            'actionDeploy_Monitoring': "Deploy Monitoring - Deploy Prometheus, Grafana monitoring stack (Ctrl+Shift+M)",
+            'actionStop_Monitoring': "Stop Monitoring - Stop monitoring stack (Ctrl+Shift+N)"
         }
 
         for action_name, tooltip in tooltips.items():
