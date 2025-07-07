@@ -988,14 +988,10 @@ class MininetExporter:
         
         # Add network configuration commands
         f.write('    info("*** Connecting Docker nodes to APs\\n")\n')
-        f.write('    # Connect components to their respective access points\n')
+        f.write('    # Dynamic UE-to-gNB/AP connection based on canvas positioning and coverage\n')
         
-        # Connect UEs to APs (example pattern)
-        for i, ue in enumerate(categorized_nodes['ues'], 1):
-            ue_name = self.sanitize_variable_name(ue['name'])
-            # Default AP connection - can be customized based on UI configuration
-            ap_name = 'ap1-ssid'  # This should be determined from topology links
-            f.write(f'    {ue_name}.cmd("iw dev {ue_name}-wlan0 connect {ap_name}")\n')
+        # Dynamic UE-to-gNB/AP assignment based on positioning and coverage
+        self.write_dynamic_ue_connections(f, categorized_nodes)
         
         f.write('\n')
         f.write('    info("*** Configuring Propagation Model\\n")\n')
@@ -1385,3 +1381,185 @@ class MininetExporter:
         
         debug_print("Save status check passed, proceeding with export")
         return True
+
+    def write_dynamic_ue_connections(self, f, categorized_nodes):
+        """Dynamically assign UEs to gNBs/APs based on canvas positioning and coverage areas."""
+        import math
+        
+        def calculate_distance(ue, gnb_or_ap):
+            """Calculate Euclidean distance between UE and gNB/AP positions."""
+            ue_x, ue_y = ue.get('x', 0), ue.get('y', 0)
+            ap_x, ap_y = gnb_or_ap.get('x', 0), gnb_or_ap.get('y', 0)
+            return math.sqrt((ue_x - ap_x)**2 + (ue_y - ap_y)**2)
+        
+        def get_coverage_range(gnb_or_ap):
+            """Get the coverage range of a gNB or AP from its properties."""
+            props = gnb_or_ap.get('properties', {})
+            
+            # For gNBs, check range from configuration
+            if gnb_or_ap.get('type') == 'GNB':
+                from manager.configmap import ConfigurationMapper
+                gnb_config = ConfigurationMapper.map_gnb_config(props)
+                return gnb_config.get('range', 300)  # Default 300m for gNBs
+            
+            # For APs, extract range from properties
+            elif gnb_or_ap.get('type') == 'AP':
+                # Check various possible range property names
+                range_fields = ['AP_Range', 'range', 'lineEdit_6', 'spinBox_3']
+                for field in range_fields:
+                    range_val = props.get(field)
+                    if range_val:
+                        try:
+                            return float(range_val)
+                        except (ValueError, TypeError):
+                            continue
+                return 116  # Default AP range
+            
+            return 116  # Default fallback range
+        
+        def get_ap_ssid(gnb_or_ap):
+            """Get the SSID/AP name that UEs should connect to."""
+            props = gnb_or_ap.get('properties', {})
+            
+            if gnb_or_ap.get('type') == 'GNB':
+                # For gNBs with AP functionality, check environment variables for AP_SSID
+                # First check if it's in the environment dict from the current test.py format
+                if 'environment' in props:
+                    env = props['environment']
+                    if isinstance(env, dict) and 'AP_SSID' in env:
+                        return env['AP_SSID']
+                
+                # Check other possible SSID field names in properties
+                ap_ssid = props.get('GNB_AP_SSID', props.get('AP_SSID'))
+                if ap_ssid:
+                    return ap_ssid
+                
+                # Default gNB AP SSID format: gnb-hotspot + number
+                gnb_name = gnb_or_ap.get('name', 'GNB')
+                # Extract number from name like "GNB #1", "GNB__1", "GNB_1"
+                import re
+                number_match = re.search(r'(\d+)', gnb_name)
+                if number_match:
+                    number = number_match.group(1)
+                    return f"gnb-hotspot{number}"
+                return "gnb-hotspot1"
+            
+            elif gnb_or_ap.get('type') == 'AP':
+                # For traditional APs
+                ap_ssid = props.get('AP_SSID', props.get('lineEdit_5'))
+                if ap_ssid:
+                    return ap_ssid
+                
+                # Default AP SSID format: ap-name + "-ssid"
+                ap_name = self.sanitize_variable_name(gnb_or_ap.get('name', 'ap'))
+                return f"{ap_name}-ssid"
+            
+            return "default-ssid"
+        
+        # Collect all access points (both gNBs with AP capability and traditional APs)
+        access_points = []
+        
+        # Add gNBs that have AP functionality enabled
+        for gnb in categorized_nodes.get('gnbs', []):
+            props = gnb.get('properties', {})
+            
+            # Check if AP is enabled from various sources
+            ap_enabled = False
+            
+            # Check environment variables (for existing generated scripts)
+            if 'environment' in props:
+                env = props['environment']
+                if isinstance(env, dict):
+                    ap_enabled = (env.get('AP_ENABLED') == 'true' or 
+                                env.get('AP_ENABLED') == True)
+            
+            # Check direct properties from UI (common field names)
+            if not ap_enabled:
+                # Check various possible property names for AP enabled flag
+                ap_enabled_fields = [
+                    'GNB_APEnabled', 'AP_ENABLED', 'checkBox_ap_enable',
+                    'checkBox', 'ap_enabled', 'enable_ap', 'apEnabled'
+                ]
+                for field in ap_enabled_fields:
+                    field_value = props.get(field)
+                    if field_value is True or str(field_value).lower() == 'true':
+                        ap_enabled = True
+                        break
+            
+            # If still not found, assume AP is enabled if there's an SSID configured
+            if not ap_enabled:
+                ssid_fields = ['GNB_AP_SSID', 'AP_SSID', 'lineEdit_5', 'ssid']
+                for field in ssid_fields:
+                    if props.get(field):
+                        ap_enabled = True
+                        break
+            
+            debug_print(f"DEBUG: gNB {gnb.get('name', 'unknown')} AP enabled: {ap_enabled}")
+            
+            if ap_enabled:
+                access_points.append(gnb)
+        
+        # Add traditional APs
+        for ap in categorized_nodes.get('aps', []):
+            access_points.append(ap)
+        
+        if not access_points:
+            f.write('    # No access points found with AP functionality enabled\n')
+            f.write('    # UEs will use default wireless association\n\n')
+            return
+        
+        f.write('    # Dynamic UE assignment based on distance and coverage\n')
+        
+        # Process each UE and find the best access point
+        ue_assignments = {}
+        
+        for ue in categorized_nodes.get('ues', []):
+            ue_name = self.sanitize_variable_name(ue['name'])
+            best_ap = None
+            best_distance = float('inf')
+            
+            f.write(f'    # Finding best access point for {ue_name} at position ({ue.get("x", 0):.1f}, {ue.get("y", 0):.1f})\n')
+            
+            # Check each access point
+            for ap in access_points:
+                distance = calculate_distance(ue, ap)
+                coverage_range = get_coverage_range(ap)
+                ap_name = ap.get('name', 'unknown')
+                ap_type = ap.get('type', 'AP')
+                
+                f.write(f'    # {ap_name} ({ap_type}) at ({ap.get("x", 0):.1f}, {ap.get("y", 0):.1f}): distance={distance:.1f}m, range={coverage_range}m\n')
+                
+                # Check if UE is within coverage and find the closest one
+                if distance <= coverage_range and distance < best_distance:
+                    best_ap = ap
+                    best_distance = distance
+            
+            if best_ap:
+                ap_ssid = get_ap_ssid(best_ap)
+                ue_assignments[ue_name] = {
+                    'ssid': ap_ssid,
+                    'ap_name': best_ap.get('name', 'unknown'),
+                    'ap_type': best_ap.get('type', 'AP'),
+                    'distance': best_distance
+                }
+                f.write(f'    # {ue_name} -> {best_ap.get("name")} (SSID: {ap_ssid}, distance: {best_distance:.1f}m)\n')
+            else:
+                # No AP in range, connect to the closest one anyway
+                closest_ap = min(access_points, key=lambda ap: calculate_distance(ue, ap))
+                ap_ssid = get_ap_ssid(closest_ap)
+                closest_distance = calculate_distance(ue, closest_ap)
+                ue_assignments[ue_name] = {
+                    'ssid': ap_ssid,
+                    'ap_name': closest_ap.get('name', 'unknown'),
+                    'ap_type': closest_ap.get('type', 'AP'),
+                    'distance': closest_distance
+                }
+                f.write(f'    # {ue_name} -> {closest_ap.get("name")} (SSID: {ap_ssid}, distance: {closest_distance:.1f}m) [OUT OF RANGE - connecting to closest]\n')
+        
+        f.write('\n')
+        
+        # Generate the connection commands
+        for ue_name, assignment in ue_assignments.items():
+            f.write(f'    {ue_name}.cmd("iw dev {ue_name}-wlan0 connect {assignment["ssid"]}")\n')
+        
+        f.write('\n')
