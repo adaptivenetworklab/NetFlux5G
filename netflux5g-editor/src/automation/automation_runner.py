@@ -278,25 +278,22 @@ read
         }
     
     def _ensure_docker_network(self):
-        """Ensure that a Docker network exists for the topology."""
+        """Ensure that the universal 'netflux5g' Docker network exists for all deployments."""
         if not hasattr(self.main_window, 'docker_network_manager'):
             warning_print("Docker network manager not available")
             return
         
-        # Get the network name for current file
-        network_name = self.main_window.docker_network_manager.get_current_network_name()
-        if not network_name:
-            # If no file is saved, ask user to save first
-            debug_print("No Docker network name available - file may not be saved")
-            return
+        # Always use the universal netflux5g network
+        network_name = "netflux5g"
         
-        # Check if network exists
+        # Check if network exists, create if needed
         if not self.main_window.docker_network_manager._network_exists(network_name):
-            debug_print(f"Docker network '{network_name}' does not exist, creating...")
+            debug_print(f"Universal Docker network '{network_name}' does not exist, creating...")
             success = self.main_window.docker_network_manager._create_network(network_name)
             if success:
-                debug_print(f"Docker network '{network_name}' created successfully")
+                debug_print(f"Universal Docker network '{network_name}' created successfully")
             else:
-                warning_print(f"Failed to create Docker network '{network_name}'")
+                warning_print(f"Failed to create universal Docker network '{network_name}'")
+                raise Exception(f"Failed to create required Docker network '{network_name}'")
         else:
-            debug_print(f"Docker network '{network_name}' already exists")
+            debug_print(f"Universal Docker network '{network_name}' already exists")

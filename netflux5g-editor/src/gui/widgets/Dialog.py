@@ -842,7 +842,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'VGCore_DockerImage'):
             self.VGCore_DockerImage.setText("adaptive/open5gs:1.0")
         if hasattr(self, 'VGCore_DockerNetwork'):
-            self.VGCore_DockerNetwork.setText("open5gs-ueransim_default")
+            self.VGCore_DockerNetwork.setText("netflux5g")
         if hasattr(self, 'VGCore_DatabaseURI'):
             self.VGCore_DatabaseURI.setText("mongodb://mongo/open5gs")
         if hasattr(self, 'VGCore_DockerEnabled'):
@@ -921,7 +921,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'VGCore_DockerNetwork'):
             config['DOCKER_NETWORK'] = self.VGCore_DockerNetwork.text()
         else:
-            config['DOCKER_NETWORK'] = 'open5gs-ueransim_default'
+            config['DOCKER_NETWORK'] = 'netflux5g'
             
         if hasattr(self, 'VGCore_DatabaseURI'):
             config['DATABASE_URI'] = self.VGCore_DatabaseURI.text()

@@ -145,3 +145,19 @@ class AutomationManager:
         if hasattr(self.main_window, 'monitoring_manager'):
             return self.main_window.monitoring_manager.getMonitoringStatus()
         return "Monitoring manager not available"
+
+    def deployController(self):
+        """Deploy Ryu SDN controller for the current topology."""
+        if hasattr(self.main_window, 'controller_manager'):
+            self.main_window.controller_manager.deployController()
+
+    def stopController(self):
+        """Stop Ryu SDN controller for the current topology."""
+        if hasattr(self.main_window, 'controller_manager'):
+            self.main_window.controller_manager.stopController()
+
+    def getControllerStatus(self):
+        """Get the current controller status."""
+        if hasattr(self.main_window, 'controller_manager'):
+            return self.main_window.controller_manager.getControllerStatus()
+        return "Controller manager not available"

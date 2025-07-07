@@ -16,101 +16,59 @@ class DockerNetworkManager:
         self.main_window = main_window
         
     def create_docker_network(self):
-        """Create a Docker network based on the current file name."""
-        # Check if current file is saved
-        if not self.main_window.current_file:
-            reply = QMessageBox.question(
-                self.main_window,
-                "File Not Saved",
-                "The current topology must be saved before creating a Docker network.\n"
-                "Would you like to save the file first?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                # Trigger save dialog
-                self.main_window.file_manager.saveTopologyAs()
-                # Check again if file was saved
-                if not self.main_window.current_file:
-                    self.main_window.status_manager.showCanvasStatus("Docker network creation cancelled - file not saved")
-                    return False
-            else:
-                self.main_window.status_manager.showCanvasStatus("Docker network creation cancelled")
-                return False
-        
-        # Extract network name from file path
-        network_name = self._get_network_name_from_file()
-        if not network_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Invalid File Name",
-                "Cannot create Docker network: Invalid file name."
-            )
-            return False
+        """Create the universal 'netflux5g' Docker network for all deployments."""
+        network_name = "netflux5g"
         
         # Check if network already exists
         if self._network_exists(network_name):
-            reply = QMessageBox.question(
+            self.main_window.status_manager.showCanvasStatus(f"Universal Docker network '{network_name}' already exists")
+            QMessageBox.information(
                 self.main_window,
                 "Network Exists",
-                f"Docker network '{network_name}' already exists.\n"
-                "Do you want to delete and recreate it?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
+                f"The universal Docker network '{network_name}' already exists and is ready for use.\n\n"
+                f"This network is used by all NetFlux5G services:\n"
+                f"• MongoDB Database\n"
+                f"• Web UI (User Manager)\n"
+                f"• Monitoring Stack\n"
+                f"• Ryu Controller\n"
+                f"• 5G Core Components\n"
+                f"• UE and gNB containers"
             )
-            
-            if reply == QMessageBox.Yes:
-                if not self._delete_network(network_name):
-                    return False
-            else:
-                self.main_window.status_manager.showCanvasStatus(f"Docker network '{network_name}' already exists")
-                return True
+            return True
         
         # Create the network
         success = self._create_network(network_name)
         if success:
-            self.main_window.status_manager.showCanvasStatus(f"Docker network '{network_name}' created successfully")
+            self.main_window.status_manager.showCanvasStatus(f"Universal Docker network '{network_name}' created successfully")
             QMessageBox.information(
                 self.main_window,
                 "Network Created",
-                f"Docker network '{network_name}' has been created successfully.\n\n"
+                f"The universal Docker network '{network_name}' has been created successfully.\n\n"
                 f"Network Type: Bridge\n"
                 f"Network Name: {network_name}\n\n"
-                "You can now deploy containers to this network."
+                f"This network will be used by all NetFlux5G services:\n"
+                f"• MongoDB Database\n"
+                f"• Web UI (User Manager)\n" 
+                f"• Monitoring Stack\n"
+                f"• Ryu Controller\n"
+                f"• 5G Core Components\n"
+                f"• UE and gNB containers"
             )
         else:
-            self.main_window.status_manager.showCanvasStatus(f"Failed to create Docker network '{network_name}'")
+            self.main_window.status_manager.showCanvasStatus(f"Failed to create universal Docker network '{network_name}'")
         
         return success
     
     def delete_docker_network(self):
-        """Delete the Docker network associated with the current file."""
-        # Check if current file is saved
-        if not self.main_window.current_file:
-            QMessageBox.warning(
-                self.main_window,
-                "No File Open",
-                "No topology file is currently open. Cannot determine which Docker network to delete."
-            )
-            return False
-        
-        # Extract network name from file path
-        network_name = self._get_network_name_from_file()
-        if not network_name:
-            QMessageBox.warning(
-                self.main_window,
-                "Invalid File Name",
-                "Cannot delete Docker network: Invalid file name."
-            )
-            return False
+        """Delete the universal 'netflux5g' Docker network."""
+        network_name = "netflux5g"
         
         # Check if network exists
         if not self._network_exists(network_name):
             QMessageBox.information(
                 self.main_window,
                 "Network Not Found",
-                f"Docker network '{network_name}' does not exist."
+                f"The universal Docker network '{network_name}' does not exist."
             )
             return True
         
@@ -118,27 +76,34 @@ class DockerNetworkManager:
         reply = QMessageBox.question(
             self.main_window,
             "Confirm Deletion",
-            f"Are you sure you want to delete Docker network '{network_name}'?\n\n"
-            "This will disconnect all containers currently connected to this network.",
+            f"Are you sure you want to delete the universal Docker network '{network_name}'?\n\n"
+            f"This will disconnect all NetFlux5G services currently connected to this network:\n"
+            f"• MongoDB Database\n"
+            f"• Web UI (User Manager)\n"
+            f"• Monitoring Stack\n"
+            f"• Ryu Controller\n"
+            f"• 5G Core Components\n"
+            f"• UE and gNB containers\n\n"
+            f"You should stop all services before deleting the network.",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
         
         if reply != QMessageBox.Yes:
-            self.main_window.status_manager.showCanvasStatus("Docker network deletion cancelled")
+            self.main_window.status_manager.showCanvasStatus("Universal Docker network deletion cancelled")
             return False
         
         # Delete the network
         success = self._delete_network(network_name)
         if success:
-            self.main_window.status_manager.showCanvasStatus(f"Docker network '{network_name}' deleted successfully")
+            self.main_window.status_manager.showCanvasStatus(f"Universal Docker network '{network_name}' deleted successfully")
             QMessageBox.information(
                 self.main_window,
                 "Network Deleted",
-                f"Docker network '{network_name}' has been deleted successfully."
+                f"The universal Docker network '{network_name}' has been deleted successfully."
             )
         else:
-            self.main_window.status_manager.showCanvasStatus(f"Failed to delete Docker network '{network_name}'")
+            self.main_window.status_manager.showCanvasStatus(f"Failed to delete universal Docker network '{network_name}'")
         
         return success
     
@@ -309,8 +274,8 @@ class DockerNetworkManager:
             return False
 
     def get_current_network_name(self):
-        """Get the current topology-specific network name."""
-        return self._get_network_name_from_file()
+        """Get the universal network name for all NetFlux5G deployments."""
+        return "netflux5g"
 
     def list_netflux_networks(self):
         """List all NetFlux5G Docker networks."""

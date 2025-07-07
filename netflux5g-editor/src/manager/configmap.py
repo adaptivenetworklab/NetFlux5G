@@ -242,7 +242,7 @@ class ConfigurationMapper:
         """Get Docker-specific options for 5G components based on fixed_topology-upf.py"""
         base_options = {
             'cap_add': ["net_admin"],
-            'network_mode': "open5gs-ueransim_default", 
+            'network_mode': "netflux5g", 
             'publish_all_ports': True,
             'dcmd': "/bin/bash",
             'cls': "DockerSta",
@@ -489,7 +489,7 @@ class ConfigurationMapper:
         config['docker_image'] = properties.get('VGCore_DockerImage', 
                                                properties.get('docker_docker_image', 'adaptive/open5gs:1.0'))
         config['docker_network'] = properties.get('VGCore_DockerNetwork', 
-                                                 properties.get('docker_docker_network', 'open5gs-ueransim_default'))
+                                                 properties.get('docker_docker_network', 'netflux5g'))
         config['database_uri'] = properties.get('VGCore_DatabaseURI', 
                                                properties.get('docker_database_uri', 'mongodb://mongo/open5gs'))
         
