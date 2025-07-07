@@ -64,6 +64,9 @@ class MininetExporter:
         categorized_nodes = self.categorize_nodes(nodes)
         
         try:
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+            
             with open(filename, "w") as f:
                 self.write_mininet_script(f, nodes, links, categorized_nodes)
             
@@ -74,6 +77,7 @@ class MininetExporter:
             error_msg = f"Error exporting to Mininet: {str(e)}"
             self.main_window.showCanvasStatus(error_msg)
             error_print(f"ERROR: {error_msg}")
+            import traceback
             traceback.print_exc()
 
     def categorize_nodes(self, nodes):
@@ -127,6 +131,12 @@ class MininetExporter:
         f.write('\n')
         f.write('This script creates a network topology using mininet-wifi\n')
         f.write('with dynamic configuration from the NetFlux5G UI.\n')
+        f.write('\n')
+        f.write('5G Configuration Files:\n')
+        f.write('- Located in: ./5g-configs/ directory (relative to this script)\n')
+        f.write('- Contains imported YAML configuration files for 5G core components\n')
+        f.write('- Each file is named with format: {component_name}_{type}_{index}_{original_filename}\n')
+        f.write('- Mount these configs into Docker containers as needed\n')
         f.write('\n')
         f.write('Network Mode Configuration:\n')
         f.write('- All Docker components (UEs, gNBs, 5G Core) use the universal netflux5g network\n')
@@ -191,6 +201,38 @@ class MininetExporter:
         f.write('    if clean_name and clean_name[0].isdigit():\n')
         f.write('        clean_name = \'_\' + clean_name\n')
         f.write('    return clean_name or \'node\'\n\n')
+        
+        f.write('def get_5g_config_path(component_name, component_type, index=1):\n')
+        f.write('    """Get path to 5G configuration file for a component."""\n')
+        f.write('    script_dir = os.path.dirname(os.path.abspath(__file__))\n')
+        f.write('    configs_dir = os.path.join(script_dir, "5g-configs")\n')
+        f.write('    \n')
+        f.write('    # Look for config files matching the pattern\n')
+        f.write('    import glob\n')
+        f.write('    pattern = f"{component_name}_{component_type}_{index}_*.yaml"\n')
+        f.write('    pattern_yml = f"{component_name}_{component_type}_{index}_*.yml"\n')
+        f.write('    \n')
+        f.write('    matches = glob.glob(os.path.join(configs_dir, pattern))\n')
+        f.write('    matches.extend(glob.glob(os.path.join(configs_dir, pattern_yml)))\n')
+        f.write('    \n')
+        f.write('    if matches:\n')
+        f.write('        return matches[0]\n')
+        f.write('    else:\n')
+        f.write('        # Return expected path even if file doesn\'t exist\n')
+        f.write('        return os.path.join(configs_dir, f"{component_name}_{component_type}_{index}_config.yaml")\n\n')
+        
+        f.write('def list_5g_configs():\n')
+        f.write('    """List all available 5G configuration files."""\n')
+        f.write('    script_dir = os.path.dirname(os.path.abspath(__file__))\n')
+        f.write('    configs_dir = os.path.join(script_dir, "5g-configs")\n')
+        f.write('    \n')
+        f.write('    if os.path.exists(configs_dir):\n')
+        f.write('        import glob\n')
+        f.write('        configs = glob.glob(os.path.join(configs_dir, "*.yaml"))\n')
+        f.write('        configs.extend(glob.glob(os.path.join(configs_dir, "*.yml")))\n')
+        f.write('        return [os.path.basename(c) for c in configs]\n')
+        f.write('    else:\n')
+        f.write('        return []\n\n')
         
         # Add Docker network utility functions
         network_name = "netflux5g"
@@ -923,7 +965,7 @@ class MininetExporter:
         }
         
         # Add working directory variable
-        f.write('    cwd = os.getcwd()  # Current Working Directory\n\n')
+        f.write(f'    export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n\n')
         
         # Generate code for each 5G core component type
         for comp_type, components in core_components.items():
@@ -960,8 +1002,8 @@ class MininetExporter:
                     
                     # Add volume mount for configuration
                     config_file = component.get('config_file', config.get('default_config', f'{comp_type.lower()}.yaml'))
-                    comp_params.append(f'volumes=[cwd + "/config/{config_file}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
-                    
+                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_file}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
+
                     # Add environment variables for configuration
                     if 'env_vars' in config and config['env_vars']:
                         env_list = []

@@ -3,8 +3,8 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Sen Jul 7 15:19:26 2025",
-    "saved_date": "Sen Jul 7 15:19:26 2025",
+    "created_date": "Sen Jul 7 20:16:37 2025",
+    "saved_date": "Sen Jul 7 20:16:37 2025",
     "canvas_size": {
       "width": 1292,
       "height": 801
@@ -16,13 +16,13 @@
     {
       "name": "UE #8",
       "type": "UE",
-      "x": 427.1675,
-      "y": 152.57500000000005,
+      "x": 428.48999999999995,
+      "y": 36.19500000000002,
       "properties": {
         "name": "UE #8",
         "type": "UE",
-        "x": 427.1675,
-        "y": 152.57500000000005,
+        "x": 428.48999999999995,
+        "y": 36.19500000000002,
         "UE_GNBHostName": "gnb2",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000014",
@@ -68,8 +68,8 @@
         "network_session_type": "IPv4",
         "display_name": "UE #8"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384848
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643919520
     },
     {
       "name": "UE #7",
@@ -126,8 +126,8 @@
         "network_session_type": "IPv4",
         "display_name": "UE #7"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384704
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643919376
     },
     {
       "name": "Switch #6",
@@ -140,8 +140,8 @@
         "x": 465.189375,
         "y": -711.1743750000002
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384560
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643919232
     },
     {
       "name": "Controller #1",
@@ -159,8 +159,8 @@
         "Controller_Type": "Remote Controller",
         "Controller_ProtocolMode": "TCP"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384416
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643919088
     },
     {
       "name": "Switch #5",
@@ -173,8 +173,8 @@
         "x": -19.426249999999968,
         "y": -711.3856249999999
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384272
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918944
     },
     {
       "name": "Switch #4",
@@ -187,8 +187,8 @@
         "x": -334.2013749999999,
         "y": -711.8031250000001
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384128
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918800
     },
     {
       "name": "Switch #3",
@@ -201,8 +201,8 @@
         "x": -335.2005,
         "y": -591.2913749999997
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383984
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918656
     },
     {
       "name": "Switch #2",
@@ -215,8 +215,8 @@
         "x": 466.55887499999966,
         "y": -590.7131249999999
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383840
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918512
     },
     {
       "name": "Switch #1",
@@ -229,8 +229,8 @@
         "x": -5.841374999999964,
         "y": -591.4312499999997
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383696
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918368
     },
     {
       "name": "VGcore #1",
@@ -329,14 +329,16 @@
                 },
                 "session": [
                   {
-                    "subnet": "10.51.0.0/16",
-                    "dnn": "web1",
-                    "dev": "ogstun3"
+                    "subnet": "10.100.0.0/16",
+                    "gateway": "10.100.0.1",
+                    "dnn": "internet",
+                    "dev": "ogstun"
                   },
                   {
-                    "subnet": "10.52.0.0/16",
-                    "dnn": "web2",
-                    "dev": "ogstun4"
+                    "subnet": "10.200.0.0/16",
+                    "gateway": "10.200.0.1",
+                    "dnn": "internet2",
+                    "dev": "ogstun2"
                   }
                 ],
                 "metrics": {
@@ -350,8 +352,8 @@
               }
             },
             "imported": true,
-            "config_filename": "upf2.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
+            "config_filename": "upf.yaml",
+            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf.yaml",
             "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "UPF",
@@ -966,7 +968,7 @@
         ],
         "VGCore_DockerImage": "adaptive/open5gs:1.0",
         "VGCore_DockerNetwork": "netflux5g",
-        "VGCore_DatabaseURI": "mongodb://mongo/open5gs",
+        "VGCore_DatabaseURI": "mongodb://netflux5g-mongodb/open5gs",
         "VGCore_NetworkInterface": "eth0",
         "VGCore_MCC": "999",
         "VGCore_MNC": "70",
@@ -987,7 +989,7 @@
         "docker_docker_enabled": true,
         "docker_docker_image": "adaptive/open5gs:1.0",
         "docker_docker_network": "netflux5g",
-        "docker_database_uri": "mongodb://mongo/open5gs",
+        "docker_database_uri": "mongodb://netflux5g-mongodb/open5gs",
         "5gcore_network_interface": "eth0",
         "5gcore_mcc": "999",
         "5gcore_mnc": "70",
@@ -1005,19 +1007,19 @@
         "ovs_bridge_priority": "32768",
         "ovs_stp_enabled": true
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383552
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918224
     },
     {
       "name": "UE #6",
       "type": "UE",
-      "x": 225.5170187499998,
-      "y": 195.07737500000007,
+      "x": 217.58201874999986,
+      "y": 74.72987500000009,
       "properties": {
         "name": "UE #6",
         "type": "UE",
-        "x": 225.5170187499998,
-        "y": 195.07737500000007,
+        "x": 217.58201874999986,
+        "y": 74.72987500000009,
         "UE_GNBHostName": "gnb2",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000003",
@@ -1027,21 +1029,54 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 100,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "gnb2",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000003",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 100,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383408
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643918080
     },
     {
       "name": "UE #5",
       "type": "UE",
-      "x": 426.7579062499999,
-      "y": -135.3791,
+      "x": 261.4454062499999,
+      "y": -205.47159999999997,
       "properties": {
         "name": "UE #5",
         "type": "UE",
-        "x": 426.7579062499999,
-        "y": -135.3791,
+        "x": 261.4454062499999,
+        "y": -205.47159999999997,
         "UE_GNBHostName": "gnb2",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000013",
@@ -1051,21 +1086,54 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "qt_spinbox_lineedit": "100 meters",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_SessionType": "IPv4",
+        "UE_AssociationMode": "auto",
+        "UE_Mobility": false,
+        "UE_PDUSessions": 1,
+        "UE_Power": 20,
+        "UE_Range": 100,
+        "ue_gnb_hostname": "gnb2",
+        "ue_apn": "internet2",
+        "ue_msisdn": "0000000013",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 100,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383264
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643917936
     },
     {
       "name": "UE #4",
       "type": "UE",
-      "x": 72.37393124999988,
-      "y": -52.75403749999998,
+      "x": 68.40643124999987,
+      "y": -62.01153749999999,
       "properties": {
         "name": "UE #4",
         "type": "UE",
-        "x": 72.37393124999988,
-        "y": -52.75403749999998,
+        "x": 68.40643124999987,
+        "y": -62.01153749999999,
         "UE_GNBHostName": "gnb2",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000012",
@@ -1075,21 +1143,54 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 100,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "gnb2",
+        "ue_apn": "internet2",
+        "ue_msisdn": "0000000012",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 100,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433383120
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643917792
     },
     {
       "name": "UE #3",
       "type": "UE",
-      "x": -284.59325,
-      "y": 133.74474999999995,
+      "x": -319.0932499999999,
+      "y": 93.49474999999995,
       "properties": {
         "name": "UE #3",
         "type": "UE",
-        "x": -284.59325,
-        "y": 133.74474999999995,
+        "x": -319.0932499999999,
+        "y": 93.49474999999995,
         "UE_GNBHostName": "gnb1",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000011",
@@ -1103,7 +1204,7 @@
         "UE_GNB_IP": "",
         "UE_TunnelInterface": "uesimtun0",
         "UE_RadioInterface": "eth0",
-        "qt_spinbox_lineedit": "100 meters",
+        "qt_spinbox_lineedit": "1",
         "UE_IMEI": "356938035643803",
         "UE_IMEISV": "4370816125816151",
         "UE_SessionType": "IPv4",
@@ -1134,19 +1235,19 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433382976
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643917648
     },
     {
       "name": "UE #2",
       "type": "UE",
-      "x": -467.4987500000002,
-      "y": 36.03024999999997,
+      "x": -545.6987500000002,
+      "y": 65.93024999999996,
       "properties": {
         "name": "UE #2",
         "type": "UE",
-        "x": -467.4987500000002,
-        "y": 36.03024999999997,
+        "x": -545.6987500000002,
+        "y": 65.93024999999996,
         "UE_GNBHostName": "gnb1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000002",
@@ -1156,10 +1257,43 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 100,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "gnb1",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000002",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 100,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433382832
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643917504
     },
     {
       "name": "UE #1",
@@ -1180,21 +1314,54 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 100,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "gnb1",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000001",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 100,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433382688
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643917360
     },
     {
       "name": "GNB #1",
       "type": "GNB",
       "x": -428.2985375,
-      "y": -57.151806249999986,
+      "y": -23.80180625,
       "properties": {
         "name": "GNB #1",
         "type": "GNB",
         "x": -428.2985375,
-        "y": -57.151806249999986,
+        "y": -23.80180625,
         "GNB_AMFHostName": "amf1",
         "GNB_GNBHostName": "gnb1",
         "GNB_TAC": "1",
@@ -1240,19 +1407,19 @@
         "ap_ap_failmode": "standalone",
         "ap_openflow_protocols": "OpenFlow14"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433385136
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643919808
     },
     {
       "name": "GNB #2",
       "type": "GNB",
-      "x": 289.4812437500002,
-      "y": -25.15370624999999,
+      "x": 298.73874375000025,
+      "y": -50.28120625,
       "properties": {
         "name": "GNB #2",
         "type": "GNB",
-        "x": 289.4812437500002,
-        "y": -25.15370624999999,
+        "x": 298.73874375000025,
+        "y": -50.28120625,
         "GNB_AMFHostName": "amf1",
         "GNB_GNBHostName": "gnb2",
         "GNB_TAC": "1",
@@ -1298,8 +1465,8 @@
         "ap_ap_failmode": "standalone",
         "ap_openflow_protocols": "OpenFlow14"
       },
-      "created_date": "Sen Jul 7 15:19:26 2025",
-      "component_id": 126275433384992
+      "created_date": "Sen Jul 7 20:16:37 2025",
+      "component_id": 126941643919664
     }
   ],
   "links": [
@@ -1314,7 +1481,7 @@
         "destination": "Switch #6"
       },
       "name": "link_136",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #1",
@@ -1327,7 +1494,7 @@
         "destination": "Switch #6"
       },
       "name": "link_992",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #6",
@@ -1340,7 +1507,7 @@
         "destination": "Switch #2"
       },
       "name": "link_848",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #5",
@@ -1353,7 +1520,7 @@
         "destination": "Switch #6"
       },
       "name": "link_704",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1366,7 +1533,7 @@
         "destination": "GNB #2"
       },
       "name": "link_120",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1379,7 +1546,7 @@
         "destination": "Switch #2"
       },
       "name": "link_976",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1392,7 +1559,7 @@
         "destination": "Switch #5"
       },
       "name": "link_832",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1405,7 +1572,7 @@
         "destination": "Switch #1"
       },
       "name": "link_688",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1418,7 +1585,7 @@
         "destination": "Switch #4"
       },
       "name": "link_544",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1431,7 +1598,7 @@
         "destination": "Switch #3"
       },
       "name": "link_400",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1444,7 +1611,7 @@
         "destination": "VGcore #1"
       },
       "name": "link_256",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Controller #1",
@@ -1457,7 +1624,7 @@
         "destination": "GNB #1"
       },
       "name": "link_112",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #5",
@@ -1470,7 +1637,7 @@
         "destination": "Switch #2"
       },
       "name": "link_824",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #4",
@@ -1483,7 +1650,7 @@
         "destination": "Switch #5"
       },
       "name": "link_680",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #4",
@@ -1496,7 +1663,7 @@
         "destination": "VGcore #1"
       },
       "name": "link_392",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "VGcore #1",
@@ -1509,7 +1676,7 @@
         "destination": "Switch #3"
       },
       "name": "link_248",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #3",
@@ -1522,7 +1689,7 @@
         "destination": "Switch #4"
       },
       "name": "link_104",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #1",
@@ -1535,7 +1702,7 @@
         "destination": "Switch #3"
       },
       "name": "link_960",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #4",
@@ -1548,7 +1715,7 @@
         "destination": "Switch #1"
       },
       "name": "link_816",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #4",
@@ -1561,7 +1728,7 @@
         "destination": "Switch #2"
       },
       "name": "link_672",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "Switch #1",
@@ -1574,7 +1741,7 @@
         "destination": "Switch #2"
       },
       "name": "link_528",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "GNB #2",
@@ -1587,7 +1754,7 @@
         "destination": "Switch #2"
       },
       "name": "link_384",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     },
     {
       "source": "GNB #1",
@@ -1600,11 +1767,11 @@
         "destination": "Switch #1"
       },
       "name": "link_240",
-      "created_date": "Sen Jul 7 15:19:26 2025"
+      "created_date": "Sen Jul 7 20:16:37 2025"
     }
   ],
   "canvas_properties": {
-    "zoom_level": 0.7561436672967863,
+    "zoom_level": 0.8695652173913041,
     "show_grid": false
   }
 }

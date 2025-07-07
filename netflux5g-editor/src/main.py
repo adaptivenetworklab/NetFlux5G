@@ -209,6 +209,10 @@ class NetFlux5GApp(QMainWindow):
                 self.actionRunAll.triggered.connect(self.automation_manager.runAllComponents)
             if hasattr(self, 'actionStopAll'):
                 self.actionStopAll.triggered.connect(self.automation_manager.stopAllComponents)
+            if hasattr(self, 'actionRun'):
+                self.actionRun.triggered.connect(self.automation_runner.run_topology_only)
+            if hasattr(self, 'actionStop'):
+                self.actionStop.triggered.connect(self.automation_runner.stop_all)
 
             # Docker network connections
             if hasattr(self, 'actionCreate_Docker_Network'):

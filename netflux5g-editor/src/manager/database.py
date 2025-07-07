@@ -601,6 +601,30 @@ class DatabaseManager:
         # Start stop operation (without volume removal)
         self._start_operation('stop_webui', container_name, None, None)
     
+    def is_database_running(self):
+        """Check if the database container is running."""
+        container_name = "netflux5g-mongodb"
+        return self._is_container_running(container_name)
+    
+    def is_webui_running(self):
+        """Check if the WebUI container is running."""
+        container_name = "netflux5g-webui"
+        return self._is_container_running(container_name)
+    
+    def deploy_database(self):
+        """Deploy database and return success status."""
+        self.deployDatabase()
+        # Give it some time to start
+        time.sleep(3)
+        return self.is_database_running()
+    
+    def deploy_webui(self):
+        """Deploy WebUI and return success status."""
+        self.deployWebUI()
+        # Give it some time to start
+        time.sleep(3)
+        return self.is_webui_running()
+
     def _check_file_saved(self):
         """Check if the current file is saved."""
         if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
