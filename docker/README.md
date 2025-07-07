@@ -55,7 +55,7 @@ Run the container with the following command:
 ```sh
 docker run -it --rm --privileged --pid='host' --net='host' \
   --name netflux5g-dockerized \
-  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 -env NO_AT_BRIDGE=1 \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -v /sys/:/sys \
   -v /lib/modules:/lib/modules \

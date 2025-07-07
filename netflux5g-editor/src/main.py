@@ -22,6 +22,7 @@ from manager.docker_network import DockerNetworkManager
 from manager.database import DatabaseManager
 from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
+from manager.template_updater import TemplateUpdater
 
 # Import existing modules
 from gui.canvas import Canvas, MovableLabel
@@ -57,6 +58,7 @@ class NetFlux5GApp(QMainWindow):
         self.database_manager = DatabaseManager(self)
         self.monitoring_manager = MonitoringManager(self)
         self.controller_manager = ControllerManager(self)
+        self.template_updater = TemplateUpdater(self)
         
         # Initialize other components
         self.toolbar_functions = ToolbarFunctions(self)
@@ -93,6 +95,13 @@ class NetFlux5GApp(QMainWindow):
 
         # Debug menu actions
         self.debugMenuActions()
+
+        # Update template files with correct config paths
+        debug_print("Updating template configuration paths...")
+        if self.template_updater.update_all_templates():
+            debug_print("Template configuration paths updated successfully")
+        else:
+            warning_print("Failed to update some template configuration paths")
 
         # Initialize window title
         self.updateWindowTitle()
@@ -632,8 +641,20 @@ if __name__ == "__main__":
     icon_path = os.path.join(os.path.dirname(__file__), "gui", "Icon", "logoSquare.png")
     app.setWindowIcon(QIcon(icon_path))
 
-    # Check for command line arguments to skip welcome screen
+    # Check for command line arguments
     show_welcome = "--no-welcome" not in sys.argv
+    update_templates_only = "--update-templates" in sys.argv
+    
+    # If only updating templates, do that and exit
+    if update_templates_only:
+        debug_print("Running template update only...")
+        updater = TemplateUpdater()
+        if updater.update_all_templates():
+            print("Template configuration paths updated successfully")
+            sys.exit(0)
+        else:
+            print("Failed to update template configuration paths")
+            sys.exit(1)
     
     window = NetFlux5GApp(show_welcome)
     
