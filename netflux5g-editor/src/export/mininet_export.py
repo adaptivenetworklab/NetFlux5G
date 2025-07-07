@@ -135,7 +135,9 @@ class MininetExporter:
         f.write('5G Configuration Files:\n')
         f.write('- Located in: ./5g-configs/ directory (relative to this script)\n')
         f.write('- Contains imported YAML configuration files for 5G core components\n')
-        f.write('- Each file is named with format: {component_name}_{type}_{index}_{original_filename}\n')
+        f.write('- Simplified naming scheme: {component_type}.yaml (e.g., upf.yaml, amf.yaml)\n')
+        f.write('- Multiple instances: {component_type}_{index}.yaml (e.g., upf_2.yaml)\n')
+        f.write('- Volume mounted as: /opt/open5gs/etc/open5gs/{component_type}.yaml inside containers\n')
         f.write('- Mount these configs into Docker containers as needed\n')
         f.write('\n')
         f.write('Network Mode Configuration:\n')
@@ -202,24 +204,28 @@ class MininetExporter:
         f.write('        clean_name = \'_\' + clean_name\n')
         f.write('    return clean_name or \'node\'\n\n')
         
-        f.write('def get_5g_config_path(component_name, component_type, index=1):\n')
-        f.write('    """Get path to 5G configuration file for a component."""\n')
+        f.write('def get_5g_config_path(component_type, index=1):\n')
+        f.write('    """Get path to 5G configuration file for a component type."""\n')
         f.write('    script_dir = os.path.dirname(os.path.abspath(__file__))\n')
         f.write('    configs_dir = os.path.join(script_dir, "5g-configs")\n')
         f.write('    \n')
-        f.write('    # Look for config files matching the pattern\n')
-        f.write('    import glob\n')
-        f.write('    pattern = f"{component_name}_{component_type}_{index}_*.yaml"\n')
-        f.write('    pattern_yml = f"{component_name}_{component_type}_{index}_*.yml"\n')
+        f.write('    # Use simplified naming scheme (0-based internally, 1-based for user)\n')
+        f.write('    comp_type = component_type.lower()\n')
         f.write('    \n')
-        f.write('    matches = glob.glob(os.path.join(configs_dir, pattern))\n')
-        f.write('    matches.extend(glob.glob(os.path.join(configs_dir, pattern_yml)))\n')
+        f.write('    # Convert 1-based user index to 0-based internal index\n')
+        f.write('    internal_index = index - 1\n')
         f.write('    \n')
-        f.write('    if matches:\n')
-        f.write('        return matches[0]\n')
+        f.write('    if internal_index == 0:\n')
+        f.write('        # First instance uses simple name: upf.yaml\n')
+        f.write('        config_file = f"{comp_type}.yaml"\n')
         f.write('    else:\n')
-        f.write('        # Return expected path even if file doesn\'t exist\n')
-        f.write('        return os.path.join(configs_dir, f"{component_name}_{component_type}_{index}_config.yaml")\n\n')
+        f.write('        # Additional instances use numbered names: upf_2.yaml (user index)\n')
+        f.write('        config_file = f"{comp_type}_{index}.yaml"\n')
+        f.write('    \n')
+        f.write('    config_path = os.path.join(configs_dir, config_file)\n')
+        f.write('    \n')
+        f.write('    # Check if file exists, return path regardless\n')
+        f.write('    return config_path\n\n')
         
         f.write('def list_5g_configs():\n')
         f.write('    """List all available 5G configuration files."""\n')
@@ -233,6 +239,27 @@ class MininetExporter:
         f.write('        return [os.path.basename(c) for c in configs]\n')
         f.write('    else:\n')
         f.write('        return []\n\n')
+        
+        f.write('def check_5g_configs():\n')
+        f.write('    """Check if required 5G configuration files exist and warn about missing files."""\n')
+        f.write('    script_dir = os.path.dirname(os.path.abspath(__file__))\n')
+        f.write('    configs_dir = os.path.join(script_dir, "5g-configs")\n')
+        f.write('    \n')
+        f.write('    if not os.path.exists(configs_dir):\n')
+        f.write('        print("WARNING: 5g-configs directory not found!")\n')
+        f.write('        print("Run the NetFlux5G automation to copy configuration files.")\n')
+        f.write('        return False\n')
+        f.write('    \n')
+        f.write('    configs = list_5g_configs()\n')
+        f.write('    if configs:\n')
+        f.write('        print(f"Found {len(configs)} 5G configuration files:")\n')
+        f.write('        for config in configs:\n')
+        f.write('            print(f"  - {config}")\n')
+        f.write('        return True\n')
+        f.write('    else:\n')
+        f.write('        print("WARNING: No 5G configuration files found in 5g-configs directory!")\n')
+        f.write('        print("Import configuration files in VGcore component properties first.")\n')
+        f.write('        return False\n\n')
         
         # Add Docker network utility functions
         network_name = "netflux5g"
@@ -288,11 +315,17 @@ class MininetExporter:
         f.write('def topology(args):\n')
         f.write('    """Create network topology."""\n')
         
+        # Add 5G config check at the beginning
+        f.write('    \n')
+        f.write('    # Check for 5G configuration files\n')
+        f.write('    info("*** Checking 5G configuration files\\n")\n')
+        f.write('    check_5g_configs()\n')
+        f.write('    \n')
+        
         # Use universal network name for all components
         network_name = "netflux5g"
         
         # Add Docker network setup
-        f.write('    \n')
         f.write('    # Setup Docker network\n')
         f.write('    info("*** Setting up universal Docker network\\n")\n')
         f.write('    create_docker_network_if_needed()\n')
@@ -712,7 +745,7 @@ class MininetExporter:
                 ue_params.append('network_mode=NETWORK_MODE')
                 ue_params.append('dcmd="/bin/bash"')
                 ue_params.append("cls=DockerSta")
-                ue_params.append("dimage='gradiant/ueransim:3.2.6'")
+                ue_params.append("dimage='adaptive/ueransim:latest'")
                 
                 # Add position
                 position = f"{ue.get('x', 0):.1f},{ue.get('y', 0):.1f},0"
@@ -971,10 +1004,15 @@ class MininetExporter:
         for comp_type, components in core_components.items():
             if components:
                 config = component_config.get(comp_type, component_config['AMF'])
-                f.write(f'    info("*** Add {comp_type}\\n")\n')
+                f.write(f'    info("*** Add {comp_type} ({len(components)} instances)\\n")\n')
+                print(f"DEBUG: Generating {comp_type} with {len(components)} components")
                 
-                for i, component in enumerate(components, 1):
-                    comp_name = self.sanitize_variable_name(component.get('name', f'{comp_type.lower()}{i}'))
+                for i, component in enumerate(components):  # Start from 0 to match copying logic
+                    comp_name = self.sanitize_variable_name(component.get('name', f'{comp_type.lower()}{i+1}'))
+                    print(f"DEBUG: Processing {comp_type} index {i}: {comp_name}")
+                    
+                    # Debug output for component processing
+                    f.write(f'    info("    Creating {comp_type} instance {i+1}/{len(components)}: {comp_name}\\n")\n')
                     
                     # Build component parameters following fixed_topology-upf.py pattern
                     comp_params = [f"'{comp_name}'"]
@@ -1000,9 +1038,18 @@ class MininetExporter:
                     comp_params.append(f"position='{position}'")
                     comp_params.append("range=116")
                     
-                    # Add volume mount for configuration
-                    config_file = component.get('config_file', config.get('default_config', f'{comp_type.lower()}.yaml'))
-                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_file}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
+                    # Add volume mount for configuration using simplified naming
+                    # Generate the config filename based on our simplified naming scheme
+                    if i == 0:  # First instance gets simple name
+                        config_filename = f'{comp_type.lower()}.yaml'
+                    else:  # Additional instances get numbered
+                        config_filename = f'{comp_type.lower()}_{i+1}.yaml'
+                    
+                    print(f"DEBUG: {comp_type} index {i} -> filename: {config_filename}")
+                    # Debug output for config file mapping
+                    f.write(f'    info("      Config file: {config_filename}\\n")\n')
+                    
+                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
 
                     # Add environment variables for configuration
                     if 'env_vars' in config and config['env_vars']:
@@ -1078,17 +1125,17 @@ class MininetExporter:
             f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
         f.write('\n')
         
-        # Add capture script execution like in original
-        f.write('    info("*** Capture all initialization flow and slice packet\\n")\n')
-        f.write('    Capture1 = cwd + "/capture-initialization-fixed.sh"\n')
-        f.write('    CLI(net, script=Capture1)\n\n')
+        # # Add capture script execution like in original
+        # f.write('    info("*** Capture all initialization flow and slice packet\\n")\n')
+        # f.write('    Capture1 = cwd + "/capture-initialization-fixed.sh"\n')
+        # f.write('    CLI(net, script=Capture1)\n\n')
 
-        f.write('    CLI.do_sh(net, "sleep 20")\n\n')
+        # f.write('    CLI.do_sh(net, "sleep 20")\n\n')
 
-        f.write('    info("*** pingall for testing and flow tables update\\n")\n')
-        f.write('    net.pingAll()\n\n')
+        # f.write('    info("*** pingall for testing and flow tables update\\n")\n')
+        # f.write('    net.pingAll()\n\n')
         
-        f.write('    CLI.do_sh(net, "sleep 10")\n\n')
+        # f.write('    CLI.do_sh(net, "sleep 10")\n\n')
         
         # Start 5G Core components in proper order with makeTerm2
         startup_order = ['NRF', 'SCP', 'AUSF', 'UDM', 'UDR', 'PCF', 'BSF', 'NSSF', 'SMF']
@@ -1179,27 +1226,46 @@ class MininetExporter:
                 config_key = f"{comp_type}_configs"
                 if config_key in props and props[config_key]:
                     config_data = props[config_key]
+                    print(f"DEBUG: Found {comp_type} configs: {len(config_data) if isinstance(config_data, list) else 'not a list'}")
                     if isinstance(config_data, list):
+                        valid_count = 0
                         for row_idx, row_data in enumerate(config_data):
-                            if isinstance(row_data, dict) and row_data.get('name'):
+                            print(f"DEBUG: {comp_type} row {row_idx}: {row_data}")
+                            # Filter out empty or invalid rows
+                            if (isinstance(row_data, dict) and 
+                                row_data.get('name') and 
+                                str(row_data.get('name')).strip()):
+                                
                                 # Extract configuration from new format
                                 comp_name = row_data.get('name', f'{comp_type.lower()}{row_idx+1}')
                                 config_file = row_data.get('config_filename', f'{comp_type.lower()}.yaml')
                                 config_file_path = row_data.get('config_file_path', '')
                                 
-                                component_info = {
-                                    'name': comp_name,
-                                    'x': vgcore.get('x', 0),
-                                    'y': vgcore.get('y', 0),
-                                    'properties': props,
-                                    'config_file': config_file,
-                                    'config_file_path': config_file_path,
-                                    'config_content': row_data.get('config_content', {}),
-                                    'imported': row_data.get('imported', False),
-                                    'component_type': comp_type,
-                                    'row_data': row_data
-                                }
-                                components_by_type[comp_type].append(component_info)
+                                # Only include if we have actual configuration data
+                                has_config = (
+                                    (config_file_path and config_file_path.strip()) or 
+                                    row_data.get('config_content') or
+                                    row_data.get('imported', False)
+                                )
+                                
+                                print(f"DEBUG: {comp_type} {comp_name} has_config: {has_config}")
+                                if has_config:
+                                    component_info = {
+                                        'name': comp_name,
+                                        'x': vgcore.get('x', 0),
+                                        'y': vgcore.get('y', 0),
+                                        'properties': props,
+                                        'config_file': config_file,
+                                        'config_file_path': config_file_path,
+                                        'config_content': row_data.get('config_content', {}),
+                                        'imported': row_data.get('imported', False),
+                                        'component_type': comp_type,
+                                        'row_data': row_data
+                                    }
+                                    components_by_type[comp_type].append(component_info)
+                                    valid_count += 1
+                                    print(f"DEBUG: Added {comp_type} component {valid_count}: {comp_name}")
+                        print(f"DEBUG: {comp_type} final count: {len(components_by_type[comp_type])}")
                 
                 # Fallback to old table format for backward compatibility
                 else:
@@ -1243,21 +1309,27 @@ class MininetExporter:
         """Write link creation code based on extracted links."""
         if not links:
             return
-            
+
+
         for link in links:
             source_name = self.sanitize_variable_name(link['source'])
             dest_name = self.sanitize_variable_name(link['destination'])
-            
+
             # Replace VGcore #1 connections with amf1 connections
             # Handle various possible names for VGcore #1
             if source_name in ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]:
                 source_name = "amf1"
             if dest_name in ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]:
                 dest_name = "amf1"
-            
+
+            # Skip links if source or dest is Controller__{number}
+            controller_pattern = re.compile(r'^Controller__\d+$')
+            if controller_pattern.match(source_name) or controller_pattern.match(dest_name):
+                continue
+
             # Build link parameters
             link_params = [source_name, dest_name]
-            
+
             # Add link properties if any
             link_props = link.get('properties', {})
             if link_props.get('bandwidth'):
@@ -1266,7 +1338,7 @@ class MininetExporter:
                 link_params.append(f"delay='{link_props['delay']}'")
             if link_props.get('loss'):
                 link_params.append(f"loss={link_props['loss']}")
-            
+
             f.write(f'    net.addLink({", ".join(link_params)})\n')
         f.write('\n')
 

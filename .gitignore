@@ -4,4 +4,4 @@ __pycache__/
 */*/*/__pycache__/*
 */*/*/*/__pycache__/*
 */*/*/*/*/__pycache__/*
-netflux5g-editor/src/export/started/
+netflux5g-editor/src/export/mininet/*

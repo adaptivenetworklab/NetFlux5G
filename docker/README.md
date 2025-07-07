@@ -37,7 +37,7 @@ docker build --build-context netflux5g=../netflux5g-editor -t netflux5g:latest .
 1. **Load the `mac80211_hwsim` kernel module with enough radios:**
 
    ```sh
-   sudo modprobe mac80211_hwsim radios=10
+   sudo modprobe mac80211_hwsim
    ```
 
 2. **Allow X11 connections from local root (for GUI apps):**

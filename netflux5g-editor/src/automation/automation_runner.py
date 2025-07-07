@@ -115,7 +115,11 @@ class AutomationRunner(QObject):
             # Step 3: Copy 5G configuration files
             self.status_updated.emit("Copying 5G configuration files...")
             self.progress_updated.emit(25)
-            self._copy_5g_configs()
+            copied_count, missing_count = self._copy_5g_configs()
+            if copied_count > 0:
+                self.status_updated.emit(f"Copied {copied_count} 5G configuration files")
+            if missing_count > 0:
+                warning_print(f"WARNING: {missing_count} configuration files could not be copied")
             
             # Step 4: Generate Mininet script
             self.status_updated.emit("Generating Mininet script...")
@@ -149,10 +153,10 @@ class AutomationRunner(QObject):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Get the base directory (where the main script is located)
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
         # Create mininet directory if it doesn't exist
-        mininet_dir = os.path.join(base_dir, "mininet")
+        mininet_dir = os.path.join(base_dir, "export","mininet")
         os.makedirs(mininet_dir, exist_ok=True)
         
         # Create timestamped export directory
@@ -290,9 +294,36 @@ class AutomationRunner(QObject):
         os.chmod(self.mininet_script_path, 0o755)
         debug_print(f"Mininet script generated at: {self.mininet_script_path}")
     
+    def _debug_component_properties(self, component):
+        """Debug utility to show detailed component properties structure."""
+        component_name = component.get('name', 'Unknown')
+        properties = component.get('properties', {})
+        
+        debug_print(f"DEBUG: === Component '{component_name}' Properties Debug ===")
+        debug_print(f"DEBUG: Total properties: {len(properties)}")
+        
+        # Show all property keys
+        config_keys = [key for key in properties.keys() if 'config' in key.lower()]
+        table_keys = [key for key in properties.keys() if 'table' in key.lower()]
+        
+        debug_print(f"DEBUG: Config-related keys: {config_keys}")
+        debug_print(f"DEBUG: Table-related keys: {table_keys}")
+        
+        # Show the specific patterns we're looking for
+        component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
+        for comp_type in component_types:
+            expected_key = f'{comp_type}_configs'
+            if expected_key in properties:
+                data = properties[expected_key]
+                debug_print(f"DEBUG: Found {expected_key}: {type(data)} with {len(data) if isinstance(data, list) else 'non-list'} items")
+                if isinstance(data, list) and data:
+                    debug_print(f"DEBUG: First item keys: {list(data[0].keys()) if isinstance(data[0], dict) else type(data[0])}")
+        debug_print(f"DEBUG: === End Component '{component_name}' Debug ===")
+    
     def _copy_5g_configs(self):
         """Copy 5G configuration files from VGCore components to export directory."""
         import shutil
+        import os
         
         # Get nodes to check for VGCore components
         nodes, _ = self.main_window.extractTopology()
@@ -313,66 +344,143 @@ class AutomationRunner(QObject):
         for component in core5g_components:
             component_name = component.get('name', 'Unknown')
             properties = component.get('properties', {})
+            debug_print(f"DEBUG: Processing VGCore component '{component_name}' with {len(properties)} properties")
             
-            # Check for 5G component table data
+            # Debug component properties structure
+            self._debug_component_properties(component)
+            
+            # Check for 5G component configurations using the correct key format
             component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
             
             for comp_type in component_types:
-                table_key = f'table_data_{comp_type}'
-                if table_key in properties:
-                    table_data = properties[table_key]
+                # Use the correct key format: {comp_type}_configs
+                config_key = f'{comp_type}_configs'
+                
+                if config_key in properties:
+                    config_data = properties[config_key]
+                    debug_print(f"DEBUG: Found {config_key} with {len(config_data) if isinstance(config_data, list) else 'non-list'} items")
                     
-                    if isinstance(table_data, list):
-                        for row_idx, row_data in enumerate(table_data):
-                            if isinstance(row_data, dict):
-                                config_file_path = row_data.get('config_file_path', '')
-                                config_content = row_data.get('config_content', '')
-                                config_filename = row_data.get('config_filename', f'{comp_type.lower()}_{row_idx + 1}.yaml')
+                    if isinstance(config_data, list):
+                        for i, config_item in enumerate(config_data):
+                            if not isinstance(config_item, dict):
+                                continue
                                 
-                                if config_file_path and os.path.exists(config_file_path):
-                                    # Copy the actual file
-                                    try:
-                                        dest_filename = f"{component_name}_{comp_type}_{row_idx + 1}_{os.path.basename(config_file_path)}"
-                                        dest_path = os.path.join(configs_dir, dest_filename)
-                                        shutil.copy2(config_file_path, dest_path)
-                                        copied_configs.append(f"{component_name}/{comp_type}: {os.path.basename(config_file_path)}")
-                                        debug_print(f"DEBUG: Copied config file: {config_file_path} -> {dest_path}")
-                                    except Exception as e:
-                                        error_print(f"ERROR: Failed to copy config file {config_file_path}: {e}")
-                                        missing_configs.append(f"{component_name}/{comp_type}: {config_file_path} (copy failed)")
-                                        
-                                elif config_content:
-                                    # Write the config content to a file
-                                    try:
-                                        dest_filename = f"{component_name}_{comp_type}_{row_idx + 1}_{config_filename}"
-                                        dest_path = os.path.join(configs_dir, dest_filename)
-                                        with open(dest_path, 'w') as f:
+                            # Get the configuration name
+                            config_name = config_item.get('name', f"{comp_type.lower()}{i + 1}")
+                            
+                            # Try to get the config file path from multiple possible sources
+                            config_file_path = None
+                            config_content = None
+                            
+                            # Method 1: Direct file path stored in config_file_path
+                            if 'config_file_path' in config_item and config_item['config_file_path']:
+                                config_file_path = config_item['config_file_path']
+                                debug_print(f"DEBUG: Found config_file_path: {config_file_path}")
+                            
+                            # Method 2: Path stored in config_path column
+                            elif 'config_path' in config_item and config_item['config_path']:
+                                config_file_path = config_item['config_path']
+                                debug_print(f"DEBUG: Found config_path: {config_file_path}")
+                            
+                            # Method 3: Check if config content is embedded
+                            if 'config_content' in config_item and config_item['config_content']:
+                                config_content = config_item['config_content']
+                                debug_print(f"DEBUG: Found embedded config content for {config_name}")
+                            
+                            # Process the configuration
+                            if config_file_path and os.path.isfile(config_file_path):
+                                # Copy the actual file with simplified naming
+                                try:
+                                    # Use simplified naming: {comp_type.lower()}.yaml or {comp_type.lower()}_{index}.yaml
+                                    if i == 0:  # First instance gets simple name
+                                        dest_filename = f"{comp_type.lower()}.yaml"
+                                    else:  # Additional instances get numbered
+                                        dest_filename = f"{comp_type.lower()}_{i+1}.yaml"
+                                    
+                                    dest_path = os.path.join(configs_dir, dest_filename)
+                                    shutil.copy2(config_file_path, dest_path)
+                                    copied_configs.append({
+                                        'component': comp_type,
+                                        'name': config_name,
+                                        'source': config_file_path,
+                                        'destination': dest_path,
+                                        'filename': dest_filename
+                                    })
+                                    debug_print(f"DEBUG: Copied {config_file_path} to {dest_path}")
+                                except Exception as e:
+                                    error_msg = f"Failed to copy {config_file_path}: {str(e)}"
+                                    debug_print(f"DEBUG: {error_msg}")
+                                    missing_configs.append({
+                                        'component': comp_type,
+                                        'name': config_name,
+                                        'path': config_file_path,
+                                        'error': error_msg
+                                    })
+                            
+                            elif config_content:
+                                # Save embedded content to file with simplified naming
+                                try:
+                                    # Use simplified naming: {comp_type.lower()}.yaml or {comp_type.lower()}_{index}.yaml
+                                    if i == 0:  # First instance gets simple name
+                                        dest_filename = f"{comp_type.lower()}.yaml"
+                                    else:  # Additional instances get numbered
+                                        dest_filename = f"{comp_type.lower()}_{i+1}.yaml"
+                                    
+                                    dest_path = os.path.join(configs_dir, dest_filename)
+                                    
+                                    # Save the content to file
+                                    if isinstance(config_content, str):
+                                        with open(dest_path, 'w', encoding='utf-8') as f:
                                             f.write(config_content)
-                                        copied_configs.append(f"{component_name}/{comp_type}: {config_filename} (from imported content)")
-                                        debug_print(f"DEBUG: Wrote config content to: {dest_path}")
-                                    except Exception as e:
-                                        error_print(f"ERROR: Failed to write config content: {e}")
-                                        missing_configs.append(f"{component_name}/{comp_type}: {config_filename} (write failed)")
-                                        
-                                else:
-                                    # No configuration provided
-                                    missing_configs.append(f"{component_name}/{comp_type} (row {row_idx + 1}): No configuration provided")
+                                    else:
+                                        # Assume it's structured data that needs YAML formatting
+                                        import yaml
+                                        with open(dest_path, 'w', encoding='utf-8') as f:
+                                            yaml.dump(config_content, f, default_flow_style=False)
+                                    
+                                    copied_configs.append({
+                                        'component': comp_type,
+                                        'name': config_name,
+                                        'source': 'embedded_content',
+                                        'destination': dest_path,
+                                        'filename': dest_filename
+                                    })
+                                    debug_print(f"DEBUG: Saved embedded config content to {dest_path}")
+                                except Exception as e:
+                                    error_msg = f"Failed to save embedded config for {config_name}: {str(e)}"
+                                    debug_print(f"DEBUG: {error_msg}")
+                                    missing_configs.append({
+                                        'component': comp_type,
+                                        'name': config_name,
+                                        'path': 'embedded_content',
+                                        'error': error_msg
+                                    })
+                            
+                            else:
+                                # No configuration found
+                                missing_configs.append({
+                                    'component': comp_type,
+                                    'name': config_name,
+                                    'path': 'not_specified',
+                                    'error': 'No configuration file path or content specified'
+                                })
+                                debug_print(f"DEBUG: No config found for {comp_type} component '{config_name}'")
+                else:
+                    debug_print(f"DEBUG: Key {config_key} not found in properties")
         
         # Report results
         if copied_configs:
-            self.status_updated.emit(f"Copied {len(copied_configs)} 5G configuration files")
-            debug_print(f"DEBUG: Successfully copied configs: {copied_configs}")
+            debug_print(f"DEBUG: Successfully copied {len(copied_configs)} configuration files:")
+            for config in copied_configs:
+                debug_print(f"  - {config['component']} '{config['name']}': {config['source']} -> {config['filename']}")
         
         if missing_configs:
-            error_msg = f"Missing or invalid 5G configurations detected:\n\n"
-            error_msg += "\n".join(f"• {config}" for config in missing_configs[:10])  # Show first 10
-            if len(missing_configs) > 10:
-                error_msg += f"\n... and {len(missing_configs) - 10} more"
-            
-            error_msg += "\n\nPlease ensure all VGCore components have valid configuration files imported in their properties."
-            
-            raise Exception(f"Missing 5G configurations: {len(missing_configs)} components need configuration files")
-    
+            debug_print(f"DEBUG: {len(missing_configs)} configuration files could not be copied:")
+            for config in missing_configs:
+                debug_print(f"  - {config['component']} '{config['name']}': {config['error']}")
+        
+        return len(copied_configs), len(missing_configs)
+
     def _start_mininet(self):
         """Start Mininet in a new terminal."""
         if not self.mininet_script_path:
@@ -558,7 +666,11 @@ read
             self.status_updated.emit("Copying 5G configuration files...")
             self.progress_updated.emit(30)
             try:
-                self._copy_5g_configs()
+                copied_count, missing_count = self._copy_5g_configs()
+                if copied_count > 0:
+                    self.status_updated.emit(f"Copied {copied_count} 5G configuration files")
+                if missing_count > 0:
+                    warning_print(f"WARNING: {missing_count} configuration files could not be copied")
             except Exception as e:
                 # For simple topology run, only warn about missing configs, don't fail
                 warning_print(f"WARNING: 5G config copy failed: {e}")
