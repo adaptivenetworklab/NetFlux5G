@@ -60,25 +60,25 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app/neflux5g
+WORKDIR /app/netflux5g
 
 RUN git clone https://github.com/intrig-unicamp/mininet-wifi.git
 RUN git clone https://github.com/ramonfontes/containernet.git
 
-WORKDIR /app/neflux5g/mininet-wifi
+WORKDIR /app/netflux5g/mininet-wifi
 
 # Run the installation script
 RUN git checkout 69c6251d06f01840276dee14fd6c7819b232e13f
 RUN apt-get update && util/install.sh -Wlnfv6
 
-WORKDIR /app/neflux5g/containernet
-COPY ./containernet-install.sh /app/neflux5g/containernet/util/install.sh
+WORKDIR /app/netflux5g/containernet
+COPY ./containernet-install.sh /app/netflux5g/containernet/util/install.sh
 RUN apt-get update && util/install.sh -W
 
 # tell containernet that it runs in a container
 ENV CONTAINERNET_NESTED=1
 
-WORKDIR /app/neflux5g
+WORKDIR /app/netflux5g
 
 RUN mkdir NetFlux5G
 

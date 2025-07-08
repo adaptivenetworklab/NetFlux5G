@@ -849,7 +849,7 @@ class MininetExporter:
         # Mapping of component types to their configurations based on latest Open5GS
         component_config = {
             'UPF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'upf.yaml',
                 'startup_cmd': 'open5gs-upfd',
                 'privileged': True,
@@ -871,7 +871,7 @@ class MininetExporter:
                 }
             },
             'AMF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'amf.yaml',
                 'startup_cmd': 'open5gs-amfd',
                 'privileged': False,
@@ -884,11 +884,20 @@ class MininetExporter:
                     'MNC': vgcore_config.get('mnc', '70'),
                     'TAC': vgcore_config.get('tac', '1'),
                     'SST': vgcore_config.get('sst', '1'),
-                    'SD': vgcore_config.get('sd', '0xffffff')
+                    'SD': vgcore_config.get('sd', '0xffffff'),
+                    'OVS_ENABLED': 'true' if vgcore_config.get('ovs_enabled', False) else 'false',
+                    'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
+                    'OVS_BRIDGE_NAME': vgcore_config.get('ovs_bridge_name', 'br-open5gs'),
+                    'OVS_FAIL_MODE': vgcore_config.get('ovs_fail_mode', 'standalone'),
+                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow14'),
+                    'OVS_DATAPATH': vgcore_config.get('ovs_datapath', 'kernel'),
+                    'CONTROLLER_PORT': vgcore_config.get('controller_port', '6633'),
+                    'BRIDGE_PRIORITY': vgcore_config.get('bridge_priority', '32768'),
+                    'STP_ENABLED': 'true' if vgcore_config.get('stp_enabled', False) else 'false'
                 }
             },
             'SMF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'smf.yaml',
                 'startup_cmd': 'open5gs-smfd',
                 'privileged': False,
@@ -896,11 +905,20 @@ class MininetExporter:
                 'terminal_startup': False,
                 'env_vars': {
                     'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
-                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
+                    'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0'),
+                    'OVS_ENABLED': 'true' if vgcore_config.get('ovs_enabled', False) else 'false',
+                    'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
+                    'OVS_BRIDGE_NAME': vgcore_config.get('ovs_bridge_name', 'br-open5gs'),
+                    'OVS_FAIL_MODE': vgcore_config.get('ovs_fail_mode', 'standalone'),
+                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow14'),
+                    'OVS_DATAPATH': vgcore_config.get('ovs_datapath', 'kernel'),
+                    'CONTROLLER_PORT': vgcore_config.get('controller_port', '6633'),
+                    'BRIDGE_PRIORITY': vgcore_config.get('bridge_priority', '32768'),
+                    'STP_ENABLED': 'true' if vgcore_config.get('stp_enabled', False) else 'false'
                 }
             },
             'NRF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'nrf.yaml',
                 'startup_cmd': 'open5gs-nrfd',
                 'privileged': False,
@@ -912,7 +930,7 @@ class MininetExporter:
                 }
             },
             'SCP': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'scp.yaml',
                 'startup_cmd': 'open5gs-scpd',
                 'privileged': False,
@@ -924,7 +942,7 @@ class MininetExporter:
                 }
             },
             'AUSF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'ausf.yaml',
                 'startup_cmd': 'open5gs-ausfd',
                 'privileged': False,
@@ -936,7 +954,7 @@ class MininetExporter:
                 }
             },
             'BSF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'bsf.yaml',
                 'startup_cmd': 'open5gs-bsfd',
                 'privileged': False,
@@ -948,7 +966,7 @@ class MininetExporter:
                 }
             },
             'NSSF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'nssf.yaml',
                 'startup_cmd': 'open5gs-nssfd',
                 'privileged': False,
@@ -960,7 +978,7 @@ class MininetExporter:
                 }
             },
             'PCF': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'pcf.yaml',
                 'startup_cmd': 'open5gs-pcfd',
                 'privileged': False,
@@ -972,7 +990,7 @@ class MininetExporter:
                 }
             },
             'UDM': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'udm.yaml',
                 'startup_cmd': 'open5gs-udmd',
                 'privileged': False,
@@ -984,7 +1002,7 @@ class MininetExporter:
                 }
             },
             'UDR': {
-                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:1.0'),
+                'image': vgcore_config.get('docker_image', 'adaptive/open5gs:latest'),
                 'default_config': 'udr.yaml',
                 'startup_cmd': 'open5gs-udrd',
                 'privileged': False,
@@ -1029,7 +1047,7 @@ class MininetExporter:
                     comp_params.append('publish_all_ports=True')
                     comp_params.append('dcmd="/bin/bash"')
                     comp_params.append("cls=DockerSta")
-                    comp_params.append(f"dimage='{config.get('image', 'adaptive/open5gs:1.0')}'")
+                    comp_params.append(f"dimage='{config.get('image', 'adaptive/open5gs:latest')}'")
                     
                     # Add position
                     x_pos = component.get('x', 0)
@@ -1310,17 +1328,46 @@ class MininetExporter:
         if not links:
             return
 
+        # Dynamically get AMF, UPF, SMF instance names from extracted 5G core components
+        core5g_components = categorized_nodes.get('core5g_components', {})
+        amf_names = [self.sanitize_variable_name(comp.get('name', f'amf{i+1}')) for i, comp in enumerate(core5g_components.get('AMF', []))]
+        upf_names = [self.sanitize_variable_name(comp.get('name', f'upf{i+1}')) for i, comp in enumerate(core5g_components.get('UPF', []))]
+        smf_names = [self.sanitize_variable_name(comp.get('name', f'smf{i+1}')) for i, comp in enumerate(core5g_components.get('SMF', []))]
 
         for link in links:
             source_name = self.sanitize_variable_name(link['source'])
             dest_name = self.sanitize_variable_name(link['destination'])
 
-            # Replace VGcore #1 connections with amf1 connections
-            # Handle various possible names for VGcore #1
-            if source_name in ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]:
-                source_name = "amf1"
-            if dest_name in ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]:
-                dest_name = "amf1"
+            # Replace VGcore #1 connections with amf1, and add upf/smf if present
+            vgcore_names = ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]
+            source_is_vgcore = source_name in vgcore_names
+            dest_is_vgcore = dest_name in vgcore_names
+
+            # Track if we need to add extra links
+            extra_links = []
+
+            if source_is_vgcore or dest_is_vgcore:
+                # Replace VGcore with amf1 (or first AMF if available)
+                amf_target = amf_names[0] if amf_names else "amf1"
+                upf_target = upf_names[0] if upf_names else None
+                smf_target = smf_names[0] if smf_names else None
+
+                if source_is_vgcore:
+                    orig_source = source_name
+                    source_name = amf_target
+                    # Add extra links for upf and smf if present
+                    if upf_target:
+                        extra_links.append((upf_target, dest_name))
+                    if smf_target:
+                        extra_links.append((smf_target, dest_name))
+                if dest_is_vgcore:
+                    orig_dest = dest_name
+                    dest_name = amf_target
+                    # Add extra links for upf and smf if present
+                    if upf_target:
+                        extra_links.append((source_name, upf_target))
+                    if smf_target:
+                        extra_links.append((source_name, smf_target))
 
             # Skip links if source or dest is Controller__{number}
             controller_pattern = re.compile(r'^Controller__\d+$')
@@ -1339,7 +1386,28 @@ class MininetExporter:
             if link_props.get('loss'):
                 link_params.append(f"loss={link_props['loss']}")
 
+            # Add cls=TCLink if either end is amf1 (was VGcore__1) or GNB__{number}
+            gnb_pattern = re.compile(r'^GNB__\d+$', re.IGNORECASE)
+            if source_name == "amf1" or dest_name == "amf1" or \
+               gnb_pattern.match(source_name) or gnb_pattern.match(dest_name):
+                link_params.append("cls=TCLink")
+
             f.write(f'    net.addLink({", ".join(link_params)})\n')
+
+            # Write extra links for upf and smf if needed
+            for extra_source, extra_dest in extra_links:
+                extra_params = [extra_source, extra_dest]
+                # Use same link properties and TCLink logic
+                if link_props.get('bandwidth'):
+                    extra_params.append(f"bw={link_props['bandwidth']}")
+                if link_props.get('delay'):
+                    extra_params.append(f"delay='{link_props['delay']}'")
+                if link_props.get('loss'):
+                    extra_params.append(f"loss={link_props['loss']}")
+                if extra_source in (amf_target, upf_target, smf_target) or extra_dest in (amf_target, upf_target, smf_target) or \
+                   gnb_pattern.match(extra_source) or gnb_pattern.match(extra_dest):
+                    extra_params.append("cls=TCLink")
+                f.write(f'    net.addLink({", ".join(extra_params)})\n')
         f.write('\n')
 
     def write_plot_graph(self, f, categorized_nodes):

@@ -55,13 +55,14 @@ Run the container with the following command:
 ```sh
 docker run -it --rm --privileged --pid='host' --net='host' \
   --name netflux5g-dockerized \
-  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 -env NO_AT_BRIDGE=1 \
+  --env DISPLAY=$DISPLAY --env QT_X11_NO_MITSHM=1 --env NO_AT_BRIDGE=1 \
   -v /tmp/.X11-unix:/tmp/.X11-unix \
   -v /sys/:/sys \
   -v /lib/modules:/lib/modules \
   -v /sys/kernel/debug:/sys/kernel/debug \
   -v /var/run/netns:/var/run/netns \
   -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /app/netflux5g/NetFlux5G/export/mininet/:/app/netflux5g/NetFlux5G/export/mininet/ \
   netflux5g:latest
 ```
 
