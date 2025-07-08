@@ -56,11 +56,15 @@ class AutomationManager:
         if reply == QMessageBox.Yes:
             self.main_window.automation_runner.stop_all()
             
-            # Update UI state
+            # Reset all UI states after stopping
             if hasattr(self.main_window, 'actionRunAll'):
                 self.main_window.actionRunAll.setEnabled(True)
             if hasattr(self.main_window, 'actionStopAll'):
-                self.main_window.actionStopAll.setEnabled(False)    
+                self.main_window.actionStopAll.setEnabled(False)
+            if hasattr(self.main_window, 'actionRun'):
+                self.main_window.actionRun.setEnabled(True)
+            if hasattr(self.main_window, 'actionStop'):
+                self.main_window.actionStop.setEnabled(False)    
 
     def onAutomationFinished(self, success, message):
         """Handle automation completion."""
@@ -72,11 +76,31 @@ class AutomationManager:
                 info_text += f"Working directory: {deployment_info['export_dir']}\n"
                 info_text += f"Mininet Script: {os.path.basename(deployment_info['mininet_script'])}\n\n"
             
-            info_text += "Services are now running. Use 'Stop All' to terminate when done."
+            info_text += "Services are now running. Use 'Stop All' or 'Stop' to terminate when done."
             
             QMessageBox.information(self.main_window, "Deployment Successful", info_text)
+            
+            # Update UI state for successful deployment
+            if hasattr(self.main_window, 'actionRunAll'):
+                self.main_window.actionRunAll.setEnabled(False)
+            if hasattr(self.main_window, 'actionStopAll'):
+                self.main_window.actionStopAll.setEnabled(True)
+            if hasattr(self.main_window, 'actionRun'):
+                self.main_window.actionRun.setEnabled(False)
+            if hasattr(self.main_window, 'actionStop'):
+                self.main_window.actionStop.setEnabled(True)
         else:
             QMessageBox.critical(self.main_window, "Deployment Failed", f"Deployment failed:\n\n{message}")
+            
+            # Reset UI state on failure
+            if hasattr(self.main_window, 'actionRunAll'):
+                self.main_window.actionRunAll.setEnabled(True)
+            if hasattr(self.main_window, 'actionStopAll'):
+                self.main_window.actionStopAll.setEnabled(False)
+            if hasattr(self.main_window, 'actionRun'):
+                self.main_window.actionRun.setEnabled(True)
+            if hasattr(self.main_window, 'actionStop'):
+                self.main_window.actionStop.setEnabled(False)
             
             # Re-enable RunAll button
             if hasattr(self.main_window, 'actionRunAll'):
@@ -161,3 +185,53 @@ class AutomationManager:
         if hasattr(self.main_window, 'controller_manager'):
             return self.main_window.controller_manager.getControllerStatus()
         return "Controller manager not available"
+    
+    def stopTopology(self):
+        """Stop and clean up the current topology - Simple cleanup with mn -c"""
+        debug_print("DEBUG: Stop topology triggered")
+        
+        # Show confirmation dialog
+        reply = QMessageBox.question(
+            self.main_window,
+            "Clean Topology",
+            "Are you sure you want to clean up the current topology?\n\nThis will:\n- Execute 'sudo mn -c' to clean Mininet\n- Stop any running topology processes",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Use the automation runner's stop_all method which already includes mn -c
+            self.main_window.automation_runner.stop_all()
+            self.main_window.status_manager.showCanvasStatus("Topology cleaned up successfully")
+            
+            # Reset all UI states after stopping
+            if hasattr(self.main_window, 'actionRunAll'):
+                self.main_window.actionRunAll.setEnabled(True)
+            if hasattr(self.main_window, 'actionStopAll'):
+                self.main_window.actionStopAll.setEnabled(False)
+            if hasattr(self.main_window, 'actionRun'):
+                self.main_window.actionRun.setEnabled(True)
+            if hasattr(self.main_window, 'actionStop'):
+                self.main_window.actionStop.setEnabled(False)
+
+    def runTopology(self):
+        """Run the topology (actionRun) with proper UI state management."""
+        debug_print("DEBUG: Run topology triggered")
+        
+        # Check if already running
+        if self.main_window.automation_runner.is_deployment_running():
+            QMessageBox.warning(
+                self.main_window,
+                "Already Running", 
+                "A topology is already running. Please stop it first."
+            )
+            return
+        
+        # Start the topology
+        self.main_window.automation_runner.run_topology_only()
+        
+        # Update UI state
+        if hasattr(self.main_window, 'actionRun'):
+            self.main_window.actionRun.setEnabled(False)
+        if hasattr(self.main_window, 'actionStop'):
+            self.main_window.actionStop.setEnabled(True)

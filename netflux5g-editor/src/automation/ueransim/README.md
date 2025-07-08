@@ -1,13 +1,25 @@
-# Enhanced UERANSIM Docker Image with Access Point Functionality
+# UERANSIM with OpenVSwitch and OpenFlow Support
 
-This enhanced UERANSIM Docker image enables gNB (5G base station) containers to act as WiFi Access Points, similar to mininet-wifi Access Points, while maintaining full 5G functionality.
+This UERANSIM Docker implementation provides comprehensive OpenVSwitch (OVS) and OpenFlow support for integration with SDN controllers and mininet-wifi environments, similar to the Open5GS implementation.
 
 ## Features
 
-### Enhanced gNB Capabilities
-- **Dual Functionality**: Acts as both 5G gNB and WiFi Access Point
-- **OpenVSwitch Integration**: Full OVS support with OpenFlow protocol
-- **OpenFlow Controller Support**: Compatible with SDN controllers
+### OpenFlow/SDN Integration
+- **OpenFlow Support**: Full OpenFlow 1.0, 1.3, and 1.4 support
+- **SDN Controller Integration**: Connect to external SDN controllers (OpenDaylight, ONOS, Floodlight, etc.)
+- **Dynamic Flow Management**: Automatic flow setup for 5G traffic patterns
+- **Bridge Management**: Automatic OVS bridge creation and configuration
+
+### Enhanced Networking
+- **Multiple Interface Support**: Support for N2, N3, and Radio interfaces
+- **Wireless AP Integration**: Enhanced AP functionality with OVS integration
+- **Bridge Connectivity**: Patch ports for connecting multiple bridges
+- **Traffic Control**: QoS and traffic shaping capabilities
+
+### Container Orchestration
+- **Supervisor Support**: Multi-process management for OVS, UERANSIM, and AP services
+- **Health Monitoring**: Service restart and monitoring capabilities
+- **Graceful Shutdown**: Proper cleanup of OVS resources on container stop
 - **mininet-wifi Compatibility**: Behaves like standard mininet-wifi Access Points
 - **Network Slicing**: Support for different network slices through AP configuration
 - **QoS Management**: Traffic control and quality of service features

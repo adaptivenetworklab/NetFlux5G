@@ -352,12 +352,19 @@ class MininetExporter:
         self.write_5g_components(f, categorized_nodes)
         self.write_docker_hosts(f, categorized_nodes)
         
-        # Configure nodes
-        f.write('    info("*** Configuring nodes\\n")\n')
-        f.write('    net.configureNodes()\n\n')
+        # Add network configuration commands
+        f.write('    info("*** Connecting Docker nodes to APs\\n")\n')
+        f.write('    # Dynamic UE-to-gNB/AP connection based on canvas positioning and coverage\n')
         
+        # Dynamic UE-to-gNB/AP assignment based on positioning and coverage
+        self.write_dynamic_ue_connections(f, categorized_nodes)
+
         # Set propagation model if wireless components exist
         self.write_propagation_model(f, categorized_nodes)
+
+        # Configure nodes
+        f.write('    info("*** Configuring nodes\\n")\n')
+        f.write('    net.configureWifiNodes()\n\n')
         
         # Create links
         f.write('    info("*** Creating links\\n")\n')
@@ -636,34 +643,36 @@ class MininetExporter:
             f.write('\n')
 
     def write_5g_components(self, f, categorized_nodes):
-        """Write 5G component creation code (gNBs and UEs) with enhanced AP functionality."""
+        """Write 5G component creation code (gNBs and UEs) with enhanced OVS and AP functionality."""
         # Write 5G Core components first
         self.write_5g_core_components(f, categorized_nodes)
         
-        # Write gNBs following the enhanced pattern with AP support
+        # Write gNBs following the enhanced pattern with OVS and AP support
         if categorized_nodes['gnbs']:
-            f.write('    info("*** Add gNB\\n")\n')
+            f.write('    info("*** Add gNB with enhanced OVS/AP support\\n")\n')
             for i, gnb in enumerate(categorized_nodes['gnbs'], 1):
                 props = gnb.get('properties', {})
                 gnb_name = self.sanitize_variable_name(gnb['name'])
                 
                 # Build gNB parameters following the enhanced pattern
                 gnb_params = [f"'{gnb_name}'"]
-                gnb_params.append('cap_add=["net_admin"]')
-                gnb_params.append('network_mode=NETWORK_MODE')  # This will be replaced with actual variable reference
+                gnb_params.append('cap_add=["net_admin", "sys_admin", "sys_nice"]')
+                gnb_params.append('network_mode=NETWORK_MODE')
                 gnb_params.append('publish_all_ports=True')
                 gnb_params.append('dcmd="/bin/bash"')
                 gnb_params.append("cls=DockerSta")
                 gnb_params.append("dimage='adaptive/ueransim:latest'")  # Use our enhanced image
                 
-                # Add privileged mode for AP functionality
+                # Add privileged mode for OVS and AP functionality
                 gnb_params.append('privileged=True')
                 
-                # Add volumes for host hardware access (needed for AP functionality)
+                # Add volumes for host hardware access and OVS functionality
                 volumes = [
                     '"/sys:/sys"',
                     '"/lib/modules:/lib/modules"',
-                    '"/sys/kernel/debug:/sys/kernel/debug"'
+                    '"/sys/kernel/debug:/sys/kernel/debug"',
+                    '"/var/run/openvswitch:/var/run/openvswitch"',
+                    '"/var/log/openvswitch:/var/log/openvswitch"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -683,27 +692,40 @@ class MininetExporter:
                 txpower = gnb_config.get('txpower', 30)
                 gnb_params.append(f"txpower={txpower}")
                 
-                # Build environment variables for both 5G and AP functionality
+                # Build comprehensive environment variables for UERANSIM gNB with all Docker functionality
                 env_dict = {}
                 
-                # 5G Core configuration
-                env_dict["AMF_IP"] = gnb_config.get('amf_hostname', '10.0.0.3')  # Note: Still using IP for compatibility
-                env_dict["GNB_HOSTNAME"] = gnb_config.get('gnb_hostname', f'mn.{gnb_name}')
-                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', f"{gnb_name}-wlan0")
-                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', f"{gnb_name}-wlan0")
-                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', f"{gnb_name}-wlan0")
+                # Core 5G configuration - matches UERANSIM Dockerfile
+                env_dict["AMF_HOSTNAME"] = gnb_config.get('amf_hostname', 'amf')
+                env_dict["GNB_HOSTNAME"] = gnb_config.get('gnb_hostname', f'localhost')
+                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', 'eth0')
+                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', 'eth0')
+                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', 'eth0')
+                env_dict["NETWORK_INTERFACE"] = gnb_config.get('network_interface', 'eth0')
                 env_dict["MCC"] = gnb_config.get('mcc', '999')
                 env_dict["MNC"] = gnb_config.get('mnc', '70')
                 env_dict["SST"] = gnb_config.get('sst', '1')
                 env_dict["SD"] = gnb_config.get('sd', '0xffffff')
                 env_dict["TAC"] = gnb_config.get('tac', '1')
                 
-                # Add AP configuration if enabled
-                ap_config = gnb_config.get('ap_config', {})
-                if ap_config:
-                    env_dict.update(ap_config)
+                # UERANSIM component type
+                env_dict["UERANSIM_COMPONENT"] = "gnb"
                 
-                # Format environment like in the original
+                # Add all OVS configuration if enabled
+                ovs_config = gnb_config.get('ovs_config', {})
+                if ovs_config.get('OVS_ENABLED') == 'true':
+                    env_dict.update(ovs_config)
+                else:
+                    env_dict["OVS_ENABLED"] = "false"
+                
+                # Add all AP configuration if enabled
+                ap_config = gnb_config.get('ap_config', {})
+                if ap_config.get('AP_ENABLED') == 'true':
+                    env_dict.update(ap_config)
+                else:
+                    env_dict["AP_ENABLED"] = "false"
+                
+                # Format environment
                 env_str = str(env_dict).replace("'", '"')
                 gnb_params.append(f"environment={env_str}")
                 
@@ -714,17 +736,17 @@ class MininetExporter:
                 f.write(f'    {gnb_name} = net.addStation({params_str})\n')
             f.write('\n')
         
-        # Write UEs following the exact pattern from fixed_topology-upf.py
+        # Write UEs with enhanced UERANSIM configuration
         if categorized_nodes['ues']:
-            f.write('    info("*** Adding docker UE hosts\\n")\n')
+            f.write('    info("*** Adding enhanced UERANSIM UE hosts\\n")\n')
             for i, ue in enumerate(categorized_nodes['ues'], 1):
                 props = ue.get('properties', {})
                 ue_name = self.sanitize_variable_name(ue['name'])
                 
-                # Build UE parameters following the exact pattern
+                # Build UE parameters following the enhanced pattern
                 ue_params = [f"'{ue_name}'"]
                 ue_params.append('devices=["/dev/net/tun"]')
-                ue_params.append('cap_add=["net_admin"]')
+                ue_params.append('cap_add=["net_admin", "sys_admin"]')
                 
                 # Add enhanced power and range configuration from ConfigurationMapper
                 from manager.configmap import ConfigurationMapper
@@ -751,10 +773,10 @@ class MininetExporter:
                 position = f"{ue.get('x', 0):.1f},{ue.get('y', 0):.1f},0"
                 ue_params.append(f"position='{position}'")
                 
-                # Enhanced UE environment variables with all new configuration options
-                gnb_hostname = ue_config.get('gnb_hostname', 'mn.gnb')
+                # Enhanced UE environment variables with all new configuration options matching UERANSIM Dockerfile
+                gnb_hostname = ue_config.get('gnb_hostname', 'localhost')
                 
-                # Build comprehensive environment dictionary
+                # Build comprehensive environment dictionary matching UERANSIM Dockerfile
                 env_dict = {
                     # Core 5G Configuration
                     "GNB_HOSTNAME": gnb_hostname,
@@ -782,14 +804,28 @@ class MininetExporter:
                     "PDU_SESSIONS": str(ue_config.get('pdu_sessions', 1)),
                     
                     # Mobility Configuration
-                    "MOBILITY_ENABLED": 'true' if ue_config.get('mobility', False) else 'false'
+                    "MOBILITY_ENABLED": 'true' if ue_config.get('mobility', False) else 'false',
+                    
+                    # UERANSIM component type
+                    "UERANSIM_COMPONENT": "ue"
                 }
                 
                 # Add gNB IP if specified
                 if 'gnb_ip' in ue_config:
                     env_dict["GNB_IP"] = ue_config['gnb_ip']
                 
-                # Format environment like in the original
+                # Add OVS configuration if enabled for UE (less common but possible)
+                if 'ovs_config' in ue_config:
+                    ovs_config = ue_config['ovs_config']
+                    if ovs_config.get('OVS_ENABLED') == 'true':
+                        env_dict.update(ovs_config)
+                        env_dict["OVS_BRIDGE_NAME"] = ovs_config.get('OVS_BRIDGE_NAME', 'br-ue')
+                    else:
+                        env_dict["OVS_ENABLED"] = "false"
+                else:
+                    env_dict["OVS_ENABLED"] = "false"
+                
+                # Format environment
                 env_str = str(env_dict).replace("'", '"')
                 ue_params.append(f"environment={env_str}")
                 
@@ -1086,26 +1122,12 @@ class MininetExporter:
         f.write('\n')
 
     def write_5g_startup(self, f, categorized_nodes):
-        """Write 5G component startup commands following fixed_topology-upf.py pattern."""
+        """Write 5G component startup commands with enhanced UERANSIM and OVS support."""
         if not (categorized_nodes['gnbs'] or categorized_nodes['ues'] or categorized_nodes['core5g']):
             return
             
         # Get core components for startup sequence
         core_components = categorized_nodes.get('core5g_components', {})
-        
-        # Add network configuration commands
-        f.write('    info("*** Connecting Docker nodes to APs\\n")\n')
-        f.write('    # Dynamic UE-to-gNB/AP connection based on canvas positioning and coverage\n')
-        
-        # Dynamic UE-to-gNB/AP assignment based on positioning and coverage
-        self.write_dynamic_ue_connections(f, categorized_nodes)
-        
-        f.write('\n')
-        f.write('    info("*** Configuring Propagation Model\\n")\n')
-        f.write('    net.setPropagationModel(model="logDistance", exp=3)\n\n')
-        
-        f.write('    info("*** Configuring WiFi nodes\\n")\n')
-        f.write('    net.configureWifiNodes()\n\n')
         
         # Add links section
         f.write('    info("*** Add links\\n")\n')
@@ -1143,37 +1165,9 @@ class MininetExporter:
             f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
         f.write('\n')
         
-        # # Add capture script execution like in original
-        # f.write('    info("*** Capture all initialization flow and slice packet\\n")\n')
-        # f.write('    Capture1 = cwd + "/capture-initialization-fixed.sh"\n')
-        # f.write('    CLI(net, script=Capture1)\n\n')
-
-        # f.write('    CLI.do_sh(net, "sleep 20")\n\n')
-
-        # f.write('    info("*** pingall for testing and flow tables update\\n")\n')
-        # f.write('    net.pingAll()\n\n')
-        
-        # f.write('    CLI.do_sh(net, "sleep 10")\n\n')
-        
         # Start 5G Core components in proper order with makeTerm2
-        startup_order = ['NRF', 'SCP', 'AUSF', 'UDM', 'UDR', 'PCF', 'BSF', 'NSSF', 'SMF']
-        
-        # Start UPF components first (they need special handling)
-        if 'UPF' in core_components:
-            f.write('    info("*** Post configure Docker UPF connection to Core\\n")\n')
-            for instance in core_components['UPF']:
-                instance_name = self.sanitize_variable_name(instance.get('name', 'upf1'))
-                f.write(f'    makeTerm2({instance_name}, cmd="/entrypoint.sh open5gs-upfd 2>&1 | tee -a /logging/{instance_name}.log")\n')
-            f.write('\n')
-        
-        # Start AMF components
-        if 'AMF' in core_components:
-            f.write('    info("*** Post configure Docker AMF connection to Core\\n")\n')
-            for instance in core_components['AMF']:
-                instance_name = self.sanitize_variable_name(instance.get('name', 'amf1'))
-                f.write(f'    makeTerm2({instance_name}, cmd="open5gs-amfd 2>&1 | tee -a /logging/{instance_name}.log")\n')
-            f.write('\n')
-        
+        startup_order = ['NRF', 'SCP', 'AUSF', 'UDM', 'UDR', 'PCF', 'BSF', 'NSSF', 'SMF', 'AMF', 'UPF']
+
         # Start other core components (if configured)
         for comp_type in startup_order:
             if comp_type in core_components:
@@ -1181,28 +1175,58 @@ class MininetExporter:
                 for instance in core_components[comp_type]:
                     instance_name = self.sanitize_variable_name(instance.get('name', f'{comp_type.lower()}1'))
                     cmd = f'open5gs-{comp_type.lower()}d'
-                    f.write(f'    makeTerm2({instance_name}, cmd="{cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
+                    f.write(f'    makeTerm2({instance_name}, cmd="/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
                 f.write('\n')
         
         f.write('    CLI.do_sh(net, "sleep 10")\n\n')
         
-        # Start gNBs
+        # Start gNBs with enhanced OVS and AP configuration
         if categorized_nodes['gnbs']:
-            f.write('    info("*** Post configure Docker gNB connection to AMF\\n")\n')
+            f.write('    info("*** Starting enhanced UERANSIM gNB with OVS/AP support\\n")\n')
             for gnb in categorized_nodes['gnbs']:
                 gnb_name = self.sanitize_variable_name(gnb['name'])
+                props = gnb.get('properties', {})
+                
+                # Check if OVS configuration is enabled
+                ovs_enabled = (props.get('GNB_OVS_Enabled') or 
+                              props.get('ovs_ovs_enabled', 'false') == 'true' or
+                              props.get('ovs_ovs_enabled') is True)
+                ap_enabled = (props.get('GNB_AP_Enabled') or 
+                             props.get('ap_ap_enabled', 'false') == 'true' or
+                             props.get('ap_ap_enabled') is True)
+                
+                if ovs_enabled or ap_enabled:
+                    f.write(f'    info("*** Pre-configuring OVS/AP for gNB {gnb_name}\\n")\n')
+                    
+                    # The OVS and AP setup will be handled by the entrypoint.sh script
+                    # based on environment variables we've already set
+                    f.write(f'    # OVS_ENABLED and AP_ENABLED environment variables will trigger setup in entrypoint\\n')
+                
+                # Start the gNB service - entrypoint.sh will handle OVS/AP setup automatically
                 f.write(f'    makeTerm2({gnb_name}, cmd="/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log")\n')
             f.write('\n')
-            f.write('    CLI.do_sh(net, "sleep 10")\n\n')
+            f.write('    CLI.do_sh(net, "sleep 15")  # Allow time for gNB and OVS/AP setup\n\n')
         
-        # Start UEs
+        # Start UEs with enhanced configuration
         if categorized_nodes['ues']:
-            f.write('    info("*** Post configure Docker UE nodes\\n")\n')
+            f.write('    info("*** Starting enhanced UERANSIM UE nodes\\n")\n')
             for ue in categorized_nodes['ues']:
                 ue_name = self.sanitize_variable_name(ue['name'])
+                props = ue.get('properties', {})
+                
+                # Check if OVS configuration is enabled for UE (uncommon but possible)
+                ovs_enabled = (props.get('UE_OVS_Enabled') or 
+                              props.get('ovs_ovs_enabled', 'false') == 'true' or
+                              props.get('ovs_ovs_enabled') is True)
+                
+                if ovs_enabled:
+                    f.write(f'    info("*** Pre-configuring OVS for UE {ue_name}\\n")\n')
+                    f.write(f'    # OVS_ENABLED environment variable will trigger setup in entrypoint\\n')
+                
+                # Start the UE service - entrypoint.sh will handle OVS setup automatically
                 f.write(f'    makeTerm2({ue_name}, cmd="/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log")\n')
             f.write('\n')
-            f.write('    CLI.do_sh(net, "sleep 20")\n\n')
+            f.write('    CLI.do_sh(net, "sleep 20")  # Allow time for UE registration and OVS setup\n\n')
             
             # Add UE routing configuration
             f.write('    info("*** Route traffic on UE for End-to-End and End-to-Edge Connection\\n")\n')
@@ -1220,12 +1244,44 @@ class MininetExporter:
                     f.write(f'    {ue_name}.cmd("ip route add 10.45.0.0/16 dev uesimtun0")\n')
             f.write('\n')
         
-        # Add CLI startup
-        f.write('    info("*** Running CLI\\n")\n')
-        f.write('    CLI(net)\n\n')
+        # Add OVS status check if any gNB or UE has OVS enabled
+        has_ovs = False
+        for gnb in categorized_nodes.get('gnbs', []):
+            props = gnb.get('properties', {})
+            if (props.get('GNB_OVS_Enabled') or 
+                props.get('ovs_ovs_enabled', 'false') == 'true' or
+                props.get('ovs_ovs_enabled') is True):
+                has_ovs = True
+                break
         
-        f.write('    info("*** Stopping network\\n")\n')
-        f.write('    net.stop()\n\n')
+        if not has_ovs:
+            for ue in categorized_nodes.get('ues', []):
+                props = ue.get('properties', {})
+                if (props.get('UE_OVS_Enabled') or 
+                    props.get('ovs_ovs_enabled', 'false') == 'true' or
+                    props.get('ovs_ovs_enabled') is True):
+                    has_ovs = True
+                    break
+        
+        if has_ovs:
+            f.write('    info("*** Checking OVS status for enhanced UERANSIM components\\n")\n')
+            f.write('    CLI.do_sh(net, "sleep 5")  # Allow OVS setup to complete\\n')
+            for gnb in categorized_nodes.get('gnbs', []):
+                props = gnb.get('properties', {})
+                if (props.get('GNB_OVS_Enabled') or 
+                    props.get('ovs_ovs_enabled', 'false') == 'true' or
+                    props.get('ovs_ovs_enabled') is True):
+                    gnb_name = self.sanitize_variable_name(gnb['name'])
+                    f.write(f'    makeTerm2({gnb_name}, cmd="ovs-vsctl show || echo \\"OVS not ready for {gnb_name}\\"")\n')
+            
+            for ue in categorized_nodes.get('ues', []):
+                props = ue.get('properties', {})
+                if (props.get('UE_OVS_Enabled') or 
+                    props.get('ovs_ovs_enabled', 'false') == 'true' or
+                    props.get('ovs_ovs_enabled') is True):
+                    ue_name = self.sanitize_variable_name(ue['name'])
+                    f.write(f'    makeTerm2({ue_name}, cmd="ovs-vsctl show || echo \\"OVS not ready for {ue_name}\\"")\n')
+            f.write('\n')
 
     def extract_5g_components_by_type(self, core5g_components):
         """Extract 5G components organized by type from VGcore configurations."""
@@ -1321,7 +1377,7 @@ class MininetExporter:
         
         if has_wireless:
             f.write('    info("*** Configuring propagation model\\n")\n')
-            f.write('    net.setPropagationModel(model="logDistance", exp=4.5)\n\n')
+            f.write('    net.setPropagationModel(model="logDistance", exp=3)\n\n')
 
     def write_links(self, f, links, categorized_nodes):
         """Write link creation code based on extracted links."""
@@ -1374,6 +1430,21 @@ class MininetExporter:
             if controller_pattern.match(source_name) or controller_pattern.match(dest_name):
                 continue
 
+            # Check if we need to swap link order for Switch connected to 5G core components or GNBs
+            switch_pattern = re.compile(r'^Switch__\d+$', re.IGNORECASE)
+            gnb_pattern = re.compile(r'^GNB__\d+$', re.IGNORECASE)
+            core5g_components_names = set(amf_names + upf_names + smf_names)
+            
+            # Check if source is 5G core and dest is switch - if so, swap them
+            if source_name in core5g_components_names and switch_pattern.match(dest_name):
+                source_name, dest_name = dest_name, source_name
+            # Check if source is GNB and dest is switch - if so, swap them
+            elif gnb_pattern.match(source_name) and switch_pattern.match(dest_name):
+                source_name, dest_name = dest_name, source_name
+            # Check if source is switch and dest is 5G core or GNB - this is the desired order, no swap needed
+            elif switch_pattern.match(source_name) and (dest_name in core5g_components_names or gnb_pattern.match(dest_name)):
+                pass  # Already in correct order (Switch, core_component/gnb)
+
             # Build link parameters
             link_params = [source_name, dest_name]
 
@@ -1396,6 +1467,14 @@ class MininetExporter:
 
             # Write extra links for upf and smf if needed
             for extra_source, extra_dest in extra_links:
+                # Apply same switch swapping logic for extra links
+                if extra_source in core5g_components_names and switch_pattern.match(extra_dest):
+                    extra_source, extra_dest = extra_dest, extra_source
+                elif gnb_pattern.match(extra_source) and switch_pattern.match(extra_dest):
+                    extra_source, extra_dest = extra_dest, extra_source
+                elif switch_pattern.match(extra_source) and (extra_dest in core5g_components_names or gnb_pattern.match(extra_dest)):
+                    pass  # Already in correct order (Switch, core_component/gnb)
+                
                 extra_params = [extra_source, extra_dest]
                 # Use same link properties and TCLink logic
                 if link_props.get('bandwidth'):

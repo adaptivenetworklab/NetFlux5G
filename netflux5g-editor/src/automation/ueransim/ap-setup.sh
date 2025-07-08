@@ -12,7 +12,33 @@ log() {
 
 # Function to setup OVS
 setup_ovs() {
-    log "Setting up Open vSwitch..."
+    log "Setting up Open vSwitch for AP functionality..."
+    
+    # Use the main UERANSIM OVS setup if available and enabled
+    if [ "$OVS_ENABLED" = "true" ] && [ -f /usr/local/bin/ueransim-ovs-setup.sh ]; then
+        log "Integrating with main UERANSIM OVS setup..."
+        
+        # Set AP-specific bridge name if not set
+        if [ -z "$OVS_BRIDGE_NAME" ]; then
+            export OVS_BRIDGE_NAME="$AP_BRIDGE_NAME"
+        fi
+        
+        # Let the main OVS setup handle the bridge creation
+        /usr/local/bin/ueransim-ovs-setup.sh
+        
+        # Check if the bridge exists
+        if ovs-vsctl br-exists "$AP_BRIDGE_NAME" 2>/dev/null; then
+            log "AP bridge $AP_BRIDGE_NAME is ready via main OVS setup"
+            return 0
+        elif ovs-vsctl br-exists "$OVS_BRIDGE_NAME" 2>/dev/null; then
+            log "Using main OVS bridge $OVS_BRIDGE_NAME for AP functionality"
+            AP_BRIDGE_NAME="$OVS_BRIDGE_NAME"
+            return 0
+        fi
+    fi
+    
+    # Fallback to standalone OVS setup for AP
+    log "Setting up standalone OVS for AP..."
     
     # Start OVS database
     if [ ! -f /etc/openvswitch/conf.db ]; then

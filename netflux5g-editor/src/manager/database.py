@@ -246,7 +246,7 @@ class DatabaseDeploymentWorker(QThread):
             self.status_updated.emit("Checking Web UI image...")
             self.progress_updated.emit(30)
             
-            pull_cmd = ['docker', 'pull', 'gradiant/open5gs-webui:2.7.1']
+            pull_cmd = ['docker', 'pull', 'gradiant/open5gs-webui:2.7.5']
             subprocess.run(pull_cmd, check=True, timeout=120)  # Allow more time for image pull
             
             # Create and run Web UI container
@@ -269,9 +269,9 @@ class DatabaseDeploymentWorker(QThread):
             
             # Add environment variable
             run_cmd.extend(['-e', 'NODE_ENV=dev'])
-            
-            run_cmd.append('gradiant/open5gs-webui:2.7.1')
-            
+
+            run_cmd.append('gradiant/open5gs-webui:2.7.5')
+
             result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, run_cmd, result.stderr)

@@ -61,22 +61,26 @@ class ConfigurationMapper:
     
     @staticmethod
     def map_gnb_config(properties):
-        """Map gNB properties to configuration parameters with enhanced AP support"""
+        """Map gNB properties to configuration parameters with enhanced UERANSIM Docker support"""
         config = {}
         
-        # Enhanced 5G configuration using new field names
+        # Enhanced 5G configuration using new field names matching UERANSIM Dockerfile
         config['amf_hostname'] = properties.get('GNB_AMFHostName', properties.get('5g_amf_hostname', 'amf'))
-        config['gnb_hostname'] = properties.get('GNB_GNBHostName', properties.get('5g_gnb_hostname', 'mn.gnb'))
+        config['gnb_hostname'] = properties.get('GNB_GNBHostName', properties.get('5g_gnb_hostname', 'localhost'))
         config['mcc'] = properties.get('GNB_MCC', properties.get('5g_mcc', '999'))
         config['mnc'] = properties.get('GNB_MNC', properties.get('5g_mnc', '70'))
         config['sst'] = properties.get('GNB_SST', properties.get('5g_sst', '1'))
         config['sd'] = properties.get('GNB_SD', properties.get('5g_sd', '0xffffff'))
         config['tac'] = properties.get('GNB_TAC', properties.get('5g_tac', '1'))
         
-        # Network interfaces configuration
-        config['n2_iface'] = properties.get('GNB_N2_Interface', properties.get('5g_n2_iface', 'eth0'))
-        config['n3_iface'] = properties.get('GNB_N3_Interface', properties.get('5g_n3_iface', 'eth0'))
-        config['radio_iface'] = properties.get('GNB_Radio_Interface', properties.get('5g_radio_iface', 'eth0'))
+        # Network interfaces configuration - must match Dockerfile environment variables
+        config['n2_iface'] = properties.get('GNB_N2_Interface', properties.get('network_n2_iface', 'eth0'))
+        config['n3_iface'] = properties.get('GNB_N3_Interface', properties.get('network_n3_iface', 'eth0'))
+        config['radio_iface'] = properties.get('GNB_Radio_Interface', properties.get('network_radio_iface', 'eth0'))
+        config['network_interface'] = properties.get('GNB_Network_Interface', properties.get('network_network_interface', 'eth0'))
+        
+        # UERANSIM component type
+        config['ueransim_component'] = 'gnb'
         
         # Wireless configuration for mininet-wifi
         power_fields = ["GNB_Power", "wireless_txpower", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
@@ -99,85 +103,117 @@ class ConfigurationMapper:
                 range_val = str(properties[field]).strip()
                 if range_val:
                     try:
-                        range_int = int(range_val)
-                        if range_int > 0:
-                            config['range'] = range_int
+                        range_num = float(range_val)
+                        if range_num > 0:
+                            config['range'] = range_num
                     except ValueError:
                         pass
                     break
         
-        # Access Point configuration for Docker environment variables
+        # Set default values if not specified
+        if 'txpower' not in config:
+            config['txpower'] = 30  # Default gNB power
+        if 'range' not in config:
+            config['range'] = 300  # Default gNB range
+        
+        # OVS/OpenFlow configuration from GNB properties dialog
+        ovs_config = {}
+        
+        # Check if OVS is enabled
+        if properties.get('GNB_OVS_Enabled') or properties.get('ovs_ovs_enabled'):
+            ovs_config['OVS_ENABLED'] = 'true'
+            ovs_config['OVS_BRIDGE_NAME'] = properties.get('GNB_OVS_BridgeName', properties.get('ovs_ovs_bridge_name', 'br-ueransim'))
+            ovs_config['OVS_FAIL_MODE'] = properties.get('GNB_OVS_FailMode', properties.get('ovs_ovs_fail_mode', 'standalone'))
+            ovs_config['OPENFLOW_PROTOCOLS'] = properties.get('GNB_OVS_Protocols', properties.get('ovs_openflow_protocols', 'OpenFlow14'))
+            ovs_config['OVS_DATAPATH'] = properties.get('GNB_OVS_Datapath', properties.get('ovs_ovs_datapath', 'kernel'))
+            ovs_config['OVS_AUTO_SETUP'] = 'true' if properties.get('GNB_OVS_AutoSetup', properties.get('ovs_ovs_auto_setup')) else 'false'
+            
+            # Controller configuration
+            if properties.get('GNB_OVS_Controller', properties.get('ovs_ovs_controller')):
+                ovs_config['OVS_CONTROLLER'] = properties.get('GNB_OVS_Controller', properties.get('ovs_ovs_controller'))
+            if properties.get('GNB_OVS_ControllerIP', properties.get('ovs_controller_ip')):
+                ovs_config['CONTROLLER_IP'] = properties.get('GNB_OVS_ControllerIP', properties.get('ovs_controller_ip'))
+            if properties.get('GNB_OVS_ControllerPort', properties.get('ovs_controller_port')):
+                ovs_config['CONTROLLER_PORT'] = str(properties.get('GNB_OVS_ControllerPort', properties.get('ovs_controller_port', 6633)))
+                
+            # Bridge interfaces
+            if properties.get('GNB_OVS_BridgeInterfaces', properties.get('ovs_bridge_interfaces')):
+                ovs_config['BRIDGE_INTERFACES'] = properties.get('GNB_OVS_BridgeInterfaces', properties.get('ovs_bridge_interfaces'))
+                
+            # Bridge priority and STP
+            if properties.get('GNB_Bridge_Priority', properties.get('network_bridge_priority')):
+                ovs_config['BRIDGE_PRIORITY'] = str(properties.get('GNB_Bridge_Priority', properties.get('network_bridge_priority', 32768)))
+            ovs_config['STP_ENABLED'] = 'true' if properties.get('GNB_STP_Enabled', properties.get('network_stp_enabled')) else 'false'
+        else:
+            ovs_config['OVS_ENABLED'] = 'false'
+            
+        config['ovs_config'] = ovs_config
+        
+        # AP configuration from GNB properties dialog
         ap_config = {}
         
         # Check if AP is enabled
-        ap_enabled = properties.get('GNB_AP_Enabled', properties.get('ap_ap_enabled', 'false'))
-        if ap_enabled == 'true' or ap_enabled is True:
+        if properties.get('GNB_AP_Enabled') or properties.get('ap_ap_enabled'):
             ap_config['AP_ENABLED'] = 'true'
-            
-            # AP basic configuration
             ap_config['AP_SSID'] = properties.get('GNB_AP_SSID', properties.get('ap_ap_ssid', 'gnb-hotspot'))
-            ap_config['AP_CHANNEL'] = str(properties.get('GNB_AP_Channel', properties.get('ap_ap_channel', '6')))
+            ap_config['AP_CHANNEL'] = str(properties.get('GNB_AP_Channel', properties.get('ap_ap_channel', 6)))
             ap_config['AP_MODE'] = properties.get('GNB_AP_Mode', properties.get('ap_ap_mode', 'g'))
             ap_config['AP_PASSWD'] = properties.get('GNB_AP_Password', properties.get('ap_ap_passwd', ''))
             ap_config['AP_BRIDGE_NAME'] = properties.get('GNB_AP_BridgeName', properties.get('ap_ap_bridge_name', 'br-gnb'))
             
-            # OpenFlow/OVS configuration
-            ap_config['OVS_CONTROLLER'] = properties.get('GNB_OVS_Controller', properties.get('ap_ovs_controller', ''))
-            ap_config['AP_FAILMODE'] = properties.get('GNB_OVS_FailMode', properties.get('ap_ap_failmode', 'standalone'))
-            ap_config['OPENFLOW_PROTOCOLS'] = properties.get('GNB_OVS_Protocols', properties.get('ap_openflow_protocols', 'OpenFlow14'))
-            
-            # Additional AP configuration
-            ap_config['AP_DATAPATH'] = properties.get('GNB_OVS_Datapath', 'kernel')
-            
+            # Add OpenFlow configuration for AP (shared with OVS configuration)
+            if ovs_config.get('OVS_CONTROLLER'):
+                ap_config['OVS_CONTROLLER'] = ovs_config['OVS_CONTROLLER']
+            ap_config['AP_FAILMODE'] = ovs_config.get('OVS_FAIL_MODE', 'standalone')
+            ap_config['OPENFLOW_PROTOCOLS'] = ovs_config.get('OPENFLOW_PROTOCOLS', 'OpenFlow14')
         else:
             ap_config['AP_ENABLED'] = 'false'
-        
-        # Add AP configuration to main config
+            
         config['ap_config'] = ap_config
         
         return config
     
     @staticmethod
     def map_ue_config(properties):
-        """Enhanced map UE properties to configuration parameters with expanded support"""
+        """Enhanced map UE properties to configuration parameters with UERANSIM Docker support"""
         config = {}
         
-        # Core 5G/UE Configuration
-        gnb_hostname = properties.get('UE_GNBHostName') or properties.get('UE_GNB_HOSTNAME')
-        if not gnb_hostname:
-            # Try to find a gNB hostname in the topology if available (not possible here, so fallback)
-            gnb_hostname = 'mn.gnb'
+        # Core 5G/UE Configuration matching UERANSIM Dockerfile
+        gnb_hostname = (properties.get('UE_GNBHostName') or 
+                       properties.get('5g_gnb_hostname') or 
+                       properties.get('network_gnb_hostname') or 
+                       'localhost')
         config['gnb_hostname'] = gnb_hostname
         
-        # Basic UE parameters
-        config['apn'] = properties.get('UE_APN', 'internet')
-        config['msisdn'] = properties.get('UE_MSISDN', '0000000001')
-        config['mcc'] = properties.get('UE_MCC', '999')
-        config['mnc'] = properties.get('UE_MNC', '70')
-        config['sst'] = properties.get('UE_SST', '1')
-        config['sd'] = properties.get('UE_SD', '0xffffff')
-        config['tac'] = properties.get('UE_TAC', '1')
+        # Basic UE parameters - must match Dockerfile environment variables
+        config['apn'] = properties.get('UE_APN', properties.get('5g_apn', 'internet'))
+        config['msisdn'] = properties.get('UE_MSISDN', properties.get('5g_msisdn', '0000000001'))
+        config['mcc'] = properties.get('UE_MCC', properties.get('5g_mcc', '999'))
+        config['mnc'] = properties.get('UE_MNC', properties.get('5g_mnc', '70'))
+        config['sst'] = properties.get('UE_SST', properties.get('5g_sst', '1'))
+        config['sd'] = properties.get('UE_SD', properties.get('5g_sd', '0xffffff'))
+        config['tac'] = properties.get('UE_TAC', properties.get('5g_tac', '1'))
         
         # Authentication parameters
-        config['key'] = properties.get('UE_KEY') or properties.get('UE_Key', '465B5CE8B199B49FAA5F0A2EE238A6BC')
-        config['op_type'] = properties.get('UE_OPType') or properties.get('UE_OP_Type', 'OPC')
-        config['op'] = properties.get('UE_OP', 'E8ED289DEBA952E4283B54E88E6183CA')
+        config['key'] = properties.get('UE_KEY', properties.get('5g_key', '465B5CE8B199B49FAA5F0A2EE238A6BC'))
+        config['op_type'] = properties.get('UE_OPType', properties.get('5g_op_type', 'OPC'))
+        config['op'] = properties.get('UE_OP', properties.get('5g_op', 'E8ED289DEBA952E4283B54E88E6183CA'))
         
         # Device identifiers
-        config['imei'] = properties.get('UE_IMEI', '356938035643803')
-        config['imeisv'] = properties.get('UE_IMEISV', '4370816125816151')
+        config['imei'] = properties.get('UE_IMEI', properties.get('5g_imei', '356938035643803'))
+        config['imeisv'] = properties.get('UE_IMEISV', properties.get('5g_imeisv', '4370816125816151'))
         
         # Network configuration
         gnb_ip = properties.get('UE_GNB_IP')
         if gnb_ip and gnb_ip.strip():
             config['gnb_ip'] = gnb_ip.strip()
         
-        config['tunnel_iface'] = properties.get('UE_TunnelInterface', 'uesimtun0')
-        config['radio_iface'] = properties.get('UE_RadioInterface', 'eth0')
-        config['session_type'] = properties.get('UE_SessionType', 'IPv4')
+        config['tunnel_iface'] = properties.get('UE_TunnelInterface', properties.get('network_tunnel_iface', 'uesimtun0'))
+        config['radio_iface'] = properties.get('UE_RadioInterface', properties.get('network_radio_iface', 'eth0'))
+        config['session_type'] = properties.get('UE_SessionType', properties.get('network_session_type', 'IPv4'))
         
         # PDU sessions
-        pdu_sessions = properties.get('UE_PDUSessions')
+        pdu_sessions = properties.get('UE_PDUSessions', properties.get('network_pdu_sessions', 1))
         if pdu_sessions:
             try:
                 config['pdu_sessions'] = int(pdu_sessions)
@@ -186,9 +222,14 @@ class ConfigurationMapper:
         else:
             config['pdu_sessions'] = 1
         
+        # Mobility configuration
+        config['mobility'] = properties.get('UE_Mobility', properties.get('network_mobility_enabled', False))
+        
+        # UERANSIM component type
+        config['ueransim_component'] = 'ue'
+        
         # Wireless configuration for mininet-wifi
-        # Power configuration for radio propagation
-        power_fields = ["UE_Power", "UE_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+        power_fields = ["UE_Power", "wireless_txpower", "UE_TxPower", "lineEdit_power", "doubleSpinBox_power"]
         for field in power_fields:
             if properties.get(field):
                 power = str(properties[field]).strip()
@@ -201,39 +242,42 @@ class ConfigurationMapper:
                         pass
                     break
         
-        # Range configuration
-        range_fields = ["UE_Range", "UE_TxRange", "lineEdit_range", "doubleSpinBox_range"]
+        # Range configuration (coverage area)
+        range_fields = ["UE_Range", "wireless_range", "UE_Coverage", "UE_TxRange", "spinBox_range"]
         for field in range_fields:
             if properties.get(field):
                 range_val = str(properties[field]).strip()
                 if range_val:
                     try:
-                        range_value = float(range_val)
-                        if range_value > 0:
-                            config['range'] = range_value
+                        range_num = float(range_val)
+                        if range_num > 0:
+                            config['range'] = range_num
                     except ValueError:
                         pass
                     break
+        
+        # Set default values if not specified
+        if 'txpower' not in config:
+            config['txpower'] = 20  # Default UE power
+        if 'range' not in config:
+            config['range'] = 116  # Default UE range
         
         # Association and mobility
-        config['association'] = properties.get('UE_AssociationMode', 'auto')
-        config['mobility'] = properties.get('UE_Mobility', False)
+        config['association'] = properties.get('UE_AssociationMode', properties.get('wireless_association', 'auto'))
         
-        return config
+        # OVS configuration for UE (less common but possible)
+        ovs_config = {}
+        if properties.get('UE_OVS_Enabled') or properties.get('ovs_ovs_enabled'):
+            ovs_config['OVS_ENABLED'] = 'true'
+            ovs_config['OVS_BRIDGE_NAME'] = properties.get('UE_OVS_BridgeName', properties.get('ovs_ovs_bridge_name', 'br-ue'))
+            ovs_config['OVS_FAIL_MODE'] = properties.get('UE_OVS_FailMode', properties.get('ovs_ovs_fail_mode', 'standalone'))
+            ovs_config['OPENFLOW_PROTOCOLS'] = properties.get('UE_OVS_Protocols', properties.get('ovs_openflow_protocols', 'OpenFlow14'))
+            ovs_config['OVS_DATAPATH'] = properties.get('UE_OVS_Datapath', properties.get('ovs_ovs_datapath', 'kernel'))
+            ovs_config['UERANSIM_COMPONENT'] = 'ue'
+        else:
+            ovs_config['OVS_ENABLED'] = 'false'
         
-        # Range configuration (coverage area)
-        range_fields = ["UE_Range", "UE_Coverage", "spinBox_range"]
-        for field in range_fields:
-            if properties.get(field):
-                range_val = str(properties[field]).strip()
-                if range_val:
-                    try:
-                        range_int = int(range_val)
-                        if range_int > 0:
-                            config['range'] = range_int
-                    except ValueError:
-                        pass
-                    break
+        config['ovs_config'] = ovs_config
         
         return config
     

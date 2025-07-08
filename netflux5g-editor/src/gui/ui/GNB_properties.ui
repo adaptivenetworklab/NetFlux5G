@@ -369,112 +369,234 @@
      <attribute name="title">
       <string>OpenFlow/OVS</string>
      </attribute>
-     <widget class="QWidget" name="formLayoutWidget_ovs">
+     <widget class="QWidget" name="groupBox_ovs_enable">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>10</y>
         <width>400</width>
-        <height>200</height>
+        <height>480</height>
        </rect>
       </property>
-      <layout class="QFormLayout" name="formLayout_ovs">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_ovs_controller">
-         <property name="text">
-          <string>Controller:</string>
+      <layout class="QVBoxLayout" name="verticalLayout_ovs">
+       <item>
+        <widget class="QCheckBox" name="GNB_OVS_Enabled">
+         <property name="toolTip">
+          <string>Enable OpenVSwitch and OpenFlow integration for SDN controller connectivity</string>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="GNB_OVS_Controller">
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+          <string notr="true">font-weight: bold; color: rgb(33, 37, 41);</string>
          </property>
          <property name="text">
-          <string/>
-         </property>
-         <property name="placeholderText">
-          <string>tcp:127.0.0.1:6633</string>
+          <string>Enable OpenVSwitch/OpenFlow</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_ovs_failmode">
-         <property name="text">
-          <string>Fail Mode:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="GNB_OVS_FailMode">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>standalone</string>
-          </property>
+       <item>
+        <layout class="QFormLayout" name="formLayout_ovs">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_ovs_controller">
+           <property name="text">
+            <string>Controller:</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>secure</string>
-          </property>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="GNB_OVS_Controller">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>tcp:127.0.0.1:6633</string>
+           </property>
+          </widget>
          </item>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_ovs_protocols">
-         <property name="text">
-          <string>OpenFlow Protocols:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="GNB_OVS_Protocols">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>OpenFlow14</string>
-          </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_ovs_bridge_name">
+           <property name="text">
+            <string>Bridge Name:</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>OpenFlow13</string>
-          </property>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="GNB_OVS_BridgeName">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string>br-gnb</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>OpenFlow10</string>
-          </property>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_ovs_failmode">
+           <property name="text">
+            <string>Fail Mode:</string>
+           </property>
+          </widget>
          </item>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_ovs_datapath">
-         <property name="text">
-          <string>Datapath:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QComboBox" name="GNB_OVS_Datapath">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>kernel</string>
-          </property>
+         <item row="2" column="1">
+          <widget class="QComboBox" name="GNB_OVS_FailMode">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>standalone</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>secure</string>
+            </property>
+           </item>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>user</string>
-          </property>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_ovs_protocols">
+           <property name="text">
+            <string>OpenFlow Protocols:</string>
+           </property>
+          </widget>
          </item>
-        </widget>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="GNB_OVS_Protocols">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>OpenFlow14</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>OpenFlow13</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>OpenFlow10</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>OpenFlow10,OpenFlow13,OpenFlow14</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_ovs_datapath">
+           <property name="text">
+            <string>Datapath:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="GNB_OVS_Datapath">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>kernel</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>user</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_ovs_auto_setup">
+           <property name="text">
+            <string>Auto Setup:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QCheckBox" name="GNB_OVS_AutoSetup">
+           <property name="toolTip">
+            <string>Automatically add network interfaces to the OVS bridge</string>
+           </property>
+           <property name="text">
+            <string>Auto-add interfaces to bridge</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_ovs_bridge_interfaces">
+           <property name="text">
+            <string>Bridge Interfaces:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="GNB_OVS_BridgeInterfaces">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string>auto</string>
+           </property>
+           <property name="placeholderText">
+            <string>auto, eth0, or eth0,eth1,wlan0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_ovs_controller_ip">
+           <property name="text">
+            <string>Controller IP:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="GNB_OVS_ControllerIP">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="placeholderText">
+            <string>127.0.0.1</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_ovs_controller_port">
+           <property name="text">
+            <string>Controller Port:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QSpinBox" name="GNB_OVS_ControllerPort">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>65535</number>
+           </property>
+           <property name="value">
+            <number>6633</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -489,7 +611,7 @@
         <x>10</x>
         <y>10</y>
         <width>400</width>
-        <height>150</height>
+        <height>300</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_interfaces">
@@ -541,6 +663,63 @@
          </property>
          <property name="text">
           <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_network_iface">
+         <property name="text">
+          <string>Network Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="GNB_Network_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_bridge_priority">
+         <property name="text">
+          <string>Bridge Priority:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QSpinBox" name="GNB_Bridge_Priority">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="value">
+          <number>32768</number>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_stp_enabled">
+         <property name="text">
+          <string>STP Enabled:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QCheckBox" name="GNB_STP_Enabled">
+         <property name="toolTip">
+          <string>Enable Spanning Tree Protocol on the bridge</string>
+         </property>
+         <property name="text">
+          <string>Enable STP</string>
          </property>
         </widget>
        </item>

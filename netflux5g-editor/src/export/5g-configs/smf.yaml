@@ -17,13 +17,13 @@ smf:
       #      nrf:
       #        - uri: http://127.0.0.10:7777
       scp:
-      - uri: http://scp:7777
+      - uri: http://scp1:7777
   pfcp:
     server:
     - dev: eth0
     client:
       upf:
-      - address: upf
+      - address: upf1
         dnn: [internet, internet2]
       - address: upf2
         dnn: [web1, web2]

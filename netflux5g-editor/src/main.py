@@ -93,6 +93,9 @@ class NetFlux5GApp(QMainWindow):
         # Setup all connections
         self.setupConnections()
 
+        # Setup initial UI states
+        self.setupInitialUIStates()
+
         # Debug menu actions
         self.debugMenuActions()
 
@@ -149,7 +152,7 @@ class NetFlux5GApp(QMainWindow):
             self.main_splitter.addWidget(self.canvas_view)
             self.main_splitter.setSizes([240, 1000])
             self.main_splitter.setStretchFactor(0, 0)
-            self.main_splitter.setStretchFactor(1, 1)  # Make canvas expand
+            self.main_splitter.setStretchFactor(1, 1)
             self.setCentralWidget(self.main_splitter)
             self.main_splitter.setCollapsible(0, True)
             self.main_splitter.setCollapsible(1, False)
@@ -219,9 +222,9 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionStopAll'):
                 self.actionStopAll.triggered.connect(self.automation_manager.stopAllComponents)
             if hasattr(self, 'actionRun'):
-                self.actionRun.triggered.connect(self.automation_runner.run_topology_only)
+                self.actionRun.triggered.connect(self.automation_manager.runTopology)
             if hasattr(self, 'actionStop'):
-                self.actionStop.triggered.connect(self.automation_runner.stop_all)
+                self.actionStop.triggered.connect(self.automation_manager.stopTopology)
 
             # Docker network connections
             if hasattr(self, 'actionCreate_Docker_Network'):
@@ -277,10 +280,17 @@ class NetFlux5GApp(QMainWindow):
                 self.actionDelete.setShortcut(QKeySequence('D'))
             if hasattr(self, 'actionShowGrid'):
                 self.actionShowGrid.setShortcut(QKeySequence('G'))
+            if hasattr(self, 'actionRun'):
+                self.actionRun.setShortcut(QKeySequence('F5'))
+            if hasattr(self, 'actionStop'):
+                self.actionStop.setShortcut(QKeySequence('F6'))
 
             # Connect splitter moved signal to handler
             if hasattr(self, 'splitter'):
                 self.splitter.splitterMoved.connect(self.onSplitterMoved)
+
+            # Connect automation runner signals
+            self.automation_runner.execution_finished.connect(self.automation_manager.onAutomationFinished)
 
             debug_print("DEBUG: All connections setup successfully")
             
@@ -634,6 +644,35 @@ class NetFlux5GApp(QMainWindow):
     def onTopologyChanged(self):
         """Called when the topology is changed (components added/removed/modified)."""
         self.markAsModified()
+
+    def setupInitialUIStates(self):
+        """Setup initial UI button states."""
+        try:
+            # Initially disable stop actions since nothing is running
+            if hasattr(self, 'actionStopAll'):
+                self.actionStopAll.setEnabled(False)
+            if hasattr(self, 'actionStop'):
+                self.actionStop.setEnabled(False)
+                
+            # Enable run actions initially
+            if hasattr(self, 'actionRunAll'):
+                self.actionRunAll.setEnabled(True)
+            if hasattr(self, 'actionRun'):
+                self.actionRun.setEnabled(True)
+                
+            # Setup tooltips for automation actions
+            if hasattr(self, 'actionRun'):
+                self.actionRun.setToolTip("Run the current topology in Mininet (F5)")
+            if hasattr(self, 'actionStop'):
+                self.actionStop.setToolTip("Stop and clean up the current topology with 'sudo mn -c' (F6)")
+            if hasattr(self, 'actionRunAll'):
+                self.actionRunAll.setToolTip("Deploy and run all 5G components with Docker")
+            if hasattr(self, 'actionStopAll'):
+                self.actionStopAll.setToolTip("Stop all running 5G services and Docker containers")
+                
+            debug_print("DEBUG: Initial UI states setup successfully")
+        except Exception as e:
+            error_print(f"ERROR: Failed to setup initial UI states: {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

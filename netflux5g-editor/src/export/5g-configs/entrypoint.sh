@@ -2,6 +2,7 @@
 
 set -eo pipefail
 
+# Belom dynamic lupa wkwk
 
 # tun iface create
 function tun_create {

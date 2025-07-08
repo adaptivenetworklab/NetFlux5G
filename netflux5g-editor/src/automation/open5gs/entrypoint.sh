@@ -64,8 +64,23 @@ if [ "$OVS_ENABLED" = "true" ]; then
     /opt/open5gs/bin/ovs-setup.sh &
     OVS_SETUP_PID=$!
     
-    # Wait a moment for OVS to initialize
-    sleep 3
+    # Wait for OVS setup to complete or timeout
+    echo "Waiting for OVS setup to complete..."
+    local wait_count=0
+    local max_wait=30
+    
+    while [ $wait_count -lt $max_wait ]; do
+        if ! kill -0 $OVS_SETUP_PID 2>/dev/null; then
+            echo "OVS setup completed"
+            break
+        fi
+        sleep 1
+        wait_count=$((wait_count + 1))
+    done
+    
+    if [ $wait_count -eq $max_wait ]; then
+        echo "WARNING: OVS setup taking longer than expected"
+    fi
 fi
 
 if [[ "$COMMAND"  == *"open5gs-pgwd" ]] || [[ "$COMMAND"  == *"open5gs-upfd" ]]; then
@@ -99,13 +114,32 @@ ip route show
 echo ""
 
 if [ "$OVS_ENABLED" = "true" ]; then
+    echo "=== OVS Status Check ==="
     echo "OVS bridges:"
     ovs-vsctl list-br 2>/dev/null || echo "OVS not ready yet"
+    
+    # Check for any OpenFlow version mismatches
+    if ovs-vsctl list-br | grep -q "br-open5gs"; then
+        echo "Bridge configuration:"
+        ovs-vsctl list bridge br-open5gs | grep -E "(protocols|controller)"
+        
+        echo "Testing OpenFlow connectivity:"
+        local of_version="OpenFlow13"
+        if ovs-ofctl -O $of_version show br-open5gs >/dev/null 2>&1; then
+            echo "OpenFlow $of_version connectivity: OK"
+        else
+            echo "OpenFlow $of_version connectivity: FAILED"
+            echo "Trying OpenFlow10..."
+            if ovs-ofctl -O OpenFlow10 show br-open5gs >/dev/null 2>&1; then
+                echo "OpenFlow10 connectivity: OK"
+            else
+                echo "OpenFlow10 connectivity: FAILED"
+            fi
+        fi
+    fi
 fi
 echo "================================"
 
 # Start the main Open5GS service
 echo "Starting Open5GS service: $@"
-$@
-
-exit 1
+exec "$@"

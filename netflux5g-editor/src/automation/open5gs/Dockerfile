@@ -5,15 +5,9 @@ ARG branch=main
 ENV VERSION=$version
 ENV BRANCH=$branch
 
-LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" \
-      org.opencontainers.image.vendor="Gradiant" \
-      org.opencontainers.image.licenses="Apache-2.0" \
-      org.opencontainers.image.version="$version"
-
 RUN apt-get update && \
     apt-get upgrade -y && \
-    DEBIAN_FRONTEND=noninteractive \
-    apt-get install -y --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         python3-pip \
         python3-setuptools \
         python3-wheel \
@@ -57,27 +51,14 @@ RUN	mkdir -p /opt/open5gs && cd /tmp && git clone https://github.com/open5gs/ope
     ln -s /opt/open5gs/subprojects/ /opt/open5gs/../subprojects && \
     ninja -C build install
 
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y net-tools iputils-ping iproute2 dnsutils gettext-base iptables \
-    openvswitch-switch openvswitch-common \
-    bridge-utils \
-    python3 python3-pip \
-    util-linux \
-    jq
-
+## Replace default config values to work in containers (use dev eth0 and reference other containers by name)
 COPY configs/open5gs/* /opt/open5gs/etc/open5gs/
 COPY configs/freeDiameter/* /opt/open5gs/etc/freeDiameter/
-
 
 FROM debian:bullseye-slim
 
 ARG version
 ENV VERSION=$version
-
-LABEL org.opencontainers.image.authors="Carlos Giraldo <cgiraldo@gradiant.org>" \
-      org.opencontainers.image.vendor="Gradiant" \
-      org.opencontainers.image.licenses="Apache-2.0" \
-      org.opencontainers.image.version="$version"
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
@@ -95,7 +76,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && DEBIAN_FRONTEND=noninteract
     libcurl4 \
     libmicrohttpd12 \
     libnghttp2-14 \
-    wondershaper iproute2 iputils-ping procps net-tools iptables iperf iperf3 traceroute tcpdump iw wireless-tools ethtool procps tshark speedtest-cli \
+    wondershaper iproute2 iputils-ping procps net-tools iptables iperf iperf3 traceroute tcpdump iw wireless-tools ethtool procps tshark speedtest-cli dnsutils gettext-base \
     openvswitch-switch openvswitch-common \
     bridge-utils \
     python3 python3-pip \

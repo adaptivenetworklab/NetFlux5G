@@ -8,6 +8,36 @@ set -eo pipefail
 
 echo "Starting OVS setup for Open5GS container..."
 
+# Function to get compatible OpenFlow version for ovs-ofctl commands
+function get_openflow_version {
+    local bridge_name=${1:-"br-open5gs"}
+    local protocols
+    
+    # Get the protocols configured on the bridge
+    protocols=$(ovs-vsctl get bridge $bridge_name protocols 2>/dev/null | tr -d '[]"' | tr ',' ' ')
+    
+    # Try different OpenFlow versions in order of preference
+    for proto in $protocols; do
+        case $proto in
+            "OpenFlow10")
+                echo "OpenFlow10"
+                return 0
+                ;;
+            "OpenFlow13")
+                echo "OpenFlow13"  
+                return 0
+                ;;
+            "OpenFlow14")
+                echo "OpenFlow14"
+                return 0
+                ;;
+        esac
+    done
+    
+    # Default fallback
+    echo "OpenFlow13"
+}
+
 # Function to check if OVS is enabled
 function ovs_enabled {
     if [ "$OVS_ENABLED" = "true" ]; then
@@ -21,7 +51,7 @@ function ovs_enabled {
 function setup_ovs_bridge {
     local bridge_name=${OVS_BRIDGE_NAME:-"br-open5gs"}
     local fail_mode=${OVS_FAIL_MODE:-"standalone"}
-    local protocols=${OPENFLOW_PROTOCOLS:-"OpenFlow14"}
+    local protocols=${OPENFLOW_PROTOCOLS:-"OpenFlow10,OpenFlow13,OpenFlow14"}
     local datapath=${OVS_DATAPATH:-"kernel"}
     
     echo "Setting up OVS bridge: $bridge_name"
@@ -29,6 +59,7 @@ function setup_ovs_bridge {
     # Start OVS services if not running
     if ! pgrep ovs-vswitchd > /dev/null; then
         echo "Starting OVS services..."
+        service openvswitch-switch start || true
         ovsdb-server --detach --remote=punix:/var/run/openvswitch/db.sock \
                      --remote=ptcp:6640 --pidfile --log-file
         ovs-vsctl --no-wait init
@@ -61,6 +92,14 @@ function setup_ovs_bridge {
     if [ -n "$OVS_CONTROLLER" ]; then
         echo "Setting controller: $OVS_CONTROLLER"
         ovs-vsctl set-controller $bridge_name $OVS_CONTROLLER
+        
+        # Check if controller looks like a hostname/service name
+        if [[ "$OVS_CONTROLLER" =~ ^[a-zA-Z] ]] && [[ ! "$OVS_CONTROLLER" =~ ^tcp: ]]; then
+            echo "WARNING: Controller '$OVS_CONTROLLER' appears to be a hostname/service name."
+            echo "For Docker environments, ensure the controller container is running and accessible."
+            echo "Consider using 'tcp:controller-hostname:port' format for explicit TCP connections."
+        fi
+        
     elif [ -n "$CONTROLLER_IP" ]; then
         local controller_port=${CONTROLLER_PORT:-"6633"}
         local controller_url="tcp:${CONTROLLER_IP}:${controller_port}"
@@ -152,7 +191,14 @@ function show_ovs_status {
         
         echo ""
         echo "OpenFlow flows:"
-        ovs-ofctl dump-flows $bridge_name
+        local of_version=$(get_openflow_version $bridge_name)
+        echo "Using OpenFlow version: $of_version"
+        ovs-ofctl -O $of_version dump-flows $bridge_name 2>/dev/null || {
+            echo "Failed to dump flows with $of_version, trying fallback versions..."
+            ovs-ofctl -O OpenFlow13 dump-flows $bridge_name 2>/dev/null || \
+            ovs-ofctl -O OpenFlow10 dump-flows $bridge_name 2>/dev/null || \
+            echo "Unable to dump flows - OpenFlow version mismatch"
+        }
         
         echo ""
         echo "Controller connection:"

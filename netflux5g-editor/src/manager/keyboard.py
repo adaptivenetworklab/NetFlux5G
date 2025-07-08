@@ -52,11 +52,14 @@ class KeyboardManager:
                     self.main_window.component_operations_manager.pasteComponent()
         # Add shortcuts for RunAll and StopAll
         elif event.key() == Qt.Key_R and event.modifiers() & Qt.ControlModifier:
-            if hasattr(self.main_window, 'actionRunAll') and self.main_window.actionRunAll.isEnabled():
-                self.main_window.automation_manager.runAllComponents()
-        elif event.key() == Qt.Key_S and event.modifiers() & Qt.ControlModifier and event.modifiers() & Qt.ShiftModifier:
-            if hasattr(self.main_window, 'actionStopAll') and self.main_window.actionStopAll.isEnabled():
-                self.main_window.automation_manager.stopAllComponents()
+            # Ctrl+R for RunAll 
+            self.main_window.automation_manager.runAllComponents()
+        elif event.key() == Qt.Key_F5:
+            # F5 for Run topology
+            self.main_window.automation_manager.runTopology()
+        elif event.key() == Qt.Key_F6:
+            # F6 for Stop topology
+            self.main_window.automation_manager.stopTopology()
         # Add shortcuts for Docker network operations
         elif event.key() == Qt.Key_C and event.modifiers() & Qt.ControlModifier and event.modifiers() & Qt.ShiftModifier:
             # Ctrl+Shift+C for create Docker network
