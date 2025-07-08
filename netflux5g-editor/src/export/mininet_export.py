@@ -656,7 +656,7 @@ class MininetExporter:
                 
                 # Build gNB parameters following the enhanced pattern
                 gnb_params = [f"'{gnb_name}'"]
-                gnb_params.append('cap_add=["net_admin", "sys_admin", "sys_nice"]')
+                gnb_params.append('cap_add=["net_admin", "sys_admin", "sys_nice", "sys_resource"]')
                 gnb_params.append('network_mode=NETWORK_MODE')
                 gnb_params.append('publish_all_ports=True')
                 gnb_params.append('dcmd="/bin/bash"')
@@ -1200,8 +1200,8 @@ class MininetExporter:
                     
                     # The OVS and AP setup will be handled by the entrypoint.sh script
                     # based on environment variables we've already set
-                    f.write(f'    # OVS_ENABLED and AP_ENABLED environment variables will trigger setup in entrypoint\\n')
-                
+                    f.write(f'    # OVS_ENABLED and AP_ENABLED environment variables will trigger setup in entrypoint\\n")\n')
+
                 # Start the gNB service - entrypoint.sh will handle OVS/AP setup automatically
                 f.write(f'    makeTerm2({gnb_name}, cmd="/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log")\n')
             f.write('\n')

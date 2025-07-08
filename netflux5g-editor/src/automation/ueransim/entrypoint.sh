@@ -59,8 +59,8 @@ if [ "$OVS_ENABLED" = "true" ]; then
     
     # Wait for OVS setup to complete or timeout
     echo "Waiting for OVS setup to complete..."
-    local wait_count=0
-    local max_wait=30
+    wait_count=0
+    max_wait=30
     
     while [ $wait_count -lt $max_wait ]; do
         if ! kill -0 $OVS_SETUP_PID 2>/dev/null; then

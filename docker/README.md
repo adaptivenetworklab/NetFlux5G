@@ -63,6 +63,7 @@ docker run -it --rm --privileged --pid='host' --net='host' \
   -v /var/run/netns:/var/run/netns \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /app/netflux5g/NetFlux5G/export/mininet/:/app/netflux5g/NetFlux5G/export/mininet/ \
+  -v /logging/:/logging/ \
   netflux5g:latest
 ```
 

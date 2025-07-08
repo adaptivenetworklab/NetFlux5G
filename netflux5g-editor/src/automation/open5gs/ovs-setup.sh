@@ -59,12 +59,25 @@ function setup_ovs_bridge {
     # Start OVS services if not running
     if ! pgrep ovs-vswitchd > /dev/null; then
         echo "Starting OVS services..."
-        service openvswitch-switch start || true
-        ovsdb-server --detach --remote=punix:/var/run/openvswitch/db.sock \
-                     --remote=ptcp:6640 --pidfile --log-file
-        ovs-vsctl --no-wait init
-        ovs-vswitchd --detach --pidfile --log-file
+
+        # Create OVS database if it doesn't exist
+        if [ ! -f /etc/openvswitch/conf.db ]; then
+            echo "Creating OVS database..."
+            ovsdb-tool create /etc/openvswitch/conf.db /usr/share/openvswitch/vswitch.ovsschema
+        fi
         
+        
+        # Start OVS database server
+        ovsdb-server --detach --remote=punix:/var/run/openvswitch/db.sock \
+                     --remote=ptcp:6640 --pidfile --log-file \
+                     --remote=db:Open_vSwitch,Open_vSwitch,manager_options
+        
+        # Initialize database
+        ovs-vsctl --no-wait init
+        
+        # Start OVS switch daemon
+        ovs-vswitchd --detach --pidfile --log-file
+
         # Wait for OVS to be ready
         sleep 2
     fi

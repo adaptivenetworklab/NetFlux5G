@@ -101,7 +101,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/open5gs.conf
 RUN chmod +x /opt/open5gs/etc/open5gs/entrypoint.sh /opt/open5gs/bin/ovs-setup.sh /opt/open5gs/bin/open5gs-ovs-config.sh
 
 # Create required directories for OVS
-RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /var/log/supervisor
+RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /var/log/supervisor /logging
 
 #Run with non-root user
 # RUN groupadd -r open5gs && useradd --no-log-init -r -g open5gs open5gs

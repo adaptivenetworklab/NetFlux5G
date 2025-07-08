@@ -106,7 +106,7 @@ ENV AP_FAILMODE=standalone
 ENV OPENFLOW_PROTOCOLS=OpenFlow14
 
 # Additional OVS and wireless configuration
-RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /etc/openvswitch /var/log/supervisor
+RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /etc/openvswitch /var/log/supervisor /logging
 RUN systemctl disable hostapd || true
 RUN systemctl disable wpa_supplicant || true
 
