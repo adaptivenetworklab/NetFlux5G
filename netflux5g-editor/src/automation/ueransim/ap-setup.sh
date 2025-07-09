@@ -10,7 +10,42 @@ log() {
     echo "[AP-SETUP] $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
-# Function to setup OVS
+# Function to cleanup on exit
+cleanup() {
+    log "Cleaning up AP setup..."
+    pkill -f hostapd 2>/dev/null || true
+    pkill -f dnsmasq 2>/dev/null || true
+    # Remove interfaces that were created
+    if [ -n "$VIRTUAL_WLAN_IFACE" ] && ip link show "$VIRTUAL_WLAN_IFACE" >/dev/null 2>&1; then
+        ip link delete "$VIRTUAL_WLAN_IFACE" 2>/dev/null || true
+    fi
+}
+
+trap cleanup EXIT
+
+# Check if AP functionality is enabled
+if [ "$AP_ENABLED" != "true" ]; then
+    log "AP functionality is disabled (AP_ENABLED != true)"
+    exit 0
+fi
+
+# Set default values
+AP_SSID=${AP_SSID:-"gnb-hotspot"}
+AP_CHANNEL=${AP_CHANNEL:-"6"}
+AP_MODE=${AP_MODE:-"g"}
+AP_PASSWD=${AP_PASSWD:-""}
+AP_BRIDGE_NAME=${AP_BRIDGE_NAME:-"br-gnb"}
+AP_FAILMODE=${AP_FAILMODE:-"standalone"}
+OPENFLOW_PROTOCOLS=${OPENFLOW_PROTOCOLS:-"OpenFlow14"}
+
+log "Starting AP setup with configuration:"
+log "  SSID: $AP_SSID"
+log "  Channel: $AP_CHANNEL"
+log "  Mode: $AP_MODE"
+log "  Bridge: $AP_BRIDGE_NAME"
+log "  Password: ${AP_PASSWD:+[SET]}${AP_PASSWD:-[NONE]}"
+
+# Function to setup OVS bridge for AP
 setup_ovs() {
     log "Setting up Open vSwitch for AP functionality..."
     
@@ -24,7 +59,12 @@ setup_ovs() {
         fi
         
         # Let the main OVS setup handle the bridge creation
-        /usr/local/bin/ueransim-ovs-setup.sh
+        source /usr/local/bin/ueransim-ovs-setup.sh
+        
+        # Setup OVS bridge using the main script functions
+        if type setup_ovs_bridge >/dev/null 2>&1; then
+            setup_ovs_bridge
+        fi
         
         # Check if the bridge exists
         if ovs-vsctl br-exists "$AP_BRIDGE_NAME" 2>/dev/null; then
@@ -40,22 +80,35 @@ setup_ovs() {
     # Fallback to standalone OVS setup for AP
     log "Setting up standalone OVS for AP..."
     
-    # Start OVS database
-    if [ ! -f /etc/openvswitch/conf.db ]; then
-        log "Creating OVS database..."
-        ovsdb-tool create /etc/openvswitch/conf.db /usr/share/openvswitch/vswitch.ovsschema
+    # Check if OVS is available
+    if ! command -v ovs-vsctl >/dev/null 2>&1; then
+        log "ERROR: OVS tools not available, cannot setup AP bridge"
+        return 1
     fi
     
-    # Start OVS processes
-    log "Starting OVS processes..."
-    ovsdb-server --remote=punix:/var/run/openvswitch/db.sock \
-                 --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
-                 --pidfile --detach --log-file
-    
-    ovs-vswitchd --pidfile --detach --log-file
-    
-    # Wait for OVS to be ready
-    sleep 2
+    # Start OVS services if not running
+    if ! pgrep -f ovs-vswitchd >/dev/null 2>&1; then
+        log "Starting OVS services..."
+        
+        # Create OVS database if it doesn't exist
+        if [ ! -f /etc/openvswitch/conf.db ]; then
+            log "Creating OVS database..."
+            ovsdb-tool create /etc/openvswitch/conf.db /usr/share/openvswitch/vswitch.ovsschema
+        fi
+        
+        # Start OVS processes
+        ovsdb-server --remote=punix:/var/run/openvswitch/db.sock \
+                     --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
+                     --pidfile --detach --log-file
+        
+        ovs-vswitchd --pidfile --detach --log-file
+        
+        # Wait for OVS to be ready
+        sleep 3
+        
+        # Initialize database
+        ovs-vsctl --no-wait init
+    fi
     
     # Create bridge if it doesn't exist
     if ! ovs-vsctl br-exists "$AP_BRIDGE_NAME" 2>/dev/null; then
@@ -77,17 +130,27 @@ setup_ovs() {
             log "Adding controller: $OVS_CONTROLLER"
             ovs-vsctl set-controller "$AP_BRIDGE_NAME" "$OVS_CONTROLLER"
         fi
+    else
+        log "Bridge $AP_BRIDGE_NAME already exists"
     fi
     
     # Bring bridge up
     ip link set dev "$AP_BRIDGE_NAME" up
+    
+    # Assign IP to bridge if not already assigned
+    if ! ip addr show "$AP_BRIDGE_NAME" | grep -q "inet "; then
+        log "Assigning IP address to bridge $AP_BRIDGE_NAME"
+        ip addr add 192.168.4.1/24 dev "$AP_BRIDGE_NAME"
+    fi
+    
+    log "OVS bridge setup completed"
 }
 
 # Function to create wireless interface
 setup_wireless_interface() {
     log "Setting up wireless interface..."
     
-    # Find available wireless interface (should be available from host's mac80211_hwsim)
+    # Check for existing wireless interfaces
     WLAN_IFACE=""
     for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '^(wlan|hwsim)'); do
         if [ -d "/sys/class/net/$iface/wireless" ]; then
@@ -97,88 +160,86 @@ setup_wireless_interface() {
         fi
     done
     
-    # If no wireless interface found, check for host-mounted radios
+    # If no wireless interface found, try to create one from available hardware
     if [ -z "$WLAN_IFACE" ]; then
-        log "No wireless interface found in container namespace."
-        log "Checking for mac80211_hwsim virtual radios from host..."
+        log "No wireless interface found, attempting to create virtual interface..."
         
-        # Check if mac80211_hwsim is loaded on host (via /sys mount)
-        if [ -d "/sys/kernel/debug/ieee80211" ] && ls /sys/kernel/debug/ieee80211/ 2>/dev/null | grep -q "phy"; then
-            log "Host has mac80211_hwsim radios available"
-            
-            # List available PHY devices
-            for phy in $(ls /sys/kernel/debug/ieee80211/ 2>/dev/null); do
-                log "Available PHY device: $phy"
+        # Check for available physical wireless devices
+        if [ -d "/sys/class/ieee80211" ]; then
+            for phy in $(ls /sys/class/ieee80211/ 2>/dev/null); do
+                log "Found wireless PHY: $phy"
                 
-                # Try to create a new virtual interface using iw
-                WLAN_IFACE="wlan-gnb-$(date +%s)"
-                log "Attempting to create interface $WLAN_IFACE on $phy"
-                
-                if iw phy "$phy" interface add "$WLAN_IFACE" type managed 2>/dev/null; then
-                    log "Successfully created virtual interface: $WLAN_IFACE"
+                # Create virtual interface
+                VIRTUAL_WLAN_IFACE="ap-$phy"
+                if iw phy "$phy" interface add "$VIRTUAL_WLAN_IFACE" type __ap 2>/dev/null; then
+                    WLAN_IFACE="$VIRTUAL_WLAN_IFACE"
+                    log "Created virtual AP interface: $WLAN_IFACE"
                     break
                 else
-                    log "Failed to create interface on $phy, trying next..."
-                    WLAN_IFACE=""
+                    log "Failed to create virtual interface on $phy"
                 fi
             done
-        else
-            log "No mac80211_hwsim radios found from host."
-            log "Make sure to:"
-            log "1. Load mac80211_hwsim on host: sudo modprobe mac80211_hwsim radios=10"
-            log "2. Run container with: -v /sys:/sys -v /lib/modules:/lib/modules --privileged"
-        fi
-        
-        # If we still can't create a wireless interface, create a bridge interface for basic testing
-        if [ -z "$WLAN_IFACE" ]; then
-            log "WARNING: No wireless capabilities available!"
-            log "Creating bridge interface for basic connectivity testing..."
-            WLAN_IFACE="wlan-bridge-$(date +%s)"
-            ip link add name "$WLAN_IFACE" type bridge
-            
-            log "NOTE: This interface won't support real wireless features."
-            log "For full wireless AP functionality, ensure mac80211_hwsim is loaded on host."
         fi
     fi
     
-    if [ -z "$WLAN_IFACE" ] || [ ! -e "/sys/class/net/$WLAN_IFACE" ]; then
-        log "ERROR: Could not find or create any interface"
+    # If still no interface, check if we're in a container and create simulation interface
+    if [ -z "$WLAN_IFACE" ]; then
+        log "No wireless hardware found, creating simulation interface..."
+        
+        # Create a bridge interface for simulation
+        if ! ip link show "${AP_BRIDGE_NAME}-wlan0" >/dev/null 2>&1; then
+            ip link add "${AP_BRIDGE_NAME}-wlan0" type dummy
+            ip link set "${AP_BRIDGE_NAME}-wlan0" up
+            WLAN_IFACE="${AP_BRIDGE_NAME}-wlan0"
+            log "Created simulation interface: $WLAN_IFACE"
+        else
+            WLAN_IFACE="${AP_BRIDGE_NAME}-wlan0"
+            log "Using existing simulation interface: $WLAN_IFACE"
+        fi
+    fi
+    
+    if [ -z "$WLAN_IFACE" ]; then
+        log "ERROR: Could not create or find wireless interface"
         return 1
     fi
     
-    log "Using interface: $WLAN_IFACE"
+    # Configure the wireless interface
+    log "Configuring wireless interface: $WLAN_IFACE"
     
     # Bring interface up
-    ip link set dev "$WLAN_IFACE" up
+    ip link set "$WLAN_IFACE" up
     
-    # Add interface to OVS bridge
-    if ! ovs-vsctl port-to-br "$WLAN_IFACE" 2>/dev/null; then
-        log "Adding $WLAN_IFACE to bridge $AP_BRIDGE_NAME"
-        ovs-vsctl add-port "$AP_BRIDGE_NAME" "$WLAN_IFACE"
+    # Add to bridge if OVS is enabled
+    if [ "$OVS_ENABLED" = "true" ] && ovs-vsctl br-exists "$AP_BRIDGE_NAME" 2>/dev/null; then
+        if ! ovs-vsctl list-ports "$AP_BRIDGE_NAME" | grep -q "^$WLAN_IFACE$"; then
+            log "Adding wireless interface to OVS bridge"
+            ovs-vsctl add-port "$AP_BRIDGE_NAME" "$WLAN_IFACE"
+        fi
     fi
     
     export WLAN_IFACE
+    log "Wireless interface setup completed: $WLAN_IFACE"
 }
-
-# Function to create hostapd configuration
+# Function to create hostapd configuration  
 create_hostapd_config() {
     log "Creating hostapd configuration..."
+    
+    if [ -z "$WLAN_IFACE" ]; then
+        log "ERROR: No wireless interface available for hostapd"
+        return 1
+    fi
     
     HOSTAPD_CONF="/tmp/hostapd_gnb.conf"
     
     # Determine the best driver to use
     HOSTAPD_DRIVER="nl80211"
     
-    # Check if interface supports nl80211
+    # Check if interface supports wireless features
     if [ -d "/sys/class/net/$WLAN_IFACE/wireless" ]; then
         log "Interface $WLAN_IFACE supports wireless - using nl80211 driver"
         HOSTAPD_DRIVER="nl80211"
-    elif [ -d "/sys/class/net/$WLAN_IFACE/phy80211" ]; then
-        log "Interface $WLAN_IFACE has phy80211 - using nl80211 driver"
-        HOSTAPD_DRIVER="nl80211"
     else
-        log "Interface $WLAN_IFACE doesn't support wireless - this may cause issues"
-        log "Attempting to use nl80211 driver anyway"
+        log "Interface $WLAN_IFACE - attempting nl80211 driver"
         HOSTAPD_DRIVER="nl80211"
     fi
     
@@ -193,7 +254,6 @@ wmm_enabled=1
 macaddr_acl=0
 auth_algs=1
 ignore_broadcast_ssid=0
-wpa=0
 
 # Enable logging for troubleshooting
 logger_syslog=-1
@@ -210,6 +270,141 @@ EOF
     if [ -n "$AP_PASSWD" ] && [ "$AP_PASSWD" != "" ]; then
         log "Adding WPA2 security to AP configuration"
         cat >> "$HOSTAPD_CONF" << EOF
+
+# WPA2 Security
+wpa=2
+wpa_passphrase=$AP_PASSWD
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+EOF
+    else
+        log "No password set - creating open AP"
+        echo "wpa=0" >> "$HOSTAPD_CONF"
+    fi
+    
+    log "Hostapd configuration created at $HOSTAPD_CONF"
+    export HOSTAPD_CONF
+}
+
+# Function to start hostapd
+start_hostapd() {
+    log "Starting hostapd AP service..."
+    
+    if [ -z "$HOSTAPD_CONF" ] || [ ! -f "$HOSTAPD_CONF" ]; then
+        log "ERROR: Hostapd configuration not found"
+        return 1
+    fi
+    
+    # Kill any existing hostapd processes
+    pkill -f hostapd 2>/dev/null || true
+    sleep 1
+    
+    # Create runtime directory
+    mkdir -p /var/run/hostapd
+    
+    # Start hostapd
+    log "Launching hostapd with config: $HOSTAPD_CONF"
+    hostapd -dd "$HOSTAPD_CONF" &
+    HOSTAPD_PID=$!
+    
+    # Wait a moment and check if hostapd started successfully
+    sleep 3
+    
+    if kill -0 "$HOSTAPD_PID" 2>/dev/null; then
+        log "Hostapd started successfully (PID: $HOSTAPD_PID)"
+        echo "$HOSTAPD_PID" > /var/run/hostapd.pid
+        
+        # Show AP status
+        log "AP Status:"
+        log "  SSID: $AP_SSID"
+        log "  Interface: $WLAN_IFACE"
+        log "  Channel: $AP_CHANNEL"
+        log "  Mode: $AP_MODE"
+        log "  Security: ${AP_PASSWD:+WPA2}${AP_PASSWD:-Open}"
+        
+        return 0
+    else
+        log "ERROR: Hostapd failed to start"
+        log "Check the hostapd configuration and interface status"
+        return 1
+    fi
+}
+
+# Function to setup DHCP for AP clients (optional)
+setup_dhcp() {
+    if [ "$ENABLE_DHCP" = "true" ]; then
+        log "Setting up DHCP server for AP clients..."
+        
+        # Create dnsmasq configuration
+        DNSMASQ_CONF="/tmp/dnsmasq_gnb.conf"
+        cat > "$DNSMASQ_CONF" << EOF
+interface=$AP_BRIDGE_NAME
+dhcp-range=192.168.4.10,192.168.4.50,255.255.255.0,12h
+dhcp-option=3,192.168.4.1
+dhcp-option=6,8.8.8.8,8.8.4.4
+domain=gnb.local
+EOF
+        
+        # Start dnsmasq
+        dnsmasq -C "$DNSMASQ_CONF" --log-facility=/var/log/dnsmasq.log
+        log "DHCP server started"
+    fi
+}
+
+# Main AP setup logic
+main() {
+    log "=== gNB Access Point Setup ==="
+    
+    # Step 1: Setup OVS bridge
+    if ! setup_ovs; then
+        log "ERROR: Failed to setup OVS bridge"
+        exit 1
+    fi
+    
+    # Step 2: Setup wireless interface
+    if ! setup_wireless_interface; then
+        log "ERROR: Failed to setup wireless interface"
+        exit 1
+    fi
+    
+    # Step 3: Create hostapd configuration
+    if ! create_hostapd_config; then
+        log "ERROR: Failed to create hostapd configuration"
+        exit 1
+    fi
+    
+    # Step 4: Start hostapd
+    if ! start_hostapd; then
+        log "ERROR: Failed to start hostapd"
+        exit 1
+    fi
+    
+    # Step 5: Setup DHCP (optional)
+    setup_dhcp
+    
+    log "=== AP Setup Complete ==="
+    log "gNB Access Point is now running!"
+    
+    # Keep the script running to monitor the AP
+    while true; do
+        sleep 30
+        
+        # Check if hostapd is still running
+        if [ -f /var/run/hostapd.pid ]; then
+            HOSTAPD_PID=$(cat /var/run/hostapd.pid)
+            if ! kill -0 "$HOSTAPD_PID" 2>/dev/null; then
+                log "WARNING: Hostapd process died, attempting restart..."
+                start_hostapd
+            fi
+        fi
+    done
+}
+
+# Run main function if script is executed directly
+if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+    main "$@"
+fi
 
 # WPA2 Security
 wpa=2

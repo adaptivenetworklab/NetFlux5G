@@ -87,6 +87,8 @@ RUN pip3 install -r NetFlux5G/requirements.txt
 
 COPY --from=netflux5g ./src/ NetFlux5G
 
+WORKDIR /app/netflux5g/NetFlux5G
+
 # Set the dafault init to use bash shell
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

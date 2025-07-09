@@ -458,7 +458,7 @@ class MininetExporter:
                 if 'txpower=' in opt or 'range=' in opt:
                     ap_params.append(opt)
             
-            ap_params.append('protocols="OpenFlow14"')
+            ap_params.append('protocols="OpenFlow13"')
             
             f.write(f'    {ap_name} = net.addAccessPoint({", ".join(ap_params)})\n')
         f.write('\n')
@@ -535,7 +535,7 @@ class MininetExporter:
             # Build switch parameters following the original pattern
             switch_params = [f"'{switch_name}'"]
             switch_params.append("cls=OVSKernelSwitch")
-            switch_params.append('protocols="OpenFlow14"')
+            switch_params.append('protocols="OpenFlow13"')
             
             # Add DPID if specified
             dpid = props.get('Switch_DPID', props.get('Router_DPID', props.get('AP_DPID', props.get('lineEdit_4'))))
@@ -649,30 +649,29 @@ class MininetExporter:
         
         # Write gNBs following the enhanced pattern with OVS and AP support
         if categorized_nodes['gnbs']:
-            f.write('    info("*** Add gNB with enhanced OVS/AP support\\n")\n')
+            f.write('    info("*** Adding gNB with enhanced OVS/AP support\\n")\n')
             for i, gnb in enumerate(categorized_nodes['gnbs'], 1):
                 props = gnb.get('properties', {})
                 gnb_name = self.sanitize_variable_name(gnb['name'])
                 
                 # Build gNB parameters following the enhanced pattern
                 gnb_params = [f"'{gnb_name}'"]
-                gnb_params.append('cap_add=["net_admin", "sys_admin", "sys_nice", "sys_resource"]')
+                
+                # Essential Docker parameters for UERANSIM gNB
+                gnb_params.append('cap_add=["net_admin", "sys_nice"]')
                 gnb_params.append('network_mode=NETWORK_MODE')
                 gnb_params.append('publish_all_ports=True')
-                gnb_params.append('dcmd="/bin/bash"')
+                gnb_params.append('privileged=True')  # Required for OVS and AP functionality
+                gnb_params.append('dcmd="/bin/bash"')  # Use entrypoint command
                 gnb_params.append("cls=DockerSta")
-                gnb_params.append("dimage='adaptive/ueransim:latest'")  # Use our enhanced image
-                
-                # Add privileged mode for OVS and AP functionality
-                gnb_params.append('privileged=True')
+                gnb_params.append("dimage='adaptive/ueransim:latest'")
                 
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
-                    '"/sys:/sys"',
-                    '"/lib/modules:/lib/modules"',
-                    '"/sys/kernel/debug:/sys/kernel/debug"',
-                    '"/var/run/openvswitch:/var/run/openvswitch"',
-                    '"/var/log/openvswitch:/var/log/openvswitch"'
+                    '"/sys:/sys:ro"',
+                    '"/lib/modules:/lib/modules:ro"',
+                    '"/var/run/openvswitch:/var/run/openvswitch:rw"',
+                    '"/var/log/openvswitch:/var/log/openvswitch:rw"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -692,7 +691,7 @@ class MininetExporter:
                 txpower = gnb_config.get('txpower', 30)
                 gnb_params.append(f"txpower={txpower}")
                 
-                # Build comprehensive environment variables for UERANSIM gNB with all Docker functionality
+                # Build comprehensive environment variables for UERANSIM gNB
                 env_dict = {}
                 
                 # Core 5G configuration - matches UERANSIM Dockerfile
@@ -745,8 +744,14 @@ class MininetExporter:
                 
                 # Build UE parameters following the enhanced pattern
                 ue_params = [f"'{ue_name}'"]
+                
+                # Essential Docker parameters for UERANSIM UE
                 ue_params.append('devices=["/dev/net/tun"]')
-                ue_params.append('cap_add=["net_admin", "sys_admin"]')
+                ue_params.append('cap_add=["net_admin"]')
+                ue_params.append('network_mode=NETWORK_MODE')
+                ue_params.append('dcmd="/bin/bash"')
+                ue_params.append("cls=DockerSta")
+                ue_params.append("dimage='adaptive/ueransim:latest'")
                 
                 # Add enhanced power and range configuration from ConfigurationMapper
                 from manager.configmap import ConfigurationMapper
@@ -760,20 +765,11 @@ class MininetExporter:
                 if 'txpower' in ue_config:
                     ue_params.append(f"txpower={ue_config['txpower']}")
                 
-                # Add association mode if specified
-                if 'association' in ue_config and ue_config['association'] != 'auto':
-                    ue_params.append(f"associationMode='{ue_config['association']}'")
-                
-                ue_params.append('network_mode=NETWORK_MODE')
-                ue_params.append('dcmd="/bin/bash"')
-                ue_params.append("cls=DockerSta")
-                ue_params.append("dimage='adaptive/ueransim:latest'")
-                
                 # Add position
                 position = f"{ue.get('x', 0):.1f},{ue.get('y', 0):.1f},0"
                 ue_params.append(f"position='{position}'")
                 
-                # Enhanced UE environment variables with all new configuration options matching UERANSIM Dockerfile
+                # Enhanced UE environment variables with all new configuration options
                 gnb_hostname = ue_config.get('gnb_hostname', 'localhost')
                 
                 # Build comprehensive environment dictionary matching UERANSIM Dockerfile
@@ -899,7 +895,7 @@ class MininetExporter:
                     'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
                     'OVS_BRIDGE_NAME': vgcore_config.get('ovs_bridge_name', 'br-open5gs'),
                     'OVS_FAIL_MODE': vgcore_config.get('ovs_fail_mode', 'standalone'),
-                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow14'),
+                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow13'),
                     'OVS_DATAPATH': vgcore_config.get('ovs_datapath', 'kernel'),
                     'CONTROLLER_PORT': vgcore_config.get('controller_port', '6633'),
                     'BRIDGE_PRIORITY': vgcore_config.get('bridge_priority', '32768'),
@@ -925,7 +921,7 @@ class MininetExporter:
                     'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
                     'OVS_BRIDGE_NAME': vgcore_config.get('ovs_bridge_name', 'br-open5gs'),
                     'OVS_FAIL_MODE': vgcore_config.get('ovs_fail_mode', 'standalone'),
-                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow14'),
+                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow13'),
                     'OVS_DATAPATH': vgcore_config.get('ovs_datapath', 'kernel'),
                     'CONTROLLER_PORT': vgcore_config.get('controller_port', '6633'),
                     'BRIDGE_PRIORITY': vgcore_config.get('bridge_priority', '32768'),
@@ -946,7 +942,7 @@ class MininetExporter:
                     'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
                     'OVS_BRIDGE_NAME': vgcore_config.get('ovs_bridge_name', 'br-open5gs'),
                     'OVS_FAIL_MODE': vgcore_config.get('ovs_fail_mode', 'standalone'),
-                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow14'),
+                    'OPENFLOW_PROTOCOLS': vgcore_config.get('openflow_protocols', 'OpenFlow13'),
                     'OVS_DATAPATH': vgcore_config.get('ovs_datapath', 'kernel'),
                     'CONTROLLER_PORT': vgcore_config.get('controller_port', '6633'),
                     'BRIDGE_PRIORITY': vgcore_config.get('bridge_priority', '32768'),

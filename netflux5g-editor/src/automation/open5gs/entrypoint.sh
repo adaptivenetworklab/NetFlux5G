@@ -124,7 +124,7 @@ if [ "$OVS_ENABLED" = "true" ]; then
         ovs-vsctl list bridge br-open5gs | grep -E "(protocols|controller)"
         
         echo "Testing OpenFlow connectivity:"
-        local of_version="OpenFlow13"
+        of_version="OpenFlow13"
         if ovs-ofctl -O $of_version show br-open5gs >/dev/null 2>&1; then
             echo "OpenFlow $of_version connectivity: OK"
         else

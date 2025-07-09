@@ -1,0 +1,1 @@
+ONOS_APPS=org.onosproject.gui2,org.onosproject.drivers,org.onosproject.proxyarp,org.onosproject.fwd,org.onosproject.hostprovider,org.onosproject.lldpprovider,org.onosproject.optical-model,org.onosproject.openflow

@@ -287,7 +287,7 @@ function main {
         echo "OVS setup completed successfully"
         
         # Setup cleanup on exit
-        trap cleanup_ovs EXIT INT TERM
+        # trap cleanup_ovs EXIT INT TERM
         
     else
         echo "OVS is disabled, skipping OpenFlow setup"

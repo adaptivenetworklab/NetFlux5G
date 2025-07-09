@@ -255,6 +255,12 @@ class NetFlux5GApp(QMainWindow):
                 self.actionDeploy_Ryu_Controller.triggered.connect(self.controller_manager.deployController)
             if hasattr(self, 'actionStop_Ryu_Controller'):
                 self.actionStop_Ryu_Controller.triggered.connect(self.controller_manager.stopController)
+            
+            # ONOS Controller connections
+            if hasattr(self, 'actionDeploy_ONOS_Controller'):
+                self.actionDeploy_ONOS_Controller.triggered.connect(self.controller_manager.deployOnosController)
+            if hasattr(self, 'actionStop_ONOS_Controller'):
+                self.actionStop_ONOS_Controller.triggered.connect(self.controller_manager.stopOnosController)
 
             # Component button connections
             if hasattr(self.component_panel_manager, 'component_widgets'):

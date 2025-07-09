@@ -119,31 +119,105 @@ class ConfigurationMapper:
         # OVS/OpenFlow configuration from GNB properties dialog
         ovs_config = {}
         
-        # Check if OVS is enabled
-        if properties.get('GNB_OVS_Enabled') or properties.get('ovs_ovs_enabled'):
+        # Check if OVS is enabled - look for various field names
+        ovs_enabled_fields = ['GNB_OVS_Enabled', 'ovs_ovs_enabled', 'checkBox_ovs_enabled', 'ovs_enabled']
+        ovs_enabled = False
+        for field in ovs_enabled_fields:
+            if properties.get(field):
+                ovs_enabled = True
+                break
+        
+        if ovs_enabled:
             ovs_config['OVS_ENABLED'] = 'true'
-            ovs_config['OVS_BRIDGE_NAME'] = properties.get('GNB_OVS_BridgeName', properties.get('ovs_ovs_bridge_name', 'br-ueransim'))
-            ovs_config['OVS_FAIL_MODE'] = properties.get('GNB_OVS_FailMode', properties.get('ovs_ovs_fail_mode', 'standalone'))
-            ovs_config['OPENFLOW_PROTOCOLS'] = properties.get('GNB_OVS_Protocols', properties.get('ovs_openflow_protocols', 'OpenFlow14'))
-            ovs_config['OVS_DATAPATH'] = properties.get('GNB_OVS_Datapath', properties.get('ovs_ovs_datapath', 'kernel'))
-            ovs_config['OVS_AUTO_SETUP'] = 'true' if properties.get('GNB_OVS_AutoSetup', properties.get('ovs_ovs_auto_setup')) else 'false'
+            
+            # Bridge configuration
+            ovs_config['OVS_BRIDGE_NAME'] = (
+                properties.get('GNB_OVS_BridgeName') or 
+                properties.get('ovs_ovs_bridge_name') or 
+                properties.get('lineEdit_ovs_bridge_name') or
+                'br-ueransim'
+            )
+            
+            ovs_config['OVS_FAIL_MODE'] = (
+                properties.get('GNB_OVS_FailMode') or 
+                properties.get('ovs_ovs_fail_mode') or 
+                properties.get('comboBox_ovs_fail_mode') or
+                'standalone'
+            )
+            
+            ovs_config['OPENFLOW_PROTOCOLS'] = (
+                properties.get('GNB_OVS_Protocols') or 
+                properties.get('ovs_openflow_protocols') or 
+                properties.get('lineEdit_openflow_protocols') or
+                'OpenFlow14'
+            )
+            
+            ovs_config['OVS_DATAPATH'] = (
+                properties.get('GNB_OVS_Datapath') or 
+                properties.get('ovs_ovs_datapath') or 
+                properties.get('comboBox_ovs_datapath') or
+                'kernel'
+            )
+            
+            # Auto setup configuration
+            auto_setup_fields = ['GNB_OVS_AutoSetup', 'ovs_ovs_auto_setup', 'checkBox_ovs_auto_setup']
+            ovs_auto_setup = False
+            for field in auto_setup_fields:
+                if properties.get(field):
+                    ovs_auto_setup = True
+                    break
+            ovs_config['OVS_AUTO_SETUP'] = 'true' if ovs_auto_setup else 'false'
             
             # Controller configuration
-            if properties.get('GNB_OVS_Controller', properties.get('ovs_ovs_controller')):
-                ovs_config['OVS_CONTROLLER'] = properties.get('GNB_OVS_Controller', properties.get('ovs_ovs_controller'))
-            if properties.get('GNB_OVS_ControllerIP', properties.get('ovs_controller_ip')):
-                ovs_config['CONTROLLER_IP'] = properties.get('GNB_OVS_ControllerIP', properties.get('ovs_controller_ip'))
-            if properties.get('GNB_OVS_ControllerPort', properties.get('ovs_controller_port')):
-                ovs_config['CONTROLLER_PORT'] = str(properties.get('GNB_OVS_ControllerPort', properties.get('ovs_controller_port', 6633)))
+            controller_fields = ['GNB_OVS_Controller', 'ovs_ovs_controller', 'lineEdit_ovs_controller']
+            for field in controller_fields:
+                controller = properties.get(field)
+                if controller:
+                    ovs_config['OVS_CONTROLLER'] = str(controller)
+                    break
+                    
+            controller_ip_fields = ['GNB_OVS_ControllerIP', 'ovs_controller_ip', 'lineEdit_controller_ip']
+            for field in controller_ip_fields:
+                controller_ip = properties.get(field)
+                if controller_ip:
+                    ovs_config['CONTROLLER_IP'] = str(controller_ip)
+                    break
+                    
+            controller_port_fields = ['GNB_OVS_ControllerPort', 'ovs_controller_port', 'spinBox_controller_port']
+            for field in controller_port_fields:
+                controller_port = properties.get(field)
+                if controller_port:
+                    ovs_config['CONTROLLER_PORT'] = str(controller_port)
+                    break
+            if 'CONTROLLER_PORT' not in ovs_config:
+                ovs_config['CONTROLLER_PORT'] = '6633'
                 
             # Bridge interfaces
-            if properties.get('GNB_OVS_BridgeInterfaces', properties.get('ovs_bridge_interfaces')):
-                ovs_config['BRIDGE_INTERFACES'] = properties.get('GNB_OVS_BridgeInterfaces', properties.get('ovs_bridge_interfaces'))
+            bridge_iface_fields = ['GNB_OVS_BridgeInterfaces', 'ovs_bridge_interfaces', 'lineEdit_bridge_interfaces']
+            for field in bridge_iface_fields:
+                bridge_ifaces = properties.get(field)
+                if bridge_ifaces:
+                    ovs_config['BRIDGE_INTERFACES'] = str(bridge_ifaces)
+                    break
                 
             # Bridge priority and STP
-            if properties.get('GNB_Bridge_Priority', properties.get('network_bridge_priority')):
-                ovs_config['BRIDGE_PRIORITY'] = str(properties.get('GNB_Bridge_Priority', properties.get('network_bridge_priority', 32768)))
-            ovs_config['STP_ENABLED'] = 'true' if properties.get('GNB_STP_Enabled', properties.get('network_stp_enabled')) else 'false'
+            priority_fields = ['GNB_Bridge_Priority', 'network_bridge_priority', 'spinBox_bridge_priority']
+            for field in priority_fields:
+                priority = properties.get(field)
+                if priority:
+                    ovs_config['BRIDGE_PRIORITY'] = str(priority)
+                    break
+            if 'BRIDGE_PRIORITY' not in ovs_config:
+                ovs_config['BRIDGE_PRIORITY'] = '32768'
+                
+            # STP configuration
+            stp_fields = ['GNB_STP_Enabled', 'network_stp_enabled', 'checkBox_stp_enabled']
+            stp_enabled = False
+            for field in stp_fields:
+                if properties.get(field):
+                    stp_enabled = True
+                    break
+            ovs_config['STP_ENABLED'] = 'true' if stp_enabled else 'false'
         else:
             ovs_config['OVS_ENABLED'] = 'false'
             
@@ -152,20 +226,73 @@ class ConfigurationMapper:
         # AP configuration from GNB properties dialog
         ap_config = {}
         
-        # Check if AP is enabled
-        if properties.get('GNB_AP_Enabled') or properties.get('ap_ap_enabled'):
+        # Check if AP is enabled - look for various field names
+        ap_enabled_fields = ['GNB_AP_Enabled', 'ap_ap_enabled', 'checkBox_ap_enabled', 'ap_enabled']
+        ap_enabled = False
+        for field in ap_enabled_fields:
+            if properties.get(field):
+                ap_enabled = True
+                break
+        
+        if ap_enabled:
             ap_config['AP_ENABLED'] = 'true'
-            ap_config['AP_SSID'] = properties.get('GNB_AP_SSID', properties.get('ap_ap_ssid', 'gnb-hotspot'))
-            ap_config['AP_CHANNEL'] = str(properties.get('GNB_AP_Channel', properties.get('ap_ap_channel', 6)))
-            ap_config['AP_MODE'] = properties.get('GNB_AP_Mode', properties.get('ap_ap_mode', 'g'))
-            ap_config['AP_PASSWD'] = properties.get('GNB_AP_Password', properties.get('ap_ap_passwd', ''))
-            ap_config['AP_BRIDGE_NAME'] = properties.get('GNB_AP_BridgeName', properties.get('ap_ap_bridge_name', 'br-gnb'))
             
-            # Add OpenFlow configuration for AP (shared with OVS configuration)
+            # Basic AP configuration
+            ap_config['AP_SSID'] = (
+                properties.get('GNB_AP_SSID') or 
+                properties.get('ap_ap_ssid') or 
+                properties.get('lineEdit_ap_ssid') or
+                'gnb-hotspot'
+            )
+            
+            channel_fields = ['GNB_AP_Channel', 'ap_ap_channel', 'spinBox_ap_channel']
+            for field in channel_fields:
+                channel = properties.get(field)
+                if channel:
+                    ap_config['AP_CHANNEL'] = str(channel)
+                    break
+            if 'AP_CHANNEL' not in ap_config:
+                ap_config['AP_CHANNEL'] = '6'
+                
+            ap_config['AP_MODE'] = (
+                properties.get('GNB_AP_Mode') or 
+                properties.get('ap_ap_mode') or 
+                properties.get('comboBox_ap_mode') or
+                'g'
+            )
+            
+            # Password configuration
+            passwd_fields = ['GNB_AP_Password', 'ap_ap_passwd', 'lineEdit_ap_password']
+            for field in passwd_fields:
+                passwd = properties.get(field)
+                if passwd:
+                    ap_config['AP_PASSWD'] = str(passwd)
+                    break
+            if 'AP_PASSWD' not in ap_config:
+                ap_config['AP_PASSWD'] = ''
+                
+            # Bridge configuration
+            ap_config['AP_BRIDGE_NAME'] = (
+                properties.get('GNB_AP_BridgeName') or 
+                properties.get('ap_ap_bridge_name') or 
+                properties.get('lineEdit_ap_bridge_name') or
+                'br-gnb'
+            )
+            
+            # OpenFlow configuration for AP (shared with OVS configuration)
             if ovs_config.get('OVS_CONTROLLER'):
                 ap_config['OVS_CONTROLLER'] = ovs_config['OVS_CONTROLLER']
             ap_config['AP_FAILMODE'] = ovs_config.get('OVS_FAIL_MODE', 'standalone')
             ap_config['OPENFLOW_PROTOCOLS'] = ovs_config.get('OPENFLOW_PROTOCOLS', 'OpenFlow14')
+            
+            # DHCP configuration (optional)
+            dhcp_fields = ['GNB_AP_EnableDHCP', 'ap_enable_dhcp', 'checkBox_ap_dhcp']
+            dhcp_enabled = False
+            for field in dhcp_fields:
+                if properties.get(field):
+                    dhcp_enabled = True
+                    break
+            ap_config['ENABLE_DHCP'] = 'true' if dhcp_enabled else 'false'
         else:
             ap_config['AP_ENABLED'] = 'false'
             

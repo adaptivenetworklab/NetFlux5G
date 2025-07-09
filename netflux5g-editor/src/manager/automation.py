@@ -185,6 +185,22 @@ class AutomationManager:
         if hasattr(self.main_window, 'controller_manager'):
             return self.main_window.controller_manager.getControllerStatus()
         return "Controller manager not available"
+
+    def deployOnosController(self):
+        """Deploy ONOS SDN controller for the current topology."""
+        if hasattr(self.main_window, 'controller_manager'):
+            self.main_window.controller_manager.deployOnosController()
+
+    def stopOnosController(self):
+        """Stop ONOS SDN controller for the current topology."""
+        if hasattr(self.main_window, 'controller_manager'):
+            self.main_window.controller_manager.stopOnosController()
+
+    def getOnosControllerStatus(self):
+        """Get the current ONOS controller status."""
+        if hasattr(self.main_window, 'controller_manager'):
+            return self.main_window.controller_manager.getOnosControllerStatus()
+        return "Controller manager not available"
     
     def stopTopology(self):
         """Stop and clean up the current topology - Simple cleanup with mn -c"""
