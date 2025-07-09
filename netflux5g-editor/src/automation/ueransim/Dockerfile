@@ -74,7 +74,7 @@ ENV OVS_ENABLED=false \
     OVS_CONTROLLER="" \
     OVS_BRIDGE_NAME="br-ueransim" \
     OVS_FAIL_MODE="standalone" \
-    OPENFLOW_PROTOCOLS="OpenFlow14" \
+    OPENFLOW_PROTOCOLS="OpenFlow13,OpenFlow14" \
     OVS_DATAPATH="kernel" \
     CONTROLLER_IP="" \
     CONTROLLER_PORT="6633" \
@@ -82,10 +82,12 @@ ENV OVS_ENABLED=false \
     OVS_AUTO_SETUP=true
 
 # Network interface configuration for mininet-wifi integration
+# Default to eth0, but mininet-wifi will create interfaces like nodename-wlan0
 ENV NETWORK_INTERFACE="eth0" \
     BRIDGE_PRIORITY="32768" \
     STP_ENABLED=false \
-    UERANSIM_COMPONENT=""
+    UERANSIM_COMPONENT="" \
+    MININET_WIFI_MODE=false
 
 # Standard UERANSIM Environment Variables
 ENV N2_IFACE=eth0

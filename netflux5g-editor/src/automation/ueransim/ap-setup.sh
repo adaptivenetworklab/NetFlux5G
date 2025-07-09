@@ -87,17 +87,29 @@ setup_ovs() {
 setup_wireless_interface() {
     log "Setting up wireless interface..."
     
-    # Find available wireless interface (should be available from host's mac80211_hwsim)
+    # First check for mininet-wifi style interfaces (nodename-wlan0)
     WLAN_IFACE=""
-    for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '^(wlan|hwsim)'); do
-        if [ -d "/sys/class/net/$iface/wireless" ]; then
+    for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '.*-wlan[0-9]+$'); do
+        if [ -d "/sys/class/net/$iface/wireless" ] || [ -f "/sys/class/net/$iface/phy80211/name" ]; then
             WLAN_IFACE="$iface"
-            log "Found wireless interface: $WLAN_IFACE"
+            log "Found mininet-wifi wireless interface: $WLAN_IFACE"
             break
         fi
     done
     
-    # If no wireless interface found, check for host-mounted radios
+    # If no mininet-wifi interfaces found, check for standard wireless interfaces
+    if [ -z "$WLAN_IFACE" ]; then
+        log "No mininet-wifi interfaces found, checking for standard wireless interfaces..."
+        for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '^(wlan|hwsim)[0-9]*$'); do
+            if [ -d "/sys/class/net/$iface/wireless" ]; then
+                WLAN_IFACE="$iface"
+                log "Found standard wireless interface: $WLAN_IFACE"
+                break
+            fi
+        done
+    fi
+    
+    # If still no wireless interface found, check for host-mounted radios
     if [ -z "$WLAN_IFACE" ]; then
         log "No wireless interface found in container namespace."
         log "Checking for mac80211_hwsim virtual radios from host..."
@@ -129,24 +141,24 @@ setup_wireless_interface() {
             log "2. Run container with: -v /sys:/sys -v /lib/modules:/lib/modules --privileged"
         fi
         
-        # If we still can't create a wireless interface, create a bridge interface for basic testing
+        # If we still can't create a wireless interface, warn but continue
         if [ -z "$WLAN_IFACE" ]; then
             log "WARNING: No wireless capabilities available!"
-            log "Creating bridge interface for basic connectivity testing..."
-            WLAN_IFACE="wlan-bridge-$(date +%s)"
-            ip link add name "$WLAN_IFACE" type bridge
-            
-            log "NOTE: This interface won't support real wireless features."
-            log "For full wireless AP functionality, ensure mac80211_hwsim is loaded on host."
+            log "This may be normal for mininet-wifi DockerSta environments where:"
+            log "1. Wireless functionality is managed by mininet-wifi framework"
+            log "2. AP functionality is handled differently by mininet-wifi"
+            log "3. Container is used primarily for 5G core functions"
+            log "Continuing without wireless interface setup..."
+            return 1
         fi
     fi
     
     if [ -z "$WLAN_IFACE" ] || [ ! -e "/sys/class/net/$WLAN_IFACE" ]; then
-        log "ERROR: Could not find or create any interface"
+        log "ERROR: Could not find or create any wireless interface"
         return 1
     fi
     
-    log "Using interface: $WLAN_IFACE"
+    log "Using wireless interface: $WLAN_IFACE"
     
     # Bring interface up
     ip link set dev "$WLAN_IFACE" up

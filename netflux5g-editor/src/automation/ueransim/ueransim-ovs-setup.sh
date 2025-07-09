@@ -60,27 +60,58 @@ function setup_ovs_bridge {
     if ! pgrep ovs-vswitchd > /dev/null; then
         echo "Starting OVS services..."
         
+        # Create necessary directories
+        mkdir -p /var/run/openvswitch /var/log/openvswitch /etc/openvswitch
+        
         # Create OVS database if it doesn't exist
         if [ ! -f /etc/openvswitch/conf.db ]; then
             echo "Creating OVS database..."
             ovsdb-tool create /etc/openvswitch/conf.db /usr/share/openvswitch/vswitch.ovsschema
         fi
 
-        # Start OVS database server
+        # Start OVS database server (container-friendly)
+        echo "Starting ovsdb-server..."
         ovsdb-server --detach --remote=punix:/var/run/openvswitch/db.sock \
-                     --remote=ptcp:6640 --pidfile --log-file \
-                     --remote=db:Open_vSwitch,Open_vSwitch,manager_options
+                     --remote=ptcp:6640 --pidfile=/var/run/openvswitch/ovsdb-server.pid \
+                     --log-file=/var/log/openvswitch/ovsdb-server.log \
+                     --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
+                     /etc/openvswitch/conf.db
+        
+        # Wait for database to be ready
+        local db_wait=0
+        while [ $db_wait -lt 10 ]; do
+            if [ -S /var/run/openvswitch/db.sock ]; then
+                break
+            fi
+            sleep 1
+            db_wait=$((db_wait + 1))
+        done
         
         # Initialize database
+        echo "Initializing OVS database..."
         ovs-vsctl --no-wait init
         
-        # Start OVS switch daemon
-        ovs-vswitchd --detach --pidfile --log-file
+        # Start OVS switch daemon (container-friendly)
+        echo "Starting ovs-vswitchd..."
+        ovs-vswitchd --detach --pidfile=/var/run/openvswitch/ovs-vswitchd.pid \
+                     --log-file=/var/log/openvswitch/ovs-vswitchd.log
         
         # Wait for OVS to be ready
-        sleep 3
+        local ovs_wait=0
+        while [ $ovs_wait -lt 15 ]; do
+            if ovs-vsctl show >/dev/null 2>&1; then
+                echo "OVS services started successfully"
+                break
+            fi
+            sleep 1
+            ovs_wait=$((ovs_wait + 1))
+        done
         
-        echo "OVS services started successfully"
+        if [ $ovs_wait -eq 15 ]; then
+            echo "WARNING: OVS services may not be fully ready"
+            echo "Checking OVS status:"
+            ps aux | grep -E "(ovs|ovsdb)" | grep -v grep || echo "No OVS processes found"
+        fi
     else
         echo "OVS services already running"
     fi
@@ -236,21 +267,78 @@ function setup_wireless_ovs_integration {
     
     echo "Setting up wireless OVS integration..."
     
-    # Check if we have wireless interfaces available
-    for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '^(wlan|hwsim)'); do
-        if [ -d "/sys/class/net/$iface/wireless" ]; then
-            echo "Found wireless interface: $iface"
-            
+    # First check for mininet-wifi style interfaces (nodename-wlan0)
+    local wireless_found=false
+    for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '.*-wlan[0-9]+$'); do
+        echo "Found mininet-wifi wireless interface: $iface"
+        wireless_found=true
+        
+        # Verify it's actually a wireless interface
+        if [ -d "/sys/class/net/$iface/wireless" ] || [ -f "/sys/class/net/$iface/phy80211/name" ]; then
             # Add wireless interface to bridge if not already added
             if ! ovs-vsctl list-ports $bridge_name | grep -q "^${iface}$"; then
-                echo "Adding wireless interface $iface to bridge $bridge_name"
-                ovs-vsctl add-port $bridge_name $iface
+                echo "Adding mininet-wifi wireless interface $iface to bridge $bridge_name"
                 
-                # Set interface up
-                ip link set $iface up
+                # For mininet-wifi interfaces, we need special handling
+                # These interfaces are managed by mininet-wifi and may have special requirements
+                if ovs-vsctl add-port $bridge_name $iface 2>/dev/null; then
+                    echo "Successfully added $iface to bridge"
+                    # Set interface up
+                    ip link set $iface up 2>/dev/null || echo "Interface $iface already up or managed by mininet-wifi"
+                else
+                    echo "WARNING: Failed to add $iface to bridge - may be managed by mininet-wifi"
+                    echo "This is normal for mininet-wifi managed interfaces"
+                fi
+            else
+                echo "Interface $iface already in bridge"
             fi
+        else
+            echo "Interface $iface is not a wireless interface, skipping"
         fi
     done
+    
+    # If no mininet-wifi interfaces found, check for standard wireless interfaces
+    if [ "$wireless_found" = false ]; then
+        echo "No mininet-wifi interfaces found, checking for standard wireless interfaces..."
+        for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '^(wlan|hwsim)[0-9]*$'); do
+            if [ -d "/sys/class/net/$iface/wireless" ]; then
+                echo "Found standard wireless interface: $iface"
+                wireless_found=true
+                
+                # Add wireless interface to bridge if not already added
+                if ! ovs-vsctl list-ports $bridge_name | grep -q "^${iface}$"; then
+                    echo "Adding wireless interface $iface to bridge $bridge_name"
+                    if ovs-vsctl add-port $bridge_name $iface 2>/dev/null; then
+                        echo "Successfully added $iface to bridge"
+                        # Set interface up
+                        ip link set $iface up
+                    else
+                        echo "WARNING: Failed to add $iface to bridge - interface may not support bridging"
+                    fi
+                else
+                    echo "Interface $iface already in bridge"
+                fi
+            fi
+        done
+    fi
+    
+    if [ "$wireless_found" = false ]; then
+        echo "WARNING: No wireless interfaces found"
+        echo "Available network interfaces:"
+        ls /sys/class/net/ 2>/dev/null | head -10
+        echo "This may be normal if:"
+        echo "1. Container is used as UE (no AP functionality needed)"
+        echo "2. Wireless interfaces are managed externally by mininet-wifi"
+        echo "3. Container doesn't have wireless capabilities mounted"
+    fi
+    
+    # Special handling for mininet-wifi DockerSta integration
+    # In mininet-wifi, wireless interfaces are often managed by the framework itself
+    # and may not be available for direct OVS integration
+    echo "NOTE: For mininet-wifi DockerSta integration:"
+    echo "- Wireless connectivity is typically managed by mininet-wifi framework"
+    echo "- OVS integration works through the container's network namespace"
+    echo "- Direct wireless interface bridging may not be required"
     
     # If AP bridge name is different from OVS bridge, create connection
     if [ -n "$AP_BRIDGE_NAME" ] && [ "$AP_BRIDGE_NAME" != "$bridge_name" ]; then
@@ -430,7 +518,7 @@ function wait_for_interfaces {
     while [ $wait_time -lt $max_wait ]; do
         if ip link show $network_interface > /dev/null 2>&1; then
             echo "Network interface $network_interface is ready"
-            return 0
+            break
         fi
         
         echo "Waiting for interface $network_interface... ($wait_time/$max_wait)"
@@ -438,8 +526,32 @@ function wait_for_interfaces {
         wait_time=$((wait_time + 1))
     done
     
-    echo "WARNING: Network interface $network_interface not found after $max_wait seconds"
-    return 1
+    if [ $wait_time -eq $max_wait ]; then
+        echo "WARNING: Network interface $network_interface not found after $max_wait seconds"
+        echo "Available interfaces:"
+        ip link show | grep -E "^[0-9]+:" | head -5
+        echo "This may be normal for mininet-wifi environments"
+        echo "Continuing with available interfaces..."
+        return 1
+    fi
+    
+    # Also check for mininet-wifi style interfaces if we're looking for wireless
+    if [[ "$network_interface" =~ wlan ]]; then
+        echo "Checking for mininet-wifi wireless interfaces..."
+        local mininet_wireless_found=false
+        for iface in $(ls /sys/class/net/ 2>/dev/null | grep -E '.*-wlan[0-9]+$'); do
+            echo "Found mininet-wifi wireless interface: $iface"
+            mininet_wireless_found=true
+        done
+        
+        if [ "$mininet_wireless_found" = true ]; then
+            echo "Mininet-wifi wireless interfaces are available"
+        else
+            echo "No mininet-wifi wireless interfaces found yet"
+        fi
+    fi
+    
+    return 0
 }
 
 # Main execution
@@ -447,8 +559,8 @@ function main {
     if ovs_enabled; then
         echo "OVS is enabled, setting up OpenFlow integration for UERANSIM..."
         
-        # Wait for network interfaces to be available
-        wait_for_interfaces
+        # Wait for network interfaces to be available (non-blocking for mininet-wifi)
+        wait_for_interfaces || echo "Continuing without full interface availability check"
         
         # Setup OVS bridge
         setup_ovs_bridge
@@ -471,12 +583,15 @@ function main {
         show_ovs_status
         
         echo "UERANSIM OVS setup completed successfully"
+        echo "Note: For mininet-wifi integration, some interface operations may be managed by the framework"
         
-        # Setup cleanup on exit
+        # Setup cleanup on exit (commented out to avoid conflicts with container management)
         # trap cleanup_ovs EXIT INT TERM
         
     else
         echo "OVS is disabled, skipping OpenFlow setup"
+        echo "Available network interfaces:"
+        ip link show | grep -E "^[0-9]+:" | head -5
     fi
 }
 

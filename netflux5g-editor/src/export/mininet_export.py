@@ -668,10 +668,10 @@ class MininetExporter:
                 
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
-                    '"/sys:/sys:ro"',
+                    # '"/sys:/sys:ro"',
                     '"/lib/modules:/lib/modules:ro"',
-                    '"/var/run/openvswitch:/var/run/openvswitch:rw"',
-                    '"/var/log/openvswitch:/var/log/openvswitch:rw"'
+                    # '"/var/run/openvswitch:/var/run/openvswitch:rw"',
+                    # '"/var/log/openvswitch:/var/log/openvswitch:rw"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -697,10 +697,15 @@ class MininetExporter:
                 # Core 5G configuration - matches UERANSIM Dockerfile
                 env_dict["AMF_HOSTNAME"] = gnb_config.get('amf_hostname', 'amf')
                 env_dict["GNB_HOSTNAME"] = gnb_config.get('gnb_hostname', f'localhost')
-                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', 'eth0')
-                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', 'eth0')
-                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', 'eth0')
+                
+                # Use mininet-wifi interface naming convention for wireless interfaces
+                # Default to nodename-wlan0 for wireless interfaces, eth0 for wired
+                default_wireless_iface = f"{gnb_name}-wlan0"
+                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', default_wireless_iface)
+                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', default_wireless_iface)
+                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', default_wireless_iface)
                 env_dict["NETWORK_INTERFACE"] = gnb_config.get('network_interface', 'eth0')
+                
                 env_dict["MCC"] = gnb_config.get('mcc', '999')
                 env_dict["MNC"] = gnb_config.get('mnc', '70')
                 env_dict["SST"] = gnb_config.get('sst', '1')
@@ -709,6 +714,9 @@ class MininetExporter:
                 
                 # UERANSIM component type
                 env_dict["UERANSIM_COMPONENT"] = "gnb"
+                
+                # Enable mininet-wifi mode for proper interface handling
+                env_dict["MININET_WIFI_MODE"] = "true"
                 
                 # Add all OVS configuration if enabled
                 ovs_config = gnb_config.get('ovs_config', {})
@@ -793,9 +801,9 @@ class MininetExporter:
                     "IMEI": ue_config.get('imei', '356938035643803'),
                     "IMEISV": ue_config.get('imeisv', '4370816125816151'),
                     
-                    # Network Configuration
+                    # Network Configuration - use mininet-wifi interface naming
                     "TUNNEL_IFACE": ue_config.get('tunnel_iface', 'uesimtun0'),
-                    "RADIO_IFACE": ue_config.get('radio_iface', 'eth0'),
+                    "RADIO_IFACE": ue_config.get('radio_iface', f'{ue_name}-wlan0'),
                     "SESSION_TYPE": ue_config.get('session_type', 'IPv4'),
                     "PDU_SESSIONS": str(ue_config.get('pdu_sessions', 1)),
                     
@@ -803,7 +811,10 @@ class MininetExporter:
                     "MOBILITY_ENABLED": 'true' if ue_config.get('mobility', False) else 'false',
                     
                     # UERANSIM component type
-                    "UERANSIM_COMPONENT": "ue"
+                    "UERANSIM_COMPONENT": "ue",
+                    
+                    # Enable mininet-wifi mode for proper interface handling
+                    "MININET_WIFI_MODE": "true"
                 }
                 
                 # Add gNB IP if specified
