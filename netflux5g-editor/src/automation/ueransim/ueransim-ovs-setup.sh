@@ -14,7 +14,7 @@ function get_openflow_version {
     local protocols
     
     # Get the protocols configured on the bridge
-    protocols=$(ovs-vsctl get bridge "$bridge_name" protocols 2>/dev/null | tr -d '[]"' | tr ',' ' ')
+    protocols=$(ovs-vsctl get bridge $bridge_name protocols 2>/dev/null | tr -d '[]"' | tr ',' ' ')
     
     # Try different OpenFlow versions in order of preference
     for proto in $protocols; do
@@ -47,36 +47,6 @@ function ovs_enabled {
     fi
 }
 
-# Function to cleanup OVS resources
-function cleanup_ovs {
-    echo "Cleaning up OVS resources..."
-    local bridge_name=${OVS_BRIDGE_NAME:-"br-ueransim"}
-    
-    # Remove ports that we added
-    if ovs-vsctl br-exists "$bridge_name" 2>/dev/null; then
-        echo "Cleaning up bridge: $bridge_name"
-        # Don't delete the bridge as it might be shared
-        # Just remove specific interfaces if we know they belong to this container
-    fi
-    
-    # Stop OVS processes if they were started by this script
-    if [ -f "/var/run/ovs-vswitchd.pid" ]; then
-        local ovs_pid=$(cat /var/run/ovs-vswitchd.pid 2>/dev/null)
-        if [ -n "$ovs_pid" ] && kill -0 "$ovs_pid" 2>/dev/null; then
-            echo "Stopping OVS vswitchd..."
-            kill -TERM "$ovs_pid" 2>/dev/null || true
-        fi
-    fi
-    
-    if [ -f "/var/run/ovsdb-server.pid" ]; then
-        local db_pid=$(cat /var/run/ovsdb-server.pid 2>/dev/null)
-        if [ -n "$db_pid" ] && kill -0 "$db_pid" 2>/dev/null; then
-            echo "Stopping OVS database..."
-            kill -TERM "$db_pid" 2>/dev/null || true
-        fi
-    fi
-}
-
 # Function to setup OpenVSwitch bridge
 function setup_ovs_bridge {
     local bridge_name=${OVS_BRIDGE_NAME:-"br-ueransim"}
@@ -95,7 +65,7 @@ function setup_ovs_bridge {
             echo "Creating OVS database..."
             ovsdb-tool create /etc/openvswitch/conf.db /usr/share/openvswitch/vswitch.ovsschema
         fi
-        
+
         # Start OVS database server
         ovsdb-server --detach --remote=punix:/var/run/openvswitch/db.sock \
                      --remote=ptcp:6640 --pidfile --log-file \
@@ -481,27 +451,10 @@ function main {
         wait_for_interfaces
         
         # Setup OVS bridge
-        if ! setup_ovs_bridge; then
-            echo "ERROR: Failed to setup OVS bridge"
-            return 1
-        fi
+        setup_ovs_bridge
         
-        # Add interfaces to bridge
-        add_interfaces_to_bridge
-        
-        # Setup UERANSIM-specific configurations
-        setup_ueransim_network_config
-        
-        echo "OVS setup completed successfully for UERANSIM"
-    else
-        echo "OVS is disabled, skipping OpenFlow integration"
-    fi
-}
-
-# Execute main function if script is called directly
-if [ "${BASH_SOURCE[0]}" = "${0}" ]; then
-    main "$@"
-fi
+        # Configure bridge properties
+        configure_bridge_properties
         
         # Setup UERANSIM-specific network configuration
         setup_ueransim_network_config

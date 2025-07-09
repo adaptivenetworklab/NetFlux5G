@@ -115,4 +115,3 @@ RUN chmod +x /usr/local/bin/ap-setup.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["ue"]
-
