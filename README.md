@@ -59,7 +59,7 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
 
 Install Python dependencies:
 ```sh
-pip install -r requirements.txt
+pip install -r netflux-5g-editor/requirements.txt
 ```
 
 ### Running the GUI
