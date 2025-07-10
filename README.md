@@ -53,7 +53,7 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
 ### Prerequisites
 
 - **Python 3.11+** recommended
-- **Ubuntu 20.04+** (Ubuntu 24.04 require venv for installing the reqirement)
+- **Ubuntu 20.04+** (Ubuntu 24.04 require venv for installing the requirement)
 - **Docker** (for Mininet/Containernet emulation)
 - **PyQt5** and **PyYAML** Python packages
 
