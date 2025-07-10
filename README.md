@@ -53,7 +53,7 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
 ### Prerequisites
 
 - **Python 3.11+** recommended
-- **Linux** (for full Mininet/Containernet support)
+- **Ubuntu 20.04+** (Ubuntu 24.04 require venv for installing the reqirement)
 - **Docker** (for Mininet/Containernet emulation)
 - **PyQt5** and **PyYAML** Python packages
 
@@ -78,9 +78,9 @@ python3 main.py
 - **Automated Deployment:**  
   The app can create a working directory and launch Mininet/Containernet environments using the scripts in `automation/mininet/`.
 
-#### Running Mininet/Containernet in Docker
+#### Running NetFlux 5G in Docker
 
-See [`automation/mininet/README.md`](automation/mininet/README.md) for detailed instructions on building and running the Mininet-WiFi Docker environment.
+See [`docker/README.md`](docker/README.md) for detailed instructions on building and running the Netflux 5G Docker environment.
 
 ---
 
