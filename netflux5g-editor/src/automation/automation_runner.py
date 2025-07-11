@@ -493,7 +493,7 @@ class AutomationRunner(QObject):
         
         # Check if mininet is available
         try:
-            subprocess.run(["mn", "--version"], capture_output=True, check=True)
+            subprocess.run(["sudo", "mn", "--version"], capture_output=True, check=True)
         except (subprocess.CalledProcessError, FileNotFoundError):
             raise Exception("Mininet is not installed or not accessible")
         
