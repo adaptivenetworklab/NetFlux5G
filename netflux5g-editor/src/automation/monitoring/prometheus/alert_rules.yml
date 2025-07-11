@@ -1,0 +1,196 @@
+# Prometheus Alert Rules for 5G Core Monitoring
+
+groups:
+  - name: 5g_core_alerts
+    rules:
+      # High CPU Usage Alert
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[5m]) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{ $labels.name }}"
+        annotations:
+          summary: "High CPU usage detected"
+          description: "Container {{ $labels.name }} has CPU usage above 90% for more than 2 minutes"
+
+      # High Memory Usage Alert
+      - alert: HighMemoryUsage
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+          service: "{{ $labels.name }}"
+        annotations:
+          summary: "High memory usage detected"
+          description: "Container {{ $labels.name }} has memory usage above 90% for more than 2 minutes"
+
+      # Container Down Alert
+      - alert: ContainerDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Container is down"
+          description: "Container {{ $labels.job }} has been down for more than 1 minute"
+
+      # 5G Core Service Down
+      - alert: FiveGCoreServiceDown
+        expr: probe_success == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: "5g-core"
+          target: "{{ $labels.instance }}"
+        annotations:
+          summary: "5G Core service is unreachable"
+          description: "5G Core service at {{ $labels.instance }} is unreachable"
+
+      # Low Registration Success Rate
+      - alert: LowRegistrationSuccessRate
+        expr: (sum(rate(open5gs_amf_registration_success_total[5m])) / sum(rate(open5gs_amf_registration_attempts_total[5m]))) * 100 < 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "amf"
+        annotations:
+          summary: "Low UE registration success rate"
+          description: "UE registration success rate is below 80% for the last 5 minutes"
+
+      # Low PDU Session Success Rate
+      - alert: LowPDUSessionSuccessRate
+        expr: (sum(rate(open5gs_smf_pdu_session_establishment_success_total[5m])) / sum(rate(open5gs_smf_pdu_session_establishment_attempts_total[5m]))) * 100 < 80
+        for: 5m
+        labels:
+          severity: warning
+          service: "smf"
+        annotations:
+          summary: "Low PDU session establishment success rate"
+          description: "PDU session establishment success rate is below 80% for the last 5 minutes"
+
+      # High Network Response Time
+      - alert: HighNetworkResponseTime
+        expr: avg(probe_duration_seconds) * 1000 > 500
+        for: 3m
+        labels:
+          severity: warning
+          service: "network"
+        annotations:
+          summary: "High network response time"
+          description: "Average network response time is above 500ms for the last 3 minutes"
+
+      # Container Restart Alert
+      - alert: ContainerRestart
+        expr: rate(container_start_time_seconds[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: "{{ $labels.name }}"
+        annotations:
+          summary: "Container restarted"
+          description: "Container {{ $labels.name }} has restarted"
+
+      # High System Load
+      - alert: HighSystemLoad
+        expr: node_load15 > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: "system"
+        annotations:
+          summary: "High system load"
+          description: "System load average (15m) is above 2 for the last 5 minutes"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          service: "system"
+        annotations:
+          summary: "Low disk space"
+          description: "Disk space is below 10% on filesystem {{ $labels.mountpoint }}"
+
+      # High Network Traffic
+      - alert: HighNetworkTraffic
+        expr: rate(container_network_receive_bytes_total[5m]) > 100000000 or rate(container_network_transmit_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.name }}"
+        annotations:
+          summary: "High network traffic"
+          description: "Container {{ $labels.name }} has high network traffic (>100MB/s) for the last 5 minutes"
+
+  - name: 5g_core_capacity_alerts
+    rules:
+      # High UE Count
+      - alert: HighUECount
+        expr: sum(open5gs_amf_connected_ues) > 80
+        for: 2m
+        labels:
+          severity: warning
+          service: "capacity"
+        annotations:
+          summary: "High number of connected UEs"
+          description: "Number of connected UEs is above 80"
+
+      # High gNB Count
+      - alert: HighgNBCount
+        expr: sum(open5gs_amf_connected_gnbs) > 8
+        for: 2m
+        labels:
+          severity: warning
+          service: "capacity"
+        annotations:
+          summary: "High number of connected gNodeBs"
+          description: "Number of connected gNodeBs is above 8"
+
+      # High PDU Session Count
+      - alert: HighPDUSessionCount
+        expr: sum(open5gs_smf_pdu_sessions) > 90
+        for: 2m
+        labels:
+          severity: warning
+          service: "capacity"
+        annotations:
+          summary: "High number of PDU sessions"
+          description: "Number of active PDU sessions is above 90"
+
+  - name: prometheus_self_monitoring
+    rules:
+      # Prometheus Target Down
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "prometheus"
+        annotations:
+          summary: "Prometheus target down"
+          description: "Prometheus target {{ $labels.job }} is down"
+
+      # Prometheus Configuration Reload Failed
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful == 0
+        for: 0m
+        labels:
+          severity: critical
+          service: "prometheus"
+        annotations:
+          summary: "Prometheus configuration reload failed"
+          description: "Prometheus configuration reload has failed"
+
+      # Too Many Restarts
+      - alert: TooManyRestarts
+        expr: rate(prometheus_tsdb_reloads_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: "prometheus"
+        annotations:
+          summary: "Prometheus has restarted"
+          description: "Prometheus has restarted {{ $value }} times in the last 15 minutes"

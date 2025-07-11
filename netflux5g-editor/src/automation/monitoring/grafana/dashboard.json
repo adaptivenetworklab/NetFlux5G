@@ -1,568 +1,1345 @@
 {
-  "dashboard": {
-    "id": null,
-    "uid": "5gcore-monitoring",
-    "title": "5G Core Monitoring Dashboard",
-    "tags": [
-      "5g",
-      "monitoring"
+    "__inputs": [
+        {
+            "name": "DS_PROMETHEUS",
+            "label": "Prometheus",
+            "description": "Select your Prometheus data source",
+            "type": "datasource",
+            "pluginId": "prometheus",
+            "pluginName": "Prometheus"
+        }
     ],
-    "timezone": "browser",
-    "schemaVersion": 37,
-    "version": 1,
-    "refresh": "10s",
+    "__elements": {},
+    "__requires": [
+        {
+            "type": "grafana",
+            "id": "grafana",
+            "name": "Grafana",
+            "version": "12.0.2"
+        }
+    ],
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
     "panels": [
-      {
-        "type": "timeseries",
-        "title": "Device Status",
-        "gridPos": {
-          "x": 0,
-          "y": 0,
-          "w": 12,
-          "h": 6
-        },
-        "id": 1,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "up",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "none",
-            "color": {
-              "mode": "palette-classic"
+        {
+            "id": 1,
+            "title": "System Overview",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "CPU Utilization",
-        "gridPos": {
-          "x": 12,
-          "y": 0,
-          "w": 12,
-          "h": 6
-        },
-        "id": 2,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "percent",
-            "color": {
-              "mode": "palette-classic"
+            "gridPos": {
+                "h": 4,
+                "w": 24,
+                "x": 0,
+                "y": 0
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "CPU Load",
-        "gridPos": {
-          "x": 0,
-          "y": 6,
-          "w": 12,
-          "h": 6
-        },
-        "id": 3,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "node_load1",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "none",
-            "color": {
-              "mode": "palette-classic"
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": ["lastNotNull"],
+                    "fields": ""
+                },
+                "orientation": "horizontal",
+                "textMode": "auto",
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "RAM Usage",
-        "gridPos": {
-          "x": 12,
-          "y": 6,
-          "w": 12,
-          "h": 6
-        },
-        "id": 4,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "bytes",
-            "color": {
-              "mode": "palette-classic"
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total Containers"
+                        },
+                        "properties": [
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            }
+                        ]
+                    }
+                ]
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
+            "targets": [
                 {
-                  "color": "green",
-                  "value": null
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "count(container_last_seen{name!=\"\"})",
+                    "legendFormat": "Total Containers",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "up{job=\"prometheus\"}",
+                    "legendFormat": "Prometheus Status",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "up{job=\"cadvisor\"}",
+                    "legendFormat": "cAdvisor Status",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "up{job=\"node_exporter\"}",
+                    "legendFormat": "Node Exporter Status",
+                    "refId": "D"
                 }
-              ]
-            }
-          },
-          "overrides": []
+            ]
         },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Storage Space",
-        "gridPos": {
-          "x": 0,
-          "y": 12,
-          "w": 12,
-          "h": 6
-        },
-        "id": 5,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "(node_filesystem_size_bytes{fstype!~\"tmpfs\"} - node_filesystem_free_bytes{fstype!~\"tmpfs\"})",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "bytes",
-            "color": {
-              "mode": "palette-classic"
+        {
+            "id": 2,
+            "title": "5G Core Network Functions Status",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Overall Network Input Usage",
-        "gridPos": {
-          "x": 12,
-          "y": 12,
-          "w": 12,
-          "h": 6
-        },
-        "id": 6,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "rate(node_network_receive_bytes_total{device!~\"lo\"}[1m])",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "Bps",
-            "color": {
-              "mode": "palette-classic"
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 4
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Overall Network Output Usage",
-        "gridPos": {
-          "x": 0,
-          "y": 18,
-          "w": 12,
-          "h": 6
-        },
-        "id": 7,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "rate(node_network_transmit_bytes_total{device!~\"lo\"}[1m])",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "Bps",
-            "color": {
-              "mode": "palette-classic"
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": ["lastNotNull"],
+                    "fields": ""
+                },
+                "orientation": "horizontal",
+                "textMode": "auto",
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "DOWN",
+                                    "color": "red"
+                                },
+                                "1": {
+                                    "text": "UP",
+                                    "color": "green"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
                 }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Packet Sniffing (RX packets)",
-        "gridPos": {
-          "x": 12,
-          "y": 18,
-          "w": 12,
-          "h": 6
-        },
-        "id": 8,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "rate(node_network_receive_packets_total{device!~\"lo\"}[1m])",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "pps",
-            "color": {
-              "mode": "palette-classic"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
+            "targets": [
                 {
-                  "color": "green",
-                  "value": null
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"172.18.0.3\"}",
+                    "legendFormat": "AMF",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"172.18.0.9\"}",
+                    "legendFormat": "PCF",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"172.18.0.15\"}",
+                    "legendFormat": "gNB1",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"172.25.0.2\"}",
+                    "legendFormat": "MongoDB",
+                    "refId": "D"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"172.25.0.3\"}",
+                    "legendFormat": "WebUI",
+                    "refId": "E"
                 }
-              ]
-            }
-          },
-          "overrides": []
+            ]
         },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Individual Interface Usage (eth0)",
-        "gridPos": {
-          "x": 0,
-          "y": 24,
-          "w": 12,
-          "h": 6
-        },
-        "id": 9,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "rate(node_network_transmit_bytes_total{device=\"eth0\"}[1m])",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "Bps",
-            "color": {
-              "mode": "palette-classic"
+        {
+            "id": 3,
+            "title": "CPU Usage (%)",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Average Speed (TX)",
-        "gridPos": {
-          "x": 12,
-          "y": 24,
-          "w": 12,
-          "h": 6
-        },
-        "id": 10,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "avg(rate(node_network_transmit_bytes_total[1m]))",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "Bps",
-            "color": {
-              "mode": "palette-classic"
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 10
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
                 }
-              ]
-            }
-          },
-          "overrides": []
-        },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
-        }
-      },
-      {
-        "type": "timeseries",
-        "title": "Average Latency (ICMP)",
-        "gridPos": {
-          "x": 0,
-          "y": 30,
-          "w": 12,
-          "h": 6
-        },
-        "id": 11,
-        "datasource": {
-          "type": "prometheus",
-          "uid": "prometheus"
-        },
-        "targets": [
-          {
-            "expr": "probe_ping_duration_seconds",
-            "refId": "A"
-          }
-        ],
-        "fieldConfig": {
-          "defaults": {
-            "unit": "s",
-            "color": {
-              "mode": "palette-classic"
             },
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
                 }
-              ]
-            }
-          },
-          "overrides": []
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(container_cpu_usage_seconds_total{name=~\"$pod\"}[5m]) * 100",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ]
         },
-        "options": {
-          "legend": {
-            "displayMode": "list",
-            "placement": "bottom"
-          },
-          "tooltip": {
-            "mode": "single"
-          }
+        {
+            "id": 4,
+            "title": "Memory Usage",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 10
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "bytes",
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    },
+                    "thresholds": {
+                        "mode": "percentage",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "container_memory_usage_bytes{name=~\"$pod\"}",
+                    "legendFormat": "{{name}} - Used",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "container_spec_memory_limit_bytes{name=~\"$pod\"}",
+                    "legendFormat": "{{name}} - Limit",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "title": "Network I/O (Bytes/s)",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 18
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "Bps",
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(container_network_receive_bytes_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - RX",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(container_network_transmit_bytes_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - TX",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "title": "Disk I/O (Bytes/s)",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 18
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "Bps",
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(container_fs_reads_bytes_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - Read",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(container_fs_writes_bytes_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - Write",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "title": "Connected UEs",
+            "type": "gauge",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 0,
+                "y": 26
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 50
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "sum(open5gs_amf_connected_ues) or vector(0)",
+                    "legendFormat": "Connected UEs",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "title": "Connected gNodeBs",
+            "type": "gauge",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 6,
+                "y": 26
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "min": 0,
+                    "max": 10,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 7
+                            },
+                            {
+                                "color": "red",
+                                "value": 9
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "sum(open5gs_amf_connected_gnbs) or vector(0)",
+                    "legendFormat": "Connected gNBs",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "title": "PDU Sessions",
+            "type": "gauge",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 12,
+                "y": 26
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "sum(open5gs_smf_pdu_sessions) or vector(0)",
+                    "legendFormat": "PDU Sessions",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "title": "Network Response Time",
+            "type": "gauge",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 18,
+                "y": 26
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "ms",
+                    "min": 0,
+                    "max": 1000,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 100
+                            },
+                            {
+                                "color": "red",
+                                "value": 500
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "avg(probe_duration_seconds) * 1000",
+                    "legendFormat": "Average RTT",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "title": "Registration Success Rate",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 0,
+                "y": 32
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 80
+                            },
+                            {
+                                "color": "green",
+                                "value": 95
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "(sum(rate(open5gs_amf_registration_success_total[5m])) / sum(rate(open5gs_amf_registration_attempts_total[5m]))) * 100 or vector(100)",
+                    "legendFormat": "Success Rate",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "title": "PDU Session Establishment Success Rate",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 8,
+                "y": 32
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "max": 100,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 80
+                            },
+                            {
+                                "color": "green",
+                                "value": 95
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "(sum(rate(open5gs_smf_pdu_session_establishment_success_total[5m])) / sum(rate(open5gs_smf_pdu_session_establishment_attempts_total[5m]))) * 100 or vector(100)",
+                    "legendFormat": "Success Rate",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "title": "Container Restart Count",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 8,
+                "x": 16,
+                "y": 32
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "orientation": "auto",
+                "textMode": "auto",
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 5
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "sum(container_start_time_seconds{name=~\"$pod\"}) by (name)",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "id": 14,
+            "title": "UPF Packet Processing Rate",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 38
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "pps",
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(open5gs_upf_ingress_packets_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - Ingress PPS",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(open5gs_upf_egress_packets_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - Egress PPS",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 15,
+            "title": "UPF Throughput",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 38
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "unit": "Bps",
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(open5gs_upf_ingress_bytes_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - Ingress Bytes/s",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(open5gs_upf_egress_bytes_total{name=~\"$pod\"}[5m])",
+                    "legendFormat": "{{name}} - Egress Bytes/s",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "id": 16,
+            "title": "System Load Average",
+            "type": "timeseries",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 46
+            },
+            "options": {
+                "legend": {
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "last"
+                    ]
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineWidth": 2
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 2
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "node_load1",
+                    "legendFormat": "Load 1m",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "node_load5",
+                    "legendFormat": "Load 5m",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "node_load15",
+                    "legendFormat": "Load 15m",
+                    "refId": "C"
+                }
+            ]
+        },
+        {
+            "id": 17,
+            "title": "Error Rate & Alerts",
+            "type": "logs",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 46
+            },
+            "options": {
+                "showTime": true,
+                "showLabels": true,
+                "showCommonLabels": false,
+                "wrapLogMessage": false,
+                "prettifyLogMessage": false,
+                "enableLogDetails": true,
+                "dedupStrategy": "none",
+                "sortOrder": "Descending"
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "increase(prometheus_notifications_total[5m]) > 0",
+                    "legendFormat": "Prometheus Notifications",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "rate(container_start_time_seconds{name=~\"$pod\"}[5m]) > 0",
+                    "legendFormat": "Container Restarts: {{name}}",
+                    "refId": "B"
+                }
+            ]
         }
-      }
+    ],
+    "schemaVersion": 41,
+    "tags": [
+        "5g-core",
+        "prometheus",
+        "open5gs",
+        "docker",
+        "monitoring",
+        "network-functions",
+        "performance",
+        "alerting",
+        "infrastructure"
     ],
     "templating": {
-      "list": []
+        "list": [
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${DS_PROMETHEUS}"
+                },
+                "definition": "label_values(container_last_seen, name)",
+                "hide": 0,
+                "includeAll": true,
+                "multi": true,
+                "name": "pod",
+                "options": [],
+                "query": {
+                    "query": "label_values(container_last_seen, name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query",
+                "allValue": ".*"
+            },
+            {
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${DS_PROMETHEUS}"
+                },
+                "definition": "label_values(probe_success, instance)",
+                "hide": 0,
+                "includeAll": true,
+                "multi": true,
+                "name": "target",
+                "options": [],
+                "query": {
+                    "query": "label_values(probe_success, instance)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 1,
+                "type": "query",
+                "allValue": ".*"
+            },
+            {
+                "current": {
+                    "selected": false,
+                    "text": "5m",
+                    "value": "5m"
+                },
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": true,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "10m",
+                        "value": "10m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "30m",
+                        "value": "30m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    }
+                ],
+                "query": "1m,5m,10m,30m,1h",
+                "queryValue": "",
+                "skipUrlSync": false,
+                "type": "custom"
+            }
+        ]
     },
     "time": {
-      "from": "now-1h",
-      "to": "now"
+        "from": "now-1h",
+        "to": "now"
     },
-    "annotations": {
-      "list": []
+    "timepicker": {
+        "refresh_intervals": [
+            "5s",
+            "10s",
+            "30s",
+            "1m",
+            "5m",
+            "15m",
+            "30m",
+            "1h",
+            "2h",
+            "1d"
+        ]
     },
-    "editable": true
-  },
-  "overwrite": true
+    "timezone": "browser",
+    "title": "5G Core Network Monitoring Dashboard (Enhanced)",
+    "uid": "5g-core-enhanced-monitor-v2",
+    "version": 2,
+    "weekStart": "",
+    "refresh": "30s"
 }
