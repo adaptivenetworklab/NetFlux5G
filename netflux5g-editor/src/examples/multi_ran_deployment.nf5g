@@ -3,8 +3,8 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Jum Jul 11 17:27:28 2025",
-    "saved_date": "Jum Jul 11 17:27:28 2025",
+    "created_date": "Jum Jul 11 19:26:18 2025",
+    "saved_date": "Jum Jul 11 19:26:18 2025",
     "canvas_size": {
       "width": 1292,
       "height": 801
@@ -786,8 +786,8 @@
         "ovs_bridge_priority": "32768",
         "ovs_stp_enabled": true
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530673152
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905074480
     },
     {
       "name": "UE #6",
@@ -811,7 +811,7 @@
         "UE_SD": "0xffffff",
         "UE_IMEI": "356938035643803",
         "UE_IMEISV": "4370816125816151",
-        "qt_spinbox_lineedit": "1",
+        "qt_spinbox_lineedit": "116 meters",
         "UE_GNB_IP": "",
         "UE_TunnelInterface": "uesimtun0",
         "UE_RadioInterface": "eth0",
@@ -843,18 +843,18 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530673008
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905074336
     },
     {
       "name": "UE #5",
       "type": "UE",
-      "x": 282.14540624999984,
+      "x": 284.4454062499999,
       "y": -242.2715999999999,
       "properties": {
         "name": "UE #5",
         "type": "UE",
-        "x": 282.14540624999984,
+        "x": 284.4454062499999,
         "y": -242.2715999999999,
         "UE_GNBHostName": "GNB__2",
         "UE_APN": "internet2",
@@ -869,7 +869,7 @@
         "UE_GNB_IP": "",
         "UE_TunnelInterface": "uesimtun0",
         "UE_RadioInterface": "eth0",
-        "qt_spinbox_lineedit": "1",
+        "qt_spinbox_lineedit": "116 meters",
         "UE_IMEI": "356938035643803",
         "UE_IMEISV": "4370816125816151",
         "UE_SessionType": "IPv4",
@@ -900,8 +900,8 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530672864
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905074192
     },
     {
       "name": "UE #4",
@@ -957,8 +957,8 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530672720
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905074048
     },
     {
       "name": "UE #3",
@@ -1014,8 +1014,8 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530671856
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905073904
     },
     {
       "name": "UE #2",
@@ -1037,7 +1037,7 @@
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
         "UE_SD": "0xffffff",
-        "qt_spinbox_lineedit": "1",
+        "qt_spinbox_lineedit": "116 meters",
         "UE_GNB_IP": "",
         "UE_TunnelInterface": "uesimtun0",
         "UE_RadioInterface": "eth0",
@@ -1071,19 +1071,19 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530672000
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905073760
     },
     {
       "name": "UE #1",
       "type": "UE",
-      "x": -648.5763750000001,
-      "y": -127.11874999999999,
+      "x": -647.426375,
+      "y": -129.41875000000002,
       "properties": {
         "name": "UE #1",
         "type": "UE",
-        "x": -648.5763750000001,
-        "y": -127.11874999999999,
+        "x": -647.426375,
+        "y": -129.41875000000002,
         "UE_GNBHostName": "GNB__1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000001",
@@ -1128,19 +1128,19 @@
         "network_pdu_sessions": "1",
         "network_session_type": "IPv4"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530672144
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905073616
     },
     {
       "name": "GNB #1",
       "type": "GNB",
-      "x": -416.83591249999995,
-      "y": -47.13530625,
+      "x": -416.8359124999999,
+      "y": -49.43530625000001,
       "properties": {
         "name": "GNB #1",
         "type": "GNB",
-        "x": -416.83591249999995,
-        "y": -47.13530625,
+        "x": -416.8359124999999,
+        "y": -49.43530625000001,
         "GNB_AMFHostName": "amf1",
         "GNB_GNBHostName": "GNB__1",
         "GNB_TAC": "1",
@@ -1153,7 +1153,7 @@
         "qt_spinbox_lineedit": "600 meters",
         "GNB_AP_Password": "",
         "GNB_AP_BridgeName": "br-gnb1",
-        "GNB_OVS_Controller": "tcp:192.168.0.127:6653",
+        "GNB_OVS_Controller": "tcp:netflux5g-onos-controller:6653",
         "GNB_N2_Interface": "eth0",
         "GNB_N3_Interface": "eth0",
         "GNB_Radio_Interface": "eth0",
@@ -1182,13 +1182,13 @@
         "ap_ap_mode": "g",
         "ap_ap_passwd": "",
         "ap_ap_bridge_name": "br-gnb1",
-        "ap_ovs_controller": "tcp:192.168.0.127:6653",
+        "ap_ovs_controller": "tcp:netflux5g-onos-controller:6653",
         "ap_ap_failmode": "secure",
         "ap_openflow_protocols": "OpenFlow13",
         "GNB_Network_Interface": "eth0",
         "GNB_OVS_BridgeName": "br-gnb1",
         "GNB_OVS_BridgeInterfaces": "auto",
-        "GNB_OVS_ControllerIP": "192.168.0.127",
+        "GNB_OVS_ControllerIP": "netflux5g-onos-controller",
         "GNB_STP_Enabled": true,
         "GNB_OVS_Enabled": false,
         "GNB_OVS_AutoSetup": false,
@@ -1215,8 +1215,8 @@
         "GNB_AMF_IP": "",
         "5g_amf_ip": "10.0.0.3"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530674448
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905074912
     },
     {
       "name": "GNB #2",
@@ -1239,7 +1239,7 @@
         "GNB_N2_Interface": "eth0",
         "GNB_N3_Interface": "eth0",
         "GNB_Radio_Interface": "eth0",
-        "GNB_OVS_Controller": "tcp:192.168.0.127:6653",
+        "GNB_OVS_Controller": "tcp:netflux5g-onos-controller:6653",
         "GNB_AP_SSID": "gnb-hotspot2",
         "qt_spinbox_lineedit": "600 meters",
         "GNB_AP_Password": "",
@@ -1269,13 +1269,13 @@
         "ap_ap_mode": "g",
         "ap_ap_passwd": "",
         "ap_ap_bridge_name": "br-gnb2",
-        "ap_ovs_controller": "tcp:192.168.0.127:6653",
+        "ap_ovs_controller": "tcp:netflux5g-onos-controller:6653",
         "ap_ap_failmode": "secure",
         "ap_openflow_protocols": "OpenFlow13",
         "GNB_Network_Interface": "eth0",
         "GNB_OVS_BridgeName": "br-gnb2",
         "GNB_OVS_BridgeInterfaces": "eth0",
-        "GNB_OVS_ControllerIP": "192.168.0.127",
+        "GNB_OVS_ControllerIP": "netflux5g-onos-controller",
         "GNB_STP_Enabled": true,
         "GNB_OVS_Enabled": false,
         "GNB_OVS_AutoSetup": false,
@@ -1302,8 +1302,8 @@
         "GNB_AMF_IP": "",
         "5g_amf_ip": "10.0.0.3"
       },
-      "created_date": "Jum Jul 11 17:27:28 2025",
-      "component_id": 140087530674304
+      "created_date": "Jum Jul 11 19:26:18 2025",
+      "component_id": 136441905074624
     }
   ],
   "links": [
@@ -1318,7 +1318,7 @@
         "destination": "VGcore #1"
       },
       "name": "link_16",
-      "created_date": "Jum Jul 11 17:27:28 2025"
+      "created_date": "Jum Jul 11 19:26:18 2025"
     },
     {
       "source": "GNB #1",
@@ -1331,7 +1331,7 @@
         "destination": "VGcore #1"
       },
       "name": "link_760",
-      "created_date": "Jum Jul 11 17:27:28 2025"
+      "created_date": "Jum Jul 11 19:26:18 2025"
     }
   ],
   "canvas_properties": {

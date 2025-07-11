@@ -1087,12 +1087,12 @@ class MininetExporter:
             if components:
                 config = component_config.get(comp_type, component_config['AMF'])
                 f.write(f'    info("*** Add {comp_type} ({len(components)} instances)\\n")\n')
-                print(f"DEBUG: Generating {comp_type} with {len(components)} components")
+                debug_print(f"DEBUG: Generating {comp_type} with {len(components)} components")
                 
                 for i, component in enumerate(components):  # Start from 0 to match copying logic
                     comp_name = self.sanitize_variable_name(component.get('name', f'{comp_type.lower()}{i+1}'))
-                    print(f"DEBUG: Processing {comp_type} index {i}: {comp_name}")
-                    
+                    debug_print(f"DEBUG: Processing {comp_type} index {i}: {comp_name}")
+
                     # Debug output for component processing
                     f.write(f'    info("    Creating {comp_type} instance {i+1}/{len(components)}: {comp_name}\\n")\n')
                     
@@ -1126,8 +1126,8 @@ class MininetExporter:
                         config_filename = f'{comp_type.lower()}.yaml'
                     else:  # Additional instances get numbered
                         config_filename = f'{comp_type.lower()}_{i+1}.yaml'
-                    
-                    print(f"DEBUG: {comp_type} index {i} -> filename: {config_filename}")
+
+                    debug_print(f"DEBUG: {comp_type} index {i} -> filename: {config_filename}")
                     # Debug output for config file mapping
                     f.write(f'    info("      Config file: {config_filename}\\n")\n')
                     
@@ -1362,11 +1362,11 @@ class MininetExporter:
                 config_key = f"{comp_type}_configs"
                 if config_key in props and props[config_key]:
                     config_data = props[config_key]
-                    print(f"DEBUG: Found {comp_type} configs: {len(config_data) if isinstance(config_data, list) else 'not a list'}")
+                    debug_print(f"DEBUG: Found {comp_type} configs: {len(config_data) if isinstance(config_data, list) else 'not a list'}")
                     if isinstance(config_data, list):
                         valid_count = 0
                         for row_idx, row_data in enumerate(config_data):
-                            print(f"DEBUG: {comp_type} row {row_idx}: {row_data}")
+                            debug_print(f"DEBUG: {comp_type} row {row_idx}: {row_data}")
                             # Filter out empty or invalid rows
                             if (isinstance(row_data, dict) and 
                                 row_data.get('name') and 
@@ -1383,8 +1383,8 @@ class MininetExporter:
                                     row_data.get('config_content') or
                                     row_data.get('imported', False)
                                 )
-                                
-                                print(f"DEBUG: {comp_type} {comp_name} has_config: {has_config}")
+
+                                debug_print(f"DEBUG: {comp_type} {comp_name} has_config: {has_config}")
                                 if has_config:
                                     component_info = {
                                         'name': comp_name,
@@ -1400,9 +1400,9 @@ class MininetExporter:
                                     }
                                     components_by_type[comp_type].append(component_info)
                                     valid_count += 1
-                                    print(f"DEBUG: Added {comp_type} component {valid_count}: {comp_name}")
-                        print(f"DEBUG: {comp_type} final count: {len(components_by_type[comp_type])}")
-                
+                                    debug_print(f"DEBUG: Added {comp_type} component {valid_count}: {comp_name}")
+                        debug_print(f"DEBUG: {comp_type} final count: {len(components_by_type[comp_type])}")
+
                 # Fallback to old table format for backward compatibility
                 else:
                     table_key = f'Component5G_{comp_type}table'

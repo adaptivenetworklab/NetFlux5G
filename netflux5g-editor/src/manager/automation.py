@@ -69,28 +69,48 @@ class AutomationManager:
     def onAutomationFinished(self, success, message):
         """Handle automation completion."""
         if success:
-            deployment_info = self.main_window.automation_runner.get_deployment_info()
-            info_text = f"Deployment completed successfully!\n\n"
-            
-            if deployment_info:
-                info_text += f"Working directory: {deployment_info['export_dir']}\n"
-                info_text += f"Mininet Script: {os.path.basename(deployment_info['mininet_script'])}\n\n"
-            
-            info_text += "Services are now running. Use 'Stop All' or 'Stop' to terminate when done."
-            
-            QMessageBox.information(self.main_window, "Deployment Successful", info_text)
-            
-            # Update UI state for successful deployment
-            if hasattr(self.main_window, 'actionRunAll'):
-                self.main_window.actionRunAll.setEnabled(False)
-            if hasattr(self.main_window, 'actionStopAll'):
-                self.main_window.actionStopAll.setEnabled(True)
-            if hasattr(self.main_window, 'actionRun'):
-                self.main_window.actionRun.setEnabled(False)
-            if hasattr(self.main_window, 'actionStop'):
-                self.main_window.actionStop.setEnabled(True)
+            # Check if this is a stop/cleanup operation based on the message
+            if "cleanup" in message.lower() or "stop" in message.lower() or "terminated" in message.lower():
+                # This is a stop/cleanup operation
+                QMessageBox.information(self.main_window, "Operation Completed", message)
+                
+                # Reset all UI states after successful stop/cleanup
+                if hasattr(self.main_window, 'actionRunAll'):
+                    self.main_window.actionRunAll.setEnabled(True)
+                if hasattr(self.main_window, 'actionStopAll'):
+                    self.main_window.actionStopAll.setEnabled(False)
+                if hasattr(self.main_window, 'actionRun'):
+                    self.main_window.actionRun.setEnabled(True)
+                if hasattr(self.main_window, 'actionStop'):
+                    self.main_window.actionStop.setEnabled(False)
+            else:
+                # This is a deployment/start operation
+                deployment_info = self.main_window.automation_runner.get_deployment_info()
+                info_text = f"Deployment completed successfully!\n\n"
+                
+                if deployment_info:
+                    info_text += f"Working directory: {deployment_info['export_dir']}\n"
+                    info_text += f"Mininet Script: {os.path.basename(deployment_info['mininet_script'])}\n\n"
+                
+                info_text += "Services are now running. Use 'Stop All' or 'Stop' to terminate when done."
+                
+                QMessageBox.information(self.main_window, "Deployment Successful", info_text)
+                
+                # Update UI state for successful deployment
+                if hasattr(self.main_window, 'actionRunAll'):
+                    self.main_window.actionRunAll.setEnabled(False)
+                if hasattr(self.main_window, 'actionStopAll'):
+                    self.main_window.actionStopAll.setEnabled(True)
+                if hasattr(self.main_window, 'actionRun'):
+                    self.main_window.actionRun.setEnabled(False)
+                if hasattr(self.main_window, 'actionStop'):
+                    self.main_window.actionStop.setEnabled(True)
         else:
-            QMessageBox.critical(self.main_window, "Deployment Failed", f"Deployment failed:\n\n{message}")
+            # Check if this is a stop/cleanup failure
+            if "cleanup" in message.lower() or "stop" in message.lower() or "terminated" in message.lower():
+                QMessageBox.critical(self.main_window, "Operation Failed", f"Stop/cleanup operation failed:\n\n{message}")
+            else:
+                QMessageBox.critical(self.main_window, "Deployment Failed", f"Deployment failed:\n\n{message}")
             
             # Reset UI state on failure
             if hasattr(self.main_window, 'actionRunAll'):
@@ -101,12 +121,6 @@ class AutomationManager:
                 self.main_window.actionRun.setEnabled(True)
             if hasattr(self.main_window, 'actionStop'):
                 self.main_window.actionStop.setEnabled(False)
-            
-            # Re-enable RunAll button
-            if hasattr(self.main_window, 'actionRunAll'):
-                self.main_window.actionRunAll.setEnabled(True)
-            if hasattr(self.main_window, 'actionStopAll'):
-                self.main_window.actionStopAll.setEnabled(False)
 
     def exportToMininet(self):
         """Export the current topology to a Mininet script."""

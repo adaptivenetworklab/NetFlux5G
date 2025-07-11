@@ -519,6 +519,24 @@ class ControllerManager:
         
         # Use fixed service name instead of file-based naming
         container_name = "netflux5g-ryu-controller"
+        onos_container_name = "netflux5g-onos-controller"
+        
+        # Check for conflicts with ONOS controller
+        if self._is_controller_running(onos_container_name):
+            reply = QMessageBox.question(
+                self.main_window,
+                "Controller Conflict",
+                f"ONOS controller '{onos_container_name}' is already running.\n\nOnly one controller can be active at a time.\n\nDo you want to stop ONOS controller and deploy RYU controller?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reply != QMessageBox.Yes:
+                self.main_window.status_manager.showCanvasStatus("RYU controller deployment cancelled")
+                return
+            
+            # Stop ONOS controller first
+            self._stop_controller_sync(onos_container_name, "ONOS")
         
         # Check if Docker is available
         try:
@@ -562,13 +580,13 @@ class ControllerManager:
         
         # Create progress dialog
         self.progress_dialog = QProgressDialog(
-            "Deploying Ryu controller...", 
+            "Deploying controller...", 
             "Cancel", 
             0, 
             100, 
             self.main_window
         )
-        self.progress_dialog.setWindowTitle("Ryu Controller Deployment")
+        self.progress_dialog.setWindowTitle("Controller Deployment")
         self.progress_dialog.setModal(True)
         self.progress_dialog.show()
         
@@ -583,7 +601,7 @@ class ControllerManager:
     
     def stopController(self):
         """Stop Ryu SDN controller container."""
-        debug_print("DEBUG: Stop Ryu Controller triggered")
+        debug_print("DEBUG: Stop Controller triggered")
         
         # Use fixed service name instead of file-based naming
         container_name = "netflux5g-ryu-controller"
@@ -600,8 +618,8 @@ class ControllerManager:
         # Show confirmation dialog
         reply = QMessageBox.question(
             self.main_window,
-            "Stop Ryu Controller",
-            f"Stop Ryu SDN Controller '{container_name}'?\n\nThis will:\n- Stop the controller container\n- Remove the container\n- Disconnect from network",
+            "Stop Controller",
+            f"Stop Controller '{container_name}'?\n\nThis will:\n- Stop the controller container\n- Remove the container\n- Disconnect from network",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -611,13 +629,13 @@ class ControllerManager:
         
         # Create progress dialog
         self.progress_dialog = QProgressDialog(
-            "Stopping Ryu controller...", 
+            "Stopping controller...", 
             "Cancel", 
             0, 
             100, 
             self.main_window
         )
-        self.progress_dialog.setWindowTitle("Ryu Controller Stop")
+        self.progress_dialog.setWindowTitle("Controller Stop")
         self.progress_dialog.setModal(True)
         self.progress_dialog.show()
         
@@ -763,12 +781,27 @@ class ControllerManager:
             self.progress_dialog.close()
             self.progress_dialog = None
         
+        # Determine controller type from worker
+        controller_type = "Controller"
+        if self.deployment_worker:
+            if self.deployment_worker.controller_type == "onos":
+                controller_type = "ONOS controller"
+            elif self.deployment_worker.controller_type == "ryu":
+                controller_type = "RYU controller"
+        
         if success:
             QMessageBox.information(self.main_window, "Controller Deployment", message)
-            self.main_window.status_manager.showCanvasStatus("Ryu controller deployed successfully")
+            if "deployed successfully" in message:
+                self.main_window.status_manager.showCanvasStatus(f"{controller_type} deployed successfully")
+            elif "started successfully" in message:
+                self.main_window.status_manager.showCanvasStatus(f"{controller_type} started successfully")
+            elif "stopped and removed" in message:
+                self.main_window.status_manager.showCanvasStatus(f"{controller_type} stopped successfully")
+            else:
+                self.main_window.status_manager.showCanvasStatus(f"{controller_type} operation completed")
         else:
-            QMessageBox.critical(self.main_window, "Controller Deployment Failed", message)
-            self.main_window.status_manager.showCanvasStatus("Ryu controller deployment failed")
+            QMessageBox.critical(self.main_window, "Controller Operation Failed", message)
+            self.main_window.status_manager.showCanvasStatus(f"{controller_type} operation failed")
         
         # Clean up worker
         if self.deployment_worker:
@@ -785,4 +818,12 @@ class ControllerManager:
             self.progress_dialog.close()
             self.progress_dialog = None
         
-        self.main_window.status_manager.showCanvasStatus("Controller deployment canceled")
+        # Determine controller type from worker
+        controller_type = "Controller"
+        if self.deployment_worker:
+            if self.deployment_worker.controller_type == "onos":
+                controller_type = "ONOS controller"
+            elif self.deployment_worker.controller_type == "ryu":
+                controller_type = "RYU controller"
+        
+        self.main_window.status_manager.showCanvasStatus(f"{controller_type} operation canceled")

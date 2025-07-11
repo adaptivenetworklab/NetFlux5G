@@ -332,6 +332,7 @@ class NetworkComponent(QGraphicsPixmapItem):
             copy_props_action.triggered.connect(self.copy_properties)
             paste_props_action.triggered.connect(self.paste_properties)
         menu.exec_(event.screenPos())
+        event.accept()  # Prevent further propagation and duplicate menu
         # After menu closes, ensure dragging state and offset are reset
         self.dragging = False
         self._drag_start_pos = None
@@ -344,7 +345,7 @@ class NetworkComponent(QGraphicsPixmapItem):
             self.clearFocus()
         except Exception:
             pass
-        super().contextMenuEvent(event)
+        # Do NOT call super().contextMenuEvent(event) here to avoid duplicate menu
 
     def copy_properties(self):
         # Copy all properties except position and name/number
