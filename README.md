@@ -48,7 +48,14 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
 
 ---
 
-## How to Run the Application
+# How to Run the Application
+
+### Options to Run NetFlux5G
+
+1. Native Installation
+2. Docker
+
+## 1. Native Installation to Run NetFlux5G
 
 ### Prerequisites
 
@@ -57,9 +64,22 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
 - **Docker** (for Mininet/Containernet emulation)
 - **PyQt5** and **PyYAML** Python packages
 
-Install Python dependencies:
+### Run the Installation Script
+
+This will Install :
+- Docker Engine
+- Mininet-WiFi
+- Containernet
+- PyQT
+
 ```sh
-pip install -r netflux-5g-editor/requirements.txt
+git clone https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
+```
+
+```sh
+cd NetFlux5G
+chmod +x ./install.sh
+./install.sh
 ```
 
 ### Running the GUI
@@ -78,7 +98,7 @@ python3 main.py
 - **Automated Deployment:**  
   The app can create a working directory and launch Mininet/Containernet environments using the scripts in `automation/mininet/`.
 
-#### Running NetFlux 5G in Docker
+## 2. Docker to Run NetFlux5G
 
 See [`docker/README.md`](docker/README.md) for detailed instructions on building and running the Netflux 5G Docker environment.
 
@@ -104,6 +124,18 @@ See [`docker/README.md`](docker/README.md) for detailed instructions on building
 - The application supports drag-and-drop topology design, property dialogs for each component, and export to multiple formats.
 
 ---
+
+## Credit
+
+Thanks to Mr. Ramonfontes & Contributors of Mininet-Wifi and Continernet. This project won't go smoothly without a top notch open source Wifi SDN Emulator and the comprehensive detail of documentations.
+
+Checkout the source Repo :
+
+- Mininet-WiFi : [`Mininet-Wifi`](https://github.com/intrig-unicamp/mininet-wifi)
+
+- Containernet : [`Containernet`](https://github.com/containernet/containernet)
+
+- Containernet Fork : [`Containernet w/ Mininet-WiFi Support`](https://github.com/ramonfontes/containernet)
 
 ## License
 
