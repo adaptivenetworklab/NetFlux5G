@@ -205,7 +205,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "probe_success{instance=\"172.18.0.3\"}",
+                    "expr": "probe_success{instance=\"mn.amf1\"}",
                     "legendFormat": "AMF",
                     "refId": "A"
                 },
@@ -214,8 +214,8 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "probe_success{instance=\"172.18.0.9\"}",
-                    "legendFormat": "PCF",
+                    "expr": "probe_success{instance=\"mn.smf1\"}",
+                    "legendFormat": "SMF",
                     "refId": "B"
                 },
                 {
@@ -223,8 +223,8 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "probe_success{instance=\"172.18.0.15\"}",
-                    "legendFormat": "gNB1",
+                    "expr": "probe_success{instance=\"mn.upf1\"}",
+                    "legendFormat": "UPF1",
                     "refId": "C"
                 },
                 {
@@ -232,8 +232,8 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "probe_success{instance=\"172.25.0.2\"}",
-                    "legendFormat": "MongoDB",
+                    "expr": "probe_success{instance=\"mn.upf2\"}",
+                    "legendFormat": "UPF2",
                     "refId": "D"
                 },
                 {
@@ -241,9 +241,63 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "probe_success{instance=\"172.25.0.3\"}",
-                    "legendFormat": "WebUI",
+                    "expr": "probe_success{instance=\"mn.nrf1\"}",
+                    "legendFormat": "NRF",
                     "refId": "E"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"mn.pcf1\"}",
+                    "legendFormat": "PCF",
+                    "refId": "F"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"mn.GNB__1\"}",
+                    "legendFormat": "gNB1",
+                    "refId": "G"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"mn.GNB__2\"}",
+                    "legendFormat": "gNB2",
+                    "refId": "H"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"netflux5g-mongodb\"}",
+                    "legendFormat": "MongoDB",
+                    "refId": "I"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"netflux5g-webui\"}",
+                    "legendFormat": "WebUI",
+                    "refId": "J"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "probe_success{instance=\"netflux5g-onos-controller\"}",
+                    "legendFormat": "ONOS",
+                    "refId": "K"
                 }
             ]
         },
@@ -768,6 +822,76 @@
             ]
         },
         {
+            "id": 18,
+            "title": "UE Status Monitor",
+            "type": "stat",
+            "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 24,
+                "x": 0,
+                "y": 32
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": ["lastNotNull"],
+                    "fields": ""
+                },
+                "orientation": "horizontal",
+                "textMode": "auto",
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "text": "DOWN",
+                                    "color": "red"
+                                },
+                                "1": {
+                                    "text": "UP",
+                                    "color": "green"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${DS_PROMETHEUS}"
+                    },
+                    "expr": "up{job=\"5g-core-containers\", instance=~\"mn\\\\.UE__.*\"}",
+                    "legendFormat": "{{instance}}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
             "id": 11,
             "title": "Registration Success Rate",
             "type": "stat",
@@ -779,7 +903,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 0,
-                "y": 32
+                "y": 36
             },
             "options": {
                 "reduceOptions": {
@@ -843,7 +967,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 8,
-                "y": 32
+                "y": 36
             },
             "options": {
                 "reduceOptions": {
@@ -907,7 +1031,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 16,
-                "y": 32
+                "y": 36
             },
             "options": {
                 "reduceOptions": {
@@ -968,7 +1092,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 38
+                "y": 42
             },
             "options": {
                 "legend": {
@@ -1031,7 +1155,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 38
+                "y": 42
             },
             "options": {
                 "legend": {
@@ -1094,7 +1218,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 46
+                "y": 50
             },
             "options": {
                 "legend": {
@@ -1182,7 +1306,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 46
+                "y": 50
             },
             "options": {
                 "showTime": true,
@@ -1235,14 +1359,14 @@
                     "type": "prometheus",
                     "uid": "${DS_PROMETHEUS}"
                 },
-                "definition": "label_values(container_last_seen, name)",
+                "definition": "label_values(container_last_seen{name=~\"(mn\\\\.|netflux5g).*\"}, name)",
                 "hide": 0,
                 "includeAll": true,
                 "multi": true,
                 "name": "pod",
                 "options": [],
                 "query": {
-                    "query": "label_values(container_last_seen, name)",
+                    "query": "label_values(container_last_seen{name=~\"(mn\\\\.|netflux5g).*\"}, name)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,

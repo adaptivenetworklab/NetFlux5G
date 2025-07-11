@@ -72,11 +72,11 @@ cd netflux5g-editor/src/automation/monitoring
 
 ### 2. Access Dashboards
 
-- **Grafana**: http://localhost:3000
+- **Grafana**: <http://localhost:3000>
   - Username: admin
   - Password: admin (change on first login)
-- **Prometheus**: http://localhost:9090
-- **Alertmanager**: http://localhost:9093
+- **Prometheus**: <http://localhost:9090>
+- **Alertmanager**: <http://localhost:9093>
 
 ### 3. Import Dashboard
 
@@ -84,6 +84,11 @@ cd netflux5g-editor/src/automation/monitoring
 2. Go to Dashboards → Import
 3. Upload `grafana/dashboard.json`
 4. Configure Prometheus data source if needed
+
+**Note**: Dashboard has been configured for current container setup:
+- 5G Core: mn.amf1, mn.smf1, mn.upf1, mn.upf2, mn.nrf1, mn.pcf1, etc.
+- UERANSIM: mn.GNB__1, mn.GNB__2, mn.UE__1 through mn.UE__6
+- Infrastructure: netflux5g-mongodb, netflux5g-webui, netflux5g-onos-controller
 
 ## Configuration
 

@@ -30,13 +30,18 @@ scrape_configs:
       module: [icmp]
     static_configs:
       - targets:
-          - 172.18.0.3 # AMF
-          - 172.18.0.9 # PCF
-          - 172.18.0.15 # gNB1
-          - 172.18.0.17 # UE2
-          - 172.25.0.2 # MongoDB
-          - 172.25.0.3 # WebUI
-          - 8.8.8.8 # Google DNS (contoh eksternal)
+          - mn.amf1 # AMF
+          - mn.smf1 # SMF
+          - mn.upf1 # UPF1
+          - mn.upf2 # UPF2
+          - mn.nrf1 # NRF
+          - mn.pcf1 # PCF
+          - mn.GNB__1 # gNB1
+          - mn.GNB__2 # gNB2
+          - netflux5g-mongodb # MongoDB
+          - netflux5g-webui # WebUI
+          - netflux5g-onos-controller # ONOS Controller
+          - 8.8.8.8 # External connectivity test
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -45,27 +50,46 @@ scrape_configs:
       - target_label: __address__
         replacement: netflux5g_blackbox-exporter:9115
 
-  - job_name: "open5gs-metrics"
+  - job_name: "5g-core-containers"
     static_configs:
       - targets:
-          - "172.18.0.3:9090" # AMF metrics
-          - "172.18.0.4:9090" # SMF metrics
-          - "172.18.0.5:9090" # UPF metrics
-          - "172.18.0.6:9090" # NRF metrics
-          - "172.18.0.7:9090" # AUSF metrics
-          - "172.18.0.8:9090" # UDM metrics
-          - "172.18.0.9:9090" # PCF metrics
-          - "172.18.0.10:9090" # UDR metrics
-          - "172.18.0.11:9090" # BSF metrics
-          - "172.18.0.12:9090" # NSSF metrics
-    scrape_interval: 10s
-    scrape_timeout: 5s
+          - mn.amf1:9090 # AMF metrics (if available)
+          - mn.smf1:9090 # SMF metrics (if available)
+          - mn.upf1:9090 # UPF1 metrics (if available)
+          - mn.upf2:9090 # UPF2 metrics (if available)
+          - mn.nrf1:9090 # NRF metrics (if available)
+          - mn.ausf1:9090 # AUSF metrics (if available)
+          - mn.udm1:9090 # UDM metrics (if available)
+          - mn.udr1:9090 # UDR metrics (if available)
+          - mn.pcf1:9090 # PCF metrics (if available)
+          - mn.bsf1:9090 # BSF metrics (if available)
+          - mn.nssf1:9090 # NSSF metrics (if available)
+          - mn.scp1:9090 # SCP metrics (if available)
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
 
-  - job_name: "ueransim-metrics"
+  - job_name: "ueransim-containers"
     static_configs:
       - targets:
-          - "172.18.0.15:9091" # gNB1 metrics
-          - "172.18.0.16:9091" # gNB2 metrics
-          - "172.18.0.17:9091" # UE metrics
-    scrape_interval: 10s
-    scrape_timeout: 5s
+          - mn.GNB__1:9091 # gNB1 metrics (if available)
+          - mn.GNB__2:9091 # gNB2 metrics (if available)
+          - mn.UE__1:9091 # UE1 metrics (if available)
+          - mn.UE__2:9091 # UE2 metrics (if available)
+          - mn.UE__3:9091 # UE3 metrics (if available)
+          - mn.UE__4:9091 # UE4 metrics (if available)
+          - mn.UE__5:9091 # UE5 metrics (if available)
+          - mn.UE__6:9091 # UE6 metrics (if available)
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+
+  - job_name: "infrastructure-services"
+    static_configs:
+      - targets:
+          - netflux5g-mongodb:27017 # MongoDB (if metrics available)
+          - netflux5g-webui:9999 # WebUI (if metrics available)
+          - netflux5g-onos-controller:8181 # ONOS Controller (if metrics available)
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metrics_path: /metrics
