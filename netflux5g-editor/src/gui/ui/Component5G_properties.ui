@@ -570,7 +570,7 @@
        </item>
        <item>
         <property name="text">
-         <string>netdev</string>
+         <string>user</string>
         </property>
        </item>
       </widget>

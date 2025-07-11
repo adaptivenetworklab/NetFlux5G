@@ -66,6 +66,7 @@ class ConfigurationMapper:
         
         # Enhanced 5G configuration using new field names matching UERANSIM Dockerfile
         config['amf_hostname'] = properties.get('GNB_AMFHostName', properties.get('5g_amf_hostname', 'amf'))
+        config['amf_ip'] = properties.get('GNB_AMF_IP', properties.get('5g_amf_ip', ''))  # Explicit AMF IP for direct connection
         config['gnb_hostname'] = properties.get('GNB_GNBHostName', properties.get('5g_gnb_hostname', 'localhost'))
         config['mcc'] = properties.get('GNB_MCC', properties.get('5g_mcc', '999'))
         config['mnc'] = properties.get('GNB_MNC', properties.get('5g_mnc', '70'))

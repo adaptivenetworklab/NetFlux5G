@@ -83,8 +83,12 @@ class AutomationRunner(QObject):
         self.progress_dialog.setModal(True)
         self.progress_dialog.canceled.connect(self.stop_all)
         self.progress_dialog.show()
-        
-        # Connect progress signal
+
+        # Disconnect previous connections to avoid duplicate slot calls
+        try:
+            self.progress_updated.disconnect()
+        except TypeError:
+            pass  # Was not connected
         self.progress_updated.connect(self.progress_dialog.setValue)
         
         # Start the automation in a separate thread
@@ -144,6 +148,7 @@ class AutomationRunner(QObject):
             self.is_running = False
             if hasattr(self, 'progress_dialog'):
                 self.progress_dialog.hide()
+                self.progress_dialog = None
     
     def _create_working_directory(self):
         """Create a working directory for the deployment."""
@@ -555,24 +560,83 @@ read
                     # Try graceful shutdown first
                     self.mininet_process.terminate()
                     self.mininet_process.wait(timeout=10)
+                    debug_print("Mininet process terminated gracefully")
                 except subprocess.TimeoutExpired:
                     # Force kill if necessary
+                    debug_print("Mininet process did not terminate gracefully, force killing...")
                     self.mininet_process.kill()
+                    debug_print("Mininet process killed")
                     
-                # Clean up Mininet
-                try:
-                    subprocess.run(["sudo", "mn", "-c"], capture_output=True)
-                except:
-                    pass
+                self.mininet_process = None
+                
+            # Clean up Mininet with sudo mn -c
+            debug_print("Executing 'sudo mn -c' to clean Mininet...")
+            self.status_updated.emit("Executing 'sudo mn -c' to clean Mininet...")
             
+            try:
+                result = subprocess.run(
+                    ["sudo", "mn", "-c"], 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=30
+                )
+                
+                if result.returncode == 0:
+                    debug_print("Mininet cleanup successful")
+                    self.status_updated.emit("Mininet cleanup completed successfully")
+                else:
+                    warning_print(f"Mininet cleanup warning: {result.stderr}")
+                    self.status_updated.emit("Mininet cleanup completed with warnings")
+                    
+            except subprocess.TimeoutExpired:
+                error_print("Mininet cleanup timed out")
+                self.status_updated.emit("Mininet cleanup timed out")
+            except subprocess.CalledProcessError as e:
+                error_print(f"Mininet cleanup failed: {e}")
+                self.status_updated.emit(f"Mininet cleanup failed: {e}")
+            except Exception as e:
+                error_print(f"Unexpected error during Mininet cleanup: {e}")
+                self.status_updated.emit(f"Cleanup error: {e}")
+            
+            # Stop Docker containers if they exist
+            if self.docker_process and self.docker_process.poll() is None:
+                debug_print("Stopping Docker containers...")
+                try:
+                    self.docker_process.terminate()
+                    self.docker_process.wait(timeout=10)
+                    debug_print("Docker process terminated gracefully")
+                except subprocess.TimeoutExpired:
+                    debug_print("Docker process did not terminate gracefully, force killing...")
+                    self.docker_process.kill()
+                    debug_print("Docker process killed")
+                    
+                self.docker_process = None
+            
+            # Additional cleanup for any leftover processes
+            try:
+                # Clean up any remaining Open vSwitch processes
+                debug_print("Cleaning up Open vSwitch processes...")
+                subprocess.run(["sudo", "ovs-vsctl", "del-br", "ovs-br"], capture_output=True)
+                
+                # Clean up any remaining network namespaces
+                debug_print("Cleaning up network namespaces...")
+                subprocess.run(["sudo", "ip", "netns", "del", "mn-ns"], capture_output=True)
+                
+            except Exception as e:
+                # These are optional cleanup steps, don't fail if they don't work
+                debug_print(f"Optional cleanup step failed (this is normal): {e}")
             
         except Exception as e:
             error_print(f"Error stopping services: {e}")
             self.status_updated.emit(f"Error stopping services: {e}")
         finally:
             self.is_running = False
-            if hasattr(self, 'progress_dialog'):
+            if getattr(self, 'progress_dialog', None) is not None:
                 self.progress_dialog.hide()
+                self.progress_dialog = None
+            
+            debug_print("All services stopped")
+            self.execution_finished.emit(True, "All services stopped successfully")
     
     def is_deployment_running(self):
         """Check if deployment is currently running."""
@@ -643,8 +707,12 @@ read
         self.progress_dialog.setModal(True)
         self.progress_dialog.canceled.connect(self.stop_all)
         self.progress_dialog.show()
-        
-        # Connect progress signal
+
+        # Disconnect previous connections to avoid duplicate slot calls
+        try:
+            self.progress_updated.disconnect()
+        except TypeError:
+            pass  # Was not connected
         self.progress_updated.connect(self.progress_dialog.setValue)
         
         # Start the simple automation in a separate thread
@@ -697,5 +765,83 @@ read
             self.execution_finished.emit(False, error_msg)
         finally:
             self.is_running = False
-            if hasattr(self, 'progress_dialog'):
+            if getattr(self, 'progress_dialog', None) is not None:
                 self.progress_dialog.hide()
+                self.progress_dialog = None
+    
+    def stop_topology(self):
+        """Stop and clean up the topology (actionStop) - focused on mininet cleanup."""
+        debug_print("DEBUG: Stop topology called")
+        self.status_updated.emit("Cleaning up topology...")
+        try:
+            # Stop Mininet process if it's running
+            if self.mininet_process and self.mininet_process.poll() is None:
+                debug_print("Stopping Mininet process...")
+                try:
+                    # Try graceful shutdown first
+                    self.mininet_process.terminate()
+                    self.mininet_process.wait(timeout=10)
+                    debug_print("Mininet process terminated gracefully")
+                except subprocess.TimeoutExpired:
+                    # Force kill if necessary
+                    debug_print("Mininet process did not terminate gracefully, force killing...")
+                    self.mininet_process.kill()
+                    debug_print("Mininet process killed")
+                except Exception as e:
+                    error_print(f"Error stopping Mininet process: {e}")
+                    
+                self.mininet_process = None
+            
+            # Clean up Mininet with sudo mn -c
+            debug_print("Executing 'sudo mn -c' to clean Mininet...")
+            self.status_updated.emit("Executing 'sudo mn -c' to clean Mininet...")
+            
+            try:
+                result = subprocess.run(
+                    ["sudo", "mn", "-c"], 
+                    capture_output=True, 
+                    text=True, 
+                    timeout=30
+                )
+                
+                if result.returncode == 0:
+                    debug_print("Mininet cleanup successful")
+                    self.status_updated.emit("Mininet cleanup completed successfully")
+                else:
+                    warning_print(f"Mininet cleanup warning: {result.stderr}")
+                    self.status_updated.emit("Mininet cleanup completed with warnings")
+                    
+            except subprocess.TimeoutExpired:
+                error_print("Mininet cleanup timed out")
+                self.status_updated.emit("Mininet cleanup timed out")
+            except subprocess.CalledProcessError as e:
+                error_print(f"Mininet cleanup failed: {e}")
+                self.status_updated.emit(f"Mininet cleanup failed: {e}")
+            except Exception as e:
+                error_print(f"Unexpected error during Mininet cleanup: {e}")
+                self.status_updated.emit(f"Cleanup error: {e}")
+            
+            # Additional cleanup for any leftover processes
+            try:
+                # Clean up any remaining Open vSwitch processes
+                debug_print("Cleaning up Open vSwitch processes...")
+                subprocess.run(["sudo", "ovs-vsctl", "del-br", "ovs-br"], capture_output=True)
+                
+                # Clean up any remaining network namespaces
+                debug_print("Cleaning up network namespaces...")
+                subprocess.run(["sudo", "ip", "netns", "del", "mn-ns"], capture_output=True)
+                
+            except Exception as e:
+                # These are optional cleanup steps, don't fail if they don't work
+                debug_print(f"Optional cleanup step failed (this is normal): {e}")
+            
+        except Exception as e:
+            error_print(f"Error during topology cleanup: {e}")
+            self.status_updated.emit(f"Cleanup error: {e}")
+        finally:
+            self.is_running = False
+            if getattr(self, 'progress_dialog', None) is not None:
+                self.progress_dialog.hide()
+                self.progress_dialog = None
+            debug_print("Topology cleanup completed")
+            self.execution_finished.emit(True, "Topology cleanup completed")

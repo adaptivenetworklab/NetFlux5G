@@ -61,6 +61,11 @@ echo "Initializing Open5GS container with command: $COMMAND"
 # Setup OVS if enabled (run in background)
 if [ "$OVS_ENABLED" = "true" ]; then
     echo "Setting up OpenFlow/OVS integration..."
+    
+    # Enable mininet-wifi mode to prevent interface conflicts
+    export MININET_WIFI_MODE=true
+    export BRIDGE_INTERFACES=""
+    
     /opt/open5gs/bin/ovs-setup.sh &
     OVS_SETUP_PID=$!
     

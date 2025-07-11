@@ -71,30 +71,35 @@ function configure_component_ovs {
         export OVS_ENABLED=true
         export OVS_BRIDGE_NAME=$BRIDGE_NAME
         
+        # For mininet-wifi integration, disable automatic interface bridging
+        # Let mininet-wifi manage the interfaces directly
+        export MININET_WIFI_MODE=true
+        export BRIDGE_INTERFACES=""
+        
         if [ -n "$CONTROLLER_IP" ]; then
             export OVS_CONTROLLER="tcp:${CONTROLLER_IP}:${CONTROLLER_PORT}"
             echo "Controller configured: $OVS_CONTROLLER"
         fi
         
-        # Component-specific configurations
-        case $component in
-            "gnb")
-                # Configure gNB-specific environment
-                export N2_IFACE=${N2_IFACE:-"eth0"}
-                export N3_IFACE=${N3_IFACE:-"eth0"}
-                export RADIO_IFACE=${RADIO_IFACE:-"eth0"}
+        # # Component-specific configurations
+        # case $component in
+        #     "gnb")
+        #         # Configure gNB-specific environment
+        #         export N2_IFACE=${N2_IFACE:-"eth0"}
+        #         export N3_IFACE=${N3_IFACE:-"eth0"}
+        #         export RADIO_IFACE=${RADIO_IFACE:-"eth0"}
                 
-                # AP functionality integration
-                if [ "$AP_ENABLED" = "true" ]; then
-                    export AP_BRIDGE_NAME=${AP_BRIDGE_NAME:-"br-gnb-ap"}
-                    echo "AP functionality will be integrated with OVS bridge"
-                fi
-                ;;
-            "ue")
-                # Configure UE-specific environment
-                echo "UE OVS configuration applied"
-                ;;
-        esac
+        #         # AP functionality integration - let mininet-wifi handle it
+        #         if [ "$AP_ENABLED" = "true" ]; then
+        #             export AP_BRIDGE_NAME=${AP_BRIDGE_NAME:-"br-gnb-ap"}
+        #             echo "AP functionality will be managed by mininet-wifi"
+        #         fi
+        #         ;;
+        #     "ue")
+        #         # Configure UE-specific environment
+        #         echo "UE OVS configuration applied"
+        #         ;;
+        # esac
         
         # Run OVS setup
         /usr/local/bin/ueransim-ovs-setup.sh

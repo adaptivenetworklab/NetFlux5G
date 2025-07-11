@@ -64,7 +64,7 @@ class AutomationManager:
             if hasattr(self.main_window, 'actionRun'):
                 self.main_window.actionRun.setEnabled(True)
             if hasattr(self.main_window, 'actionStop'):
-                self.main_window.actionStop.setEnabled(False)    
+                self.main_window.actionStop.setEnabled(False)
 
     def onAutomationFinished(self, success, message):
         """Handle automation completion."""
@@ -216,8 +216,8 @@ class AutomationManager:
         )
         
         if reply == QMessageBox.Yes:
-            # Use the automation runner's stop_all method which already includes mn -c
-            self.main_window.automation_runner.stop_all()
+            # Use the automation runner's stop_topology method for proper cleanup
+            self.main_window.automation_runner.stop_topology()
             self.main_window.status_manager.showCanvasStatus("Topology cleaned up successfully")
             
             # Reset all UI states after stopping

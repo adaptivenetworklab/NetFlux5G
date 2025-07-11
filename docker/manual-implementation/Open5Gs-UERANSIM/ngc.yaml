@@ -1,6 +1,6 @@
 services:
   amf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - scp    
     command:
@@ -16,7 +16,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   ausf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - scp
     command:
@@ -32,7 +32,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   bsf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - scp
     command:
@@ -48,7 +48,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   nrf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-nrfd"
     restart: on-failure
     privileged: true
@@ -61,7 +61,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   nssf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - nrf
       - scp
@@ -77,7 +77,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   pcf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       scp:
         condition: service_started
@@ -85,7 +85,7 @@ services:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcfd"
     privileged: true
     environment:
-      DB_URI: mongodb://mongo/open5gs   
+      DB_URI: mongodb://netflux5g-mongo/open5gs   
     restart: on-failure
     volumes:
       - type: bind
@@ -96,7 +96,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   scp:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - nrf
     command: "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-scpd"
@@ -111,7 +111,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   smf:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - scp
     restart: on-failure
@@ -126,7 +126,7 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   udm:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       - scp
     restart: on-failure
@@ -142,13 +142,13 @@ services:
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
   udr:
-    image: adaptive/open5gs:1.0
+    image: adaptive/open5gs:latest
     depends_on:
       scp:
         condition: service_started
     restart: on-failure
     environment:
-      DB_URI: mongodb://mongo/open5gs
+      DB_URI: mongodb://netflux5g-mongo/open5gs
     privileged: true      
     command:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-udrd"
@@ -160,9 +160,8 @@ services:
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh
 
-  # portainer:
-  #   image: portainer/portainer-ce
-  #   ports:
-  #   - 9000:9000
-  #   volumes:
-  #   - /var/run/docker.sock:/var/run/docker.sock
+networks:
+  default:
+    external: true
+    name: netflux5g
+

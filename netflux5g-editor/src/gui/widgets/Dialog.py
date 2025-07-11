@@ -461,9 +461,11 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         """Setup default values for the enhanced gNB configuration"""
         # Set default 5G configuration values
         if hasattr(self, 'GNB_AMFHostName'):
-            self.GNB_AMFHostName.setText("amf")
+            self.GNB_AMFHostName.setText("amf1")
+        if hasattr(self, 'GNB_AMF_IP'):
+            self.GNB_AMF_IP.setText("")  # Empty by default, optional field
         if hasattr(self, 'GNB_GNBHostName'):
-            self.GNB_GNBHostName.setText("mn.gnb")
+            self.GNB_GNBHostName.setText("GNB__1")
         if hasattr(self, 'GNB_TAC'):
             self.GNB_TAC.setText("1")
         if hasattr(self, 'GNB_MCC'):
@@ -587,6 +589,10 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         # Core 5G configuration - must match Dockerfile defaults
         if hasattr(self, 'GNB_AMFHostName'):
             config['AMF_HOSTNAME'] = self.GNB_AMFHostName.text() or 'amf'
+        if hasattr(self, 'GNB_AMF_IP'):
+            amf_ip = self.GNB_AMF_IP.text().strip()
+            if amf_ip:  # Only add if not empty
+                config['AMF_IP'] = amf_ip
         if hasattr(self, 'GNB_GNBHostName'):
             config['GNB_HOSTNAME'] = self.GNB_GNBHostName.text() or 'localhost'
         if hasattr(self, 'GNB_TAC'):

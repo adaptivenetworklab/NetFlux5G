@@ -3,8 +3,8 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Kam Jul 3 15:07:59 2025",
-    "saved_date": "Kam Jul 3 15:07:59 2025",
+    "created_date": "Jum Jul 11 17:27:28 2025",
+    "saved_date": "Jum Jul 11 17:27:28 2025",
     "canvas_size": {
       "width": 1292,
       "height": 801
@@ -16,13 +16,13 @@
     {
       "name": "VGcore #1",
       "type": "VGcore",
-      "x": 78.0,
-      "y": -320.0,
+      "x": -100.60700000000008,
+      "y": -557.5351250000003,
       "properties": {
         "name": "VGcore #1",
         "type": "VGcore",
-        "x": 78.0,
-        "y": -320.0,
+        "x": -100.60700000000008,
+        "y": -557.5351250000003,
         "UPF_configs": [
           {
             "name": "upf1",
@@ -77,7 +77,7 @@
             "imported": true,
             "config_filename": "upf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf.yaml",
-            "settings": "",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "UPF",
             "volumes": []
@@ -133,7 +133,7 @@
             "imported": true,
             "config_filename": "upf2.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
-            "settings": "",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "UPF",
             "volumes": []
@@ -161,7 +161,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -242,6 +242,7 @@
             "imported": true,
             "config_filename": "amf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/amf.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/amf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "AMF",
             "volumes": []
@@ -269,7 +270,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -283,7 +284,7 @@
                   "client": {
                     "upf": [
                       {
-                        "address": "upf",
+                        "address": "upf1",
                         "dnn": [
                           "internet",
                           "internet2"
@@ -357,7 +358,7 @@
             "imported": true,
             "config_filename": "smf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/smf.yaml",
-            "settings": "",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/smf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "SMF",
             "volumes": []
@@ -396,6 +397,7 @@
             "imported": true,
             "config_filename": "nrf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nrf.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nrf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "NRF",
             "volumes": []
@@ -423,7 +425,7 @@
                   "client": {
                     "nrf": [
                       {
-                        "uri": "http://nrf:7777"
+                        "uri": "http://nrf1:7777"
                       }
                     ]
                   }
@@ -433,6 +435,7 @@
             "imported": true,
             "config_filename": "scp.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/scp.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/scp.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "SCP",
             "volumes": []
@@ -460,7 +463,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -470,6 +473,7 @@
             "imported": true,
             "config_filename": "ausf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/ausf.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/ausf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "AUSF",
             "volumes": []
@@ -497,7 +501,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -507,6 +511,7 @@
             "imported": true,
             "config_filename": "bsf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/bsf.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/bsf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "BSF",
             "volumes": []
@@ -536,12 +541,12 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ],
                     "nsi": [
                       {
-                        "uri": "http://nrf:7777",
+                        "uri": "http://nrf1:7777",
                         "s_nssai": {
                           "sst": 1
                         }
@@ -554,6 +559,7 @@
             "imported": true,
             "config_filename": "nssf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nssf.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nssf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "NSSF",
             "volumes": []
@@ -582,7 +588,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -600,6 +606,7 @@
             "imported": true,
             "config_filename": "pcf.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/pcf.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/pcf.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "PCF",
             "volumes": []
@@ -683,7 +690,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -693,6 +700,7 @@
             "imported": true,
             "config_filename": "udm.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udm.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udm.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "UDM",
             "volumes": []
@@ -721,7 +729,7 @@
                   "client": {
                     "scp": [
                       {
-                        "uri": "http://scp:7777"
+                        "uri": "http://scp1:7777"
                       }
                     ]
                   }
@@ -731,26 +739,67 @@
             "imported": true,
             "config_filename": "udr.yaml",
             "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udr.yaml",
+            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udr.yaml",
             "image": "adaptive/open5gs:1.0",
             "component_type": "UDR",
             "volumes": []
           }
-        ]
+        ],
+        "VGCore_DockerImage": "adaptive/open5gs:latest",
+        "VGCore_DockerNetwork": "netflux5g",
+        "VGCore_DatabaseURI": "mongodb://netflux5g-mongodb/open5gs",
+        "VGCore_NetworkInterface": "eth0",
+        "VGCore_MCC": "999",
+        "VGCore_MNC": "70",
+        "VGCore_TAC": "1",
+        "VGCore_SST": "1",
+        "VGCore_SD": "0xffffff",
+        "VGCore_BridgePriority": "32768",
+        "VGCore_OVSController": "tcp:netflux5g-onos-controller:6653",
+        "VGCore_ControllerPort": "6653",
+        "VGCore_OVSBridgeName": "br-open5gs",
+        "VGCore_OpenFlowProtocols": "OpenFlow13",
+        "VGCore_OVSFailMode": "secure",
+        "VGCore_OVSDatapath": "kernel",
+        "VGCore_DockerEnabled": true,
+        "VGCore_EnableNAT": true,
+        "VGCore_STPEnabled": true,
+        "VGCore_OVSEnabled": false,
+        "docker_docker_enabled": true,
+        "docker_docker_image": "adaptive/open5gs:latest",
+        "docker_docker_network": "netflux5g",
+        "docker_database_uri": "mongodb://netflux5g-mongodb/open5gs",
+        "5gcore_network_interface": "eth0",
+        "5gcore_mcc": "999",
+        "5gcore_mnc": "70",
+        "5gcore_tac": "1",
+        "5gcore_sst": "1",
+        "5gcore_sd": "0xffffff",
+        "5gcore_enable_nat": true,
+        "ovs_ovs_enabled": false,
+        "ovs_ovs_controller": "tcp:netflux5g-onos-controller:6653",
+        "ovs_ovs_bridge_name": "br-open5gs",
+        "ovs_ovs_fail_mode": "secure",
+        "ovs_openflow_protocols": "OpenFlow13",
+        "ovs_ovs_datapath": "kernel",
+        "ovs_controller_port": "6653",
+        "ovs_bridge_priority": "32768",
+        "ovs_stp_enabled": true
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802880
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530673152
     },
     {
       "name": "UE #6",
       "type": "UE",
-      "x": 416.0,
-      "y": 115.0,
+      "x": 327.98201874999995,
+      "y": 162.12987500000017,
       "properties": {
         "name": "UE #6",
         "type": "UE",
-        "x": 416.0,
-        "y": 115.0,
-        "UE_GNBHostName": "mn.gnb1",
+        "x": 327.98201874999995,
+        "y": 162.12987500000017,
+        "UE_GNBHostName": "GNB__2",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000003",
         "UE_MCC": "999",
@@ -759,22 +808,55 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "GNB__2",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000003",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802736
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530673008
     },
     {
       "name": "UE #5",
       "type": "UE",
-      "x": 444.0,
-      "y": -237.0,
+      "x": 282.14540624999984,
+      "y": -242.2715999999999,
       "properties": {
         "name": "UE #5",
         "type": "UE",
-        "x": 444.0,
-        "y": -237.0,
-        "UE_GNBHostName": "mn.gnb1",
+        "x": 282.14540624999984,
+        "y": -242.2715999999999,
+        "UE_GNBHostName": "GNB__2",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000013",
         "UE_MCC": "999",
@@ -783,22 +865,55 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "qt_spinbox_lineedit": "1",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_SessionType": "IPv4",
+        "UE_AssociationMode": "auto",
+        "UE_Mobility": false,
+        "UE_PDUSessions": 1,
+        "UE_Power": 20,
+        "UE_Range": 116,
+        "ue_gnb_hostname": "GNB__2",
+        "ue_apn": "internet2",
+        "ue_msisdn": "0000000013",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802592
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530672864
     },
     {
       "name": "UE #4",
       "type": "UE",
-      "x": 199.0,
-      "y": -74.0,
+      "x": 81.05643124999986,
+      "y": -51.661537499999966,
       "properties": {
         "name": "UE #4",
         "type": "UE",
-        "x": 199.0,
-        "y": -74.0,
-        "UE_GNBHostName": "mn.gnb1",
+        "x": 81.05643124999986,
+        "y": -51.661537499999966,
+        "UE_GNBHostName": "GNB__2",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000012",
         "UE_MCC": "999",
@@ -807,22 +922,55 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "116 meters",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "GNB__2",
+        "ue_apn": "internet2",
+        "ue_msisdn": "0000000012",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802448
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530672720
     },
     {
       "name": "UE #3",
       "type": "UE",
-      "x": -121.0,
-      "y": 127.0,
+      "x": -319.0932499999999,
+      "y": 93.49474999999995,
       "properties": {
         "name": "UE #3",
         "type": "UE",
-        "x": -121.0,
-        "y": 127.0,
-        "UE_GNBHostName": "mn.gnb1",
+        "x": -319.0932499999999,
+        "y": 93.49474999999995,
+        "UE_GNBHostName": "GNB__1",
         "UE_APN": "internet2",
         "UE_MSISDN": "0000000011",
         "UE_MCC": "999",
@@ -831,22 +979,55 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "qt_spinbox_lineedit": "1",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_SessionType": "IPv4",
+        "UE_AssociationMode": "auto",
+        "UE_Mobility": false,
+        "UE_PDUSessions": 1,
+        "UE_Power": 20,
+        "UE_Range": 116,
+        "ue_gnb_hostname": "GNB__1",
+        "ue_apn": "internet2",
+        "ue_msisdn": "0000000011",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802304
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530671856
     },
     {
       "name": "UE #2",
       "type": "UE",
-      "x": -447.0,
-      "y": 56.0,
+      "x": -543.3987500000004,
+      "y": 65.93024999999996,
       "properties": {
         "name": "UE #2",
         "type": "UE",
-        "x": -447.0,
-        "y": 56.0,
-        "UE_GNBHostName": "mn.gnb1",
+        "x": -543.3987500000004,
+        "y": 65.93024999999996,
+        "UE_GNBHostName": "GNB__1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000002",
         "UE_MCC": "999",
@@ -855,22 +1036,55 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "GNB__1",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000002",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802160
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530672000
     },
     {
       "name": "UE #1",
       "type": "UE",
-      "x": -444.0,
-      "y": -223.0,
+      "x": -648.5763750000001,
+      "y": -127.11874999999999,
       "properties": {
         "name": "UE #1",
         "type": "UE",
-        "x": -444.0,
-        "y": -223.0,
-        "UE_GNBHostName": "mn.gnb1",
+        "x": -648.5763750000001,
+        "y": -127.11874999999999,
+        "UE_GNBHostName": "GNB__1",
         "UE_APN": "internet",
         "UE_MSISDN": "0000000001",
         "UE_MCC": "999",
@@ -879,86 +1093,249 @@
         "UE_OPType": "OPC",
         "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
         "UE_SST": "1",
-        "UE_SD": "0xffffff"
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "116 meters",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Power": 20,
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "GNB__1",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000001",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951802016
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530672144
     },
     {
       "name": "GNB #1",
       "type": "GNB",
-      "x": -278.0,
-      "y": -59.0,
+      "x": -416.83591249999995,
+      "y": -47.13530625,
       "properties": {
         "name": "GNB #1",
         "type": "GNB",
-        "x": -278.0,
-        "y": -59.0,
-        "GNB_AMFHostName": "mn.amf1",
-        "GNB_GNBHostName": "mn.gnb1",
+        "x": -416.83591249999995,
+        "y": -47.13530625,
+        "GNB_AMFHostName": "amf1",
+        "GNB_GNBHostName": "GNB__1",
         "GNB_TAC": "1",
         "GNB_MCC": "999",
         "GNB_MNC": "70",
         "GNB_SST": "1",
         "GNB_SD": "0xffffff",
-        "GNB_Power": "25"
+        "GNB_Power": 24,
+        "GNB_AP_SSID": "gnb-hotspot1",
+        "qt_spinbox_lineedit": "600 meters",
+        "GNB_AP_Password": "",
+        "GNB_AP_BridgeName": "br-gnb1",
+        "GNB_OVS_Controller": "tcp:192.168.0.127:6653",
+        "GNB_N2_Interface": "eth0",
+        "GNB_N3_Interface": "eth0",
+        "GNB_Radio_Interface": "eth0",
+        "GNB_AP_Mode": "g",
+        "GNB_OVS_FailMode": "secure",
+        "GNB_OVS_Protocols": "OpenFlow13",
+        "GNB_OVS_Datapath": "kernel",
+        "GNB_AP_Enabled": true,
+        "GNB_AP_Channel": 11,
+        "GNB_Range": 600,
+        "ap_ap_enabled": "true",
+        "5g_amf_hostname": "amf1",
+        "5g_gnb_hostname": "GNB__1",
+        "5g_tac": "1",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_n2_iface": "eth0",
+        "5g_n3_iface": "eth0",
+        "5g_radio_iface": "eth0",
+        "wireless_txpower": 24,
+        "wireless_range": 600,
+        "ap_ap_ssid": "gnb-hotspot1",
+        "ap_ap_channel": "11",
+        "ap_ap_mode": "g",
+        "ap_ap_passwd": "",
+        "ap_ap_bridge_name": "br-gnb1",
+        "ap_ovs_controller": "tcp:192.168.0.127:6653",
+        "ap_ap_failmode": "secure",
+        "ap_openflow_protocols": "OpenFlow13",
+        "GNB_Network_Interface": "eth0",
+        "GNB_OVS_BridgeName": "br-gnb1",
+        "GNB_OVS_BridgeInterfaces": "auto",
+        "GNB_OVS_ControllerIP": "192.168.0.127",
+        "GNB_STP_Enabled": true,
+        "GNB_OVS_Enabled": false,
+        "GNB_OVS_AutoSetup": false,
+        "GNB_Bridge_Priority": 8,
+        "GNB_OVS_ControllerPort": 6653,
+        "ovs_ovs_enabled": "false",
+        "ovs_ovs_controller": "tcp:192.168.0.127:6653",
+        "ovs_controller_ip": "192.168.0.127",
+        "ovs_controller_port": "6653",
+        "ovs_ovs_bridge_name": "br-gnb1",
+        "ovs_ovs_fail_mode": "secure",
+        "ovs_openflow_protocols": "OpenFlow13",
+        "ovs_ovs_datapath": "kernel",
+        "ovs_bridge_interfaces": "auto",
+        "ovs_ovs_auto_setup": "true",
+        "network_n2_iface": "eth0",
+        "network_n3_iface": "eth0",
+        "network_radio_iface": "eth0",
+        "network_network_interface": "eth0",
+        "network_bridge_priority": "8",
+        "network_stp_enabled": "true",
+        "network_ueransim_component": "gnb",
+        "ueransim_component": "gnb",
+        "GNB_AMF_IP": "",
+        "5g_amf_ip": "10.0.0.3"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951803168
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530674448
     },
     {
       "name": "GNB #2",
       "type": "GNB",
-      "x": 443.0,
-      "y": -37.0,
+      "x": 289.5387437500003,
+      "y": -57.181206249999946,
       "properties": {
         "name": "GNB #2",
         "type": "GNB",
-        "x": 443.0,
-        "y": -37.0,
-        "GNB_AMFHostName": "mn.amf1",
-        "GNB_GNBHostName": "mn.gnb2",
+        "x": 289.5387437500003,
+        "y": -57.181206249999946,
+        "GNB_AMFHostName": "amf1",
+        "GNB_GNBHostName": "GNB__2",
         "GNB_TAC": "1",
         "GNB_MCC": "999",
         "GNB_MNC": "70",
         "GNB_SST": "1",
         "GNB_SD": "0xffffff",
-        "GNB_Power": "25"
+        "GNB_Power": 24,
+        "GNB_N2_Interface": "eth0",
+        "GNB_N3_Interface": "eth0",
+        "GNB_Radio_Interface": "eth0",
+        "GNB_OVS_Controller": "tcp:192.168.0.127:6653",
+        "GNB_AP_SSID": "gnb-hotspot2",
+        "qt_spinbox_lineedit": "600 meters",
+        "GNB_AP_Password": "",
+        "GNB_AP_BridgeName": "br-gnb2",
+        "GNB_OVS_FailMode": "secure",
+        "GNB_OVS_Protocols": "OpenFlow13",
+        "GNB_OVS_Datapath": "kernel",
+        "GNB_AP_Mode": "g",
+        "GNB_AP_Enabled": true,
+        "GNB_AP_Channel": 6,
+        "GNB_Range": 600,
+        "ap_ap_enabled": "true",
+        "5g_amf_hostname": "amf1",
+        "5g_gnb_hostname": "GNB__2",
+        "5g_tac": "1",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_n2_iface": "eth0",
+        "5g_n3_iface": "eth0",
+        "5g_radio_iface": "eth0",
+        "wireless_txpower": 24,
+        "wireless_range": 600,
+        "ap_ap_ssid": "gnb-hotspot2",
+        "ap_ap_channel": "6",
+        "ap_ap_mode": "g",
+        "ap_ap_passwd": "",
+        "ap_ap_bridge_name": "br-gnb2",
+        "ap_ovs_controller": "tcp:192.168.0.127:6653",
+        "ap_ap_failmode": "secure",
+        "ap_openflow_protocols": "OpenFlow13",
+        "GNB_Network_Interface": "eth0",
+        "GNB_OVS_BridgeName": "br-gnb2",
+        "GNB_OVS_BridgeInterfaces": "eth0",
+        "GNB_OVS_ControllerIP": "192.168.0.127",
+        "GNB_STP_Enabled": true,
+        "GNB_OVS_Enabled": false,
+        "GNB_OVS_AutoSetup": false,
+        "GNB_Bridge_Priority": 6,
+        "GNB_OVS_ControllerPort": 6653,
+        "ovs_ovs_enabled": "false",
+        "ovs_ovs_controller": "tcp:192.168.0.127:6653",
+        "ovs_controller_ip": "192.168.0.127",
+        "ovs_controller_port": "6653",
+        "ovs_ovs_bridge_name": "br-gnb2",
+        "ovs_ovs_fail_mode": "secure",
+        "ovs_openflow_protocols": "OpenFlow13",
+        "ovs_ovs_datapath": "kernel",
+        "ovs_bridge_interfaces": "eth0",
+        "ovs_ovs_auto_setup": "true",
+        "network_n2_iface": "eth0",
+        "network_n3_iface": "eth0",
+        "network_radio_iface": "eth0",
+        "network_network_interface": "eth0",
+        "network_bridge_priority": "6",
+        "network_stp_enabled": "true",
+        "network_ueransim_component": "gnb",
+        "ueransim_component": "gnb",
+        "GNB_AMF_IP": "",
+        "5g_amf_ip": "10.0.0.3"
       },
-      "created_date": "Kam Jul 3 15:07:59 2025",
-      "component_id": 134849951803024
+      "created_date": "Jum Jul 11 17:27:28 2025",
+      "component_id": 140087530674304
     }
   ],
   "links": [
-    {
-      "source": "GNB #1",
-      "destination": "VGcore #1",
-      "type": "ethernet",
-      "properties": {
-        "name": "link_720",
-        "type": "ethernet",
-        "source": "GNB #1",
-        "destination": "VGcore #1"
-      },
-      "name": "link_720",
-      "created_date": "Kam Jul 3 15:07:59 2025"
-    },
     {
       "source": "GNB #2",
       "destination": "VGcore #1",
       "type": "ethernet",
       "properties": {
-        "name": "link_168",
+        "name": "link_16",
         "type": "ethernet",
         "source": "GNB #2",
         "destination": "VGcore #1"
       },
-      "name": "link_168",
-      "created_date": "Kam Jul 3 15:07:59 2025"
+      "name": "link_16",
+      "created_date": "Jum Jul 11 17:27:28 2025"
+    },
+    {
+      "source": "GNB #1",
+      "destination": "VGcore #1",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_760",
+        "type": "ethernet",
+        "source": "GNB #1",
+        "destination": "VGcore #1"
+      },
+      "name": "link_760",
+      "created_date": "Jum Jul 11 17:27:28 2025"
     }
   ],
   "canvas_properties": {
-    "zoom_level": 1.0,
+    "zoom_level": 0.8695652173913041,
     "show_grid": false
   }
 }

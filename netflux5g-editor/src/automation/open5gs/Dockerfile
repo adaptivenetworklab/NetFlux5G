@@ -123,7 +123,8 @@ ENV OVS_ENABLED=false \
     CONTROLLER_IP="" \
     CONTROLLER_PORT="6633" \
     BRIDGE_INTERFACES="" \
-    OVS_AUTO_SETUP=true
+    OVS_AUTO_SETUP=true \
+    MININET_WIFI_MODE=false
 
 # Network interface configuration for mininet-wifi integration
 ENV NETWORK_INTERFACE="eth0" \

@@ -95,6 +95,11 @@ function configure_component_ovs {
         export OVS_ENABLED=true
         export OVS_BRIDGE_NAME=$BRIDGE_NAME
         
+        # For mininet-wifi integration, disable automatic interface bridging
+        # Let mininet-wifi manage the interfaces directly
+        export MININET_WIFI_MODE=true
+        export BRIDGE_INTERFACES=""
+        
         if [ -n "$CONTROLLER_IP" ]; then
             export OVS_CONTROLLER="tcp:${CONTROLLER_IP}:${CONTROLLER_PORT}"
             echo "Controller configured: $OVS_CONTROLLER"

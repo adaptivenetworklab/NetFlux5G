@@ -176,13 +176,13 @@ class MininetExporter:
         
         if has_wireless:
             # Import mininet-wifi components
-            f.write('from mn_wifi.net import Mininet_wifi\n')
             f.write('from mn_wifi.node import Station, OVSKernelAP\n')
             f.write('from mn_wifi.link import wmediumd, Intf\n')
             f.write('from mn_wifi.wmediumdConnector import interference\n')
         
         if has_docker:
             # Import containernet components for Docker/5G support
+            f.write('from containernet.net import Containernet\n')
             f.write('from containernet.cli import CLI\n')
             f.write('from containernet.node import DockerSta\n')
             f.write('from containernet.term import makeTerm as makeTerm2\n')
@@ -384,6 +384,7 @@ class MininetExporter:
         
         # CLI and cleanup
         f.write('    info("*** Running CLI\\n")\n')
+        f.write('    os.environ[\'TERM\'] = \'konsole\'\n')
         f.write('    CLI(net)\n\n')
         f.write('    info("*** Stopping network\\n")\n')
         f.write('    net.stop()\n\n')
@@ -395,9 +396,9 @@ class MininetExporter:
         has_docker = (categorized_nodes['docker_hosts'] or categorized_nodes['ues'] or 
                      categorized_nodes['gnbs'] or categorized_nodes['core5g'])
         
-        # Always use Mininet_wifi for 5G/wireless components like in the original
+        # Always use Containernet for 5G/wireless components like in the original
         if has_wireless or has_docker:
-            f.write('    net = Mininet_wifi(topo=None,\n')
+            f.write('    net = Containernet(topo=None,\n')
             f.write('                       build=False,\n')
             f.write('                       link=wmediumd, wmediumd_mode=interference,\n')
             f.write('                       ipBase=\'10.0.0.0/8\')\n')
@@ -658,7 +659,7 @@ class MininetExporter:
                 gnb_params = [f"'{gnb_name}'"]
                 
                 # Essential Docker parameters for UERANSIM gNB
-                gnb_params.append('cap_add=["net_admin", "sys_nice"]')
+                gnb_params.append('cap_add=["net_admin"]')
                 gnb_params.append('network_mode=NETWORK_MODE')
                 gnb_params.append('publish_all_ports=True')
                 gnb_params.append('privileged=True')  # Required for OVS and AP functionality
@@ -668,10 +669,7 @@ class MininetExporter:
                 
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
-                    # '"/sys:/sys:ro"',
-                    '"/lib/modules:/lib/modules:ro"',
-                    # '"/var/run/openvswitch:/var/run/openvswitch:rw"',
-                    # '"/var/log/openvswitch:/var/log/openvswitch:rw"'
+                    '"/lib/modules:/lib/modules:ro"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -683,10 +681,6 @@ class MininetExporter:
                 from manager.configmap import ConfigurationMapper
                 gnb_config = ConfigurationMapper.map_gnb_config(props)
                 
-                # Add range (default 300 if not specified)
-                range_val = gnb_config.get('range', 300)
-                gnb_params.append(f"range={range_val}")
-                
                 # Add txpower if specified (default 30)
                 txpower = gnb_config.get('txpower', 30)
                 gnb_params.append(f"txpower={txpower}")
@@ -696,16 +690,14 @@ class MininetExporter:
                 
                 # Core 5G configuration - matches UERANSIM Dockerfile
                 env_dict["AMF_HOSTNAME"] = gnb_config.get('amf_hostname', 'amf')
+                # Add AMF_IP for explicit IP connection (takes precedence over hostname if specified)
+                if gnb_config.get('amf_ip'):
+                    env_dict["AMF_IP"] = gnb_config.get('amf_ip')
                 env_dict["GNB_HOSTNAME"] = gnb_config.get('gnb_hostname', f'localhost')
-                
-                # Use mininet-wifi interface naming convention for wireless interfaces
-                # Default to nodename-wlan0 for wireless interfaces, eth0 for wired
-                default_wireless_iface = f"{gnb_name}-wlan0"
-                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', default_wireless_iface)
-                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', default_wireless_iface)
-                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', default_wireless_iface)
+                env_dict["N2_IFACE"] = gnb_config.get('n2_iface', 'eth0')
+                env_dict["N3_IFACE"] = gnb_config.get('n3_iface', 'eth0')
+                env_dict["RADIO_IFACE"] = gnb_config.get('radio_iface', 'eth0')
                 env_dict["NETWORK_INTERFACE"] = gnb_config.get('network_interface', 'eth0')
-                
                 env_dict["MCC"] = gnb_config.get('mcc', '999')
                 env_dict["MNC"] = gnb_config.get('mnc', '70')
                 env_dict["SST"] = gnb_config.get('sst', '1')
@@ -714,9 +706,6 @@ class MininetExporter:
                 
                 # UERANSIM component type
                 env_dict["UERANSIM_COMPONENT"] = "gnb"
-                
-                # Enable mininet-wifi mode for proper interface handling
-                env_dict["MININET_WIFI_MODE"] = "true"
                 
                 # Add all OVS configuration if enabled
                 ovs_config = gnb_config.get('ovs_config', {})
@@ -740,7 +729,42 @@ class MininetExporter:
                 params_str = ", ".join(gnb_params)
                 params_str = params_str.replace("'network_mode=NETWORK_MODE'", "network_mode=NETWORK_MODE")
                 
-                f.write(f'    {gnb_name} = net.addStation({params_str})\n')
+                f.write(f'    {gnb_name} = net.addDocker({params_str})\n')
+                
+                # Create separate AP node if AP functionality is enabled
+                if ap_config.get('AP_ENABLED') == 'true':
+                    ap_name = f"ap{100 + i}"  # ap101, ap102, etc.
+                    
+                    # Extract AP parameters from configuration
+                    ap_ssid = ap_config.get('AP_SSID', f'{gnb_config.get("gnb_hostname", f"gnb{i}")}-ssid')
+                    ap_channel = ap_config.get('AP_CHANNEL', '36')
+                    ap_mode = ap_config.get('AP_MODE', 'a')
+                    ap_range = ap_config.get('AP_RANGE', 600.0)
+                    ap_txpower = ap_config.get('AP_TXPOWER', 24.0)
+                    
+                    # Use OVS configuration for AP if OVS is enabled
+                    if ovs_config.get('OVS_ENABLED') == 'true':
+                        fail_mode = ovs_config.get('OVS_FAIL_MODE', 'secure')
+                        datapath = ovs_config.get('OVS_DATAPATH', 'kernel')
+                        protocols = ovs_config.get('OPENFLOW_PROTOCOLS', 'OpenFlow13')
+                    else:
+                        fail_mode = 'standalone'
+                        datapath = 'user'
+                        protocols = 'OpenFlow13'
+                    
+                    # Create AP with same position as gNB (slightly offset)
+                    ap_position = f"{gnb.get('x', 0) - 2.3:.1f},{gnb.get('y', 0):.1f},0"
+                    
+                    f.write(f'    {ap_name} = net.addAccessPoint(\'{ap_name}\', cls=OVSKernelAP, ssid=\'{ap_ssid}\', failMode=\'{fail_mode}\', datapath=\'{datapath}\',\n')
+                    f.write(f'                             channel=\'{ap_channel}\', mode=\'{ap_mode}\', position=\'{ap_position}\', range={ap_range}, txpower={ap_txpower}, protocols="{protocols}")\n')
+                    f.write('\n')
+                    
+                    # Store AP information for later use in link creation
+                    gnb['_generated_ap'] = {
+                        'name': ap_name,
+                        'ssid': ap_ssid
+                    }
+                    
             f.write('\n')
         
         # Write UEs with enhanced UERANSIM configuration
@@ -801,9 +825,9 @@ class MininetExporter:
                     "IMEI": ue_config.get('imei', '356938035643803'),
                     "IMEISV": ue_config.get('imeisv', '4370816125816151'),
                     
-                    # Network Configuration - use mininet-wifi interface naming
+                    # Network Configuration
                     "TUNNEL_IFACE": ue_config.get('tunnel_iface', 'uesimtun0'),
-                    "RADIO_IFACE": ue_config.get('radio_iface', f'{ue_name}-wlan0'),
+                    "RADIO_IFACE": ue_config.get('radio_iface', 'eth0'),
                     "SESSION_TYPE": ue_config.get('session_type', 'IPv4'),
                     "PDU_SESSIONS": str(ue_config.get('pdu_sessions', 1)),
                     
@@ -811,10 +835,7 @@ class MininetExporter:
                     "MOBILITY_ENABLED": 'true' if ue_config.get('mobility', False) else 'false',
                     
                     # UERANSIM component type
-                    "UERANSIM_COMPONENT": "ue",
-                    
-                    # Enable mininet-wifi mode for proper interface handling
-                    "MININET_WIFI_MODE": "true"
+                    "UERANSIM_COMPONENT": "ue"
                 }
                 
                 # Add gNB IP if specified
@@ -1097,7 +1118,7 @@ class MininetExporter:
                     y_pos = component.get('y', 0)
                     position = f"{x_pos:.1f},{y_pos:.1f},0"
                     comp_params.append(f"position='{position}'")
-                    comp_params.append("range=116")
+                    # comp_params.append("range=116")
                     
                     # Add volume mount for configuration using simplified naming
                     # Generate the config filename based on our simplified naming scheme
@@ -1124,7 +1145,7 @@ class MininetExporter:
                     params_str = ", ".join(comp_params)
                     params_str = params_str.replace("'network_mode=NETWORK_MODE'", "network_mode=NETWORK_MODE")
                     
-                    f.write(f'    {comp_name} = net.addStation({params_str})\n')
+                    f.write(f'    {comp_name} = net.addDocker({params_str})\n')
         
         f.write('\n')
 
@@ -1162,9 +1183,16 @@ class MininetExporter:
         if categorized_nodes['controllers']:
             controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
             
+        # Start traditional APs
         for ap in categorized_nodes['aps']:
             ap_name = self.sanitize_variable_name(ap['name'])
             f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
+            
+        # Start generated APs from gNBs
+        for gnb in categorized_nodes['gnbs']:
+            if '_generated_ap' in gnb:
+                ap_name = gnb['_generated_ap']['name']
+                f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
             
         # Start switches
         for switch in categorized_nodes['switches']:
@@ -1183,6 +1211,7 @@ class MininetExporter:
                     instance_name = self.sanitize_variable_name(instance.get('name', f'{comp_type.lower()}1'))
                     cmd = f'open5gs-{comp_type.lower()}d'
                     f.write(f'    makeTerm2({instance_name}, cmd="/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
+                    # f.write(f'    {instance_name}.cmd("/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
                 f.write('\n')
         
         f.write('    CLI.do_sh(net, "sleep 10")\n\n')
@@ -1198,21 +1227,33 @@ class MininetExporter:
                 ovs_enabled = (props.get('GNB_OVS_Enabled') or 
                               props.get('ovs_ovs_enabled', 'false') == 'true' or
                               props.get('ovs_ovs_enabled') is True)
-                ap_enabled = (props.get('GNB_AP_Enabled') or 
-                             props.get('ap_ap_enabled', 'false') == 'true' or
-                             props.get('ap_ap_enabled') is True)
                 
-                if ovs_enabled or ap_enabled:
-                    f.write(f'    info("*** Pre-configuring OVS/AP for gNB {gnb_name}\\n")\n')
+                if ovs_enabled:
+                    f.write(f'    info("*** Pre-configuring OVS for gNB {gnb_name}\\n")\n')
                     
-                    # The OVS and AP setup will be handled by the entrypoint.sh script
+                    # The OVS setup will be handled by the entrypoint.sh script
                     # based on environment variables we've already set
-                    f.write(f'    # OVS_ENABLED and AP_ENABLED environment variables will trigger setup in entrypoint\\n")\n')
+                    f.write(f'    # OVS_ENABLED environment variable will trigger setup in entrypoint\\n")\n')
 
                 # Start the gNB service - entrypoint.sh will handle OVS/AP setup automatically
+                # Define specific environment variables to substitute (security best practice)
+                # gnb_env_vars = [
+                #     'AMF_HOSTNAME', 'GNB_HOSTNAME', 'N2_IFACE', 'N3_IFACE', 'RADIO_IFACE', 'NETWORK_INTERFACE',
+                #     'MCC', 'MNC', 'SST', 'SD', 'TAC', 'UERANSIM_COMPONENT', 'GNB_ID',
+                #     'OVS_ENABLED', 'OVS_BRIDGE_NAME', 'OVS_FAIL_MODE', 'OVS_CONTROLLER', 'OPENFLOW_PROTOCOLS',
+                #     'AP_ENABLED', 'AP_SSID', 'AP_CHANNEL', 'AP_MODE', 'AP_PASSWD', 'AP_BRIDGE_NAME',
+                #     'N2_BIND_IP', 'N3_BIND_IP', 'RADIO_BIND_IP', 'AMF_IP'
+                # ]
+                # Export variables with their values in the format VARIABLE='value'
+                # for var in gnb_env_vars:
+                #     f.write(f'    {gnb_name}.cmd("export {var}=\'${{var}}\'")\n')
+                # env_vars_str = ' '.join([f'${var}' for var in gnb_env_vars])
+                # f.write(f'    {gnb_name}.cmd("envsubst \'{env_vars_str}\' < /entrypoint.sh > /mn-entrypoint.sh")\n')
+                # f.write(f'    {gnb_name}.cmd("chmod +x /mn-entrypoint.sh")\n')
                 f.write(f'    makeTerm2({gnb_name}, cmd="/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log")\n')
+                # f.write(f'    {gnb_name}.cmd("/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log &")\n')
             f.write('\n')
-            f.write('    CLI.do_sh(net, "sleep 15")  # Allow time for gNB and OVS/AP setup\n\n')
+            f.write('    CLI.do_sh(net, "sleep 15")  # Allow time for gNB and OVS setup\n\n')
         
         # Start UEs with enhanced configuration
         if categorized_nodes['ues']:
@@ -1231,7 +1272,21 @@ class MininetExporter:
                     f.write(f'    # OVS_ENABLED environment variable will trigger setup in entrypoint\\n')
                 
                 # Start the UE service - entrypoint.sh will handle OVS setup automatically
+                # Define specific environment variables to substitute (security best practice)
+                # ue_env_vars = [
+                #     'GNB_HOSTNAME', 'APN', 'MSISDN', 'MCC', 'MNC', 'SST', 'SD', 'TAC',
+                #     'KEY', 'OP_TYPE', 'OP', 'IMEI', 'IMEISV', 'TUNNEL_IFACE', 'RADIO_IFACE',
+                #     'SESSION_TYPE', 'PDU_SESSIONS', 'MOBILITY_ENABLED', 'UERANSIM_COMPONENT',
+                #     'GNB_IP', 'OVS_ENABLED', 'OVS_BRIDGE_NAME'
+                # ]
+                # # Export variables with their values in the format VARIABLE='value'
+                # for var in ue_env_vars:
+                #     f.write(f'    {ue_name}.cmd("export {var}=\'${{var}}\'")\n')
+                # env_vars_str = ' '.join([f'${var}' for var in ue_env_vars])
+                # f.write(f'    {ue_name}.cmd("envsubst \'{env_vars_str}\' < /entrypoint.sh > /mn-entrypoint.sh")\n')
+                # f.write(f'    {ue_name}.cmd("chmod +x /mn-entrypoint.sh")\n')
                 f.write(f'    makeTerm2({ue_name}, cmd="/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log")\n')
+                # f.write(f'    {ue_name}.cmd("/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &")\n')
             f.write('\n')
             f.write('    CLI.do_sh(net, "sleep 20")  # Allow time for UE registration and OVS setup\n\n')
             
@@ -1272,7 +1327,7 @@ class MininetExporter:
         
         if has_ovs:
             f.write('    info("*** Checking OVS status for enhanced UERANSIM components\\n")\n')
-            f.write('    CLI.do_sh(net, "sleep 5")  # Allow OVS setup to complete\\n')
+            f.write('    CLI.do_sh(net, "sleep 5")  # Allow OVS setup to complete\\n")\n')
             for gnb in categorized_nodes.get('gnbs', []):
                 props = gnb.get('properties', {})
                 if (props.get('GNB_OVS_Enabled') or 
@@ -1388,6 +1443,12 @@ class MininetExporter:
 
     def write_links(self, f, links, categorized_nodes):
         """Write link creation code based on extracted links."""
+        # First, write AP-gNB direct links
+        self.write_ap_gnb_links(f, categorized_nodes)
+        
+        # Get gNB to AP mapping for link redirection
+        gnb_to_ap = self.get_gnb_ap_mapping(categorized_nodes)
+        
         if not links:
             return
 
@@ -1432,14 +1493,29 @@ class MininetExporter:
                     if smf_target:
                         extra_links.append((source_name, smf_target))
 
+            # Redirect gNB connections to APs when AP functionality is enabled
+            if source_name in gnb_to_ap:
+                source_name = gnb_to_ap[source_name]
+            if dest_name in gnb_to_ap:
+                dest_name = gnb_to_ap[dest_name]
+
+            # Also redirect any extra links
+            for i, (extra_source, extra_dest) in enumerate(extra_links):
+                if extra_source in gnb_to_ap:
+                    extra_source = gnb_to_ap[extra_source]
+                if extra_dest in gnb_to_ap:
+                    extra_dest = gnb_to_ap[extra_dest]
+                extra_links[i] = (extra_source, extra_dest)
+
             # Skip links if source or dest is Controller__{number}
             controller_pattern = re.compile(r'^Controller__\d+$')
             if controller_pattern.match(source_name) or controller_pattern.match(dest_name):
                 continue
 
-            # Check if we need to swap link order for Switch connected to 5G core components or GNBs
+            # Check if we need to swap link order for Switch connected to 5G core components, GNBs, or APs
             switch_pattern = re.compile(r'^Switch__\d+$', re.IGNORECASE)
             gnb_pattern = re.compile(r'^GNB__\d+$', re.IGNORECASE)
+            ap_pattern = re.compile(r'^ap\d+$', re.IGNORECASE)  # For generated APs like ap101, ap102
             core5g_components_names = set(amf_names + upf_names + smf_names)
             
             # Check if source is 5G core and dest is switch - if so, swap them
@@ -1448,9 +1524,12 @@ class MininetExporter:
             # Check if source is GNB and dest is switch - if so, swap them
             elif gnb_pattern.match(source_name) and switch_pattern.match(dest_name):
                 source_name, dest_name = dest_name, source_name
-            # Check if source is switch and dest is 5G core or GNB - this is the desired order, no swap needed
-            elif switch_pattern.match(source_name) and (dest_name in core5g_components_names or gnb_pattern.match(dest_name)):
-                pass  # Already in correct order (Switch, core_component/gnb)
+            # Check if source is AP and dest is switch - if so, swap them
+            elif ap_pattern.match(source_name) and switch_pattern.match(dest_name):
+                source_name, dest_name = dest_name, source_name
+            # Check if source is switch and dest is 5G core, GNB, or AP - this is the desired order, no swap needed
+            elif switch_pattern.match(source_name) and (dest_name in core5g_components_names or gnb_pattern.match(dest_name) or ap_pattern.match(dest_name)):
+                pass  # Already in correct order (Switch, core_component/gnb/ap)
 
             # Build link parameters
             link_params = [source_name, dest_name]
@@ -1464,11 +1543,13 @@ class MininetExporter:
             if link_props.get('loss'):
                 link_params.append(f"loss={link_props['loss']}")
 
-            # Add cls=TCLink if either end is amf1 (was VGcore__1) or GNB__{number}
+            # Add cls=TCLink if either end is amf1 (was VGcore__1), GNB__{number}, or ap{number}
             gnb_pattern = re.compile(r'^GNB__\d+$', re.IGNORECASE)
-            if source_name == "amf1" or dest_name == "amf1" or \
-               gnb_pattern.match(source_name) or gnb_pattern.match(dest_name):
-                link_params.append("cls=TCLink")
+            ap_pattern = re.compile(r'^ap\d+$', re.IGNORECASE)
+            # if source_name == "amf1" or dest_name == "amf1" or \
+            #    gnb_pattern.match(source_name) or gnb_pattern.match(dest_name) or \
+            #    ap_pattern.match(source_name) or ap_pattern.match(dest_name):
+            #     link_params.append("cls=TCLink")
 
             f.write(f'    net.addLink({", ".join(link_params)})\n')
 
@@ -1479,8 +1560,10 @@ class MininetExporter:
                     extra_source, extra_dest = extra_dest, extra_source
                 elif gnb_pattern.match(extra_source) and switch_pattern.match(extra_dest):
                     extra_source, extra_dest = extra_dest, extra_source
-                elif switch_pattern.match(extra_source) and (extra_dest in core5g_components_names or gnb_pattern.match(extra_dest)):
-                    pass  # Already in correct order (Switch, core_component/gnb)
+                elif ap_pattern.match(extra_source) and switch_pattern.match(extra_dest):
+                    extra_source, extra_dest = extra_dest, extra_source
+                elif switch_pattern.match(extra_source) and (extra_dest in core5g_components_names or gnb_pattern.match(extra_dest) or ap_pattern.match(extra_dest)):
+                    pass  # Already in correct order (Switch, core_component/gnb/ap)
                 
                 extra_params = [extra_source, extra_dest]
                 # Use same link properties and TCLink logic
@@ -1490,9 +1573,10 @@ class MininetExporter:
                     extra_params.append(f"delay='{link_props['delay']}'")
                 if link_props.get('loss'):
                     extra_params.append(f"loss={link_props['loss']}")
-                if extra_source in (amf_target, upf_target, smf_target) or extra_dest in (amf_target, upf_target, smf_target) or \
-                   gnb_pattern.match(extra_source) or gnb_pattern.match(extra_dest):
-                    extra_params.append("cls=TCLink")
+                # if extra_source in (amf_target, upf_target, smf_target) or extra_dest in (amf_target, upf_target, smf_target) or \
+                #    gnb_pattern.match(extra_source) or gnb_pattern.match(extra_dest) or \
+                #    ap_pattern.match(extra_source) or ap_pattern.match(extra_dest):
+                #     extra_params.append("cls=TCLink")
                 f.write(f'    net.addLink({", ".join(extra_params)})\n')
         f.write('\n')
 
@@ -1517,16 +1601,28 @@ class MininetExporter:
 
     def write_ap_startup(self, f, categorized_nodes):
         """Write Access Point startup code."""
-        if not categorized_nodes['aps']:
+        # Collect all APs (traditional + generated from gNBs)
+        all_aps = []
+        
+        # Add traditional APs
+        for ap in categorized_nodes['aps']:
+            all_aps.append(self.sanitize_variable_name(ap['name']))
+        
+        # Add generated APs from gNBs
+        for gnb in categorized_nodes['gnbs']:
+            if '_generated_ap' in gnb:
+                all_aps.append(gnb['_generated_ap']['name'])
+        
+        if not all_aps:
             return
             
         controller_name = 'c0'
         if categorized_nodes['controllers']:
             controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
             
-        for ap in categorized_nodes['aps']:
-            ap_name = self.sanitize_variable_name(ap['name'])
-            f.write(f'    {ap_name}.start([{controller_name}])\n')
+        f.write('    info("*** Starting APs\\n")\n')
+        for ap_name in all_aps:
+            f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
         f.write('\n')
 
     def write_main_execution(self, f):
@@ -1651,29 +1747,22 @@ class MininetExporter:
         return True
 
     def write_dynamic_ue_connections(self, f, categorized_nodes):
-        """Dynamically assign UEs to gNBs/APs based on canvas positioning and coverage areas."""
+        """Dynamically assign UEs to APs (traditional or gNB-APs) based on canvas positioning and coverage areas."""
         import math
         
-        def calculate_distance(ue, gnb_or_ap):
-            """Calculate Euclidean distance between UE and gNB/AP positions."""
+        def calculate_distance(ue, ap):
+            """Calculate Euclidean distance between UE and AP positions."""
             ue_x, ue_y = ue.get('x', 0), ue.get('y', 0)
-            ap_x, ap_y = gnb_or_ap.get('x', 0), gnb_or_ap.get('y', 0)
+            ap_x, ap_y = ap.get('x', 0), ap.get('y', 0)
             return math.sqrt((ue_x - ap_x)**2 + (ue_y - ap_y)**2)
         
-        def get_coverage_range(gnb_or_ap):
-            """Get the coverage range of a gNB or AP from its properties."""
-            props = gnb_or_ap.get('properties', {})
+        def get_coverage_range(ap):
+            """Get the coverage range of an AP from its properties."""
+            props = ap.get('properties', {})
             
-            # For gNBs, check range from configuration
-            if gnb_or_ap.get('type') == 'GNB':
-                from manager.configmap import ConfigurationMapper
-                gnb_config = ConfigurationMapper.map_gnb_config(props)
-                return gnb_config.get('range', 300)  # Default 300m for gNBs
-            
-            # For APs, extract range from properties
-            elif gnb_or_ap.get('type') == 'AP':
-                # Check various possible range property names
-                range_fields = ['AP_Range', 'range', 'lineEdit_6', 'spinBox_3']
+            # For gNBs, extract range from wireless configuration
+            if ap.get('type') == 'GNB':
+                range_fields = ['GNB_Range', 'wireless_range', 'range', 'lineEdit_6', 'spinBox_3']
                 for field in range_fields:
                     range_val = props.get(field)
                     if range_val:
@@ -1681,102 +1770,110 @@ class MininetExporter:
                             return float(range_val)
                         except (ValueError, TypeError):
                             continue
-                return 116  # Default AP range
+                return 300  # Default gNB range
             
-            return 116  # Default fallback range
+            # For APs, extract range from properties
+            range_fields = ['AP_Range', 'range', 'lineEdit_6', 'spinBox_3']
+            for field in range_fields:
+                range_val = props.get(field)
+                if range_val:
+                    try:
+                        return float(range_val)
+                    except (ValueError, TypeError):
+                        continue
+            return 116  # Default AP range
         
-        def get_ap_ssid(gnb_or_ap):
-            """Get the SSID/AP name that UEs should connect to."""
-            props = gnb_or_ap.get('properties', {})
-            
-            if gnb_or_ap.get('type') == 'GNB':
-                # For gNBs with AP functionality, check environment variables for AP_SSID
-                # First check if it's in the environment dict from the current test.py format
-                if 'environment' in props:
-                    env = props['environment']
-                    if isinstance(env, dict) and 'AP_SSID' in env:
-                        return env['AP_SSID']
-                
-                # Check other possible SSID field names in properties
-                ap_ssid = props.get('GNB_AP_SSID', props.get('AP_SSID'))
-                if ap_ssid:
-                    return ap_ssid
-                
-                # Default gNB AP SSID format: gnb-hotspot + number
-                gnb_name = gnb_or_ap.get('name', 'GNB')
-                # Extract number from name like "GNB #1", "GNB__1", "GNB_1"
-                import re
-                number_match = re.search(r'(\d+)', gnb_name)
-                if number_match:
-                    number = number_match.group(1)
-                    return f"gnb-hotspot{number}"
-                return "gnb-hotspot1"
-            
-            elif gnb_or_ap.get('type') == 'AP':
-                # For traditional APs
-                ap_ssid = props.get('AP_SSID', props.get('lineEdit_5'))
-                if ap_ssid:
-                    return ap_ssid
-                
-                # Default AP SSID format: ap-name + "-ssid"
-                ap_name = self.sanitize_variable_name(gnb_or_ap.get('name', 'ap'))
-                return f"{ap_name}-ssid"
-            
-            return "default-ssid"
-        
-        # Collect all access points (both gNBs with AP capability and traditional APs)
-        access_points = []
-        
-        # Add gNBs that have AP functionality enabled
-        for gnb in categorized_nodes.get('gnbs', []):
+        def is_gnb_ap_enabled(gnb):
+            """Check if a gNB has AP functionality enabled."""
             props = gnb.get('properties', {})
+            env = props.get('environment', {})
             
-            # Check if AP is enabled from various sources
-            ap_enabled = False
+            # Check if it's a gNB first
+            if gnb.get('type') != 'GNB':
+                return False
             
-            # Check environment variables (for existing generated scripts)
-            if 'environment' in props:
-                env = props['environment']
-                if isinstance(env, dict):
-                    ap_enabled = (env.get('AP_ENABLED') == 'true' or 
-                                env.get('AP_ENABLED') == True)
+            # Check if AP is enabled in environment (Docker containers)
+            if isinstance(env, dict):
+                ap_enabled = (env.get('AP_ENABLED') == 'true' or 
+                            env.get('AP_ENABLED') == True)
+                if ap_enabled:
+                    return True
             
-            # Check direct properties from UI (common field names)
+            # Check if AP is enabled directly in properties  
             if not ap_enabled:
-                # Check various possible property names for AP enabled flag
                 ap_enabled_fields = [
                     'GNB_APEnabled', 'AP_ENABLED', 'checkBox_ap_enable',
                     'checkBox', 'ap_enabled', 'enable_ap', 'apEnabled'
                 ]
                 for field in ap_enabled_fields:
-                    field_value = props.get(field)
-                    if field_value is True or str(field_value).lower() == 'true':
-                        ap_enabled = True
-                        break
-            
-            # If still not found, assume AP is enabled if there's an SSID configured
-            if not ap_enabled:
-                ssid_fields = ['GNB_AP_SSID', 'AP_SSID', 'lineEdit_5', 'ssid']
-                for field in ssid_fields:
                     if props.get(field):
                         ap_enabled = True
                         break
             
-            debug_print(f"DEBUG: gNB {gnb.get('name', 'unknown')} AP enabled: {ap_enabled}")
+            # Check alternative property names
+            if not ap_enabled:
+                for key, value in props.items():
+                    if 'ap' in key.lower() and 'enable' in key.lower():
+                        ap_enabled = True
+                        break
             
-            if ap_enabled:
-                access_points.append(gnb)
+            debug_print(f"DEBUG: gNB {gnb.get('name', 'unknown')} AP enabled: {ap_enabled}")
+            return ap_enabled
+        
+        def get_ap_ssid(ap):
+            """Get the SSID/AP name that UEs should connect to."""
+            props = ap.get('properties', {})
+            
+            # For gNB APs, check if we have a generated AP and use its SSID
+            if ap.get('type') == 'GNB' and '_generated_ap' in ap:
+                return ap['_generated_ap']['ssid']
+            
+            # For gNB APs without generated AP, extract SSID from AP configuration
+            if ap.get('type') == 'GNB':
+                env = props.get('environment', {})
+                if isinstance(env, dict):
+                    ap_ssid = env.get('AP_SSID')
+                    if ap_ssid:
+                        return ap_ssid
+                
+                # Check direct properties
+                gnb_ap_ssid = (props.get('GNB_AP_SSID') or 
+                              props.get('ap_ap_ssid') or 
+                              props.get('lineEdit_ap_ssid'))
+                if gnb_ap_ssid:
+                    return gnb_ap_ssid
+                
+                # Default gNB AP SSID
+                return 'gnb-hotspot'
+            
+            # For traditional APs
+            ap_ssid = props.get('AP_SSID', props.get('lineEdit_5'))
+            if ap_ssid:
+                return ap_ssid
+            
+            # Default AP SSID format: ap-name + "-ssid"
+            ap_name = self.sanitize_variable_name(ap.get('name', 'ap'))
+            return f"{ap_name}-ssid"
+        
+        # Collect all access points (traditional APs + gNB-APs)
+        access_points = []
         
         # Add traditional APs
         for ap in categorized_nodes.get('aps', []):
             access_points.append(ap)
         
+        # Add gNBs that have AP functionality enabled
+        for gnb in categorized_nodes.get('gnbs', []):
+            if is_gnb_ap_enabled(gnb):
+                access_points.append(gnb)
+                debug_print(f"DEBUG: Added gNB {gnb.get('name')} as access point")
+        
         if not access_points:
-            f.write('    # No access points found with AP functionality enabled\n')
-            f.write('    # UEs will use default wireless association\n\n')
+            f.write('    # No access points (traditional APs or gNB-APs) found\n')
+            f.write('    # UEs will use 5G connectivity through gNBs only\n\n')
             return
         
-        f.write('    # Dynamic UE assignment based on distance and coverage\n')
+        f.write('    # Dynamic UE assignment to access points (traditional APs and gNB-APs) based on distance and coverage\n')
         
         # Process each UE and find the best access point
         ue_assignments = {}
@@ -1831,3 +1928,34 @@ class MininetExporter:
             f.write(f'    {ue_name}.cmd("iw dev {ue_name}-wlan0 connect {assignment["ssid"]}")\n')
         
         f.write('\n')
+
+    def write_ap_gnb_links(self, f, categorized_nodes):
+        """Write direct links between APs and their corresponding gNBs."""
+        gnbs_with_ap = []
+        
+        # Find gNBs that have AP functionality enabled
+        for gnb in categorized_nodes['gnbs']:
+            if '_generated_ap' in gnb:
+                gnbs_with_ap.append(gnb)
+        
+        if gnbs_with_ap:
+            f.write('    # Link APs to gNBs\n')
+            for gnb in gnbs_with_ap:
+                gnb_name = self.sanitize_variable_name(gnb['name'])
+                ap_name = gnb['_generated_ap']['name']
+                f.write(f'    net.addLink({ap_name}, {gnb_name})\n')
+            f.write('    \n')
+        
+        return gnbs_with_ap
+
+    def get_gnb_ap_mapping(self, categorized_nodes):
+        """Get mapping of gNB names to their corresponding AP names."""
+        gnb_to_ap = {}
+        
+        for gnb in categorized_nodes['gnbs']:
+            if '_generated_ap' in gnb:
+                gnb_name = self.sanitize_variable_name(gnb['name'])
+                ap_name = gnb['_generated_ap']['name']
+                gnb_to_ap[gnb_name] = ap_name
+        
+        return gnb_to_ap

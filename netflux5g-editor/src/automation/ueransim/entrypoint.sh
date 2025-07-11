@@ -2,10 +2,47 @@
 
 set -e
 
+command=$1
+
 # Import OVS setup functions if available
 if [ -f /usr/local/bin/ueransim-ovs-setup.sh ]; then
     source /usr/local/bin/ueransim-ovs-setup.sh
 fi
+
+# Function to resolve hostname using interface-specific methods
+resolve_hostname_via_interface() {
+    local hostname=$1
+    local interface=$2
+    local resolved_ip=""
+    
+    if [ -n "$hostname" ] && [ -n "$interface" ]; then
+        # Method 1: Try ping with interface binding
+        resolved_ip=$(ping -I $interface -c 1 -W 1 $hostname 2>/dev/null | grep PING | awk '{print $3}' | tr -d '()' || echo "")
+        
+        # Method 2: Try interface-specific DNS if ping fails
+        if [ -z "$resolved_ip" ] || [ "$resolved_ip" = "" ]; then
+            # Try systemd-resolved interface-specific DNS
+            local iface_dns=$(resolvectl status $interface 2>/dev/null | grep "DNS Servers:" | awk '{print $3}' | head -1)
+            if [ -n "$iface_dns" ]; then
+                echo "Using interface-specific DNS: $iface_dns"
+                resolved_ip=$(nslookup $hostname $iface_dns 2>/dev/null | grep -A1 "Name:" | grep "Address:" | awk '{print $2}' | head -1 || echo "")
+            fi
+        fi
+        
+        # Method 3: Try route-based resolution
+        if [ -z "$resolved_ip" ] || [ "$resolved_ip" = "" ]; then
+            # Check if there's a specific route for this interface
+            local iface_network=$(ip route show dev $interface | grep -E '^[0-9]+\.' | head -1 | awk '{print $1}')
+            if [ -n "$iface_network" ]; then
+                echo "Checking route-based resolution for network: $iface_network"
+                # Try to resolve within the interface's network context
+                resolved_ip=$(ip netns exec $(ip netns identify $$) 2>/dev/null nslookup $hostname 2>/dev/null | grep -A1 "Name:" | grep "Address:" | awk '{print $2}' | head -1 || echo "")
+            fi
+        fi
+    fi
+    
+    echo "$resolved_ip"
+}
 
 _term() { 
     case "$command" in
@@ -21,11 +58,6 @@ _term() {
         echo "It isn't necessary to perform any cleanup"
         ;;
     esac
-    
-    # Clean up OVS if enabled
-    if [ "$OVS_ENABLED" = "true" ] && type cleanup_ovs > /dev/null 2>&1; then
-        cleanup_ovs
-    fi
 }
 
 if [ $# -lt 1 ]
@@ -34,26 +66,20 @@ then
         exit
 fi
 
-command=$1
 trap _term SIGTERM
 shift
 
 # Setup OpenFlow/OVS integration before starting the service
 echo "Initializing UERANSIM container with command: $command"
 
-# Set component type based on command
-case "$command" in
-    gnb)
-        export UERANSIM_COMPONENT="gnb"
-        ;;
-    ue)
-        export UERANSIM_COMPONENT="ue"
-        ;;
-esac
-
 # Setup OVS if enabled (run in background)
 if [ "$OVS_ENABLED" = "true" ]; then
     echo "Setting up OpenFlow/OVS integration for UERANSIM $command..."
+    
+    # Enable mininet-wifi mode to prevent interface conflicts
+    export MININET_WIFI_MODE=true
+    export BRIDGE_INTERFACES=""
+    
     /usr/local/bin/ueransim-ovs-setup.sh &
     OVS_SETUP_PID=$!
     
@@ -74,13 +100,54 @@ if [ "$OVS_ENABLED" = "true" ]; then
     if [ $wait_count -eq $max_wait ]; then
         echo "WARNING: OVS setup taking longer than expected"
     fi
+else
+    echo "OVS integration disabled (OVS_ENABLED not set to 'true')"
+    echo "Proceeding with standard UERANSIM configuration..."
 fi
 
 case "$command" in
 
 ue) 
-    GNB_IP=${GNB_IP:-"$(host -4 $GNB_HOSTNAME |awk '/has.*address/{print $NF; exit}')"}
+    export UERANSIM_COMPONENT="ue"
+    export GNB_HOSTNAME RADIO_IFACE GNB_IP
+    echo "Get GNB"
+    # Check if GNB_IP is already provided as environment variable
+    if [ -n "$GNB_IP" ] && [ "$GNB_IP" != "" ]; then
+        echo "Using pre-configured GNB_IP: $GNB_IP"
+        echo "Skipping hostname resolution for GNB_HOSTNAME: $GNB_HOSTNAME"
+    elif [ -n "$GNB_HOSTNAME" ]; then
+        echo "Resolving GNB_HOSTNAME: $GNB_HOSTNAME"
+        # Try interface-specific hostname resolution first
+        if [ -n "$RADIO_IFACE" ]; then
+            GNB_IP=$(resolve_hostname_via_interface "$GNB_HOSTNAME" "$RADIO_IFACE")
+            export GNB_IP
+        fi
+        
+        # Fallback to standard getent if interface-specific resolution fails
+        if [ -z "$GNB_IP" ] || [ "$GNB_IP" = "" ]; then
+            echo "Falling back to standard hostname resolution for GNB"
+            GNB_IP=${GNB_IP:-"$(getent hosts $GNB_HOSTNAME | awk '{print $1; exit}')"}
+            export GNB_IP
+        fi
+        
+        # Additional fallback to nslookup if getent fails
+        if [ -z "$GNB_IP" ] || [ "$GNB_IP" = "" ]; then
+            GNB_IP=$(nslookup $GNB_HOSTNAME | grep -A1 "Name:" | grep "Address:" | awk '{print $2}' | head -1)
+            export GNB_IP
+        fi
+        
+        # Final fallback to ping for local network resolution
+        if [ -z "$GNB_IP" ] || [ "$GNB_IP" = "" ]; then
+            GNB_IP=$(ping -I $RADIO_IFACE -c 1 -W 1 $GNB_HOSTNAME 2>/dev/null | grep PING | awk '{print $3}' | tr -d '()')
+            export GNB_IP
+        fi
+        
+        echo "Resolved GNB_HOSTNAME ($GNB_HOSTNAME) to GNB_IP: $GNB_IP"
+    else
+        echo "WARNING: Neither GNB_IP nor GNB_HOSTNAME is configured"
+    fi
     export GNB_IP
+    echo "GNB_HOSTNAME: $GNB_HOSTNAME"
     echo "GNB_IP: $GNB_IP"
     envsubst < /etc/ueransim/ue.yaml > ue.yaml
     
@@ -93,45 +160,65 @@ ue)
     ip addr show
     echo ""
     
-    if [ "$OVS_ENABLED" = "true" ]; then
-        echo "=== OVS Status Check ==="
-        echo "OVS bridges:"
-        ovs-vsctl list-br 2>/dev/null || echo "OVS not ready yet"
-        
-        local bridge_name=${OVS_BRIDGE_NAME:-"br-ueransim"}
-        if ovs-vsctl br-exists $bridge_name 2>/dev/null; then
-            echo "UE connected to OVS bridge: $bridge_name"
-        fi
-    fi
-    echo "=============================================="
-    
     echo "Launching ue: nr-ue -c ue.yaml"
     nr-ue -c ue.yaml $@ &
     child=$!
     wait "$child"
     ;;
 gnb)
-    # Setup Access Point functionality if enabled
-    if [ "$AP_ENABLED" = "true" ]; then
-        echo "Setting up Access Point functionality for gNB..."
-        /usr/local/bin/ap-setup.sh
-        if [ $? -ne 0 ]; then
-            echo "WARNING: AP setup failed, continuing with gNB startup"
+    export UERANSIM_COMPONENT="gnb"
+    export AMF_HOSTNAME N2_IFACE N3_IFACE RADIO_IFACE AMF_IP
+    echo "Get N2"
+    N2_BIND_IP=${N2_BIND_IP:-"$(ip addr show $N2_IFACE | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
+    echo "Get N3"
+    N3_BIND_IP=${N3_BIND_IP:-"$(ip addr show $N3_IFACE | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
+    echo "Get Radio"
+    RADIO_BIND_IP=${RADIO_BIND_IP:-"$(ip addr show $RADIO_IFACE | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
+    echo "Get AMF"
+    # Check if AMF_IP is already provided as environment variable
+    if [ -n "$AMF_IP" ] && [ "$AMF_IP" != "" ]; then
+        echo "Using pre-configured AMF_IP: $AMF_IP"
+        echo "Skipping hostname resolution for AMF_HOSTNAME: $AMF_HOSTNAME"
+    elif [ -n "$AMF_HOSTNAME" ]; then
+        echo "Resolving AMF_HOSTNAME: $AMF_HOSTNAME"
+        # Try interface-specific hostname resolution first
+        if [ -n "$RADIO_IFACE" ]; then
+            AMF_IP=$(resolve_hostname_via_interface "$AMF_HOSTNAME" "$RADIO_IFACE")
+            export AMF_IP
         fi
+        
+        # Fallback to standard getent if interface-specific resolution fails
+        if [ -z "$AMF_IP" ] || [ "$AMF_IP" = "" ]; then
+            echo "Falling back to standard hostname resolution for AMF"
+            AMF_IP=${AMF_IP:-"$(getent hosts $AMF_HOSTNAME | awk '{print $1; exit}')"}
+            export AMF_IP
+        fi
+        
+        # Additional fallback to nslookup if getent fails
+        if [ -z "$AMF_IP" ] || [ "$AMF_IP" = "" ]; then
+            AMF_IP=$(nslookup $AMF_HOSTNAME | grep -A1 "Name:" | grep "Address:" | awk '{print $2}' | head -1)
+            export AMF_IP
+        fi
+        
+        # Final fallback to ping for local network resolution
+        if [ -z "$AMF_IP" ] || [ "$AMF_IP" = "" ]; then
+            AMF_IP=$(ping -I $RADIO_IFACE -c 1 -W 1 $AMF_HOSTNAME 2>/dev/null | grep PING | awk '{print $3}' | tr -d '()')
+            export AMF_IP
+        fi
+        
+        echo "Resolved AMF_HOSTNAME ($AMF_HOSTNAME) to AMF_IP: $AMF_IP"
+    else
+        echo "WARNING: Neither AMF_IP nor AMF_HOSTNAME is configured"
     fi
-    
-    N2_BIND_IP=${N2_BIND_IP:-"$(ip addr show ${N2_IFACE}  | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
-    N3_BIND_IP=${N3_BIND_IP:-"$(ip addr show ${N3_IFACE} | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
-    RADIO_BIND_IP=${RADIO_BIND_IP:-"$(ip addr show ${RADIO_IFACE} | grep -o 'inet [[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}'| cut -c 6-)"}
-    AMF_IP=${AMF_IP:-"$(host -4 $AMF_HOSTNAME |awk '/has.*address/{print $NF; exit}')"}
     export N2_BIND_IP N3_BIND_IP RADIO_BIND_IP AMF_IP
     echo "N2_BIND_IP: $N2_BIND_IP"
     echo "N3_BIND_IP: $N3_BIND_IP"
     echo "RADIO_BIND_IP: $RADIO_BIND_IP"
+    echo "AMF_HOSTNAME: $AMF_HOSTNAME"
     echo "AMF_IP: $AMF_IP"
     envsubst < /etc/ueransim/gnb.yaml > gnb.yaml
     echo "Launching gnb: nr-gnb -c gnb.yaml"
-    
+
     # Add debugging information for network setup
     echo "=== UERANSIM gNB Network Configuration ==="
     echo "Network interfaces:"
@@ -150,13 +237,13 @@ gnb)
         ovs-vsctl list-br 2>/dev/null || echo "OVS not ready yet"
         
         # Check for OpenFlow connectivity
-        local bridge_name=${OVS_BRIDGE_NAME:-"br-ueransim"}
+        bridge_name=${OVS_BRIDGE_NAME:-"br-ueransim"}
         if ovs-vsctl br-exists $bridge_name 2>/dev/null; then
             echo "Bridge configuration:"
             ovs-vsctl list bridge $bridge_name | grep -E "(protocols|controller)" || true
             
             echo "Testing OpenFlow connectivity:"
-            local of_version="OpenFlow13"
+            of_version="OpenFlow13"
             if ovs-ofctl -O $of_version show $bridge_name >/dev/null 2>&1; then
                 echo "OpenFlow $of_version connectivity: OK"
             else
@@ -172,33 +259,23 @@ gnb)
     fi
     echo "=============================================="
     
-    # Start gNB in background if AP is enabled to allow both services
+    # Setup Access Point functionality if enabled
     if [ "$AP_ENABLED" = "true" ]; then
-        echo "Starting gNB in background mode (AP enabled)"
-        nr-gnb -c gnb.yaml $@ &
-        GNB_PID=$!
-        
-        # Keep container running and monitor both services
-        while true; do
-            sleep 10
-            
-            # Check if gNB is still running
-            if ! kill -0 $GNB_PID 2>/dev/null; then
-                echo "gNB process has stopped, restarting..."
-                nr-gnb -c gnb.yaml $@ &
-                GNB_PID=$!
-            fi
-            
-            # Check if hostapd is still running (if AP enabled)
-            if ! pgrep -f hostapd > /dev/null; then
-                echo "Hostapd process has stopped, attempting restart..."
-                /usr/local/bin/ap-setup.sh
-            fi
-        done
+        echo "=== Access Point Setup ==="
+        echo "AP_ENABLED is true, setting up access point functionality..."
+        if [ -f /usr/local/bin/ap-setup.sh ]; then
+            /usr/local/bin/ap-setup.sh &
+            ap_setup_pid=$!
+            echo "AP setup started with PID: $ap_setup_pid"
+        else
+            echo "WARNING: ap-setup.sh not found, AP functionality may not work"
+        fi
     else
-        # Normal gNB operation without AP
-        nr-gnb -c gnb.yaml $@
+        echo "AP functionality disabled (AP_ENABLED=$AP_ENABLED)"
     fi
+    
+    # Start gNB normally
+    nr-gnb -c gnb.yaml $@
     ;;
 *) echo "unknown component $1 is not a component (gnb or ue). Running $@ as command"
    $@
