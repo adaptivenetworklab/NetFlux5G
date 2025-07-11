@@ -39,6 +39,7 @@
     "graphTooltip": 0,
     "id": null,
     "links": [],
+    "liveNow": true,
     "panels": [
         {
             "id": 1,
@@ -635,8 +636,13 @@
                         "uid": "${DS_PROMETHEUS}"
                     },
                     "expr": "count(probe_success{instance=~\"mn\\\\.UE__.*\"} == 1) or vector(6)",
+                    "interval": "5s",
+                    "step": 5,
                     "legendFormat": "Connected UEs",
-                    "refId": "A"
+                    "refId": "A",
+                    "format": "time_series",
+                    "intervalMs": 5000,
+                    "maxDataPoints": 300
                 }
             ]
         },
@@ -695,8 +701,13 @@
                         "uid": "${DS_PROMETHEUS}"
                     },
                     "expr": "count(probe_success{instance=~\"mn\\\\.GNB__.*\"} == 1) or vector(2)",
+                    "interval": "5s",
+                    "step": 5,
                     "legendFormat": "Connected gNBs",
-                    "refId": "A"
+                    "refId": "A",
+                    "format": "time_series",
+                    "intervalMs": 5000,
+                    "maxDataPoints": 300
                 }
             ]
         },
@@ -755,8 +766,13 @@
                         "uid": "${DS_PROMETHEUS}"
                     },
                     "expr": "(count(probe_success{instance=~\"mn\\\\.UE__.*\"} == 1) * 1.2) or vector(0)",
+                    "interval": "5s",
+                    "step": 5,
                     "legendFormat": "PDU Sessions",
-                    "refId": "A"
+                    "refId": "A",
+                    "format": "time_series",
+                    "intervalMs": 5000,
+                    "maxDataPoints": 300
                 }
             ]
         },
@@ -1443,11 +1459,12 @@
         ]
     },
     "time": {
-        "from": "now-1h",
+        "from": "now-5m",
         "to": "now"
     },
     "timepicker": {
         "refresh_intervals": [
+            "1s",
             "5s",
             "10s",
             "30s",
@@ -1463,7 +1480,7 @@
     "timezone": "browser",
     "title": "5G Core Network Monitoring Dashboard (Enhanced)",
     "uid": "5g-core-enhanced-monitor-v2",
-    "version": 2,
+    "version": 3,
     "weekStart": "",
     "refresh": "5s"
 }
