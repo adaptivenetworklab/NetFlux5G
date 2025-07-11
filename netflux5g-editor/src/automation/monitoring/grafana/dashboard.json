@@ -1369,7 +1369,7 @@
                     "query": "label_values(container_last_seen{name=~\"(mn\\\\.|netflux5g).*\"}, name)",
                     "refId": "StandardVariableQuery"
                 },
-                "refresh": 2,
+                "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
                 "sort": 1,
@@ -1391,7 +1391,7 @@
                     "query": "label_values(probe_success, instance)",
                     "refId": "StandardVariableQuery"
                 },
-                "refresh": 2,
+                "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
                 "sort": 1,
@@ -1465,5 +1465,5 @@
     "uid": "5g-core-enhanced-monitor-v2",
     "version": 2,
     "weekStart": "",
-    "refresh": "30s"
+    "refresh": "5s"
 }

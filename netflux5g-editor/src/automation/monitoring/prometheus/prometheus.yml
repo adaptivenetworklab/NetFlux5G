@@ -1,6 +1,7 @@
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
+  scrape_interval: 10s
+  evaluation_interval: 10s
+  scrape_timeout: 8s
 
 rule_files:
   - "alert_rules.yml"
@@ -19,10 +20,15 @@ scrape_configs:
   - job_name: "node_exporter"
     static_configs:
       - targets: ["netflux5g_node-exporter:9100"]
+    scrape_interval: 5s
+    scrape_timeout: 3s
 
   - job_name: "cadvisor"
     static_configs:
       - targets: ["netflux5g_cadvisor:8080"]
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    metrics_path: "/metrics"
 
   - job_name: "icmp-probe"
     metrics_path: /probe
@@ -49,6 +55,28 @@ scrape_configs:
         target_label: instance
       - target_label: __address__
         replacement: netflux5g_blackbox-exporter:9115
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # Docker container discovery untuk auto-detect containers
+  - job_name: "docker-containers"
+    docker_sd_configs:
+      - host: "unix:///var/run/docker.sock"
+        port: 9090
+    relabel_configs:
+      # Hanya monitor container dengan label tertentu
+      - source_labels: [__meta_docker_container_label_monitoring]
+        regex: "enabled"
+        action: keep
+      # Set instance name dari container name
+      - source_labels: [__meta_docker_container_name]
+        target_label: instance
+      # Filter hanya container 5G Core dan UERANSIM
+      - source_labels: [__meta_docker_container_name]
+        regex: "(mn\\..*|netflux5g.*)"
+        action: keep
+    scrape_interval: 5s
+    scrape_timeout: 3s
 
   - job_name: "5g-core-containers"
     static_configs:
