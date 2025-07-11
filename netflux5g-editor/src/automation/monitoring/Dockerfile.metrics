@@ -1,0 +1,28 @@
+FROM python:3.9-slim
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    docker.io \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip install prometheus_client
+
+# Create app directory
+WORKDIR /app
+
+# Copy metrics exporter
+COPY metrics_exporter.py /app/
+
+# Make script executable
+RUN chmod +x /app/metrics_exporter.py
+
+# Expose metrics port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/metrics')"
+
+# Run metrics exporter
+CMD ["python", "/app/metrics_exporter.py"]

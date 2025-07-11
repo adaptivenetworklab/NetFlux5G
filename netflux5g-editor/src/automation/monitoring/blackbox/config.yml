@@ -8,6 +8,15 @@ modules:
       payload_size: 56
       dont_fragment: false
 
+  icmp_ue:
+    prober: icmp
+    timeout: 3s
+    icmp:
+      preferred_ip_protocol: ip4
+      source_ip_address: ""
+      payload_size: 32
+      dont_fragment: false
+
   http_2xx:
     prober: http
     timeout: 5s

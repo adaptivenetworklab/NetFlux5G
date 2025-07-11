@@ -44,6 +44,12 @@ scrape_configs:
           - mn.pcf1 # PCF
           - mn.GNB__1 # gNB1
           - mn.GNB__2 # gNB2
+          - mn.UE__1 # UE1
+          - mn.UE__2 # UE2
+          - mn.UE__3 # UE3
+          - mn.UE__4 # UE4
+          - mn.UE__5 # UE5
+          - mn.UE__6 # UE6
           - netflux5g-mongodb # MongoDB
           - netflux5g-webui # WebUI
           - netflux5g-onos-controller # ONOS Controller
@@ -120,4 +126,12 @@ scrape_configs:
           - netflux5g-onos-controller:8181 # ONOS Controller (if metrics available)
     scrape_interval: 30s
     scrape_timeout: 10s
+    metrics_path: /metrics
+
+  # Custom NetFlux5G metrics exporter
+  - job_name: "netflux5g-metrics"
+    static_configs:
+      - targets: ["netflux5g_metrics_exporter:8000"]
+    scrape_interval: 10s
+    scrape_timeout: 5s
     metrics_path: /metrics

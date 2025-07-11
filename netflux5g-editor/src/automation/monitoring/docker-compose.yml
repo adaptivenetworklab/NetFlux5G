@@ -110,6 +110,22 @@ services:
       - default
     restart: unless-stopped
 
+  metrics-exporter:
+    build:
+      context: .
+      dockerfile: Dockerfile.metrics
+    container_name: netflux5g_metrics_exporter
+    ports:
+      - "8000:8000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monitoring
+      - default
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+
 volumes:
   prometheus_data:
   grafana_data:
