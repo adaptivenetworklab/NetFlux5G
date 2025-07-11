@@ -66,11 +66,11 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
 
 ### Run the Installation Script
 
-This will Install :
-- Docker Engine
+This will Install the latest compatible version of :
 - Mininet-WiFi
 - Containernet
 - PyQT
+- Docker Engine 
 
 ```sh
 git clone https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
@@ -79,7 +79,7 @@ git clone https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
 ```sh
 cd NetFlux5G
 chmod +x ./install.sh
-./install.sh
+sudo ./install.sh
 ```
 
 ### Running the GUI

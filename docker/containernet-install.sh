@@ -181,9 +181,6 @@ function mn_wifi_deps {
       rm -r mininet-wifi
     fi
     sudo git clone https://github.com/intrig-unicamp/mininet-wifi.git
-    cd mininet-wifi
-    sudo git checkout 69c6251d06f01840276dee14fd6c7819b232e13f
-    cd ..
     pushd $MININET_DIR/containernet/mininet-wifi
     sudo util/install.sh -Wlnfv6
     sudo PYTHON=${PYTHON} make install
