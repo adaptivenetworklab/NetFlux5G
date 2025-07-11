@@ -99,7 +99,7 @@ class MonitoringDeploymentWorker(QThread):
             self.progress_updated.emit(80)
             
             # Wait for services to be healthy
-            time.sleep(10)
+            time.sleep(30)
             
             # Verify services are running
             running_services = self._get_running_compose_services()
