@@ -58,7 +58,9 @@
             "options": {
                 "reduceOptions": {
                     "values": false,
-                    "calcs": ["lastNotNull"],
+                    "calcs": [
+                        "lastNotNull"
+                    ],
                     "fields": ""
                 },
                 "orientation": "horizontal",
@@ -159,7 +161,9 @@
             "options": {
                 "reduceOptions": {
                     "values": false,
-                    "calcs": ["lastNotNull"],
+                    "calcs": [
+                        "lastNotNull"
+                    ],
                     "fields": ""
                 },
                 "orientation": "horizontal",
@@ -635,7 +639,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "count(probe_success{instance=~\"mn\\\\.UE__.*\"} == 1) or vector(6)",
+                    "expr": "count(probe_success{instance=~'mn[.]UE__.*'} == 1) or vector(6)",
                     "interval": "5s",
                     "step": 5,
                     "legendFormat": "Connected UEs",
@@ -700,7 +704,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "count(probe_success{instance=~\"mn\\\\.GNB__.*\"} == 1) or vector(2)",
+                    "expr": "count(probe_success{instance=~\"mn[.]GNB__.*\"} == 1) or vector(2)",
                     "interval": "5s",
                     "step": 5,
                     "legendFormat": "Connected gNBs",
@@ -765,7 +769,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "(count(probe_success{instance=~\"mn\\\\.UE__.*\"} == 1) * 1.2) or vector(0)",
+                    "expr": "(count(probe_success{instance=~'mn[.]UE__.*'} == 1) * 1.2) or vector(0)",
                     "interval": "5s",
                     "step": 5,
                     "legendFormat": "PDU Sessions",
@@ -854,7 +858,9 @@
             "options": {
                 "reduceOptions": {
                     "values": false,
-                    "calcs": ["lastNotNull"],
+                    "calcs": [
+                        "lastNotNull"
+                    ],
                     "fields": ""
                 },
                 "orientation": "horizontal",
@@ -901,7 +907,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "probe_success{instance=~\"mn\\\\.UE__.*\"}",
+                    "expr": "probe_success{instance=~'mn[.]UE__.*'}",
                     "legendFormat": "{{instance}}",
                     "refId": "A"
                 }
@@ -1144,7 +1150,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(container_network_receive_packets_total{name=~\".*upf.*\"}[5m])",
+                    "expr": "rate(container_network_receive_packets_total{name=~'mn[.]upf.*'}[5m])",
                     "legendFormat": "{{name}} - Ingress PPS",
                     "refId": "A"
                 },
@@ -1153,7 +1159,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(container_network_transmit_packets_total{name=~\".*upf.*\"}[5m])",
+                    "expr": "rate(container_network_transmit_packets_total{name=~'mn[.]upf.*'}[5m])",
                     "legendFormat": "{{name}} - Egress PPS",
                     "refId": "B"
                 }
@@ -1207,7 +1213,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(container_network_receive_bytes_total{name=~\".*upf.*\"}[5m])",
+                    "expr": "rate(container_network_receive_bytes_total{name=~'mn[.]upf.*'}[5m])",
                     "legendFormat": "{{name}} - Ingress Bytes/s",
                     "refId": "A"
                 },
@@ -1216,7 +1222,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(container_network_transmit_bytes_total{name=~\".*upf.*\"}[5m])",
+                    "expr": "rate(container_network_transmit_bytes_total{name=~'mn[.]upf.*'}[5m])",
                     "legendFormat": "{{name}} - Egress Bytes/s",
                     "refId": "B"
                 }
@@ -1375,14 +1381,14 @@
                     "type": "prometheus",
                     "uid": "${DS_PROMETHEUS}"
                 },
-                "definition": "label_values(container_last_seen{name=~\"(mn\\\\.|netflux5g).*\"}, name)",
+                "definition": "label_values(container_last_seen{name=~\"(mn[.]|netflux5g).*\"}, name)",
                 "hide": 0,
                 "includeAll": true,
                 "multi": true,
                 "name": "pod",
                 "options": [],
                 "query": {
-                    "query": "label_values(container_last_seen{name=~\"(mn\\\\.|netflux5g).*\"}, name)",
+                    "query": "label_values(container_last_seen{name=~\"(mn[.]|netflux5g).*\"}, name)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 1,
