@@ -68,13 +68,15 @@ git clone https://github.com/ramonfontes/containernet.git
 echo "Installing Mininet-WiFi and Containernet..."
 
 cd mininet-wifi 
-git checkout 69c6251d06f01840276dee14fd6c7819b232e13f
+git checkout 69c6251
 util/install.sh -Wlnfv6
 
 cd ../containernet
+
+sed -i 's/--depth=1//g' util/install.sh
 sed -i '183a \
     cd mininet-wifi \
-    sudo git checkout 69c6251d06f01840276dee14fd6c7819b232e13f \
+    sudo git checkout 69c6251 \
     cd ..\
 ' util/install.sh
 

@@ -217,6 +217,10 @@ class NetFlux5GApp(QMainWindow):
                 self.actionShowGrid.triggered.connect(self.canvas_manager.toggleGrid)
 
             # Automation connections
+            if hasattr(self, 'actionRun_All'):
+                self.actionRun_All.triggered.connect(self.automation_manager.runAllComponents)
+            if hasattr(self, 'actionStop_All'):
+                self.actionStop_All.triggered.connect(self.automation_manager.stopAllComponents)
             if hasattr(self, 'actionRunAll'):
                 self.actionRunAll.triggered.connect(self.automation_manager.runAllComponents)
             if hasattr(self, 'actionStopAll'):
@@ -290,6 +294,10 @@ class NetFlux5GApp(QMainWindow):
                 self.actionRun.setShortcut(QKeySequence('F5'))
             if hasattr(self, 'actionStop'):
                 self.actionStop.setShortcut(QKeySequence('F6'))
+            if hasattr(self, 'actionRun_All'):
+                self.actionRun_All.setShortcut(QKeySequence('Ctrl+F5'))
+            if hasattr(self, 'actionStop_All'):
+                self.actionStop_All.setShortcut(QKeySequence('Ctrl+F6'))
 
             # Connect splitter moved signal to handler
             if hasattr(self, 'splitter'):
@@ -655,18 +663,26 @@ class NetFlux5GApp(QMainWindow):
         """Setup initial UI button states."""
         try:
             # Initially disable stop actions since nothing is running
+            if hasattr(self, 'actionStop_All'):
+                self.actionStop_All.setEnabled(False)
             if hasattr(self, 'actionStopAll'):
                 self.actionStopAll.setEnabled(False)
             if hasattr(self, 'actionStop'):
                 self.actionStop.setEnabled(False)
                 
             # Enable run actions initially
+            if hasattr(self, 'actionRun_All'):
+                self.actionRun_All.setEnabled(True)
             if hasattr(self, 'actionRunAll'):
                 self.actionRunAll.setEnabled(True)
             if hasattr(self, 'actionRun'):
                 self.actionRun.setEnabled(True)
                 
             # Setup tooltips for automation actions
+            if hasattr(self, 'actionRun_All'):
+                self.actionRun_All.setToolTip("Deploy and start all components: controller, database, monitoring, and topology (Ctrl+F5)")
+            if hasattr(self, 'actionStop_All'):
+                self.actionStop_All.setToolTip("Stop all running services and clean up Mininet (Ctrl+F6)")
             if hasattr(self, 'actionRun'):
                 self.actionRun.setToolTip("Run the current topology in Mininet (F5)")
             if hasattr(self, 'actionStop'):

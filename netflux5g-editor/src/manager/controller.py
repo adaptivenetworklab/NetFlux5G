@@ -537,6 +537,13 @@ class ControllerManager:
             
             # Stop ONOS controller first
             self._stop_controller_sync(onos_container_name, "ONOS")
+        elif self._is_controller_running(container_name):
+            QMessageBox.information(
+                self.main_window,
+                "Controller Running",
+                f"Ryu controller '{container_name}' is already running.\n\nUse 'Stop Ryu Controller' to stop it first."
+            )
+            return
         
         # Check if Docker is available
         try:
@@ -556,15 +563,6 @@ class ControllerManager:
                 return
         else:
             warning_print("Docker network manager not available, proceeding without network check")
-        
-        # Check if already running
-        if self._is_controller_running(container_name):
-            QMessageBox.information(
-                self.main_window,
-                "Controller Running",
-                f"Ryu controller '{container_name}' is already running.\n\nUse 'Stop Ryu Controller' to stop it first."
-            )
-            return
         
         # Show confirmation dialog
         reply = QMessageBox.question(
@@ -728,6 +726,16 @@ class ControllerManager:
                 'details': str(e)
             }
     
+    def is_controller_running(self):
+        """Check if Ryu controller is running."""
+        container_name = "netflux5g-ryu-controller"
+        return self._is_controller_running(container_name)
+
+    def is_onos_controller_running(self):
+        """Check if ONOS controller is running."""
+        container_name = "netflux5g-onos-controller"
+        return self._is_controller_running(container_name)
+
     def _stop_controller_sync(self, container_name, controller_type):
         """Stop a controller container synchronously (for conflict resolution)."""
         try:
@@ -754,7 +762,7 @@ class ControllerManager:
         except Exception as e:
             error_print(f"Unexpected error stopping {controller_type} controller: {e}")
 
-    def _get_container_name(self):
+    def _get_container_name(self, controller_type="ryu"):
         """Generate container name based on current file or use default."""
         if hasattr(self.main_window, 'current_file') and self.main_window.current_file:
             # Use filename without extension
@@ -762,9 +770,9 @@ class ControllerManager:
             name_without_ext = os.path.splitext(filename)[0]
             # Sanitize name for Docker (only alphanumeric, underscore, dash)
             sanitized = ''.join(c if c.isalnum() or c in '_-' else '_' for c in name_without_ext)
-            return f"ryu_{sanitized}"
+            return f"{controller_type}_{sanitized}"
         else:
-            return "ryu_default"
+            return f"{controller_type}_default"
     
     def _is_controller_running(self, container_name):
         """Check if the controller container is currently running."""
@@ -774,7 +782,7 @@ class ControllerManager:
             return container_name in result.stdout
         except Exception:
             return False
-    
+
     def _on_deployment_finished(self, success, message):
         """Handle deployment operation completion."""
         if self.progress_dialog:
@@ -827,3 +835,160 @@ class ControllerManager:
                 controller_type = "RYU controller"
         
         self.main_window.status_manager.showCanvasStatus(f"{controller_type} operation canceled")
+    
+    def deploy_controller_sync(self, controller_type='ryu'):
+        """Deploy controller synchronously for automation."""
+        debug_print(f"DEBUG: deploy_controller_sync called for {controller_type}")
+        try:
+            if controller_type == 'onos':
+                container_name = "netflux5g-onos-controller"
+                ryu_container_name = "netflux5g-ryu-controller"
+                
+                # Check if RYU controller is running and stop it
+                if self._is_controller_running(ryu_container_name):
+                    debug_print("Stopping RYU controller before deploying ONOS")
+                    self._stop_controller_sync(ryu_container_name, "RYU")
+                
+                # Check if already running
+                if self._is_controller_running(container_name):
+                    debug_print(f"ONOS controller '{container_name}' is already running")
+                    return True
+                
+                # Deploy ONOS directly
+                return self._deploy_onos_direct(container_name, "netflux5g")
+            else:
+                container_name = "netflux5g-ryu-controller"
+                onos_container_name = "netflux5g-onos-controller"
+                
+                # Check if ONOS controller is running and stop it
+                if self._is_controller_running(onos_container_name):
+                    debug_print("Stopping ONOS controller before deploying RYU")
+                    self._stop_controller_sync(onos_container_name, "ONOS")
+                
+                # Check if already running
+                if self._is_controller_running(container_name):
+                    debug_print(f"RYU controller '{container_name}' is already running")
+                    return True
+                
+                # Deploy RYU directly
+                return self._deploy_ryu_direct(container_name, "netflux5g")
+                
+        except Exception as e:
+            error_print(f"ERROR: Failed to deploy {controller_type} controller: {e}")
+            return False
+
+    def _deploy_ryu_direct(self, container_name, network_name):
+        """Deploy RYU controller directly without threads."""
+        try:
+            # Check if the Ryu image exists
+            debug_print("Checking Ryu controller image...")
+            image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/ryu:latest']
+            image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
+            
+            if 'adaptive/ryu:latest' not in image_result.stdout:
+                # Image doesn't exist, build it
+                debug_print("Building Ryu controller image...")
+                controller_dir = self._find_controller_dockerfile()
+                if not controller_dir:
+                    error_print("Controller Dockerfile not found")
+                    return False
+                
+                # Build the image
+                build_cmd = ['docker', 'build', '-t', 'adaptive/ryu:latest', controller_dir]
+                build_process = subprocess.run(build_cmd, capture_output=True, text=True, timeout=300)
+                
+                if build_process.returncode != 0:
+                    error_print(f"Failed to build Ryu image: {build_process.stderr}")
+                    return False
+                
+                debug_print("Successfully built adaptive/ryu:latest image")
+            
+            # Remove existing container if it exists but is not running
+            if self._container_exists(container_name) and not self._is_controller_running(container_name):
+                debug_print(f"Removing existing stopped container: {container_name}")
+                remove_cmd = ['docker', 'rm', container_name]
+                subprocess.run(remove_cmd, capture_output=True, timeout=10)
+            
+            # Create and run Ryu controller container
+            debug_print(f"Creating Ryu controller container: {container_name}")
+            run_cmd = [
+                'docker', 'run', '-itd',
+                '--name', container_name,
+                '--network', network_name,
+                '-p', '6633:6633',
+                '-p', '6653:6653',
+                'adaptive/ryu:latest'
+            ]
+            
+            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                error_print(f"Failed to create Ryu controller container: {result.stderr}")
+                return False
+            
+            # Wait for container to be ready
+            debug_print("Waiting for Ryu controller to be ready...")
+            for i in range(20):  # Wait up to 20 seconds
+                if self._is_controller_running(container_name):
+                    debug_print("Ryu controller is ready")
+                    return True
+                time.sleep(1)
+            
+            error_print("Ryu controller container started but failed to become ready")
+            return False
+            
+        except Exception as e:
+            error_print(f"Failed to deploy Ryu controller directly: {e}")
+            return False
+
+    def _deploy_onos_direct(self, container_name, network_name):
+        """Deploy ONOS controller directly without threads."""
+        try:
+            # Remove existing container if it exists but is not running
+            if self._container_exists(container_name) and not self._is_controller_running(container_name):
+                debug_print(f"Removing existing stopped container: {container_name}")
+                remove_cmd = ['docker', 'rm', container_name]
+                subprocess.run(remove_cmd, capture_output=True, timeout=10)
+            
+            # Create and run ONOS controller container
+            debug_print(f"Creating ONOS controller container: {container_name}")
+            run_cmd = [
+                'docker', 'run', '-itd',
+                '--name', container_name,
+                '--restart', 'always',
+                '--network', network_name,
+                '-p', '6653:6653',  # OpenFlow
+                '-p', '6640:6640',  # OVSDB
+                '-p', '8181:8181',  # GUI
+                '-p', '8101:8101',  # ONOS CLI
+                '-p', '9876:9876',  # ONOS intra-cluster communication
+                'adaptive/onos:latest'
+            ]
+            
+            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                error_print(f"Failed to create ONOS controller container: {result.stderr}")
+                return False
+            
+            # Wait for container to be ready
+            debug_print("Waiting for ONOS controller to be ready...")
+            for i in range(30):  # Wait up to 30 seconds (ONOS takes longer to start)
+                if self._is_controller_running(container_name):
+                    debug_print("ONOS controller is ready")
+                    return True
+                time.sleep(1)
+            
+            error_print("ONOS controller container started but failed to become ready")
+            return False
+            
+        except Exception as e:
+            error_print(f"Failed to deploy ONOS controller directly: {e}")
+            return False
+
+    def _container_exists(self, container_name):
+        """Check if a container exists (running or stopped)."""
+        try:
+            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}']
+            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
+            return container_name in result.stdout
+        except Exception:
+            return False

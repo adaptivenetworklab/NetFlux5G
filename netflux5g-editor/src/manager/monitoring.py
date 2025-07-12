@@ -432,6 +432,164 @@ class MonitoringManager:
         # Start stop operation
         self._start_operation('stop', container_prefix, None)
     
+    def deploy_monitoring_sync(self):
+        """Deploy monitoring stack synchronously for automation."""
+        debug_print("Deploy Monitoring synchronously triggered")
+        
+        # Use fixed service name instead of file-based naming
+        container_prefix = "netflux5g"
+        network_name = "netflux5g"
+        
+        # Check if Docker is available
+        if not self._check_docker_available():
+            return False, "Docker not available"
+        
+        # Check if netflux5g network exists, create if not
+        if hasattr(self.main_window, 'docker_network_manager'):
+            if not self.main_window.docker_network_manager.ensure_netflux5g_network():
+                return False, "Could not create netflux5g network"
+        else:
+            warning_print("Docker network manager not available, proceeding without network check")
+        
+        # Check if any monitoring containers are already running
+        running_containers = self._get_running_monitoring_containers(container_prefix)
+        if running_containers:
+            debug_print(f"Some monitoring containers already running: {running_containers}")
+            # Stop existing containers first
+            self._stop_containers_sync(container_prefix)
+        
+        try:
+            # Deploy monitoring containers directly
+            monitoring_containers = {
+                'prometheus': {
+                    'image': 'prom/prometheus',
+                    'ports': ['9090:9090'],
+                    'volumes': [
+                        cwd + '/automation/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+                    ]
+                },
+                'grafana': {
+                    'image': 'grafana/grafana',
+                    'ports': ['3000:3000'],
+                    'volumes': [
+                        cwd + '/automation/monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml',
+                        cwd + '/automation/monitoring/grafana/dashboard.json:/var/lib/grafana/dashboards/dashboard.json',
+                        cwd + '/automation/monitoring/grafana/default.yaml:/etc/grafana/provisioning/dashboards/default.yaml'
+                    ],
+                    'env': [
+                        'GF_PATHS_PROVISIONING=/etc/grafana/provisioning',
+                        'DS_PROMETHEUS=prometheus'
+                    ]
+                },
+                'node-exporter': {
+                    'image': 'prom/node-exporter',
+                    'ports': [],
+                    'volumes': ['/:/host:ro,rslave'],
+                    'extra_args': ['--path.rootfs=/host'],
+                    'pid_mode': 'host'
+                },
+                'cadvisor': {
+                    'image': 'gcr.io/cadvisor/cadvisor:latest',
+                    'ports': ['8080:8080'],
+                    'volumes': [
+                        '/:/rootfs:ro',
+                        '/var/run:/var/run:ro', 
+                        '/sys:/sys:ro',
+                        '/var/lib/docker/:/var/lib/docker:ro',
+                        '/dev/disk/:/dev/disk:ro'
+                    ]
+                },
+                'blackbox-exporter': {
+                    'image': 'prom/blackbox-exporter',
+                    'ports': ['9115:9115'],
+                    'volumes': []
+                }
+            }
+            
+            # Deploy each container
+            for container_name, config in monitoring_containers.items():
+                full_container_name = f"{container_prefix}_{container_name}"
+                
+                debug_print(f"Deploying monitoring container: {container_name}")
+                
+                # Check if container already exists
+                if self._container_exists(full_container_name):
+                    if self._is_container_running(full_container_name):
+                        debug_print(f"{full_container_name} is already running")
+                        continue
+                    else:
+                        # Start existing container
+                        result = subprocess.run(['docker', 'start', full_container_name], 
+                                              capture_output=True, text=True, timeout=30)
+                        if result.returncode != 0:
+                            debug_print(f"Failed to start existing container {full_container_name}: {result.stderr}")
+                            return False, f"Failed to start {container_name}: {result.stderr}"
+                        continue
+                
+                # Create new container
+                success, error = self._create_container_sync(container_name, config, full_container_name, network_name)
+                if not success:
+                    return False, f"Failed to create {container_name}: {error}"
+            
+            # Wait for containers to be ready
+            time.sleep(3)
+            
+            debug_print("Monitoring stack deployed successfully")
+            return True, "Monitoring stack deployed successfully"
+            
+        except subprocess.TimeoutExpired:
+            return False, "Monitoring deployment timed out"
+        except subprocess.CalledProcessError as e:
+            return False, f"Docker command failed: {e.stderr}"
+        except Exception as e:
+            return False, f"Unexpected error: {str(e)}"
+    
+    def _create_container_sync(self, container_name, config, full_container_name, network_name):
+        """Create a single monitoring container synchronously."""
+        try:
+            run_cmd = [
+                'docker', 'run', '-d',
+                '--name', full_container_name,
+                '--restart', 'unless-stopped',
+                '--network', network_name
+            ]
+            
+            # Add port mappings
+            for port in config.get('ports', []):
+                run_cmd.extend(['-p', port])
+            
+            # Add volume mounts
+            for volume in config.get('volumes', []):
+                run_cmd.extend(['-v', volume])
+            
+            # Add environment variables
+            for env_var in config.get('env', []):
+                run_cmd.extend(['-e', env_var])
+            
+            # Add special configurations
+            if 'pid_mode' in config:
+                run_cmd.extend(['--pid', config['pid_mode']])
+            
+            # Add the image
+            run_cmd.append(config['image'])
+            
+            # Add extra arguments
+            if 'extra_args' in config:
+                run_cmd.extend(config['extra_args'])
+            
+            # Execute the command
+            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                return False, result.stderr
+            
+            debug_print(f"Created container: {full_container_name}")
+            return True, f"Container {full_container_name} created successfully"
+            
+        except subprocess.TimeoutExpired:
+            return False, "Container creation timed out"
+        except Exception as e:
+            return False, str(e)
+    
     def _check_file_saved(self):
         """Check if the current file is saved."""
         if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
@@ -529,12 +687,9 @@ class MonitoringManager:
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
             QMessageBox.critical(
                 self.main_window,
-                "Docker Not Available", 
-                "Docker or Docker Compose is not installed or not accessible.\n\n"
-                "Please install Docker Desktop which includes Docker Compose:\n"
-                "• Windows/Mac: https://docs.docker.com/desktop/\n"
-                "• Linux: Install docker-ce and docker-compose packages\n\n"
-                "After installation, ensure Docker is running."
+                "Docker Not Available",
+                "Docker is not installed or not accessible.\n\n"
+                "Please install Docker and ensure it's running:\n"
             )
             return False
     
@@ -686,3 +841,42 @@ class MonitoringManager:
             
         except:
             return "Docker not available"
+    
+    def is_monitoring_running(self):
+        """Check if monitoring stack is currently running."""
+        container_prefix = "netflux5g"
+        running_containers = self._get_running_monitoring_containers(container_prefix)
+        
+        # Consider monitoring running if at least prometheus and grafana are running
+        essential_services = ['prometheus', 'grafana']
+        running_essential = [svc for svc in essential_services if svc in running_containers]
+        
+        return len(running_essential) >= 2  # Both prometheus and grafana must be running
+    
+    def stop_monitoring_sync(self):
+        """Stop monitoring stack synchronously for automation."""
+        debug_print("Stop Monitoring synchronously triggered")
+        
+        # Use fixed service name instead of file-based naming
+        container_prefix = "netflux5g"
+        
+        # Check if Docker is available
+        if not self._check_docker_available():
+            return False, "Docker not available"
+        
+        # Check if any monitoring containers exist
+        existing_containers = self._get_existing_monitoring_containers(container_prefix)
+        if not existing_containers:
+            debug_print(f"No monitoring containers found with prefix '{container_prefix}'")
+            return True, "No monitoring containers to stop"
+        
+        try:
+            # Stop containers synchronously
+            self._stop_containers_sync(container_prefix)
+            
+            debug_print(f"Monitoring containers stopped: {existing_containers}")
+            return True, f"Monitoring containers stopped: {', '.join(existing_containers)}"
+            
+        except Exception as e:
+            error_print(f"Failed to stop monitoring containers: {e}")
+            return False, f"Failed to stop monitoring containers: {str(e)}"

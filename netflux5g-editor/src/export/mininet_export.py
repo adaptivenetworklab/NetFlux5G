@@ -1210,8 +1210,8 @@ class MininetExporter:
                 for instance in core_components[comp_type]:
                     instance_name = self.sanitize_variable_name(instance.get('name', f'{comp_type.lower()}1'))
                     cmd = f'open5gs-{comp_type.lower()}d'
-                    f.write(f'    makeTerm2({instance_name}, cmd="/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
-                    # f.write(f'    {instance_name}.cmd("/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
+                    # f.write(f'    makeTerm2({instance_name}, cmd="/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
+                    f.write(f'    {instance_name}.cmd("/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log &")\n')
                 f.write('\n')
         
         f.write('    CLI.do_sh(net, "sleep 10")\n\n')
@@ -1250,8 +1250,8 @@ class MininetExporter:
                 # env_vars_str = ' '.join([f'${var}' for var in gnb_env_vars])
                 # f.write(f'    {gnb_name}.cmd("envsubst \'{env_vars_str}\' < /entrypoint.sh > /mn-entrypoint.sh")\n')
                 # f.write(f'    {gnb_name}.cmd("chmod +x /mn-entrypoint.sh")\n')
-                f.write(f'    makeTerm2({gnb_name}, cmd="/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log")\n')
-                # f.write(f'    {gnb_name}.cmd("/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log &")\n')
+                # f.write(f'    makeTerm2({gnb_name}, cmd="/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log")\n')
+                f.write(f'    {gnb_name}.cmd("/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log &")\n')
             f.write('\n')
             f.write('    CLI.do_sh(net, "sleep 15")  # Allow time for gNB and OVS setup\n\n')
         
@@ -1285,8 +1285,8 @@ class MininetExporter:
                 # env_vars_str = ' '.join([f'${var}' for var in ue_env_vars])
                 # f.write(f'    {ue_name}.cmd("envsubst \'{env_vars_str}\' < /entrypoint.sh > /mn-entrypoint.sh")\n')
                 # f.write(f'    {ue_name}.cmd("chmod +x /mn-entrypoint.sh")\n')
-                f.write(f'    makeTerm2({ue_name}, cmd="/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log")\n')
-                # f.write(f'    {ue_name}.cmd("/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &")\n')
+                # f.write(f'    makeTerm2({ue_name}, cmd="/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log")\n')
+                f.write(f'    {ue_name}.cmd("/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &")\n')
             f.write('\n')
             f.write('    CLI.do_sh(net, "sleep 20")  # Allow time for UE registration and OVS setup\n\n')
             

@@ -612,11 +612,66 @@ class DatabaseManager:
         return self._is_container_running(container_name)
     
     def deploy_database(self):
-        """Deploy database and return success status."""
-        self.deployDatabase()
-        # Give it some time to start
-        time.sleep(3)
-        return self.is_database_running()
+        """Deploy MongoDB database for the current topology."""
+        debug_print("DEBUG: deploy_database called")
+        try:
+            # Use fixed service names instead of file-based naming
+            container_name = "netflux5g-mongodb"
+            volume_name = "netflux5g-mongodb-data"
+            
+            # Check if Docker is available
+            if not self._check_docker_available():
+                return False
+            
+            # Check if netflux5g network exists, prompt to create if not
+            if hasattr(self.main_window, 'docker_network_manager'):
+                if not self.main_window.docker_network_manager.prompt_create_netflux5g_network():
+                    self.main_window.status_manager.showCanvasStatus("Database deployment cancelled - netflux5g network required")
+                    return False
+            else:
+                warning_print("Docker network manager not available, proceeding without network check")
+            
+            # Check if already running
+            if self._is_container_running(container_name):
+                reply = QMessageBox.question(
+                    self.main_window,
+                    "Container Already Running",
+                    f"Database container '{container_name}' is already running.\n\nDo you want to restart it?",
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No
+                )
+                
+                if reply == QMessageBox.No:
+                    return False
+                
+                # Stop first, then deploy
+                self._stop_container_sync(container_name)
+
+            # Show confirmation dialog
+            reply = QMessageBox.question(
+                self.main_window,
+                "Deploy Database",
+                f"This will create a MongoDB container with:\n"
+                f"• Container name: {container_name}\n"
+                f"• Volume name: {volume_name}\n"
+                f"• Port: 27017\n"
+                f"• Network: netflux5g\n"
+                f"• Database: open5gs\n\n"
+                f"Do you want to continue?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            
+            if reply == QMessageBox.No:
+                return False
+            
+            # Start deployment with netflux5g network
+            result = self._start_operation('deploy', container_name, volume_name, "netflux5g")
+            debug_print(f"DEBUG: deploy_database result: {result}")
+            return result
+        except Exception as e:
+            error_print(f"ERROR: Failed to deploy MongoDB Database: {e}")
+            return False
     
     def deploy_webui(self):
         """Deploy WebUI and return success status."""
@@ -624,6 +679,167 @@ class DatabaseManager:
         # Give it some time to start
         time.sleep(3)
         return self.is_webui_running()
+
+    def deploy_database_sync(self):
+        """Deploy MongoDB database synchronously for automation."""
+        debug_print("DEBUG: deploy_database_sync called")
+        try:
+            # Use fixed service names instead of file-based naming
+            container_name = "netflux5g-mongodb"
+            volume_name = "netflux5g-mongodb-data"
+            
+            # Check if Docker is available
+            if not self._check_docker_available():
+                error_print("Docker is not available")
+                return False
+            
+            # Ensure netflux5g network exists
+            if hasattr(self.main_window, 'docker_network_manager'):
+                if not self.main_window.docker_network_manager._network_exists("netflux5g"):
+                    debug_print("Creating netflux5g network")
+                    if not self.main_window.docker_network_manager._create_network("netflux5g"):
+                        error_print("Failed to create netflux5g network")
+                        return False
+            
+            # Check if already running
+            if self._is_container_running(container_name):
+                debug_print(f"Database container '{container_name}' is already running")
+                return True
+            
+            # Deploy directly without user prompts for automation
+            debug_print(f"Deploying MongoDB container: {container_name}")
+            return self._deploy_database_direct(container_name, volume_name, "netflux5g")
+            
+        except Exception as e:
+            error_print(f"ERROR: Failed to deploy MongoDB Database: {e}")
+            return False
+    
+    def deploy_webui_sync(self):
+        """Deploy WebUI synchronously for automation."""
+        debug_print("DEBUG: deploy_webui_sync called")
+        try:
+            # Use fixed service names
+            container_name = "netflux5g-webui"
+            
+            # Check if Docker is available
+            if not self._check_docker_available():
+                error_print("Docker is not available")
+                return False
+            
+            # Ensure netflux5g network exists
+            if hasattr(self.main_window, 'docker_network_manager'):
+                if not self.main_window.docker_network_manager._network_exists("netflux5g"):
+                    debug_print("Creating netflux5g network")
+                    if not self.main_window.docker_network_manager._create_network("netflux5g"):
+                        error_print("Failed to create netflux5g network")
+                        return False
+            
+            # Check if already running
+            if self._is_container_running(container_name):
+                debug_print(f"WebUI container '{container_name}' is already running")
+                return True
+            
+            # Deploy directly without user prompts for automation
+            debug_print(f"Deploying WebUI container: {container_name}")
+            return self._deploy_webui_direct(container_name, "netflux5g")
+            
+        except Exception as e:
+            error_print(f"ERROR: Failed to deploy WebUI: {e}")
+            return False
+
+    def _deploy_database_direct(self, container_name, volume_name, network_name):
+        """Deploy MongoDB container directly without threads."""
+        try:
+            # Create volume if it doesn't exist
+            if not self._volume_exists(volume_name):
+                debug_print(f"Creating volume: {volume_name}")
+                volume_cmd = ['docker', 'volume', 'create', volume_name]
+                result = subprocess.run(volume_cmd, capture_output=True, text=True, timeout=30)
+                if result.returncode != 0:
+                    error_print(f"Failed to create volume: {result.stderr}")
+                    return False
+            
+            # Remove existing container if it exists but is not running
+            if self._container_exists(container_name) and not self._is_container_running(container_name):
+                debug_print(f"Removing existing stopped container: {container_name}")
+                remove_cmd = ['docker', 'rm', container_name]
+                subprocess.run(remove_cmd, capture_output=True, timeout=10)
+            
+            # Create and run MongoDB container
+            debug_print(f"Creating MongoDB container: {container_name}")
+            run_cmd = [
+                'docker', 'run', '-d',
+                '--name', container_name,
+                '--network', network_name,
+                '-p', '27017:27017',
+                '-v', f'{volume_name}:/data/db',
+                '-e', 'MONGO_INITDB_DATABASE=open5gs',
+                'mongo:latest'
+            ]
+            
+            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                error_print(f"Failed to create MongoDB container: {result.stderr}")
+                return False
+            
+            # Wait for container to be ready
+            debug_print("Waiting for MongoDB to be ready...")
+            for i in range(30):  # Wait up to 30 seconds
+                if self._is_container_running(container_name):
+                    # Test connection
+                    test_cmd = ['docker', 'exec', container_name, 'mongosh', '--eval', 'db.runCommand("ping")']
+                    test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=10)
+                    if test_result.returncode == 0:
+                        debug_print("MongoDB is ready")
+                        return True
+                time.sleep(1)
+            
+            error_print("MongoDB container started but failed to become ready")
+            return False
+            
+        except Exception as e:
+            error_print(f"Failed to deploy MongoDB directly: {e}")
+            return False
+
+    def _deploy_webui_direct(self, container_name, network_name):
+        """Deploy WebUI container directly without threads."""
+        try:
+            # Remove existing container if it exists but is not running
+            if self._container_exists(container_name) and not self._is_container_running(container_name):
+                debug_print(f"Removing existing stopped container: {container_name}")
+                remove_cmd = ['docker', 'rm', container_name]
+                subprocess.run(remove_cmd, capture_output=True, timeout=10)
+            
+            # Create and run WebUI container
+            debug_print(f"Creating WebUI container: {container_name}")
+            run_cmd = [
+                'docker', 'run', '-d',
+                '--name', container_name,
+                '--network', network_name,
+                '-p', '3000:3000',
+                '-e', 'DB_URI=mongodb://netflux5g-mongodb:27017/open5gs',
+                'gradiant/open5gs-webui:2.7.5'
+            ]
+            
+            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
+            if result.returncode != 0:
+                error_print(f"Failed to create WebUI container: {result.stderr}")
+                return False
+            
+            # Wait for container to be ready
+            debug_print("Waiting for WebUI to be ready...")
+            for i in range(20):  # Wait up to 20 seconds
+                if self._is_container_running(container_name):
+                    debug_print("WebUI is ready")
+                    return True
+                time.sleep(1)
+            
+            error_print("WebUI container started but failed to become ready")
+            return False
+            
+        except Exception as e:
+            error_print(f"Failed to deploy WebUI directly: {e}")
+            return False
 
     def _check_file_saved(self):
         """Check if the current file is saved."""
