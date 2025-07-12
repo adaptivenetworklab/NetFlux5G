@@ -37,6 +37,10 @@ class MonitoringDeploymentWorker(QThread):
             'prometheus', 'grafana', 'alertmanager', 
             'node-exporter', 'cadvisor', 'blackbox-exporter'
         ]
+    
+    def _get_compose_cmd(self):
+        """Get the appropriate docker compose command (v2 syntax preferred)."""
+        return ['docker', 'compose']
         
     def run(self):
         """Execute the monitoring operation in background thread."""
@@ -54,9 +58,14 @@ class MonitoringDeploymentWorker(QThread):
     def _deploy_monitoring(self):
         """Deploy all monitoring containers using docker-compose."""
         try:
+            debug_print(f"Starting monitoring deployment from: {self.monitoring_path}", force=True)
+            debug_print(f"Docker compose file: {self.docker_compose_file}", force=True)
+            
             # Check if docker-compose.yml exists
             if not os.path.exists(self.docker_compose_file):
                 raise FileNotFoundError(f"Docker compose file not found: {self.docker_compose_file}")
+            
+            debug_print("Docker compose file found, proceeding with deployment", force=True)
             
             self.status_updated.emit("Checking existing monitoring stack...")
             self.progress_updated.emit(10)
@@ -68,7 +77,7 @@ class MonitoringDeploymentWorker(QThread):
                 self.progress_updated.emit(20)
                 
                 # Stop existing stack
-                stop_cmd = ['docker-compose', '-f', self.docker_compose_file, 'down']
+                stop_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'down']
                 result = subprocess.run(stop_cmd, capture_output=True, text=True, 
                                       timeout=60, cwd=self.monitoring_path)
                 if result.returncode != 0:
@@ -78,7 +87,7 @@ class MonitoringDeploymentWorker(QThread):
             self.progress_updated.emit(30)
             
             # Pull latest images
-            pull_cmd = ['docker-compose', '-f', self.docker_compose_file, 'pull']
+            pull_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'pull']
             result = subprocess.run(pull_cmd, capture_output=True, text=True, 
                                   timeout=300, cwd=self.monitoring_path)
             if result.returncode != 0:
@@ -88,9 +97,18 @@ class MonitoringDeploymentWorker(QThread):
             self.progress_updated.emit(50)
             
             # Deploy with docker-compose
-            deploy_cmd = ['docker-compose', '-f', self.docker_compose_file, 'up', '-d']
+            deploy_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'up', '-d']
+            debug_print(f"Executing deploy command: {' '.join(deploy_cmd)}", force=True)
+            debug_print(f"Working directory: {self.monitoring_path}", force=True)
+            
             result = subprocess.run(deploy_cmd, capture_output=True, text=True, 
                                   timeout=180, cwd=self.monitoring_path)
+            
+            debug_print(f"Deploy command exit code: {result.returncode}", force=True)
+            if result.stdout:
+                debug_print(f"Deploy stdout: {result.stdout}", force=True)
+            if result.stderr:
+                debug_print(f"Deploy stderr: {result.stderr}", force=True)
             
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, deploy_cmd, result.stderr)
@@ -181,7 +199,7 @@ class MonitoringDeploymentWorker(QThread):
             self.progress_updated.emit(30)
             
             # Stop and remove containers
-            stop_cmd = ['docker-compose', '-f', self.docker_compose_file, 'down']
+            stop_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'down']
             result = subprocess.run(stop_cmd, capture_output=True, text=True, 
                                   timeout=60, cwd=self.monitoring_path)
             
@@ -219,7 +237,7 @@ class MonitoringDeploymentWorker(QThread):
                 return []
             
             # Get running services using docker-compose ps
-            ps_cmd = ['docker-compose', '-f', self.docker_compose_file, 'ps', '--services', '--filter', 'status=running']
+            ps_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'ps', '--services', '--filter', 'status=running']
             result = subprocess.run(ps_cmd, capture_output=True, text=True, 
                                   timeout=10, cwd=self.monitoring_path)
             
@@ -243,7 +261,7 @@ class MonitoringDeploymentWorker(QThread):
             self.progress_updated.emit(20)
             
             # Stop and remove everything including volumes
-            cleanup_cmd = ['docker-compose', '-f', self.docker_compose_file, 'down', '-v', '--remove-orphans']
+            cleanup_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'down', '-v', '--remove-orphans']
             result = subprocess.run(cleanup_cmd, capture_output=True, text=True, 
                                   timeout=90, cwd=self.monitoring_path)
             
@@ -307,7 +325,7 @@ class MonitoringManager:
         
     def deployMonitoring(self):
         """Deploy monitoring stack (Prometheus, Grafana, etc.)."""
-        debug_print("Deploy Monitoring triggered")
+        debug_print("Deploy Monitoring triggered", force=True)
         
         # Use fixed service name instead of file-based naming
         container_prefix = "netflux5g"
