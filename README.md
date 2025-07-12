@@ -1,6 +1,6 @@
 # NetFlux5G
 
-NetFlux5G is an interactive graphical application for designing, simulating, and exporting 5G, wireless, and container-based network topologies. It provides a drag-and-drop GUI for building complex networks, configuring properties, and exporting to Docker Compose or Mininet scripts for deployment and emulation.
+NetFlux5G is an interactive graphical application for designing, simulating, and exporting 5G, wireless, and container-based network topologies. It provides a drag-and-drop GUI for building complex networks, configuring properties, and exporting Mininet scripts for deployment and emulation.
 
 ---
 
@@ -18,16 +18,12 @@ NetFlux5G is an interactive graphical application for designing, simulating, and
       - **install.sh**: Installs Mininet-WiFi and dependencies inside the container.
       - **README.md**: Usage and troubleshooting for the Mininet Docker environment.
   - **export/**
-    - **compose_export.py**  
-      Exports topologies to Docker Compose YAML.
     - **mininet_export.py**  
       Exports topologies to Mininet scripts.
     - **5g-configs/**  
       Templates and generated configs for 5G components.
-    - **started/**  
+    - **mininet/**  
       Stores generated deployment files and working directories.
-    - **templates/**  
-      Template files for export formats.
   - **gui/**
     - **canvas.py**  
       Canvas widget for drawing and interacting with network topologies.
@@ -81,6 +77,17 @@ cd NetFlux5G
 chmod +x ./install.sh
 sudo ./install.sh
 ```
+### Build Open5Gs & UERANSIM Custom Image
+
+This image will provide a number of networking tools and additional support of OpenVSwitch & OpenFlow
+
+```sh
+cd netflux5g-editor/src/automation/open5gs/
+docker build -t adaptive/open5gs:latest .
+cd ../ueransim
+docker build -t adaptive/ueransim:latest .
+cd ../../../..
+```
 
 ### Running the GUI
 
@@ -91,8 +98,6 @@ python3 main.py
 
 ### Exporting and Emulation
 
-- **Export to Docker Compose:**  
-  Use the File menu or toolbar to export your topology to a Docker Compose YAML file.
 - **Export to Mininet:**  
   Use the export option for Mininet scripts.
 - **Automated Deployment:**  
@@ -110,7 +115,7 @@ See [`docker/README.md`](docker/README.md) for detailed instructions on building
 |----------------------------|-----------------------------------------------------------------------------|
 | `main.py`                  | Main application entry point (PyQt5 GUI)                                    |
 | `automation/`              | Automation scripts and Docker environment for emulation                     |
-| `export/`                  | Exporters for Docker Compose, Mininet, and 5G configs                       |
+| `export/`                  | Exporters for Docker Mininet, and 5G configs                       |
 | `gui/`                     | GUI logic, widgets, and Qt Designer UI files                                |
 | `manager/`                 | Application managers for window, file, tool, and component logic            |
 | `prerequisites/`           | System checks for required dependencies                                     |

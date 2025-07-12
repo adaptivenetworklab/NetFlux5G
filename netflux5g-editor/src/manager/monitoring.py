@@ -315,11 +315,10 @@ class MonitoringManager:
         reply = QMessageBox.question(
             self.main_window,
             "Deploy Monitoring Stack",
-            f"This will deploy the comprehensive monitoring stack using Docker Compose:\n\n"
+            f"This will deploy the comprehensive monitoring stack using Docker :\n\n"
             f"📊 Services to be deployed:\n"
             f"• Prometheus (metrics collection) - port 9090\n"
             f"• Grafana (visualization) - port 3000\n" 
-            f"• Alertmanager (alerting) - port 9093\n"
             f"• Node Exporter (system metrics) - port 9100\n"
             f"• cAdvisor (container metrics) - port 8080\n"
             f"• Blackbox Exporter (connectivity) - port 9115\n\n"
@@ -327,12 +326,9 @@ class MonitoringManager:
             f"• Enhanced dashboard with 5G Core monitoring\n"
             f"• Real-time UE status tracking\n"
             f"• Container auto-discovery\n"
-            f"• Multi-tier alerting system\n"
-            f"• Persistent data storage\n\n"
             f"🌐 Access URLs after deployment:\n"
             f"• Grafana: http://localhost:3000 (admin/admin)\n"
             f"• Prometheus: http://localhost:9090\n"
-            f"• Alertmanager: http://localhost:9093\n\n"
             f"Do you want to continue?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
@@ -594,7 +590,7 @@ class MonitoringManager:
         return None
     
     def _check_docker_available(self):
-        """Check if Docker and Docker Compose are available."""
+        """Check if Docker are available."""
         try:
             # Check Docker
             result = subprocess.run(
@@ -605,34 +601,6 @@ class MonitoringManager:
             )
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, 'docker --version')
-            
-            # Check Docker Compose - try newer syntax first
-            compose_available = False
-            try:
-                result = subprocess.run(
-                    ['docker', 'compose', 'version'], 
-                    capture_output=True, 
-                    text=True, 
-                    timeout=10
-                )
-                if result.returncode == 0:
-                    compose_available = True
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                # Try legacy docker-compose if newer syntax fails
-                try:
-                    result = subprocess.run(
-                        ['docker-compose', '--version'], 
-                        capture_output=True, 
-                        text=True, 
-                        timeout=10
-                    )
-                    if result.returncode == 0:
-                        compose_available = True
-                except (subprocess.CalledProcessError, FileNotFoundError):
-                    pass
-            
-            if not compose_available:
-                raise subprocess.CalledProcessError(1, 'docker compose')
             
             return True
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
