@@ -5,4 +5,7 @@ providers:
   folder: NetFlux5G
   type: file
   options:
-    path: /var/lib/grafana/dashboards/dashboard.json
+    path: /var/lib/grafana/dashboards
+  allowUiUpdates: true
+  updateIntervalSeconds: 10
+  disableDeletion: true

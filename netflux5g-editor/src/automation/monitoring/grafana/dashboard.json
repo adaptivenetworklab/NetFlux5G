@@ -1,1492 +1,1726 @@
 {
-    "__inputs": [
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 3,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total Containers"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
         {
-            "name": "DS_PROMETHEUS",
-            "label": "Prometheus",
-            "description": "Select your Prometheus data source",
-            "type": "datasource",
-            "pluginId": "prometheus",
-            "pluginName": "Prometheus"
-        }
-    ],
-    "__elements": {},
-    "__requires": [
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "count(container_last_seen{name!=\"\"})",
+          "legendFormat": "Total Containers",
+          "refId": "A"
+        },
         {
-            "type": "grafana",
-            "id": "grafana",
-            "name": "Grafana",
-            "version": "12.0.2"
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "up{job=\"prometheus\"}",
+          "legendFormat": "Prometheus Status",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "up{job=\"cadvisor\"}",
+          "legendFormat": "cAdvisor Status",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "up{job=\"node_exporter\"}",
+          "legendFormat": "Node Exporter Status",
+          "refId": "D"
         }
-    ],
-    "annotations": {
-        "list": [
+      ],
+      "title": "System Overview",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
             {
-                "builtIn": 1,
-                "datasource": {
-                    "type": "grafana",
-                    "uid": "-- Grafana --"
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "DOWN"
                 },
-                "enable": true,
-                "hide": true,
-                "iconColor": "rgba(0, 211, 255, 1)",
-                "name": "Annotations & Alerts",
-                "type": "dashboard"
+                "1": {
+                  "color": "green",
+                  "text": "UP"
+                }
+              },
+              "type": "value"
             }
-        ]
-    },
-    "editable": true,
-    "fiscalYearStartMonth": 0,
-    "graphTooltip": 0,
-    "id": null,
-    "links": [],
-    "liveNow": true,
-    "panels": [
-        {
-            "id": 1,
-            "title": "System Overview",
-            "type": "stat",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 24,
-                "x": 0,
-                "y": 0
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "orientation": "horizontal",
-                "textMode": "auto",
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 0
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
-                            }
-                        ]
-                    }
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Total Containers"
-                        },
-                        "properties": [
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "count(container_last_seen{name!=\"\"})",
-                    "legendFormat": "Total Containers",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "up{job=\"prometheus\"}",
-                    "legendFormat": "Prometheus Status",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "up{job=\"cadvisor\"}",
-                    "legendFormat": "cAdvisor Status",
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "up{job=\"node_exporter\"}",
-                    "legendFormat": "Node Exporter Status",
-                    "refId": "D"
-                }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
             ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.amf1\"}",
+          "legendFormat": "AMF",
+          "refId": "A"
         },
         {
-            "id": 2,
-            "title": "5G Core Network Functions Status",
-            "type": "stat",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 24,
-                "x": 0,
-                "y": 4
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "orientation": "horizontal",
-                "textMode": "auto",
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "text": "DOWN",
-                                    "color": "red"
-                                },
-                                "1": {
-                                    "text": "UP",
-                                    "color": "green"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.amf1\"}",
-                    "legendFormat": "AMF",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.smf1\"}",
-                    "legendFormat": "SMF",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.upf1\"}",
-                    "legendFormat": "UPF1",
-                    "refId": "C"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.upf2\"}",
-                    "legendFormat": "UPF2",
-                    "refId": "D"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.nrf1\"}",
-                    "legendFormat": "NRF",
-                    "refId": "E"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.pcf1\"}",
-                    "legendFormat": "PCF",
-                    "refId": "F"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.GNB__1\"}",
-                    "legendFormat": "gNB1",
-                    "refId": "G"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"mn.GNB__2\"}",
-                    "legendFormat": "gNB2",
-                    "refId": "H"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"netflux5g-mongodb\"}",
-                    "legendFormat": "MongoDB",
-                    "refId": "I"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"netflux5g-webui\"}",
-                    "legendFormat": "WebUI",
-                    "refId": "J"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=\"netflux5g-onos-controller\"}",
-                    "legendFormat": "ONOS",
-                    "refId": "K"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.smf1\"}",
+          "legendFormat": "SMF",
+          "refId": "B"
         },
         {
-            "id": 3,
-            "title": "CPU Usage (%)",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 10
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "unit": "percent",
-                    "min": 0,
-                    "max": 100,
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    },
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 70
-                            },
-                            {
-                                "color": "red",
-                                "value": 90
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_cpu_usage_seconds_total{name=~\"$pod\"}[5m]) * 100",
-                    "legendFormat": "{{name}}",
-                    "refId": "A"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.upf1\"}",
+          "legendFormat": "UPF1",
+          "refId": "C"
         },
         {
-            "id": 4,
-            "title": "Memory Usage",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 10
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "unit": "bytes",
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    },
-                    "thresholds": {
-                        "mode": "percentage",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 70
-                            },
-                            {
-                                "color": "red",
-                                "value": 90
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "container_memory_usage_bytes{name=~\"$pod\"}",
-                    "legendFormat": "{{name}} - Used",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "container_spec_memory_limit_bytes{name=~\"$pod\"}",
-                    "legendFormat": "{{name}} - Limit",
-                    "refId": "B"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.upf2\"}",
+          "legendFormat": "UPF2",
+          "refId": "D"
         },
         {
-            "id": 5,
-            "title": "Network I/O (Bytes/s)",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 18
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "unit": "Bps",
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_network_receive_bytes_total{name=~\"$pod\"}[5m])",
-                    "legendFormat": "{{name}} - RX",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_network_transmit_bytes_total{name=~\"$pod\"}[5m])",
-                    "legendFormat": "{{name}} - TX",
-                    "refId": "B"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.nrf1\"}",
+          "legendFormat": "NRF",
+          "refId": "E"
         },
         {
-            "id": 6,
-            "title": "Disk I/O (Bytes/s)",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 18
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "unit": "Bps",
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_fs_reads_bytes_total{name=~\"$pod\"}[5m])",
-                    "legendFormat": "{{name}} - Read",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_fs_writes_bytes_total{name=~\"$pod\"}[5m])",
-                    "legendFormat": "{{name}} - Write",
-                    "refId": "B"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.pcf1\"}",
+          "legendFormat": "PCF",
+          "refId": "F"
         },
         {
-            "id": 7,
-            "title": "Connected UEs",
-            "type": "gauge",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 0,
-                "y": 26
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "showThresholdLabels": false,
-                "showThresholdMarkers": true
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "min": 0,
-                    "max": 100,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 50
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "count(probe_success{instance=~'mn[.]UE__.*'} == 1) or vector(6)",
-                    "interval": "5s",
-                    "step": 5,
-                    "legendFormat": "Connected UEs",
-                    "refId": "A",
-                    "format": "time_series",
-                    "intervalMs": 5000,
-                    "maxDataPoints": 300
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.GNB__1\"}",
+          "legendFormat": "gNB1",
+          "refId": "G"
         },
         {
-            "id": 8,
-            "title": "Connected gNodeBs",
-            "type": "gauge",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 6,
-                "y": 26
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "showThresholdLabels": false,
-                "showThresholdMarkers": true
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "min": 0,
-                    "max": 10,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 7
-                            },
-                            {
-                                "color": "red",
-                                "value": 9
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "count(probe_success{instance=~\"mn[.]GNB__.*\"} == 1) or vector(2)",
-                    "interval": "5s",
-                    "step": 5,
-                    "legendFormat": "Connected gNBs",
-                    "refId": "A",
-                    "format": "time_series",
-                    "intervalMs": 5000,
-                    "maxDataPoints": 300
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"mn.GNB__2\"}",
+          "legendFormat": "gNB2",
+          "refId": "H"
         },
         {
-            "id": 9,
-            "title": "PDU Sessions",
-            "type": "gauge",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 12,
-                "y": 26
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "showThresholdLabels": false,
-                "showThresholdMarkers": true
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "min": 0,
-                    "max": 100,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 70
-                            },
-                            {
-                                "color": "red",
-                                "value": 90
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "(count(probe_success{instance=~'mn[.]UE__.*'} == 1) * 1.2) or vector(0)",
-                    "interval": "5s",
-                    "step": 5,
-                    "legendFormat": "PDU Sessions",
-                    "refId": "A",
-                    "format": "time_series",
-                    "intervalMs": 5000,
-                    "maxDataPoints": 300
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"netflux5g-mongodb\"}",
+          "legendFormat": "MongoDB",
+          "refId": "I"
         },
         {
-            "id": 10,
-            "title": "Network Response Time",
-            "type": "gauge",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 18,
-                "y": 26
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "showThresholdLabels": false,
-                "showThresholdMarkers": true
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "unit": "ms",
-                    "min": 0,
-                    "max": 1000,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 100
-                            },
-                            {
-                                "color": "red",
-                                "value": 500
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "avg(probe_duration_seconds) * 1000",
-                    "legendFormat": "Average RTT",
-                    "refId": "A"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"netflux5g-webui\"}",
+          "legendFormat": "WebUI",
+          "refId": "J"
         },
         {
-            "id": 18,
-            "title": "UE Status Monitor",
-            "type": "stat",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 24,
-                "x": 0,
-                "y": 32
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "orientation": "horizontal",
-                "textMode": "auto",
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "text": "DOWN",
-                                    "color": "red"
-                                },
-                                "1": {
-                                    "text": "UP",
-                                    "color": "green"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "probe_success{instance=~'mn[.]UE__.*'}",
-                    "legendFormat": "{{instance}}",
-                    "refId": "A"
-                }
-            ]
-        },
-        {
-            "id": 11,
-            "title": "Registration Success Rate",
-            "type": "stat",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 8,
-                "x": 0,
-                "y": 36
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "orientation": "auto",
-                "textMode": "auto",
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "unit": "percent",
-                    "min": 0,
-                    "max": 100,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 80
-                            },
-                            {
-                                "color": "green",
-                                "value": 95
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "(sum(rate(netflux5g_registration_success_total[5m])) / sum(rate(netflux5g_registration_attempts_total[5m]))) * 100 or vector(100)",
-                    "legendFormat": "Success Rate",
-                    "refId": "A"
-                }
-            ]
-        },
-        {
-            "id": 12,
-            "title": "Active PDU Sessions",
-            "type": "stat",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 8,
-                "x": 8,
-                "y": 36
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "orientation": "auto",
-                "textMode": "auto",
-                "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "unit": "percent",
-                    "min": 0,
-                    "max": 100,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 80
-                            },
-                            {
-                                "color": "green",
-                                "value": 95
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "netflux5g_pdu_sessions or vector(0)",
-                    "legendFormat": "PDU Sessions",
-                    "refId": "A"
-                }
-            ]
-        },
-        {
-            "id": 13,
-            "title": "Container Restart Count",
-            "type": "stat",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 6,
-                "w": 8,
-                "x": 16,
-                "y": 36
-            },
-            "options": {
-                "reduceOptions": {
-                    "values": false,
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": ""
-                },
-                "orientation": "auto",
-                "textMode": "auto",
-                "colorMode": "background",
-                "graphMode": "none",
-                "justifyMode": "auto"
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "red",
-                                "value": 5
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "sum(container_start_time_seconds{name=~\"$pod\"}) by (name)",
-                    "legendFormat": "{{name}}",
-                    "refId": "A"
-                }
-            ]
-        },
-        {
-            "id": 14,
-            "title": "UPF Packet Processing Rate",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 42
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "unit": "pps",
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_network_receive_packets_total{name=~'mn[.]upf.*'}[5m])",
-                    "legendFormat": "{{name}} - Ingress PPS",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_network_transmit_packets_total{name=~'mn[.]upf.*'}[5m])",
-                    "legendFormat": "{{name}} - Egress PPS",
-                    "refId": "B"
-                }
-            ]
-        },
-        {
-            "id": 15,
-            "title": "UPF Throughput",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 42
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "unit": "Bps",
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_network_receive_bytes_total{name=~'mn[.]upf.*'}[5m])",
-                    "legendFormat": "{{name}} - Ingress Bytes/s",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_network_transmit_bytes_total{name=~'mn[.]upf.*'}[5m])",
-                    "legendFormat": "{{name}} - Egress Bytes/s",
-                    "refId": "B"
-                }
-            ]
-        },
-        {
-            "id": 16,
-            "title": "System Load Average",
-            "type": "timeseries",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 50
-            },
-            "options": {
-                "legend": {
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "last"
-                    ]
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "desc"
-                }
-            },
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "lineWidth": 2
-                    },
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "red",
-                                "value": 2
-                            }
-                        ]
-                    }
-                }
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "node_load1",
-                    "legendFormat": "Load 1m",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "node_load5",
-                    "legendFormat": "Load 5m",
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "node_load15",
-                    "legendFormat": "Load 15m",
-                    "refId": "C"
-                }
-            ]
-        },
-        {
-            "id": 17,
-            "title": "Error Rate & Alerts",
-            "type": "logs",
-            "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 50
-            },
-            "options": {
-                "showTime": true,
-                "showLabels": true,
-                "showCommonLabels": false,
-                "wrapLogMessage": false,
-                "prettifyLogMessage": false,
-                "enableLogDetails": true,
-                "dedupStrategy": "none",
-                "sortOrder": "Descending"
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "increase(prometheus_notifications_total[5m]) > 0",
-                    "legendFormat": "Prometheus Notifications",
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "${DS_PROMETHEUS}"
-                    },
-                    "expr": "rate(container_start_time_seconds{name=~\"$pod\"}[5m]) > 0",
-                    "legendFormat": "Container Restarts: {{name}}",
-                    "refId": "B"
-                }
-            ]
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "probe_success{instance=\"netflux5g-onos-controller\"}",
+          "legendFormat": "ONOS",
+          "refId": "K"
         }
-    ],
-    "schemaVersion": 41,
-    "tags": [
-        "5g-core",
-        "prometheus",
-        "open5gs",
-        "docker",
-        "monitoring",
-        "network-functions",
-        "performance",
-        "alerting",
-        "infrastructure"
-    ],
-    "templating": {
-        "list": [
-            {
-                "datasource": {
-                    "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
-                },
-                "definition": "label_values(container_last_seen{name=~\"(mn[.]|netflux5g).*\"}, name)",
-                "hide": 0,
-                "includeAll": true,
-                "multi": true,
-                "name": "pod",
-                "options": [],
-                "query": {
-                    "query": "label_values(container_last_seen{name=~\"(mn[.]|netflux5g).*\"}, name)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 1,
-                "type": "query",
-                "allValue": ".*"
+      ],
+      "title": "5G Core Network Functions Status",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 3,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_cpu_usage_seconds_total{name=~\"$pod\"}[5m]) * 100",
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage (%)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 4,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "container_memory_usage_bytes{name=~\"$pod\"}",
+          "legendFormat": "{{name}} - Used",
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Usage",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            {
-                "datasource": {
-                    "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
-                },
-                "definition": "label_values(probe_success, instance)",
-                "hide": 0,
-                "includeAll": true,
-                "multi": true,
-                "name": "target",
-                "options": [],
-                "query": {
-                    "query": "label_values(probe_success, instance)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 1,
-                "type": "query",
-                "allValue": ".*"
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
             },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "5m",
-                    "value": "5m"
-                },
-                "hide": 0,
-                "includeAll": false,
-                "multi": false,
-                "name": "interval",
-                "options": [
-                    {
-                        "selected": false,
-                        "text": "1m",
-                        "value": "1m"
-                    },
-                    {
-                        "selected": true,
-                        "text": "5m",
-                        "value": "5m"
-                    },
-                    {
-                        "selected": false,
-                        "text": "10m",
-                        "value": "10m"
-                    },
-                    {
-                        "selected": false,
-                        "text": "30m",
-                        "value": "30m"
-                    },
-                    {
-                        "selected": false,
-                        "text": "1h",
-                        "value": "1h"
-                    }
-                ],
-                "query": "1m,5m,10m,30m,1h",
-                "queryValue": "",
-                "skipUrlSync": false,
-                "type": "custom"
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
             }
-        ]
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_network_receive_bytes_total{name=~\"$pod\"}[5m])",
+          "legendFormat": "{{name}} - RX",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_network_transmit_bytes_total{name=~\"$pod\"}[5m])",
+          "legendFormat": "{{name}} - TX",
+          "refId": "B"
+        }
+      ],
+      "title": "Network I/O (Bytes/s)",
+      "type": "timeseries"
     },
-    "time": {
-        "from": "now-5m",
-        "to": "now"
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_fs_reads_bytes_total{name=~\"$pod\"}[5m])",
+          "legendFormat": "{{name}} - Read",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_fs_writes_bytes_total{name=~\"$pod\"}[5m])",
+          "legendFormat": "{{name}} - Write",
+          "refId": "B"
+        }
+      ],
+      "title": "Disk I/O (Bytes/s)",
+      "type": "timeseries"
     },
-    "timepicker": {
-        "refresh_intervals": [
-            "1s",
-            "5s",
-            "10s",
-            "30s",
-            "1m",
-            "5m",
-            "15m",
-            "30m",
-            "1h",
-            "2h",
-            "1d"
-        ]
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 44
+      },
+      "id": 7,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "editorMode": "code",
+          "expr": "count(probe_success{instance=~'mn[.]UE__.*'} == 1)",
+          "format": "time_series",
+          "interval": "5s",
+          "intervalMs": 5000,
+          "legendFormat": "Connected UEs",
+          "maxDataPoints": 300,
+          "range": true,
+          "refId": "A",
+          "step": 5
+        }
+      ],
+      "title": "Connected UEs",
+      "type": "gauge"
     },
-    "timezone": "browser",
-    "title": "5G Core Network Monitoring Dashboard (Enhanced)",
-    "uid": "5g-core-enhanced-monitor-v2",
-    "version": 3,
-    "weekStart": "",
-    "refresh": "5s"
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 10,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 7
+              },
+              {
+                "color": "red",
+                "value": 9
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 44
+      },
+      "id": 8,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "count(probe_success{instance=~\"mn[.]GNB__.*\"} == 1) or vector(2)",
+          "format": "time_series",
+          "interval": "5s",
+          "intervalMs": 5000,
+          "legendFormat": "Connected gNBs",
+          "maxDataPoints": 300,
+          "refId": "A",
+          "step": 5
+        }
+      ],
+      "title": "Connected gNodeBs",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 44
+      },
+      "id": 9,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "(count(probe_success{instance=~'mn[.]UE__.*'} == 1) * 1.2) or vector(0)",
+          "format": "time_series",
+          "interval": "5s",
+          "intervalMs": 5000,
+          "legendFormat": "PDU Sessions",
+          "maxDataPoints": 300,
+          "refId": "A",
+          "step": 5
+        }
+      ],
+      "title": "PDU Sessions",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 1000,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 100
+              },
+              {
+                "color": "red",
+                "value": 500
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 44
+      },
+      "id": 10,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "avg(probe_duration_seconds) * 1000",
+          "legendFormat": "Average RTT",
+          "refId": "A"
+        }
+      ],
+      "title": "Network Response Time",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "editorMode": "code",
+          "expr": "probe_success{instance=~'mn[.]UE__.*'}",
+          "legendFormat": "{{instance}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "UE Status Monitor",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 54
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "(sum(rate(netflux5g_registration_success_total[5m])) / sum(rate(netflux5g_registration_attempts_total[5m]))) * 100 or vector(100)",
+          "legendFormat": "Success Rate",
+          "refId": "A"
+        }
+      ],
+      "title": "Registration Success Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red"
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 54
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "netflux5g_pdu_sessions or vector(0)",
+          "legendFormat": "PDU Sessions",
+          "refId": "A"
+        }
+      ],
+      "title": "Active PDU Sessions",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 54
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "editorMode": "code",
+          "expr": "sum(container_start_time_seconds{name=~\"$pod\"}) by (name)",
+          "legendFormat": "{{name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Container Restart Count",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "pps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 60
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "editorMode": "code",
+          "expr": "rate(container_network_receive_packets_total{name=~'mn[.]upf.*'}[5m])",
+          "legendFormat": "{{name}} - Ingress PPS",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_network_transmit_packets_total{name=~'mn[.]upf.*'}[5m])",
+          "legendFormat": "{{name}} - Egress PPS",
+          "refId": "B"
+        }
+      ],
+      "title": "UPF Packet Processing Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 60
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_network_receive_bytes_total{name=~'mn[.]upf.*'}[5m])",
+          "legendFormat": "{{name}} - Ingress Bytes/s",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_network_transmit_bytes_total{name=~'mn[.]upf.*'}[5m])",
+          "legendFormat": "{{name}} - Egress Bytes/s",
+          "refId": "B"
+        }
+      ],
+      "title": "UPF Throughput",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 68
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "last"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "node_load1",
+          "legendFormat": "Load 1m",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "node_load5",
+          "legendFormat": "Load 5m",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "node_load15",
+          "legendFormat": "Load 15m",
+          "refId": "C"
+        }
+      ],
+      "title": "System Load Average",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 68
+      },
+      "id": 17,
+      "options": {
+        "dedupStrategy": "none",
+        "enableInfiniteScrolling": false,
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "increase(prometheus_notifications_total[5m]) > 0",
+          "legendFormat": "Prometheus Notifications",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "expr": "rate(container_start_time_seconds{name=~\"$pod\"}[5m]) > 0",
+          "hide": false,
+          "legendFormat": "Container Restarts: {{name}}",
+          "refId": "B"
+        }
+      ],
+      "title": "Error Rate & Alerts",
+      "type": "logs"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 41,
+  "tags": [
+    "5g-core",
+    "prometheus",
+    "open5gs",
+    "docker",
+    "monitoring",
+    "network-functions",
+    "performance",
+    "alerting",
+    "infrastructure"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": {
+          "text": [
+            "mn.GNB__1",
+            "mn.GNB__2",
+            "mn.UE__1",
+            "mn.UE__2",
+            "mn.UE__3",
+            "mn.UE__4",
+            "mn.UE__5",
+            "mn.UE__6",
+            "mn.amf1",
+            "mn.ausf1",
+            "mn.bsf1",
+            "mn.nrf1",
+            "mn.nssf1",
+            "mn.pcf1",
+            "mn.scp1",
+            "mn.smf1",
+            "mn.udm1",
+            "mn.udr1",
+            "mn.upf1",
+            "mn.upf2",
+            "netflux5g-mongodb",
+            "netflux5g-onos-controller",
+            "netflux5g-webui",
+            "netflux5g_blackbox-exporter",
+            "netflux5g_cadvisor",
+            "netflux5g_grafana",
+            "netflux5g_node-exporter",
+            "netflux5g_prometheus"
+          ],
+          "value": [
+            "mn.GNB__1",
+            "mn.GNB__2",
+            "mn.UE__1",
+            "mn.UE__2",
+            "mn.UE__3",
+            "mn.UE__4",
+            "mn.UE__5",
+            "mn.UE__6",
+            "mn.amf1",
+            "mn.ausf1",
+            "mn.bsf1",
+            "mn.nrf1",
+            "mn.nssf1",
+            "mn.pcf1",
+            "mn.scp1",
+            "mn.smf1",
+            "mn.udm1",
+            "mn.udr1",
+            "mn.upf1",
+            "mn.upf2",
+            "netflux5g-mongodb",
+            "netflux5g-onos-controller",
+            "netflux5g-webui",
+            "netflux5g_blackbox-exporter",
+            "netflux5g_cadvisor",
+            "netflux5g_grafana",
+            "netflux5g_node-exporter",
+            "netflux5g_prometheus"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "AdaptiveJaya"
+        },
+        "definition": "label_values(container_last_seen{name=~\"(mn[.]|netflux5g).*\"}, name)",
+        "includeAll": false,
+        "multi": true,
+        "name": "pod",
+        "options": [],
+        "query": {
+          "query": "label_values(container_last_seen{name=~\"(mn[.]|netflux5g).*\"}, name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "5G Core Network Monitoring Dashboard",
+  "uid": "9f9e4b0b-280d-4d15-80d8-061f6df61acc",
+  "version": 2
 }

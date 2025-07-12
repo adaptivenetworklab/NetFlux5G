@@ -1,6 +1,6 @@
 """
 Monitoring deployment manager for NetFlux5G Editor
-Handles Prometheus, Grafana, and other monitoring container creation and removal based on docker-compose.yml configuration
+Handles Prometheus, Grafana, and other monitoring container creation and removal using individual Docker commands
 """
 
 import os
@@ -28,20 +28,6 @@ class MonitoringDeploymentWorker(QThread):
         self.network_name = "netflux5g"
         self.mutex = QMutex()
         
-        # Define monitoring path
-        self.monitoring_path = os.path.join(cwd, 'automation', 'monitoring')
-        self.docker_compose_file = os.path.join(self.monitoring_path, 'docker-compose.yml')
-        
-        # Define monitoring services (used for docker-compose)
-        self.monitoring_services = [
-            'prometheus', 'grafana', 'alertmanager', 
-            'node-exporter', 'cadvisor', 'blackbox-exporter'
-        ]
-    
-    def _get_compose_cmd(self):
-        """Get the appropriate docker compose command (v2 syntax preferred)."""
-        return ['docker', 'compose']
-        
     def run(self):
         """Execute the monitoring operation in background thread."""
         try:
@@ -56,88 +42,105 @@ class MonitoringDeploymentWorker(QThread):
             self.operation_finished.emit(False, str(e))
     
     def _deploy_monitoring(self):
-        """Deploy all monitoring containers using docker-compose."""
+        """Deploy all monitoring containers using individual Docker commands."""
         try:
-            debug_print(f"Starting monitoring deployment from: {self.monitoring_path}", force=True)
-            debug_print(f"Docker compose file: {self.docker_compose_file}", force=True)
+            total_containers = len(self.monitoring_containers)
+            progress_step = 80 // total_containers
+            current_progress = 10
             
-            # Check if docker-compose.yml exists
-            if not os.path.exists(self.docker_compose_file):
-                raise FileNotFoundError(f"Docker compose file not found: {self.docker_compose_file}")
-            
-            debug_print("Docker compose file found, proceeding with deployment", force=True)
-            
-            self.status_updated.emit("Checking existing monitoring stack...")
-            self.progress_updated.emit(10)
-            
-            # Check if monitoring stack is already running
-            running_services = self._get_running_compose_services()
-            if running_services:
-                self.status_updated.emit("Stopping existing monitoring stack...")
-                self.progress_updated.emit(20)
+            # Deploy each container
+            for container_name, config in self.monitoring_containers.items():
+                full_container_name = f"{self.container_prefix}_{container_name}"
                 
-                # Stop existing stack
-                stop_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'down']
-                result = subprocess.run(stop_cmd, capture_output=True, text=True, 
-                                      timeout=60, cwd=self.monitoring_path)
-                if result.returncode != 0:
-                    warning_print(f"Warning stopping existing stack: {result.stderr}")
+                self.status_updated.emit(f"Deploying {container_name}...")
+                self.progress_updated.emit(current_progress)
+                
+                # Check if container already exists
+                if self._container_exists(full_container_name):
+                    if self._is_container_running(full_container_name):
+                        debug_print(f"{full_container_name} is already running")
+                        current_progress += progress_step
+                        continue
+                    else:
+                        # Start existing container
+                        subprocess.run(['docker', 'start', full_container_name], 
+                                     check=True, timeout=30)
+                        current_progress += progress_step
+                        continue
+                
+                # Create new container
+                self._create_container(container_name, config, full_container_name)
+                
+                current_progress += progress_step
+                
+            self.status_updated.emit("Waiting for containers to be ready...")
+            self.progress_updated.emit(90)
             
-            self.status_updated.emit("Pulling latest images...")
-            self.progress_updated.emit(30)
-            
-            # Pull latest images
-            pull_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'pull']
-            result = subprocess.run(pull_cmd, capture_output=True, text=True, 
-                                  timeout=300, cwd=self.monitoring_path)
-            if result.returncode != 0:
-                warning_print(f"Warning pulling images: {result.stderr}")
-            
-            self.status_updated.emit("Starting monitoring stack...")
-            self.progress_updated.emit(50)
-            
-            # Deploy with docker-compose
-            deploy_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'up', '-d']
-            debug_print(f"Executing deploy command: {' '.join(deploy_cmd)}", force=True)
-            debug_print(f"Working directory: {self.monitoring_path}", force=True)
-            
-            result = subprocess.run(deploy_cmd, capture_output=True, text=True, 
-                                  timeout=180, cwd=self.monitoring_path)
-            
-            debug_print(f"Deploy command exit code: {result.returncode}", force=True)
-            if result.stdout:
-                debug_print(f"Deploy stdout: {result.stdout}", force=True)
-            if result.stderr:
-                debug_print(f"Deploy stderr: {result.stderr}", force=True)
-            
-            if result.returncode != 0:
-                raise subprocess.CalledProcessError(result.returncode, deploy_cmd, result.stderr)
-            
-            self.status_updated.emit("Waiting for services to be ready...")
-            self.progress_updated.emit(80)
-            
-            # Wait for services to be healthy
-            time.sleep(30)
-            
-            # Verify services are running
-            running_services = self._get_running_compose_services()
-            if not running_services:
-                raise Exception("No monitoring services are running after deployment")
+            # Wait for containers to be healthy
+            time.sleep(3)
             
             self.progress_updated.emit(100)
             self.operation_finished.emit(True, 
                 f"Monitoring stack deployed successfully!\n"
-                f"Running services: {', '.join(running_services)}\n"
                 f"• Grafana: http://localhost:3000 (admin/admin)\n"
                 f"• Prometheus: http://localhost:9090\n"
-                f"• Alertmanager: http://localhost:9093")
+                f"• cAdvisor: http://localhost:8080\n"
+                f"• Blackbox Exporter: http://localhost:9115")
             
         except subprocess.TimeoutExpired:
             self.operation_finished.emit(False, "Monitoring deployment timed out")
         except subprocess.CalledProcessError as e:
-            self.operation_finished.emit(False, f"Docker compose command failed: {e.stderr}")
+            self.operation_finished.emit(False, f"Docker command failed: {e.stderr}")
         except Exception as e:
-            self.operation_finished.emit(False, f"Deployment error: {str(e)}")
+            self.operation_finished.emit(False, f"Unexpected error: {str(e)}")
+    
+    # Define monitoring containers configuration
+    monitoring_containers = {
+        'prometheus': {
+            'image': 'prom/prometheus',
+            'ports': ['9090:9090'],
+            'volumes': [
+                cwd + '/automation/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+            ]
+        },
+        'grafana': {
+            'image': 'grafana/grafana',
+            'ports': ['3000:3000'],
+            'volumes': [
+                # 'grafana-data:/var/lib/grafana',
+                cwd + '/automation/monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml',
+                cwd + '/automation/monitoring/grafana/dashboard.json:/var/lib/grafana/dashboards/dashboard.json',
+                cwd + '/automation/monitoring/grafana/default.yaml:/etc/grafana/provisioning/dashboards/default.yaml'
+            ],
+            'env': [
+                'GF_PATHS_PROVISIONING=/etc/grafana/provisioning',
+                'DS_PROMETHEUS=prometheus'
+            ]
+        },
+        'node-exporter': {
+            'image': 'prom/node-exporter',
+            'ports': [],
+            'volumes': ['/:/host:ro,rslave'],
+            'extra_args': ['--path.rootfs=/host'],
+            'pid_mode': 'host'
+        },
+        'cadvisor': {
+            'image': 'gcr.io/cadvisor/cadvisor:latest',
+            'ports': ['8080:8080'],
+            'volumes': [
+                '/:/rootfs:ro',
+                '/var/run:/var/run:ro', 
+                '/sys:/sys:ro',
+                '/var/lib/docker/:/var/lib/docker:ro',
+                '/dev/disk/:/dev/disk:ro'
+            ]
+        },
+        'blackbox-exporter': {
+            'image': 'prom/blackbox-exporter',
+            'ports': ['9115:9115'],
+            'volumes': []
+        }
+    }
     
     def _create_container(self, container_name, config, full_container_name):
         """Create a single monitoring container."""
@@ -179,112 +182,60 @@ class MonitoringDeploymentWorker(QThread):
         debug_print(f"Created container: {full_container_name}")
     
     def _stop_monitoring(self):
-        """Stop all monitoring containers using docker-compose."""
+        """Stop all monitoring containers."""
         try:
-            # Check if docker-compose.yml exists
-            if not os.path.exists(self.docker_compose_file):
-                self.operation_finished.emit(False, f"Docker compose file not found: {self.docker_compose_file}")
-                return
+            containers = list(self.monitoring_containers.keys())
+            total_containers = len(containers)
+            progress_step = 80 // total_containers if total_containers > 0 else 80
+            current_progress = 10
             
-            self.status_updated.emit("Checking running services...")
-            self.progress_updated.emit(10)
+            self.status_updated.emit("Stopping monitoring containers...")
+            self.progress_updated.emit(current_progress)
             
-            # Check if any services are running
-            running_services = self._get_running_compose_services()
-            if not running_services:
-                self.operation_finished.emit(True, "No monitoring services are currently running")
-                return
+            stopped_containers = []
             
-            self.status_updated.emit(f"Stopping services: {', '.join(running_services)}...")
-            self.progress_updated.emit(30)
-            
-            # Stop and remove containers
-            stop_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'down']
-            result = subprocess.run(stop_cmd, capture_output=True, text=True, 
-                                  timeout=60, cwd=self.monitoring_path)
-            
-            if result.returncode != 0:
-                raise subprocess.CalledProcessError(result.returncode, stop_cmd, result.stderr)
-            
-            self.status_updated.emit("Verifying services stopped...")
-            self.progress_updated.emit(80)
-            
-            # Wait a moment and verify
-            time.sleep(2)
-            remaining_services = self._get_running_compose_services()
+            for container_name in containers:
+                full_container_name = f"{self.container_prefix}_{container_name}"
+                
+                self.status_updated.emit(f"Stopping {container_name}...")
+                self.progress_updated.emit(current_progress)
+                
+                if self._container_exists(full_container_name):
+                    try:
+                        # Stop container
+                        subprocess.run(['docker', 'stop', full_container_name], 
+                                     capture_output=True, text=True, timeout=30)
+                        # Remove container
+                        subprocess.run(['docker', 'rm', full_container_name], 
+                                     capture_output=True, text=True, timeout=10)
+                        stopped_containers.append(container_name)
+                        debug_print(f"Stopped and removed: {full_container_name}")
+                    except subprocess.CalledProcessError as e:
+                        warning_print(f"Could not stop {full_container_name}: {e}")
+                
+                current_progress += progress_step
             
             self.progress_updated.emit(100)
             
-            if remaining_services:
-                self.operation_finished.emit(False, 
-                    f"Some services are still running: {', '.join(remaining_services)}")
+            if stopped_containers:
+                self.operation_finished.emit(True, f"Monitoring containers stopped: {', '.join(stopped_containers)}")
             else:
-                self.operation_finished.emit(True, 
-                    f"Monitoring stack stopped successfully.\n"
-                    f"Stopped services: {', '.join(running_services)}")
+                self.operation_finished.emit(True, "No monitoring containers were running")
             
         except subprocess.TimeoutExpired:
             self.operation_finished.emit(False, "Monitoring stop operation timed out")
-        except subprocess.CalledProcessError as e:
-            self.operation_finished.emit(False, f"Docker compose command failed: {e.stderr}")
         except Exception as e:
-            self.operation_finished.emit(False, f"Stop operation error: {str(e)}")
-    
-    def _get_running_compose_services(self):
-        """Get list of running docker-compose services."""
-        try:
-            if not os.path.exists(self.docker_compose_file):
-                return []
-            
-            # Get running services using docker-compose ps
-            ps_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'ps', '--services', '--filter', 'status=running']
-            result = subprocess.run(ps_cmd, capture_output=True, text=True, 
-                                  timeout=10, cwd=self.monitoring_path)
-            
-            if result.returncode == 0:
-                return [service.strip() for service in result.stdout.split('\n') if service.strip()]
-            else:
-                # Fallback: check individual containers
-                running_services = []
-                for service in self.monitoring_services:
-                    container_name = f"netflux5g_{service}"
-                    if self._is_container_running(container_name):
-                        running_services.append(service)
-                return running_services
-        except:
-            return []
+            self.operation_finished.emit(False, f"Unexpected error: {str(e)}")
     
     def _cleanup_monitoring(self):
-        """Completely remove all monitoring containers and volumes."""
+        """Completely remove all monitoring containers."""
         try:
-            self.status_updated.emit("Stopping monitoring stack...")
-            self.progress_updated.emit(20)
+            self._stop_monitoring()
             
-            # Stop and remove everything including volumes
-            cleanup_cmd = self._get_compose_cmd() + ['-f', self.docker_compose_file, 'down', '-v', '--remove-orphans']
-            result = subprocess.run(cleanup_cmd, capture_output=True, text=True, 
-                                  timeout=90, cwd=self.monitoring_path)
+            # Note: We don't remove the netflux5g network since it's shared by other services
             
-            if result.returncode != 0:
-                warning_print(f"Cleanup warning: {result.stderr}")
+            self.operation_finished.emit(True, "Monitoring stack completely removed")
             
-            self.status_updated.emit("Removing unused volumes and networks...")
-            self.progress_updated.emit(60)
-            
-            # Additional cleanup for any orphaned resources
-            try:
-                subprocess.run(['docker', 'volume', 'prune', '-f'], 
-                             capture_output=True, timeout=30)
-                subprocess.run(['docker', 'network', 'prune', '-f'], 
-                             capture_output=True, timeout=30)
-            except:
-                pass  # Non-critical cleanup
-            
-            self.progress_updated.emit(100)
-            self.operation_finished.emit(True, "Monitoring stack completely removed including all data volumes")
-            
-        except subprocess.TimeoutExpired:
-            self.operation_finished.emit(False, "Cleanup operation timed out")
         except Exception as e:
             self.operation_finished.emit(False, f"Cleanup failed: {str(e)}")
     
@@ -711,39 +662,45 @@ class MonitoringManager:
     
     def _get_running_monitoring_containers(self, container_prefix):
         """Get list of running monitoring containers with the given prefix."""
-        return self._get_running_compose_services()
+        running_containers = []
+        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor', 'blackbox-exporter']
+        
+        for monitoring_type in monitoring_types:
+            container_name = f"{container_prefix}_{monitoring_type}"
+            try:
+                result = subprocess.run(
+                    ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if container_name in result.stdout:
+                    running_containers.append(monitoring_type)
+            except:
+                continue
+        
+        return running_containers
     
     def _get_existing_monitoring_containers(self, container_prefix):
         """Get list of existing monitoring containers (running or stopped) with the given prefix."""
-        try:
-            if not os.path.exists(self.docker_compose_file):
-                return []
-            
-            # Get all services defined in compose file (running or stopped)
-            ps_cmd = ['docker-compose', '-f', self.docker_compose_file, 'ps', '--services']
-            result = subprocess.run(ps_cmd, capture_output=True, text=True, 
-                                  timeout=10, cwd=self.monitoring_path)
-            
-            if result.returncode == 0:
-                all_services = [service.strip() for service in result.stdout.split('\n') if service.strip()]
-                
-                # Check which ones actually have containers
-                existing_services = []
-                for service in all_services:
-                    container_name = f"netflux5g_{service}"
-                    if self._container_exists(container_name):
-                        existing_services.append(service)
-                return existing_services
-            else:
-                # Fallback: check individual containers
-                existing_services = []
-                for service in self.monitoring_services:
-                    container_name = f"netflux5g_{service}"
-                    if self._container_exists(container_name):
-                        existing_services.append(service)
-                return existing_services
-        except:
-            return []
+        existing_containers = []
+        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor', 'blackbox-exporter']
+        
+        for monitoring_type in monitoring_types:
+            container_name = f"{container_prefix}_{monitoring_type}"
+            try:
+                result = subprocess.run(
+                    ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+                if container_name in result.stdout:
+                    existing_containers.append(monitoring_type)
+            except:
+                continue
+        
+        return existing_containers
     
     def _stop_containers_sync(self, container_prefix):
         """Stop containers synchronously (for restart scenarios)."""
@@ -853,6 +810,32 @@ class MonitoringManager:
         
         return len(running_essential) >= 2  # Both prometheus and grafana must be running
     
+    def _container_exists(self, container_name):
+        """Check if container exists (running or stopped)."""
+        try:
+            result = subprocess.run(
+                ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            return container_name in result.stdout
+        except:
+            return False
+    
+    def _is_container_running(self, container_name):
+        """Check if container is currently running."""
+        try:
+            result = subprocess.run(
+                ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            return container_name in result.stdout
+        except:
+            return False
+
     def stop_monitoring_sync(self):
         """Stop monitoring stack synchronously for automation."""
         debug_print("Stop Monitoring synchronously triggered")

@@ -816,7 +816,7 @@ class DatabaseManager:
                 'docker', 'run', '-d',
                 '--name', container_name,
                 '--network', network_name,
-                '-p', '3000:3000',
+                '-p', '9999:9999',
                 '-e', 'DB_URI=mongodb://netflux5g-mongodb:27017/open5gs',
                 'gradiant/open5gs-webui:2.7.5'
             ]

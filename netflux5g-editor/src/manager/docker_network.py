@@ -319,3 +319,7 @@ class DockerNetworkManager:
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired, json.JSONDecodeError) as e:
             error_print(f"Error getting Docker network info: {e}")
             return None
+
+    def ensure_netflux5g_network(self):
+        """Ensure the netflux5g network exists, create if needed."""
+        return self.create_netflux5g_network_if_needed()
