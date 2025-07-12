@@ -901,7 +901,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "up{job=\"5g-core-containers\", instance=~\"mn\\\\.UE__.*\"}",
+                    "expr": "probe_success{instance=~\"mn\\\\.UE__.*\"}",
                     "legendFormat": "{{instance}}",
                     "refId": "A"
                 }
@@ -965,7 +965,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "(sum(rate(open5gs_amf_registration_success_total[5m])) / sum(rate(open5gs_amf_registration_attempts_total[5m]))) * 100 or vector(100)",
+                    "expr": "(sum(rate(netflux5g_registration_success_total[5m])) / sum(rate(netflux5g_registration_attempts_total[5m]))) * 100 or vector(100)",
                     "legendFormat": "Success Rate",
                     "refId": "A"
                 }
@@ -973,7 +973,7 @@
         },
         {
             "id": 12,
-            "title": "PDU Session Establishment Success Rate",
+            "title": "Active PDU Sessions",
             "type": "stat",
             "datasource": {
                 "type": "prometheus",
@@ -1029,8 +1029,8 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "(sum(rate(open5gs_smf_pdu_session_establishment_success_total[5m])) / sum(rate(open5gs_smf_pdu_session_establishment_attempts_total[5m]))) * 100 or vector(100)",
-                    "legendFormat": "Success Rate",
+                    "expr": "netflux5g_pdu_sessions or vector(0)",
+                    "legendFormat": "PDU Sessions",
                     "refId": "A"
                 }
             ]
@@ -1144,7 +1144,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(open5gs_upf_ingress_packets_total{name=~\"$pod\"}[5m])",
+                    "expr": "rate(container_network_receive_packets_total{name=~\".*upf.*\"}[5m])",
                     "legendFormat": "{{name}} - Ingress PPS",
                     "refId": "A"
                 },
@@ -1153,7 +1153,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(open5gs_upf_egress_packets_total{name=~\"$pod\"}[5m])",
+                    "expr": "rate(container_network_transmit_packets_total{name=~\".*upf.*\"}[5m])",
                     "legendFormat": "{{name}} - Egress PPS",
                     "refId": "B"
                 }
@@ -1207,7 +1207,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(open5gs_upf_ingress_bytes_total{name=~\"$pod\"}[5m])",
+                    "expr": "rate(container_network_receive_bytes_total{name=~\".*upf.*\"}[5m])",
                     "legendFormat": "{{name}} - Ingress Bytes/s",
                     "refId": "A"
                 },
@@ -1216,7 +1216,7 @@
                         "type": "prometheus",
                         "uid": "${DS_PROMETHEUS}"
                     },
-                    "expr": "rate(open5gs_upf_egress_bytes_total{name=~\"$pod\"}[5m])",
+                    "expr": "rate(container_network_transmit_bytes_total{name=~\".*upf.*\"}[5m])",
                     "legendFormat": "{{name}} - Egress Bytes/s",
                     "refId": "B"
                 }
