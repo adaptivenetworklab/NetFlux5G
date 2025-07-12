@@ -479,23 +479,33 @@ class MonitoringManager:
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, 'docker --version')
             
-            # Check Docker Compose
-            result = subprocess.run(
-                ['docker-compose', '--version'], 
-                capture_output=True, 
-                text=True, 
-                timeout=10
-            )
-            if result.returncode != 0:
-                # Try docker compose (newer syntax)
+            # Check Docker Compose - try newer syntax first
+            compose_available = False
+            try:
                 result = subprocess.run(
                     ['docker', 'compose', 'version'], 
                     capture_output=True, 
                     text=True, 
                     timeout=10
                 )
-                if result.returncode != 0:
-                    raise subprocess.CalledProcessError(result.returncode, 'docker compose')
+                if result.returncode == 0:
+                    compose_available = True
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                # Try legacy docker-compose if newer syntax fails
+                try:
+                    result = subprocess.run(
+                        ['docker-compose', '--version'], 
+                        capture_output=True, 
+                        text=True, 
+                        timeout=10
+                    )
+                    if result.returncode == 0:
+                        compose_available = True
+                except (subprocess.CalledProcessError, FileNotFoundError):
+                    pass
+            
+            if not compose_available:
+                raise subprocess.CalledProcessError(1, 'docker compose')
             
             return True
         except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
