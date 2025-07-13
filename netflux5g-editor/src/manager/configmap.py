@@ -524,7 +524,7 @@ class ConfigurationMapper:
                     break
         
         # Range configuration (coverage area)
-        range_fields = ["AP_Range", "AP_Coverage", "spinBox_range"]
+        range_fields = ["AP_SignalRange", "AP_Range", "AP_Coverage", "spinBox_range"]
         for field in range_fields:
             if properties.get(field):
                 range_val = str(properties[field]).strip()

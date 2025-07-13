@@ -9,3 +9,4 @@ providers:
   allowUiUpdates: true
   updateIntervalSeconds: 10
   disableDeletion: true
+  editable: true

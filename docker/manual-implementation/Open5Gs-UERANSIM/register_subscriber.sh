@@ -47,6 +47,16 @@ docker run -ti --rm \
 docker run -ti --rm \
     --net netflux5g \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000004 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet"
+
+docker run -ti --rm \
+    --net netflux5g \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000005 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet"
+
+docker run -ti --rm \
+    --net netflux5g \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
     gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000011 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet2"
 
 docker run -ti --rm \
@@ -58,6 +68,11 @@ docker run -ti --rm \
     --net netflux5g \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
     gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000013 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet2"
+
+docker run -ti --rm \
+    --net netflux5g \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000014 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA internet2"
 
 docker run -ti --rm \
     --net netflux5g \
@@ -77,6 +92,11 @@ docker run -ti --rm \
 docker run -ti --rm \
     --net netflux5g \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000024 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web1"
+
+docker run -ti --rm \
+    --net netflux5g \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
     gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000031 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"
 
 docker run -ti --rm \
@@ -88,3 +108,13 @@ docker run -ti --rm \
     --net netflux5g \
     -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
     gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000033 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"
+
+docker run -ti --rm \
+    --net netflux5g \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000034 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"
+
+docker run -ti --rm \
+    --net netflux5g \
+    -e DB_URI=mongodb://$MONGO_CONTAINER/open5gs \
+    gradiant/open5gs-dbctl:0.10.3 "open5gs-dbctl add_ue_with_apn 999700000000035 465B5CE8B199B49FAA5F0A2EE238A6BC E8ED289DEBA952E4283B54E88E6183CA web2"

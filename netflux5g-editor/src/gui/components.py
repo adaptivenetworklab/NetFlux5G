@@ -58,9 +58,17 @@ class NetworkComponent(QGraphicsPixmapItem):
             "x": 0,  # Initial x position
             "y": 0,  # Initial y position
         }
+        
+        # Set default range for wireless components (matching mininet-wifi defaults)
+        if self.component_type == "AP":
+            self.properties["AP_SignalRange"] = "100"  # Default AP range in meters (as string for dialog compatibility)
+            self.properties["range"] = 100.0  # Also set as float for calculations
+        elif self.component_type == "GNB":
+            self.properties["GNB_Range"] = 300  # Default gNB range in meters (as int for SpinBox compatibility)
+            self.properties["range"] = 300.0  # Also set as float for calculations
     
-        # Set the pixmap for the item
-        pixmap = QPixmap(self.icon_path).scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # Set the pixmap for the item (increase icon size to 80x80)
+        pixmap = QPixmap(self.icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.setPixmap(pixmap)
     
         # Make the item draggable and selectable
@@ -71,7 +79,7 @@ class NetworkComponent(QGraphicsPixmapItem):
         # Enable handling context menu events
         self.setAcceptedMouseButtons(Qt.LeftButton | Qt.RightButton)
         
-        # Coverage radius for wireless components - calculated based on power
+        # Coverage radius for wireless components - based on range property (meters)
         self.coverage_radius = self.calculateCoverageRadius()
         
         # Set appropriate Z-value
@@ -103,10 +111,9 @@ class NetworkComponent(QGraphicsPixmapItem):
         if "x" in properties_dict and "y" in properties_dict:
             self.setPos(properties_dict["x"], properties_dict["y"])
         
-        # Update coverage radius if power-related properties changed
-        power_fields = ["AP_Power", "AP_TxPower", "GNB_Power", "GNB_TxPower", 
-                       "lineEdit_power", "doubleSpinBox_power"]
-        if any(field in properties_dict for field in power_fields):
+        # Update coverage radius if range-related properties changed
+        range_fields = ["AP_SignalRange", "GNB_Range", "range", "lineEdit_range"]
+        if any(field in properties_dict for field in range_fields):
             self.updateCoverageRadius()
 
     def getProperties(self):
@@ -117,41 +124,38 @@ class NetworkComponent(QGraphicsPixmapItem):
     def boundingRect(self):
         """Define the bounding rectangle for the component including text."""
         if self.component_type in ["AP", "GNB"]:
-            # For wireless components with coverage circles
             radius = self.coverage_radius
-            # Ensure the bounding rect includes both the coverage circle and the text
-            return QRectF(-radius, -radius, radius * 2 + 50, radius * 2 + 50 + 20)
+            # Icon is now 80x80, text below, add extra padding
+            return QRectF(-radius, -radius, radius * 2 + 80, radius * 2 + 80 + 30)
         else:
             # For all other components (including DockerHost and Controller)
             # Use consistent dimensions: icon + text + extra padding
-            return QRectF(-10, -10, 70, 90)  # Extra padding and height for text with margins
+            return QRectF(-10, -10, 100, 120)  # Icon 80x80 + text + margins
     
     def paint(self, painter, option, widget):
         """Draw the component."""
-        # Save the painter state
         painter.save()
-        
         # Draw coverage circle for wireless components first (so it's behind the icon)
         if self.component_type in ["AP", "GNB"]:
-            # Get current power to determine color intensity
-            power = self.getCurrentPower()
+            # Get current range to determine color intensity
+            range_meters = self.getCurrentRange()
             
-            # Color-code based on power level
-            # Higher power = more intense/warmer color
-            if power <= 10:
-                # Low power: Blue-green
+            # Color-code based on range (coverage area)
+            # Larger range = more intense/warmer color
+            if range_meters <= 50:
+                # Short range: Blue-green
                 color = QColor(0, 150, 100, 40)
                 border_color = QColor(0, 100, 70, 120)
-            elif power <= 20:
-                # Medium power: Blue
+            elif range_meters <= 100:
+                # Medium range: Blue
                 color = QColor(0, 128, 255, 50)
                 border_color = QColor(0, 100, 200, 140)
-            elif power <= 30:
-                # High power: Orange
+            elif range_meters <= 200:
+                # Long range: Orange
                 color = QColor(255, 150, 0, 60)
                 border_color = QColor(200, 120, 0, 160)
             else:
-                # Very high power: Red
+                # Very long range: Red
                 color = QColor(255, 50, 50, 70)
                 border_color = QColor(200, 30, 30, 180)
             
@@ -161,25 +165,23 @@ class NetworkComponent(QGraphicsPixmapItem):
             
             # Draw the coverage circle using QRectF to handle float values
             circle_rect = QRectF(
-                25 - self.coverage_radius,  # x (float)
-                25 - self.coverage_radius,  # y (float)
-                self.coverage_radius * 2,   # width (float)
-                self.coverage_radius * 2    # height (float)
+                40 - self.coverage_radius,  # x (centered for 80x80 icon)
+                40 - self.coverage_radius,  # y
+                self.coverage_radius * 2,
+                self.coverage_radius * 2
             )
             painter.drawEllipse(circle_rect)
-        
-        # Reset painter for icon drawing
         painter.restore()
         painter.save()
-        
-        # Draw the component icon
+        # Draw the component icon (now 80x80)
         if not self.pixmap().isNull():
-            painter.drawPixmap(0, 0, 50, 50, self.pixmap())
+            painter.drawPixmap(0, 0, 80, 80, self.pixmap())
     
-        # Draw the component name below the icon with proper background clearing
+        # Draw the component name below the icon with larger font
         painter.setPen(Qt.black)
         font = painter.font()
-        font.setPointSize(8)  # Smaller font size
+        font.setPointSize(12)  # Larger font size
+        font.setBold(True)
         painter.setFont(font)
         
         # Calculate text metrics
@@ -188,10 +190,10 @@ class NetworkComponent(QGraphicsPixmapItem):
         
         # Clear the text area with white background to prevent traces
         text_rect = QRectF(
-            (50 - text_width) / 2 - 2,  # x position with padding
-            55,  # y position
-            text_width + 4,  # width with padding
-            text_height + 4  # height with padding
+            (80 - text_width) / 2 - 4,  # x position with padding
+            85,  # y position (below icon)
+            text_width + 8,  # width with padding
+            text_height + 8  # height with padding
         )
         
         # Fill text background with white to clear any traces
@@ -199,8 +201,8 @@ class NetworkComponent(QGraphicsPixmapItem):
         
         # Draw the text
         painter.drawText(
-            int((50 - text_width) / 2),  # Center horizontally (ensure integer)
-            65,  # Position below the icon
+            int((80 - text_width) / 2),  # Center horizontally (ensure integer)
+            85 + text_height,  # Position below the icon
             self.display_name
         )
     
@@ -211,28 +213,24 @@ class NetworkComponent(QGraphicsPixmapItem):
         # If selected, draw a selection rectangle
         if self.isSelected():
             painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
-            painter.drawRect(QRectF(-2, -2, 54, 75))  # Selection rectangle around icon and text
+            painter.drawRect(QRectF(-2, -2, 84, 110))  # Selection rectangle around icon and text
             
         # If highlighted, draw a red border
         if hasattr(self, 'highlighted') and self.highlighted:
             painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
-            painter.drawRect(QRectF(-2, -2, 54, 75))  # Highlight rectangle around icon and text
+            painter.drawRect(QRectF(-2, -2, 84, 110))
             
         # Restore painter state
         painter.restore()
 
     def shape(self):
-        """Return the shape of the item for collision detection and repainting."""
+        """Return the shape of the item for collision detection and repainting.
+        Only the icon+text area is selectable, not the coverage circle."""
         from PyQt5.QtGui import QPainterPath
         
         path = QPainterPath()
-        if self.component_type in ["AP", "GNB"]:
-            # For wireless components, include the coverage circle
-            radius = self.coverage_radius
-            path.addEllipse(-radius, -radius, radius * 2 + 50, radius * 2 + 50)
-        else:
-            # For regular components, use just the icon area + text
-            path.addRect(0, 0, 50, 65)
+        # Only the icon and text area (icon: 80x80, text below)
+        path.addRect(0, 0, 80, 110)  # 80x80 icon + text area
         
         return path
 
@@ -517,51 +515,54 @@ class NetworkComponent(QGraphicsPixmapItem):
         super().keyPressEvent(event)
 
     def calculateCoverageRadius(self):
-        """Calculate coverage radius based on component power settings."""
+        """Calculate coverage radius based on component range settings (in meters).
+        
+        This method aligns with mininet-wifi's plotGraph behavior, where coverage
+        circles are drawn based on the 'range' property of wireless interfaces.
+        """
         if self.component_type not in ["AP", "GNB"]:
             return 0
         
-        # Get power from properties
-        power = None
-        power_fields = []
+        # Get range from properties (in meters)
+        range_meters = None
+        range_fields = []
         
         if self.component_type == "AP":
-            power_fields = ["AP_Power", "AP_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+            range_fields = ["AP_SignalRange", "range", "lineEdit_range"]
         elif self.component_type == "GNB":
-            power_fields = ["GNB_Power", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+            range_fields = ["GNB_Range", "range", "lineEdit_range"]
         
-        # Try to get power value from properties
-        for field in power_fields:
+        # Try to get range value from properties
+        for field in range_fields:
             if self.properties.get(field):
                 try:
-                    power = float(str(self.properties[field]).strip())
-                    if power > 0:
+                    range_meters = float(str(self.properties[field]).strip())
+                    if range_meters > 0:
                         break
                 except (ValueError, TypeError):
                     continue
         
-        # Use default power if not specified
-        if power is None or power <= 0:
-            # Use mininet-wifi defaults: AP=14dBm, gNB=20dBm
-            power = 14.0 if self.component_type == "AP" else 20.0
+        # Use mininet-wifi defaults if not specified
+        if range_meters is None or range_meters <= 0:
+            if self.component_type == "AP":
+                # Default AP range based on 802.11g mode (from mininet-wifi devices.py)
+                range_meters = 100.0
+            elif self.component_type == "GNB":
+                # Default gNB range (5G base station typically has longer range)
+                range_meters = 300.0
         
-        # Calculate coverage radius based on power
-        # Using a logarithmic relationship similar to real RF propagation
-        # Base formula: radius = base_radius * 10^((power - reference_power) / 20)
-        # This approximates the path loss formula in free space
+        # Convert meters to pixels for GUI display
+        # Use a configurable scale: 1 meter = 2 pixels (reasonable for typical canvas sizes)
+        # This ensures that the GUI scale is consistent with mininet-wifi's meter-based plots
+        # You can adjust this scale factor to match your canvas size preferences
+        meters_to_pixels = 2.0
+        radius_pixels = range_meters * meters_to_pixels
         
-        reference_power = 14.0  # Reference power in dBm
-        base_radius = 100.0     # Base radius in pixels for reference power
+        # Clamp radius to reasonable visual limits (but allow larger ranges than before)
+        min_radius = 20.0   # Minimum visual radius (10m range)
+        max_radius = 800.0  # Maximum visual radius (400m range)
         
-        # Calculate radius using path loss approximation
-        power_ratio = (power - reference_power) / 20.0
-        radius = base_radius * (10 ** power_ratio)
-        
-        # Clamp radius to reasonable visual limits
-        min_radius = 50.0   # Minimum visual radius
-        max_radius = 500.0  # Maximum visual radius
-        
-        return max(min_radius, min(radius, max_radius))
+        return max(min_radius, min(radius_pixels, max_radius))
 
     def updateCoverageRadius(self):
         """Update the coverage radius and trigger a repaint."""
@@ -574,30 +575,30 @@ class NetworkComponent(QGraphicsPixmapItem):
                 self.prepareGeometryChange()
                 self.update()
 
-    def getCurrentPower(self):
-        """Get the current power setting for this component."""
+    def getCurrentRange(self):
+        """Get the current range setting for this component (in meters)."""
         if self.component_type not in ["AP", "GNB"]:
             return 0
         
-        # Get power from properties
-        power_fields = []
+        # Get range from properties
+        range_fields = []
         if self.component_type == "AP":
-            power_fields = ["AP_Power", "AP_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+            range_fields = ["AP_SignalRange", "range", "lineEdit_range"]
         elif self.component_type == "GNB":
-            power_fields = ["GNB_Power", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
+            range_fields = ["GNB_Range", "range", "lineEdit_range"]
         
-        # Try to get power value from properties
-        for field in power_fields:
+        # Try to get range value from properties
+        for field in range_fields:
             if self.properties.get(field):
                 try:
-                    power = float(str(self.properties[field]).strip())
-                    if power > 0:
-                        return power
+                    range_meters = float(str(self.properties[field]).strip())
+                    if range_meters > 0:
+                        return range_meters
                 except (ValueError, TypeError):
                     continue
         
-        # Return default power if not specified
-        return 14.0 if self.component_type == "AP" else 20.0
+        # Return default range if not specified
+        return 100.0 if self.component_type == "AP" else 300.0
 
     @staticmethod
     def scanAndInitializeNumbering(main_window=None):

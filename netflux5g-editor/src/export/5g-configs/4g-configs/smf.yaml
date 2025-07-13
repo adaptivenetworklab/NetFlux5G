@@ -14,10 +14,10 @@ smf:
     - dev: eth0
       port: 7777
     client:
-      #      nrf:
-      #        - uri: http://nrf:7777
-      scp:
-      - uri: http://scp:7777
+      nrf:
+      - uri: http://nrf:7777
+      # scp:
+      # - uri: http://scp:7777
   pfcp:
     server:
     - dev: eth0
@@ -25,8 +25,8 @@ smf:
       upf:
       - address: upf
         dnn: [internet, internet2]
-      - address: upf2
-        dnn: [web1, web2]
+      # - address: upf2
+      #   dnn: [web1, web2]
       # - address: mn.upf1
       #   dnn: [internet]
       # - address: mn.upf2
@@ -64,8 +64,8 @@ smf:
   #    - 127.0.0.1
   #    - ::1
   ctf:
-    enabled: auto # auto(default)|yes|no
-  # freeDiameter: /opt/open5gs/etc/freeDiameter/smf.conf
+    enabled: no # auto(default)|yes|no
+  freeDiameter: /opt/open5gs/etc/freeDiameter/smf.conf
 ################################################################################
 # SMF Info
 ################################################################################

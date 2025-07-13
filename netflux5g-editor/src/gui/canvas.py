@@ -137,9 +137,9 @@ class Canvas(QGraphicsView):
             
             if canvas_width > 0 and canvas_height > 0:
                 # Make scene larger than the visible area to allow panning
-                scene_width = max(canvas_width * 2, 2000)  # At least 2000px wide
-                scene_height = max(canvas_height * 2, 1500)  # At least 1500px high
-                
+                scene_width = max(canvas_width * 2, 5000)  # At least 5000px wide
+                scene_height = max(canvas_height * 2, 5000)  # At least 5000px high
+
                 # Center the scene
                 scene_rect = QRectF(-scene_width//2, -scene_height//2, scene_width, scene_height)
                 self.scene.setSceneRect(scene_rect)
@@ -165,11 +165,11 @@ class Canvas(QGraphicsView):
         # Force a viewport update to ensure proper rendering
         self.viewport().update()
 
-    def zoomIn(self, zoom_factor=1.2):
+    def zoomIn(self, zoom_factor=0.5):
         self.zoom_level *= zoom_factor
         self.scale(zoom_factor, zoom_factor)
 
-    def zoomOut(self, zoom_factor=1.2):
+    def zoomOut(self, zoom_factor=0.5):
         self.zoom_level /= zoom_factor
         self.scale(1 / zoom_factor, 1 / zoom_factor)
 

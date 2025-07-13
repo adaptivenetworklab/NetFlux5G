@@ -1161,9 +1161,6 @@ class MininetExporter:
         f.write('    info("*** Add links\\n")\n')
         # This will be filled by the write_links method
         
-        # Add plot graph
-        f.write('    net.plotGraph(max_x=1000, max_y=1000)\n\n')
-        
         f.write('    info("*** Starting network\\n")\n')
         f.write('    net.build()\n\n')
         
@@ -1299,11 +1296,15 @@ class MininetExporter:
                 
                 # Route based on APN
                 if apn == 'internet':
-                    f.write(f'    {ue_name}.cmd("ip route add 10.45.0.0/16 dev uesimtun0")\n')
+                    f.write(f'    {ue_name}.cmd("ip route add 10.100.0.0/16 dev uesimtun0")\n')
                 elif apn == 'internet2':
-                    f.write(f'    {ue_name}.cmd("ip route add 10.46.0.0/16 dev uesimtun0")\n')
+                    f.write(f'    {ue_name}.cmd("ip route add 10.200.0.0/16 dev uesimtun0")\n')
+                elif apn == 'web1':
+                    f.write(f'    {ue_name}.cmd("ip route add 10.51.0.0/16 dev uesimtun0")\n')
+                elif apn == 'web2':
+                    f.write(f'    {ue_name}.cmd("ip route add 10.52.0.0/16 dev uesimtun0")\n')
                 else:
-                    f.write(f'    {ue_name}.cmd("ip route add 10.45.0.0/16 dev uesimtun0")\n')
+                    f.write(f'    info("*** {ue_name} APN does not exist, please check your configuration\\n")\n')
             f.write('\n')
         
         # Add OVS status check if any gNB or UE has OVS enabled
@@ -1462,36 +1463,47 @@ class MininetExporter:
             source_name = self.sanitize_variable_name(link['source'])
             dest_name = self.sanitize_variable_name(link['destination'])
 
-            # Replace VGcore #1 connections with amf1, and add upf/smf if present
-            vgcore_names = ["VGcore__1", "VGCore__1", "VGcore_1", "VGCore_1"]
-            source_is_vgcore = source_name in vgcore_names
-            dest_is_vgcore = dest_name in vgcore_names
+            # Replace VGcore connections with all core components dynamically
+            # Use regex to match any VGcore pattern: VGcore, VGcore__1, VGCore__1, VGcore_1, VGCore_1, etc.
+            vgcore_pattern = re.compile(r'^VGcore(?:__|_)?\d*$', re.IGNORECASE)
+            source_is_vgcore = bool(vgcore_pattern.match(source_name))
+            dest_is_vgcore = bool(vgcore_pattern.match(dest_name))
 
             # Track if we need to add extra links
             extra_links = []
 
             if source_is_vgcore or dest_is_vgcore:
-                # Replace VGcore with amf1 (or first AMF if available)
-                amf_target = amf_names[0] if amf_names else "amf1"
-                upf_target = upf_names[0] if upf_names else None
-                smf_target = smf_names[0] if smf_names else None
-
+                # Get all core component names for dynamic connections
+                all_core_names = amf_names + upf_names + smf_names
+                
                 if source_is_vgcore:
                     orig_source = source_name
-                    source_name = amf_target
-                    # Add extra links for upf and smf if present
-                    if upf_target:
-                        extra_links.append((upf_target, dest_name))
-                    if smf_target:
-                        extra_links.append((smf_target, dest_name))
+                    # Connect all core components to the destination
+                    for i, core_name in enumerate(all_core_names):
+                        if i == 0:
+                            # Replace the first link with the first core component
+                            source_name = core_name
+                        else:
+                            # Add additional links for other core components
+                            extra_links.append((core_name, dest_name))
+                
                 if dest_is_vgcore:
                     orig_dest = dest_name
-                    dest_name = amf_target
-                    # Add extra links for upf and smf if present
-                    if upf_target:
-                        extra_links.append((source_name, upf_target))
-                    if smf_target:
-                        extra_links.append((source_name, smf_target))
+                    # Connect source to all core components
+                    for i, core_name in enumerate(all_core_names):
+                        if i == 0:
+                            # Replace the first link with the first core component
+                            dest_name = core_name
+                        else:
+                            # Add additional links for other core components
+                            extra_links.append((source_name, core_name))
+                
+                # If no core components found, fallback to amf1
+                if not all_core_names:
+                    if source_is_vgcore:
+                        source_name = "amf1"
+                    if dest_is_vgcore:
+                        dest_name = "amf1"
 
             # Redirect gNB connections to APs when AP functionality is enabled
             if source_name in gnb_to_ap:
@@ -1543,10 +1555,10 @@ class MininetExporter:
             if link_props.get('loss'):
                 link_params.append(f"loss={link_props['loss']}")
 
-            # Add cls=TCLink if either end is amf1 (was VGcore__1), GNB__{number}, or ap{number}
+            # Add cls=TCLink if either end is a core component (was VGcore), GNB__{number}, or ap{number}
             gnb_pattern = re.compile(r'^GNB__\d+$', re.IGNORECASE)
             ap_pattern = re.compile(r'^ap\d+$', re.IGNORECASE)
-            # if source_name == "amf1" or dest_name == "amf1" or \
+            # if source_name in core5g_components_names or dest_name in core5g_components_names or \
             #    gnb_pattern.match(source_name) or gnb_pattern.match(dest_name) or \
             #    ap_pattern.match(source_name) or ap_pattern.match(dest_name):
             #     link_params.append("cls=TCLink")
@@ -1573,7 +1585,7 @@ class MininetExporter:
                     extra_params.append(f"delay='{link_props['delay']}'")
                 if link_props.get('loss'):
                     extra_params.append(f"loss={link_props['loss']}")
-                # if extra_source in (amf_target, upf_target, smf_target) or extra_dest in (amf_target, upf_target, smf_target) or \
+                # if extra_source in core5g_components_names or extra_dest in core5g_components_names or \
                 #    gnb_pattern.match(extra_source) or gnb_pattern.match(extra_dest) or \
                 #    ap_pattern.match(extra_source) or ap_pattern.match(extra_dest):
                 #     extra_params.append("cls=TCLink")
@@ -1587,7 +1599,7 @@ class MininetExporter:
         
         if has_wireless:
             f.write('    if "-p" not in args:\n')
-            f.write('        net.plotGraph(max_x=200, max_y=200)\n\n')
+            f.write('        net.plotGraph(max_x=1000, max_y=1000)\n\n')
 
     def write_controller_startup(self, f, categorized_nodes):
         """Write controller startup code."""
