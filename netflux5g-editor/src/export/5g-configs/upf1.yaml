@@ -11,13 +11,13 @@ global:
 upf:
   pfcp:
     server:
-    - dev: eth0
+    - dev: upf1-eth0
     client:
     #      smf:     #  UPF PFCP Client try to associate SMF PFCP Server
     #        - name: smf
   gtpu:
     server:
-    - dev: eth0
+    - dev: upf1-eth0
   session:
   - subnet: 10.100.0.0/16
     gateway: 10.100.0.1

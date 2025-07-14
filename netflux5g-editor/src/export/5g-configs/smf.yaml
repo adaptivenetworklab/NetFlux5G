@@ -20,7 +20,7 @@ smf:
       - uri: http://scp1:7777
   pfcp:
     server:
-    - dev: eth0
+    - dev: smf1-eth0
     client:
       upf:
       - address: upf1
@@ -33,10 +33,10 @@ smf:
       #   dnn: [internet2]
   gtpc:
     server:
-    - dev: eth0
+    - dev: smf1-eth0
   gtpu:
     server:
-    - dev: eth0
+    - dev: smf1-eth0
   metrics:
     server:
     - dev: eth0

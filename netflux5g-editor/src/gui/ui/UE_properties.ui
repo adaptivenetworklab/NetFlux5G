@@ -27,10 +27,8 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
-    
-    <!-- 5G/UE Configuration Tab -->
     <widget class="QWidget" name="tab_ue_config">
      <attribute name="title">
       <string>UE Configuration</string>
@@ -41,7 +39,7 @@
         <x>10</x>
         <y>10</y>
         <width>400</width>
-        <height>400</height>
+        <height>416</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_ue">
@@ -54,11 +52,11 @@
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="UE_GNBHostName">
-         <property name="text">
-          <string>mn.gnb</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>gnb</string>
          </property>
         </widget>
        </item>
@@ -71,11 +69,11 @@
        </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="UE_APN">
-         <property name="text">
-          <string>internet</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>internet</string>
          </property>
         </widget>
        </item>
@@ -88,11 +86,11 @@
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="UE_MSISDN">
-         <property name="text">
-          <string>0000000001</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>0000000001</string>
          </property>
         </widget>
        </item>
@@ -105,11 +103,11 @@
        </item>
        <item row="3" column="1">
         <widget class="QLineEdit" name="UE_MCC">
-         <property name="text">
-          <string>999</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>999</string>
          </property>
         </widget>
        </item>
@@ -122,11 +120,11 @@
        </item>
        <item row="4" column="1">
         <widget class="QLineEdit" name="UE_MNC">
-         <property name="text">
-          <string>70</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>70</string>
          </property>
         </widget>
        </item>
@@ -139,11 +137,11 @@
        </item>
        <item row="5" column="1">
         <widget class="QLineEdit" name="UE_KEY">
-         <property name="text">
-          <string>465B5CE8B199B49FAA5F0A2EE238A6BC</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>465B5CE8B199B49FAA5F0A2EE238A6BC</string>
          </property>
         </widget>
        </item>
@@ -180,11 +178,11 @@
        </item>
        <item row="7" column="1">
         <widget class="QLineEdit" name="UE_OP">
-         <property name="text">
-          <string>E8ED289DEBA952E4283B54E88E6183CA</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>E8ED289DEBA952E4283B54E88E6183CA</string>
          </property>
         </widget>
        </item>
@@ -197,11 +195,11 @@
        </item>
        <item row="8" column="1">
         <widget class="QLineEdit" name="UE_SST">
-         <property name="text">
-          <string>1</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>1</string>
          </property>
         </widget>
        </item>
@@ -214,11 +212,11 @@
        </item>
        <item row="9" column="1">
         <widget class="QLineEdit" name="UE_SD">
-         <property name="text">
-          <string>0xffffff</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>0xffffff</string>
          </property>
         </widget>
        </item>
@@ -231,11 +229,11 @@
        </item>
        <item row="10" column="1">
         <widget class="QLineEdit" name="UE_IMEI">
-         <property name="text">
-          <string>356938035643803</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>356938035643803</string>
          </property>
         </widget>
        </item>
@@ -248,131 +246,17 @@
        </item>
        <item row="11" column="1">
         <widget class="QLineEdit" name="UE_IMEISV">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
          <property name="text">
           <string>4370816125816151</string>
          </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
         </widget>
        </item>
       </layout>
      </widget>
     </widget>
-    
-    <!-- Wireless Configuration Tab -->
-    <widget class="QWidget" name="tab_wireless_config">
-     <attribute name="title">
-      <string>Wireless Settings</string>
-     </attribute>
-     <widget class="QWidget" name="formLayoutWidget_wireless">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>400</width>
-        <height>200</height>
-       </rect>
-      </property>
-      <layout class="QFormLayout" name="formLayout_wireless">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_tx_power">
-         <property name="text">
-          <string>TX Power:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="UE_Power">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>50</number>
-         </property>
-         <property name="value">
-          <number>20</number>
-         </property>
-         <property name="suffix">
-          <string> dBm</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_range">
-         <property name="text">
-          <string>Range:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="UE_Range">
-         <property name="minimum">
-          <number>50</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-         <property name="suffix">
-          <string> meters</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_association">
-         <property name="text">
-          <string>Association Mode:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QComboBox" name="UE_AssociationMode">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <item>
-          <property name="text">
-           <string>auto</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>manual</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_mobility">
-         <property name="text">
-          <string>Mobility:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QCheckBox" name="UE_Mobility">
-         <property name="text">
-          <string>Enable Mobility</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color: rgb(33, 37, 41);</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-    
-    <!-- Network Configuration Tab -->
     <widget class="QWidget" name="tab_network_config">
      <attribute name="title">
       <string>Network Settings</string>
@@ -396,14 +280,14 @@
        </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="UE_GNB_IP">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
          <property name="text">
-          <string></string>
+          <string/>
          </property>
          <property name="placeholderText">
           <string>Auto-resolved from hostname</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
          </property>
         </widget>
        </item>
@@ -416,11 +300,11 @@
        </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="UE_TunnelInterface">
-         <property name="text">
-          <string>uesimtun0</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>uesimtun0</string>
          </property>
         </widget>
        </item>
@@ -433,11 +317,11 @@
        </item>
        <item row="2" column="1">
         <widget class="QLineEdit" name="UE_RadioInterface">
-         <property name="text">
-          <string>eth0</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
          </property>
         </widget>
        </item>
@@ -450,6 +334,9 @@
        </item>
        <item row="3" column="1">
         <widget class="QSpinBox" name="UE_PDUSessions">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
          <property name="minimum">
           <number>1</number>
          </property>
@@ -458,9 +345,6 @@
          </property>
          <property name="value">
           <number>1</number>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
          </property>
         </widget>
        </item>
@@ -496,9 +380,100 @@
       </layout>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_wireless_config">
+     <attribute name="title">
+      <string>Wireless Settings</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget_wireless">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>400</width>
+        <height>200</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_wireless">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_tx_power">
+         <property name="text">
+          <string>TX Power:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="UE_Power">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="suffix">
+          <string> dBm</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="value">
+          <number>20</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_range">
+         <property name="text">
+          <string>Range:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="UE_Range">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="suffix">
+          <string> meters</string>
+         </property>
+         <property name="minimum">
+          <number>50</number>
+         </property>
+         <property name="maximum">
+          <number>1000</number>
+         </property>
+         <property name="value">
+          <number>116</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_association">
+         <property name="text">
+          <string>Association Mode:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="UE_AssociationMode">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>auto</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>manual</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </widget>
-   
-   <!-- Buttons -->
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
@@ -511,9 +486,6 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="UE_OKButton">
-       <property name="text">
-        <string>OK</string>
-       </property>
        <property name="styleSheet">
         <string notr="true">
          QPushButton {
@@ -532,13 +504,13 @@
          }
         </string>
        </property>
+       <property name="text">
+        <string>OK</string>
+       </property>
       </widget>
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="UE_CancelButton">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
        <property name="styleSheet">
         <string notr="true">
          QPushButton {
@@ -556,6 +528,9 @@
           background-color: rgb(73, 80, 87);
          }
         </string>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
        </property>
       </widget>
      </item>

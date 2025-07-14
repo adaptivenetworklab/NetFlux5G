@@ -2,7 +2,7 @@ import os
 import math
 from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5.QtCore import Qt, QRectF, QPointF, QLineF
-from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor
+from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor, QPainterPath, QPainterPathStroker
 from manager.debug import debug_print, error_print
 
 class NetworkLink(QGraphicsItem):
@@ -21,7 +21,10 @@ class NetworkLink(QGraphicsItem):
             "name": self.name,
             "type": self.link_type,
             "source": getattr(source_node, 'display_name', getattr(source_node, 'name', 'Unnamed Source')),
-            "destination": getattr(dest_node, 'display_name', getattr(dest_node, 'name', 'Unnamed Destination'))
+            "destination": getattr(dest_node, 'display_name', getattr(dest_node, 'name', 'Unnamed Destination')),
+            "bandwidth": "",  # Default empty, will be auto
+            "delay": "",      # Default empty, no delay
+            "loss": ""        # Default empty, no loss
         }
         
         # Make item selectable
@@ -38,8 +41,20 @@ class NetworkLink(QGraphicsItem):
         else:
             dest_node.connected_links = [self]
             
-        # Set Z-value below components
-        self.setZValue(-1)
+        # Set Z-value based on link type - controller links should be below regular links
+        is_controller_link = False
+        for node in (source_node, dest_node):
+            if hasattr(node, 'component_type') and node.component_type == 'Controller':
+                is_controller_link = True
+                break
+            if hasattr(node, 'object_type') and node.object_type == 'Controller':
+                is_controller_link = True
+                break
+        
+        if is_controller_link:
+            self.setZValue(-2)  # Controller links below regular links
+        else:
+            self.setZValue(-1)  # Regular links below components but above controller links
         
         # Load the cable image
         self.cable_pixmap = None
@@ -59,9 +74,47 @@ class NetworkLink(QGraphicsItem):
         # Update position
         self.updatePosition()
         
+        # Set initial tooltip
+        self.updateTooltip()
+        
         # Mark topology as modified when link is created
         if self.main_window and hasattr(self.main_window, 'onTopologyChanged'):
             self.main_window.onTopologyChanged()
+    
+    def updateTooltip(self):
+        """Update the tooltip with current properties."""
+        self.setToolTip(self.getPropertiesSummary())
+    
+    def getPropertiesSummary(self):
+        """Get a summary of link properties for tooltips."""
+        if not hasattr(self, 'properties'):
+            return "Default link properties"
+        
+        summary_parts = []
+        props = self.properties
+        
+        # Bandwidth
+        bandwidth = props.get('bandwidth', '')
+        if bandwidth and bandwidth != '0':
+            summary_parts.append(f"Bandwidth: {bandwidth} Mbps")
+        else:
+            summary_parts.append("Bandwidth: Auto")
+        
+        # Delay
+        delay = props.get('delay', '')
+        if delay and delay.strip():
+            summary_parts.append(f"Delay: {delay}")
+        else:
+            summary_parts.append("Delay: None")
+        
+        # Loss
+        loss = props.get('loss', '')
+        if loss and loss != '0' and loss != '0.0':
+            summary_parts.append(f"Loss: {loss}%")
+        else:
+            summary_parts.append("Loss: 0%")
+        
+        return " | ".join(summary_parts)
     
     def get_center_point(self, node):
         """Get the center point of a node's icon (not including coverage circles or text)"""
@@ -173,13 +226,33 @@ class NetworkLink(QGraphicsItem):
                 is_controller_link = True
                 break
         
-        # Draw a red, dotted line for Controller links
-        if is_controller_link:
-            pen = QPen(QColor(220, 0, 0), 3, Qt.DotLine)
+        # Check if link has custom properties
+        has_custom_properties = False
+        if hasattr(self, 'properties'):
+            props = self.properties
+            if (props.get('bandwidth') and props.get('bandwidth') != '0') or \
+               (props.get('delay') and props.get('delay').strip()) or \
+               (props.get('loss') and props.get('loss') != '0' and props.get('loss') != '0.0'):
+                has_custom_properties = True
+        
+        # Draw different styles based on link type and selection
+        if self.isSelected():
+            # Highlight selected link (yellow, thicker)
+            pen = QPen(QColor(255, 200, 0), 5, Qt.SolidLine)
+            pen.setCapStyle(Qt.RoundCap)
+            painter.setPen(pen)
         else:
-            pen = QPen(Qt.black, 3, Qt.SolidLine)
-        pen.setCapStyle(Qt.RoundCap)
-        painter.setPen(pen)
+            if is_controller_link:
+                # Make controller links semi-transparent so they don't interfere as much
+                controller_color = QColor(220, 0, 0, 180)  # Red with alpha transparency
+                pen = QPen(controller_color, 2, Qt.DotLine)  # Thinner line
+            elif has_custom_properties:
+                # Blue color for links with custom properties
+                pen = QPen(QColor(0, 100, 200), 3, Qt.SolidLine)
+            else:
+                pen = QPen(Qt.black, 3, Qt.SolidLine)
+            pen.setCapStyle(Qt.RoundCap)
+            painter.setPen(pen)
 
         # Draw the cable as a line between the centers
         src = self.get_center_point(self.source_node)
@@ -268,3 +341,77 @@ class NetworkLink(QGraphicsItem):
                 
         # If not in delete mode, call the parent handler
         super().mousePressEvent(event)
+        
+    def mouseDoubleClickEvent(self, event):
+        """Handle double-click to open properties dialog."""
+        self.openPropertiesDialog()
+        
+    def contextMenuEvent(self, event):
+        """Handle right-click context menu."""
+        from PyQt5.QtWidgets import QMenu
+        
+        menu = QMenu()
+        
+        # Add properties action
+        properties_action = menu.addAction("Properties...")
+        properties_action.triggered.connect(self.openPropertiesDialog)
+        
+        # Add delete action
+        delete_action = menu.addAction("Delete Link")
+        delete_action.triggered.connect(self.deleteLink)
+        
+        # Show menu at cursor position
+        menu.exec_(event.screenPos())
+        
+    def openPropertiesDialog(self):
+        """Open the link properties dialog."""
+        try:
+            from .widgets.Dialog import LinkPropertiesWindow
+            
+            # Create and show the properties dialog
+            properties_dialog = LinkPropertiesWindow(
+                self.name,
+                parent=self.scene().views()[0] if self.scene() and self.scene().views() else None,
+                component=self
+            )
+            properties_dialog.show()
+            
+        except Exception as e:
+            error_print(f"ERROR: Failed to open link properties dialog: {e}")
+            
+    def deleteLink(self):
+        """Delete this link."""
+        scene = self.scene()
+        if scene:
+            # Remove this link from connected nodes
+            if hasattr(self.source_node, 'connected_links') and self in self.source_node.connected_links:
+                self.source_node.connected_links.remove(self)
+            if hasattr(self.dest_node, 'connected_links') and self in self.dest_node.connected_links:
+                self.dest_node.connected_links.remove(self)
+            
+            # Remove from scene
+            scene.removeItem(self)
+            
+            # Mark topology as modified
+            if self.main_window and hasattr(self.main_window, 'onTopologyChanged'):
+                self.main_window.onTopologyChanged()
+                
+            debug_print(f"DEBUG: Link {self.name} deleted")
+    
+    def shape(self):
+        """Define the shape for precise hit detection"""
+        # Create a path along the link line
+        path = QPainterPath()
+        source_center = self.get_center_point(self.source_node)
+        dest_center = self.get_center_point(self.dest_node)
+        
+        path.moveTo(source_center)
+        path.lineTo(dest_center)
+        
+        # Create a stroker to make the path wider for easier selection
+        stroker = QPainterPathStroker()
+        stroker.setWidth(10)  # Make selection area wider than visual line
+        stroker.setCapStyle(Qt.RoundCap)
+        
+        # Return the stroked path for hit detection
+        return stroker.createStroke(path)

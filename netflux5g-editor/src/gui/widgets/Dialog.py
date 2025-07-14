@@ -218,7 +218,13 @@ class BasePropertiesWindow(QMainWindow):
             name = widget.objectName()
             if name in properties:
                 try:
-                    widget.setValue(int(properties[name]))
+                    # Accept float strings by converting to float first, then int
+                    value = properties[name]
+                    if isinstance(value, str):
+                        value = int(float(value))
+                    else:
+                        value = int(value)
+                    widget.setValue(value)
                 except (ValueError, TypeError):
                     pass
 
@@ -480,22 +486,16 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         # Set default AP configuration values
         if hasattr(self, 'GNB_AP_SSID'):
             self.GNB_AP_SSID.setText("gnb-hotspot")
-        if hasattr(self, 'GNB_AP_BridgeName'):
-            self.GNB_AP_BridgeName.setText("br-gnb")
         
         # Set default OpenFlow/OVS values
         if hasattr(self, 'GNB_OVS_BridgeName'):
             self.GNB_OVS_BridgeName.setText("br-gnb")
         if hasattr(self, 'GNB_OVS_FailMode'):
-            self.GNB_OVS_FailMode.setCurrentText("standalone")
+            self.GNB_OVS_FailMode.setCurrentText("secure")
         if hasattr(self, 'GNB_OVS_Protocols'):
             self.GNB_OVS_Protocols.setCurrentText("OpenFlow14")
         if hasattr(self, 'GNB_OVS_Datapath'):
             self.GNB_OVS_Datapath.setCurrentText("kernel")
-        if hasattr(self, 'GNB_OVS_ControllerPort'):
-            self.GNB_OVS_ControllerPort.setValue(6633)
-        if hasattr(self, 'GNB_OVS_BridgeInterfaces'):
-            self.GNB_OVS_BridgeInterfaces.setText("auto")
             
         # Set default network interface values
         if hasattr(self, 'GNB_N2_Interface'):
@@ -504,8 +504,6 @@ class GNBPropertiesWindow(BasePropertiesWindow):
             self.GNB_N3_Interface.setText("eth0")
         if hasattr(self, 'GNB_Radio_Interface'):
             self.GNB_Radio_Interface.setText("eth0")
-        if hasattr(self, 'GNB_Network_Interface'):
-            self.GNB_Network_Interface.setText("eth0")
         if hasattr(self, 'GNB_Bridge_Priority'):
             self.GNB_Bridge_Priority.setValue(32768)
     
@@ -535,14 +533,12 @@ class GNBPropertiesWindow(BasePropertiesWindow):
                 ap_config['AP_MODE'] = self.GNB_AP_Mode.currentText() or 'g'
             if hasattr(self, 'GNB_AP_Password'):
                 ap_config['AP_PASSWD'] = self.GNB_AP_Password.text()
-            if hasattr(self, 'GNB_AP_BridgeName'):
-                ap_config['AP_BRIDGE_NAME'] = self.GNB_AP_BridgeName.text() or 'br-gnb'
             
             # Add OpenFlow configuration for AP (from Dockerfile)
             if hasattr(self, 'GNB_OVS_Controller'):
                 ap_config['OVS_CONTROLLER'] = self.GNB_OVS_Controller.text()
             if hasattr(self, 'GNB_OVS_FailMode'):
-                ap_config['AP_FAILMODE'] = self.GNB_OVS_FailMode.currentText() or 'standalone'
+                ap_config['AP_FAILMODE'] = self.GNB_OVS_FailMode.currentText() or 'secure'
             if hasattr(self, 'GNB_OVS_Protocols'):
                 ap_config['OPENFLOW_PROTOCOLS'] = self.GNB_OVS_Protocols.currentText() or 'OpenFlow14'
         else:
@@ -559,24 +555,14 @@ class GNBPropertiesWindow(BasePropertiesWindow):
             
             if hasattr(self, 'GNB_OVS_Controller') and self.GNB_OVS_Controller.text():
                 ovs_config['OVS_CONTROLLER'] = self.GNB_OVS_Controller.text()
-            if hasattr(self, 'GNB_OVS_ControllerIP') and self.GNB_OVS_ControllerIP.text():
-                ovs_config['CONTROLLER_IP'] = self.GNB_OVS_ControllerIP.text()
-            if hasattr(self, 'GNB_OVS_ControllerPort'):
-                ovs_config['CONTROLLER_PORT'] = str(self.GNB_OVS_ControllerPort.value())
             if hasattr(self, 'GNB_OVS_BridgeName'):
-                ovs_config['OVS_BRIDGE_NAME'] = self.GNB_OVS_BridgeName.text() or 'br-ueransim'
+                ovs_config['OVS_BRIDGE_NAME'] = self.GNB_OVS_BridgeName.text() or 'br-gnb'
             if hasattr(self, 'GNB_OVS_FailMode'):
-                ovs_config['OVS_FAIL_MODE'] = self.GNB_OVS_FailMode.currentText() or 'standalone'
+                ovs_config['OVS_FAIL_MODE'] = self.GNB_OVS_FailMode.currentText() or 'secure'
             if hasattr(self, 'GNB_OVS_Protocols'):
                 ovs_config['OPENFLOW_PROTOCOLS'] = self.GNB_OVS_Protocols.currentText() or 'OpenFlow14'
             if hasattr(self, 'GNB_OVS_Datapath'):
                 ovs_config['OVS_DATAPATH'] = self.GNB_OVS_Datapath.currentText() or 'kernel'
-            if hasattr(self, 'GNB_OVS_BridgeInterfaces'):
-                ovs_config['BRIDGE_INTERFACES'] = self.GNB_OVS_BridgeInterfaces.text()
-            if hasattr(self, 'GNB_OVS_AutoSetup') and self.GNB_OVS_AutoSetup.isChecked():
-                ovs_config['OVS_AUTO_SETUP'] = 'true'
-            else:
-                ovs_config['OVS_AUTO_SETUP'] = 'false'
         else:
             ovs_config['OVS_ENABLED'] = 'false'
             
@@ -619,8 +605,6 @@ class GNBPropertiesWindow(BasePropertiesWindow):
             config['N3_IFACE'] = self.GNB_N3_Interface.text() or 'eth0'
         if hasattr(self, 'GNB_Radio_Interface'):
             config['RADIO_IFACE'] = self.GNB_Radio_Interface.text() or 'eth0'
-        if hasattr(self, 'GNB_Network_Interface'):
-            config['NETWORK_INTERFACE'] = self.GNB_Network_Interface.text() or 'eth0'
             
         # Bridge configuration
         if hasattr(self, 'GNB_Bridge_Priority'):
@@ -706,16 +690,12 @@ class UEPropertiesWindow(BasePropertiesWindow):
         # Connect OK and Cancel buttons
         self.UE_OKButton.clicked.connect(self.onOK)
         self.UE_CancelButton.clicked.connect(self.onCancel)
-        
-        # Connect mobility checkbox to enable additional mobility settings if needed
-        if hasattr(self, 'UE_Mobility'):
-            self.UE_Mobility.toggled.connect(self.onMobilityToggled)
     
     def setupDefaultValues(self):
-        """Setup default values for the enhanced UE configuration"""
+        """Setup default values for the UE configuration"""
         # Set default UE configuration values
         if hasattr(self, 'UE_GNBHostName'):
-            self.UE_GNBHostName.setText("mn.gnb")
+            self.UE_GNBHostName.setText("gnb")
         if hasattr(self, 'UE_APN'):
             self.UE_APN.setText("internet")
         if hasattr(self, 'UE_MSISDN'):
@@ -739,28 +719,31 @@ class UEPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'UE_IMEISV'):
             self.UE_IMEISV.setText("4370816125816151")
             
-        # Set default wireless configuration values
+        # Set default network configuration values
         if hasattr(self, 'UE_TunnelInterface'):
             self.UE_TunnelInterface.setText("uesimtun0")
         if hasattr(self, 'UE_RadioInterface'):
             self.UE_RadioInterface.setText("eth0")
-        if hasattr(self, 'UE_AssociationMode'):
-            self.UE_AssociationMode.setCurrentText("auto")
         if hasattr(self, 'UE_SessionType'):
             self.UE_SessionType.setCurrentText("IPv4")
+        if hasattr(self, 'UE_PDUSessions'):
+            self.UE_PDUSessions.setValue(1)
             
-    def onMobilityToggled(self, enabled):
-        """Handle mobility functionality enable/disable"""
-        debug_print(f"DEBUG: UE mobility {'enabled' if enabled else 'disabled'}")
-        # Additional logic can be added here for mobility settings
-    
+        # Set default wireless configuration values
+        if hasattr(self, 'UE_AssociationMode'):
+            self.UE_AssociationMode.setCurrentText("auto")
+        if hasattr(self, 'UE_Power'):
+            self.UE_Power.setValue(20)
+        if hasattr(self, 'UE_Range'):
+            self.UE_Range.setValue(116)
+            
     def get5GConfiguration(self):
         """Get 5G configuration parameters matching UERANSIM Docker environment"""
         config = {}
         
         # Core 5G configuration - must match UERANSIM Dockerfile defaults
         if hasattr(self, 'UE_GNBHostName'):
-            config['GNB_HOSTNAME'] = self.UE_GNBHostName.text() or 'localhost'
+            config['GNB_HOSTNAME'] = self.UE_GNBHostName.text() or 'gnb'
         if hasattr(self, 'UE_APN'):
             config['APN'] = self.UE_APN.text() or 'internet'
         if hasattr(self, 'UE_MSISDN'):
@@ -773,8 +756,6 @@ class UEPropertiesWindow(BasePropertiesWindow):
             config['SST'] = self.UE_SST.text() or '1'
         if hasattr(self, 'UE_SD'):
             config['SD'] = self.UE_SD.text() or '0xffffff'
-        if hasattr(self, 'UE_TAC'):
-            config['TAC'] = self.UE_TAC.text() or '1'
             
         # Authentication configuration
         if hasattr(self, 'UE_KEY'):
@@ -797,6 +778,10 @@ class UEPropertiesWindow(BasePropertiesWindow):
         config = {}
         
         # Network interfaces - must match Dockerfile environment variables
+        if hasattr(self, 'UE_GNB_IP'):
+            gnb_ip = self.UE_GNB_IP.text()
+            if gnb_ip and gnb_ip.strip():
+                config['GNB_IP'] = gnb_ip.strip()
         if hasattr(self, 'UE_TunnelInterface'):
             config['TUNNEL_IFACE'] = self.UE_TunnelInterface.text() or 'uesimtun0'
         if hasattr(self, 'UE_RadioInterface'):
@@ -805,12 +790,6 @@ class UEPropertiesWindow(BasePropertiesWindow):
             config['SESSION_TYPE'] = self.UE_SessionType.currentText() or 'IPv4'
         if hasattr(self, 'UE_PDUSessions'):
             config['PDU_SESSIONS'] = str(self.UE_PDUSessions.value()) if hasattr(self.UE_PDUSessions, 'value') else '1'
-            
-        # Mobility configuration
-        if hasattr(self, 'UE_Mobility') and self.UE_Mobility.isChecked():
-            config['MOBILITY_ENABLED'] = 'true'
-        else:
-            config['MOBILITY_ENABLED'] = 'false'
             
         # Add UERANSIM component type
         config['UERANSIM_COMPONENT'] = 'ue'
@@ -826,7 +805,7 @@ class UEPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'UE_Power'):
             config['txpower'] = self.UE_Power.value() if hasattr(self.UE_Power, 'value') else 20
         if hasattr(self, 'UE_Range'):
-            config['range'] = self.UE_Range.value() if hasattr(self.UE_Range, 'value') else 116
+            config['range'] = self.UE_Range.value() if hasattr(self.UE_Range, 'value') else 300
             
         return config
     
@@ -889,57 +868,28 @@ class UEPropertiesWindow(BasePropertiesWindow):
             
         return config
     
-    def getWirelessConfiguration(self):
-        """Get wireless configuration for mininet-wifi"""
-        config = {}
-        
-        if hasattr(self, 'UE_Power'):
-            config['txpower'] = self.UE_Power.value()
-        if hasattr(self, 'UE_Range'):
-            config['range'] = self.UE_Range.value()
-        if hasattr(self, 'UE_AssociationMode'):
-            config['association'] = self.UE_AssociationMode.currentText()
-        if hasattr(self, 'UE_Mobility'):
-            config['mobility'] = self.UE_Mobility.isChecked()
-            
-        return config
-        
-    def getNetworkConfiguration(self):
-        """Get network configuration parameters"""
-        config = {}
-        
-        if hasattr(self, 'UE_GNB_IP'):
-            config['GNB_IP'] = self.UE_GNB_IP.text()
-        if hasattr(self, 'UE_TunnelInterface'):
-            config['TUNNEL_IFACE'] = self.UE_TunnelInterface.text()
-        if hasattr(self, 'UE_RadioInterface'):
-            config['RADIO_IFACE'] = self.UE_RadioInterface.text()
-        if hasattr(self, 'UE_PDUSessions'):
-            config['PDU_SESSIONS'] = str(self.UE_PDUSessions.value())
-        if hasattr(self, 'UE_SessionType'):
-            config['SESSION_TYPE'] = self.UE_SessionType.currentText()
-            
-        return config
-        
     def onOK(self):
         """Enhanced save that includes all new configuration options"""
         self.saveProperties()
         
         # Store additional configurations in the component
         if self.component:
-            # Store 5G/UE configuration
+            # Store 5G configuration
             config_5g = self.get5GConfiguration()
-            self.component.properties.update({f"ue_{k.lower()}": v for k, v in config_5g.items()})
-            
-            # Store wireless configuration
-            wireless_config = self.getWirelessConfiguration()
-            self.component.properties.update({f"wireless_{k}": v for k, v in wireless_config.items()})
+            self.component.properties.update({f"5g_{k.lower()}": v for k, v in config_5g.items()})
             
             # Store network configuration
             network_config = self.getNetworkConfiguration()
             self.component.properties.update({f"network_{k.lower()}": v for k, v in network_config.items()})
             
-            debug_print(f"DEBUG: Enhanced UE configuration saved for {self.component_name}")
+            # Store wireless configuration
+            wireless_config = self.getWirelessConfiguration()
+            self.component.properties.update({f"wireless_{k}": v for k, v in wireless_config.items()})
+            
+            # Set component type for UERANSIM
+            self.component.properties['ueransim_component'] = 'ue'
+            
+            debug_print(f"DEBUG: Saved enhanced UE configuration for {self.component_name}")
             
         self.close()
         
@@ -1853,4 +1803,139 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         self.close()
         
     def onCancel(self):
+        self.close()
+
+class LinkPropertiesWindow(BasePropertiesWindow):
+    """Properties window for network links with bandwidth, delay, and loss settings."""
+    
+    def __init__(self, label_text, parent=None, component=None):
+        super().__init__(label_text, parent, component)
+        
+        # Load the UI file
+        ui_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "ui", "Link_properties.ui")
+        if os.path.exists(ui_file):
+            uic.loadUi(ui_file, self)
+            debug_print(f"DEBUG: Loaded Link properties UI from {ui_file}")
+        else:
+            error_print(f"ERROR: Link properties UI file not found: {ui_file}")
+            return
+            
+        # Set window properties
+        self.setWindowTitle(f"Link Properties - {label_text}")
+        self.setFixedSize(450, 300)
+        
+        # Load existing properties
+        self.loadProperties()
+        
+        # Setup connections
+        self.setupConnections()
+        
+    def setupConnections(self):
+        """Setup button connections"""
+        self.pushButton_ok.clicked.connect(self.onOK)
+        self.pushButton_cancel.clicked.connect(self.onCancel)
+        
+    def loadProperties(self):
+        """Load current link properties into the UI"""
+        if not self.component:
+            return
+            
+        properties = self.component.properties
+        
+        # Basic information
+        self.lineEdit_name.setText(properties.get('name', ''))
+        
+        # Set type combo box
+        link_type = properties.get('type', 'ethernet')
+        index = self.comboBox_type.findText(link_type)
+        if index >= 0:
+            self.comboBox_type.setCurrentIndex(index)
+            
+        self.lineEdit_source.setText(properties.get('source', ''))
+        self.lineEdit_destination.setText(properties.get('destination', ''))
+        
+        # Network parameters
+        bandwidth = properties.get('bandwidth', '')
+        if bandwidth:
+            try:
+                # Remove 'Mbps' suffix if present and convert to int (via float for float strings)
+                if isinstance(bandwidth, str) and bandwidth.endswith('Mbps'):
+                    bandwidth = int(float(bandwidth.replace('Mbps', '').strip()))
+                else:
+                    bandwidth = int(float(bandwidth))
+                self.spinBox_bandwidth.setValue(bandwidth)
+            except (ValueError, TypeError):
+                self.spinBox_bandwidth.setValue(0)
+        else:
+            self.spinBox_bandwidth.setValue(0)
+            
+        self.lineEdit_delay.setText(properties.get('delay', ''))
+        
+        loss = properties.get('loss', 0.0)
+        if loss:
+            try:
+                # Remove '%' suffix if present and convert to float
+                if isinstance(loss, str) and loss.endswith('%'):
+                    loss = float(loss.replace('%', '').strip())
+                else:
+                    loss = float(loss)
+                self.doubleSpinBox_loss.setValue(loss)
+            except (ValueError, TypeError):
+                self.doubleSpinBox_loss.setValue(0.0)
+        else:
+            self.doubleSpinBox_loss.setValue(0.0)
+            
+    def saveProperties(self):
+        """Save the link properties from UI to component"""
+        if not self.component:
+            warning_print("WARNING: No component reference to save properties to")
+            return
+            
+        # Update basic properties
+        self.component.properties['name'] = self.lineEdit_name.text()
+        self.component.properties['type'] = self.comboBox_type.currentText()
+        
+        # Update network parameters
+        bandwidth = self.spinBox_bandwidth.value()
+        if bandwidth > 0:
+            self.component.properties['bandwidth'] = str(bandwidth)
+        else:
+            self.component.properties.pop('bandwidth', None)
+            
+        delay = self.lineEdit_delay.text().strip()
+        if delay:
+            self.component.properties['delay'] = delay
+        else:
+            self.component.properties.pop('delay', None)
+            
+        loss = self.doubleSpinBox_loss.value()
+        if loss > 0:
+            self.component.properties['loss'] = str(loss)
+        else:
+            self.component.properties.pop('loss', None)
+            
+        # Update display name if name was changed
+        if self.lineEdit_name.text():
+            self.component.name = self.lineEdit_name.text()
+        
+        # Update tooltip and visual appearance
+        if hasattr(self.component, 'updateTooltip'):
+            self.component.updateTooltip()
+        if hasattr(self.component, 'update'):
+            self.component.update()  # Refresh visual appearance
+            
+        # Mark topology as modified
+        if hasattr(self.component, 'main_window') and self.component.main_window:
+            if hasattr(self.component.main_window, 'onTopologyChanged'):
+                self.component.main_window.onTopologyChanged()
+                
+        debug_print(f"DEBUG: Link properties saved - bandwidth: {self.component.properties.get('bandwidth', 'Auto')}, delay: {self.component.properties.get('delay', 'None')}, loss: {self.component.properties.get('loss', '0')}")
+        
+    def onOK(self):
+        """Save properties and close dialog"""
+        self.saveProperties()
+        self.close()
+        
+    def onCancel(self):
+        """Close dialog without saving"""
         self.close()

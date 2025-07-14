@@ -304,6 +304,47 @@ class MininetExporter:
         f.write('        print(f"Error creating Docker network: {e}")\n')
         f.write('        return False\n\n')
 
+        f.write('def update_hosts(net):\n')
+        f.write('    """\n')
+        f.write('    Add all Mininet/Containernet nodes (hosts, Docker containers, stations)\n')
+        f.write('    to each node\'s /etc/hosts file for name resolution.\n')
+        f.write('    """\n')
+        f.write('    # Gather all nodes that have a name, IP, and can run commands\n')
+        f.write('    all_nodes = []\n')
+        f.write('    for node in set(list(net.values()) + net.hosts + getattr(net, "stations", [])):\n')
+        f.write('        if hasattr(node, "cmd") and hasattr(node, "name"):\n')
+        f.write('            all_nodes.append(node)\n')
+        f.write('\n')
+        f.write('    # Build unique entries: "IP name"\n')
+        f.write('    entries = []\n')
+        f.write('    seen = set()\n')
+        f.write('    for node in all_nodes:\n')
+        f.write('        try:\n')
+        f.write('            ip = node.IP() if callable(getattr(node, "IP", None)) else getattr(node, "ip", None)\n')
+        f.write('            if ip and ip != "127.0.0.1":\n')
+        f.write('                entry = f"{ip} {node.name}"\n')
+        f.write('                if entry not in seen:\n')
+        f.write('                    entries.append(entry)\n')
+        f.write('                    seen.add(entry)\n')
+        f.write('        except Exception:\n')
+        f.write('            continue\n')
+        f.write('\n')
+        f.write('    # Update /etc/hosts for all nodes\n')
+        f.write('    for node in all_nodes:\n')
+        f.write('        try:\n')
+        f.write('            node.cmd("sed -i \'/# NetFlux5G entries/,/# End NetFlux5G entries/d\' /etc/hosts")\n')
+        f.write('            if entries:\n')
+        f.write('                node.cmd("echo \'# NetFlux5G entries\' >> /etc/hosts")\n')
+        f.write('                for entry in entries:\n')
+        f.write('                    node.cmd(f"echo \'{entry}\' >> /etc/hosts")\n')
+        f.write('                node.cmd("echo \'# End NetFlux5G entries\' >> /etc/hosts")\n')
+        f.write('        except Exception:\n')
+        f.write('            continue\n')
+        f.write('\n')
+
+        # Add working directory variable
+        f.write(f'export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n\n')
+
     def write_topology_function(self, f, nodes, links, categorized_nodes):
         """Write the main topology function following mininet-wifi patterns.
         
@@ -378,13 +419,15 @@ class MininetExporter:
         f.write('    net.build()\n')
         self.write_controller_startup(f, categorized_nodes)
         self.write_ap_startup(f, categorized_nodes)
-        
+        self.write_switch_startup(f, categorized_nodes)
+                
+        f.write(f'    update_hosts(net)\n\n')  # Update hostname dns after each link to ensure connectivity
+
         # Start 5G components
         self.write_5g_startup(f, categorized_nodes)
         
         # CLI and cleanup
         f.write('    info("*** Running CLI\\n")\n')
-        f.write('    os.environ[\'TERM\'] = \'konsole\'\n')
         f.write('    CLI(net)\n\n')
         f.write('    info("*** Stopping network\\n")\n')
         f.write('    net.stop()\n\n')
@@ -597,52 +640,6 @@ class MininetExporter:
             f.write(f'    {host_name} = net.addHost({", ".join(host_params)})\n')
         f.write('\n')
 
-    def write_aps_and_switches_level2(self, f, categorized_nodes):
-        """Write APs and switches with Level 2 hierarchical topology features."""
-        if categorized_nodes['aps'] or categorized_nodes['switches']:
-            f.write('    info( \'\\n*** Add APs & Switches\\n\')\n')
-            
-            # Add APs with enhanced configuration
-            for i, ap in enumerate(categorized_nodes['aps'], 1):
-                props = ap.get('properties', {})
-                ap_name = self.sanitize_variable_name(ap['name'])
-                ssid = props.get('AP_SSID', f'{ap_name}-ssid')
-                channel = props.get('AP_Channel', '36')
-                mode = props.get('AP_Mode', 'a')
-                
-                # Build AP parameters
-                ap_params = [f"'{ap_name}'"]
-                ap_params.append(f"ssid='{ssid}'")
-                ap_params.append(f"mode='{mode}'")
-                ap_params.append(f"channel='{channel}'")
-                
-                # Hierarchical position: level2-apX
-                ap_params.append(f"position='0,0,{i}'")
-                ap_params.append("failMode='standalone'")
-                
-                f.write(f'    {ap_name} = net.addAccessPoint({", ".join(ap_params)})\n')
-            
-            # Add switches
-            for i, switch in enumerate(categorized_nodes['switches'], 1):
-                props = switch.get('properties', {})
-                switch_name = self.sanitize_variable_name(switch['name'])
-                
-                # Build switch parameters
-                switch_params = [f"'{switch_name}'"]
-                switch_params.append("cls=OVSKernelSwitch")
-                
-                # Add DPID if specified
-                dpid = props.get('Switch_DPID', props.get('Router_DPID', props.get('AP_DPID', props.get('lineEdit_4'))))
-                if dpid and str(dpid).strip():
-                    switch_params.append(f"dpid='{dpid}'")
-                
-                # Hierarchical position: level2-switchX
-                switch_params.append(f"position='0,0,{i+len(categorized_nodes['aps'])}'")
-                
-                f.write(f'    {switch_name} = net.addSwitch({", ".join(switch_params)})\n')
-            
-            f.write('\n')
-
     def write_5g_components(self, f, categorized_nodes):
         """Write 5G component creation code (gNBs and UEs) with enhanced OVS and AP functionality."""
         # Write 5G Core components first
@@ -669,7 +666,8 @@ class MininetExporter:
                 
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
-                    '"/lib/modules:/lib/modules:ro"'
+                    f'"/lib/modules:/lib/modules:ro"',
+                    f'export_dir + "/log-{gnb_name}/:/logging/"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -764,7 +762,7 @@ class MininetExporter:
                         'name': ap_name,
                         'ssid': ap_ssid
                     }
-                    
+
             f.write('\n')
         
         # Write UEs with enhanced UERANSIM configuration
@@ -784,7 +782,13 @@ class MininetExporter:
                 ue_params.append('dcmd="/bin/bash"')
                 ue_params.append("cls=DockerSta")
                 ue_params.append("dimage='adaptive/ueransim:latest'")
-                
+
+                # Add volumes for host hardware access and OVS functionality
+                volumes = [
+                    f'export_dir + "/log-{ue_name}/:/logging/"'
+                ]
+                ue_params.append(f'volumes=[{", ".join(volumes)}]')
+
                 # Add enhanced power and range configuration from ConfigurationMapper
                 from manager.configmap import ConfigurationMapper
                 ue_config = ConfigurationMapper.map_ue_config(props)
@@ -1079,9 +1083,6 @@ class MininetExporter:
             }
         }
         
-        # Add working directory variable
-        f.write(f'    export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n\n')
-        
         # Generate code for each 5G core component type
         for comp_type, components in core_components.items():
             if components:
@@ -1096,7 +1097,7 @@ class MininetExporter:
                     # Debug output for component processing
                     f.write(f'    info("    Creating {comp_type} instance {i+1}/{len(components)}: {comp_name}\\n")\n')
                     
-                    # Build component parameters following fixed_topology-upf.py pattern
+                    # Build component parameter
                     comp_params = [f"'{comp_name}'"]
                     
                     # Add required Docker parameters
@@ -1131,7 +1132,7 @@ class MininetExporter:
                     # Debug output for config file mapping
                     f.write(f'    info("      Config file: {config_filename}\\n")\n')
                     
-                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml"]')
+                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log-{comp_name.lower()}/:/logging/"]')
 
                     # Add environment variables for configuration
                     if 'env_vars' in config and config['env_vars']:
@@ -1157,45 +1158,28 @@ class MininetExporter:
         # Get core components for startup sequence
         core_components = categorized_nodes.get('core5g_components', {})
         
-        # Add links section
-        f.write('    info("*** Add links\\n")\n')
-        # This will be filled by the write_links method
-        
-        f.write('    info("*** Starting network\\n")\n')
-        f.write('    net.build()\n\n')
-        
-        # Start controllers
-        f.write('    info("*** Starting controllers\\n")\n')
-        if categorized_nodes['controllers']:
-            for controller in categorized_nodes['controllers']:
-                ctrl_name = self.sanitize_variable_name(controller['name'])
-                f.write(f'    {ctrl_name}.start()\n')
-        else:
-            f.write('    c0.start()\n')
-        f.write('\n')
-        
-        # Start APs
-        f.write('    info("*** Starting APs\\n")\n')
-        controller_name = 'c0'
-        if categorized_nodes['controllers']:
-            controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
+        # # Start APs
+        # f.write('    info("*** Starting APs\\n")\n')
+        # controller_name = 'c0'
+        # if categorized_nodes['controllers']:
+        #     controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
             
-        # Start traditional APs
-        for ap in categorized_nodes['aps']:
-            ap_name = self.sanitize_variable_name(ap['name'])
-            f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
+        # # Start traditional APs
+        # for ap in categorized_nodes['aps']:
+        #     ap_name = self.sanitize_variable_name(ap['name'])
+        #     f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
             
-        # Start generated APs from gNBs
-        for gnb in categorized_nodes['gnbs']:
-            if '_generated_ap' in gnb:
-                ap_name = gnb['_generated_ap']['name']
-                f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
+        # # Start generated APs from gNBs
+        # for gnb in categorized_nodes['gnbs']:
+        #     if '_generated_ap' in gnb:
+        #         ap_name = gnb['_generated_ap']['name']
+        #         f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
             
-        # Start switches
-        for switch in categorized_nodes['switches']:
-            switch_name = self.sanitize_variable_name(switch['name'])
-            f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
-        f.write('\n')
+        # # Start switches
+        # for switch in categorized_nodes['switches']:
+        #     switch_name = self.sanitize_variable_name(switch['name'])
+        #     f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
+        # f.write('\n')
         
         # Start 5G Core components in proper order with makeTerm2
         startup_order = ['NRF', 'SCP', 'AUSF', 'UDM', 'UDR', 'PCF', 'BSF', 'NSSF', 'SMF', 'AMF', 'UPF']
@@ -1207,8 +1191,7 @@ class MininetExporter:
                 for instance in core_components[comp_type]:
                     instance_name = self.sanitize_variable_name(instance.get('name', f'{comp_type.lower()}1'))
                     cmd = f'open5gs-{comp_type.lower()}d'
-                    # f.write(f'    makeTerm2({instance_name}, cmd="/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log")\n')
-                    f.write(f'    {instance_name}.cmd("/opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log &")\n')
+                    f.write(f'    {instance_name}.cmd("setsid nohup /opt/open5gs/etc/open5gs/entrypoint.sh {cmd} 2>&1 | tee -a /logging/{instance_name}.log  &")\n')
                 f.write('\n')
         
         f.write('    CLI.do_sh(net, "sleep 10")\n\n')
@@ -1232,23 +1215,7 @@ class MininetExporter:
                     # based on environment variables we've already set
                     f.write(f'    # OVS_ENABLED environment variable will trigger setup in entrypoint\\n")\n')
 
-                # Start the gNB service - entrypoint.sh will handle OVS/AP setup automatically
-                # Define specific environment variables to substitute (security best practice)
-                # gnb_env_vars = [
-                #     'AMF_HOSTNAME', 'GNB_HOSTNAME', 'N2_IFACE', 'N3_IFACE', 'RADIO_IFACE', 'NETWORK_INTERFACE',
-                #     'MCC', 'MNC', 'SST', 'SD', 'TAC', 'UERANSIM_COMPONENT', 'GNB_ID',
-                #     'OVS_ENABLED', 'OVS_BRIDGE_NAME', 'OVS_FAIL_MODE', 'OVS_CONTROLLER', 'OPENFLOW_PROTOCOLS',
-                #     'AP_ENABLED', 'AP_SSID', 'AP_CHANNEL', 'AP_MODE', 'AP_PASSWD', 'AP_BRIDGE_NAME',
-                #     'N2_BIND_IP', 'N3_BIND_IP', 'RADIO_BIND_IP', 'AMF_IP'
-                # ]
-                # Export variables with their values in the format VARIABLE='value'
-                # for var in gnb_env_vars:
-                #     f.write(f'    {gnb_name}.cmd("export {var}=\'${{var}}\'")\n')
-                # env_vars_str = ' '.join([f'${var}' for var in gnb_env_vars])
-                # f.write(f'    {gnb_name}.cmd("envsubst \'{env_vars_str}\' < /entrypoint.sh > /mn-entrypoint.sh")\n')
-                # f.write(f'    {gnb_name}.cmd("chmod +x /mn-entrypoint.sh")\n')
-                # f.write(f'    makeTerm2({gnb_name}, cmd="/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log")\n')
-                f.write(f'    {gnb_name}.cmd("/entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log &")\n')
+                f.write(f'    {gnb_name}.cmd("setsid nohup /entrypoint.sh gnb 2>&1 | tee -a /logging/{gnb_name}.log &")\n')
             f.write('\n')
             f.write('    CLI.do_sh(net, "sleep 15")  # Allow time for gNB and OVS setup\n\n')
         
@@ -1268,22 +1235,7 @@ class MininetExporter:
                     f.write(f'    info("*** Pre-configuring OVS for UE {ue_name}\\n")\n')
                     f.write(f'    # OVS_ENABLED environment variable will trigger setup in entrypoint\\n')
                 
-                # Start the UE service - entrypoint.sh will handle OVS setup automatically
-                # Define specific environment variables to substitute (security best practice)
-                # ue_env_vars = [
-                #     'GNB_HOSTNAME', 'APN', 'MSISDN', 'MCC', 'MNC', 'SST', 'SD', 'TAC',
-                #     'KEY', 'OP_TYPE', 'OP', 'IMEI', 'IMEISV', 'TUNNEL_IFACE', 'RADIO_IFACE',
-                #     'SESSION_TYPE', 'PDU_SESSIONS', 'MOBILITY_ENABLED', 'UERANSIM_COMPONENT',
-                #     'GNB_IP', 'OVS_ENABLED', 'OVS_BRIDGE_NAME'
-                # ]
-                # # Export variables with their values in the format VARIABLE='value'
-                # for var in ue_env_vars:
-                #     f.write(f'    {ue_name}.cmd("export {var}=\'${{var}}\'")\n')
-                # env_vars_str = ' '.join([f'${var}' for var in ue_env_vars])
-                # f.write(f'    {ue_name}.cmd("envsubst \'{env_vars_str}\' < /entrypoint.sh > /mn-entrypoint.sh")\n')
-                # f.write(f'    {ue_name}.cmd("chmod +x /mn-entrypoint.sh")\n')
-                # f.write(f'    makeTerm2({ue_name}, cmd="/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log")\n')
-                f.write(f'    {ue_name}.cmd("/entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &")\n')
+                f.write(f'    {ue_name}.cmd("setsid nohup /entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &")\n')
             f.write('\n')
             f.write('    CLI.do_sh(net, "sleep 20")  # Allow time for UE registration and OVS setup\n\n')
             
@@ -1546,22 +1498,15 @@ class MininetExporter:
             # Build link parameters
             link_params = [source_name, dest_name]
 
-            # Add link properties if any
+            # Add link properties using configmap
             link_props = link.get('properties', {})
-            if link_props.get('bandwidth'):
-                link_params.append(f"bw={link_props['bandwidth']}")
-            if link_props.get('delay'):
-                link_params.append(f"delay='{link_props['delay']}'")
-            if link_props.get('loss'):
-                link_params.append(f"loss={link_props['loss']}")
+            if link_props:
+                link_config_params = ConfigurationMapper.map_link_config(link_props)
+                link_params.extend(link_config_params)
 
-            # Add cls=TCLink if either end is a core component (was VGcore), GNB__{number}, or ap{number}
+            # Change link if either end is a core component (was VGcore), GNB__{number}, or ap{number}
             gnb_pattern = re.compile(r'^GNB__\d+$', re.IGNORECASE)
             ap_pattern = re.compile(r'^ap\d+$', re.IGNORECASE)
-            # if source_name in core5g_components_names or dest_name in core5g_components_names or \
-            #    gnb_pattern.match(source_name) or gnb_pattern.match(dest_name) or \
-            #    ap_pattern.match(source_name) or ap_pattern.match(dest_name):
-            #     link_params.append("cls=TCLink")
 
             f.write(f'    net.addLink({", ".join(link_params)})\n')
 
@@ -1578,18 +1523,14 @@ class MininetExporter:
                     pass  # Already in correct order (Switch, core_component/gnb/ap)
                 
                 extra_params = [extra_source, extra_dest]
-                # Use same link properties and TCLink logic
-                if link_props.get('bandwidth'):
-                    extra_params.append(f"bw={link_props['bandwidth']}")
-                if link_props.get('delay'):
-                    extra_params.append(f"delay='{link_props['delay']}'")
-                if link_props.get('loss'):
-                    extra_params.append(f"loss={link_props['loss']}")
-                # if extra_source in core5g_components_names or extra_dest in core5g_components_names or \
-                #    gnb_pattern.match(extra_source) or gnb_pattern.match(extra_dest) or \
-                #    ap_pattern.match(extra_source) or ap_pattern.match(extra_dest):
-                #     extra_params.append("cls=TCLink")
+                # Use same link properties with configmap
+                if link_props:
+                    extra_config_params = ConfigurationMapper.map_link_config(link_props)
+                    extra_params.extend(extra_config_params)
+
+                # Write the extra link
                 f.write(f'    net.addLink({", ".join(extra_params)})\n')
+        
         f.write('\n')
 
     def write_plot_graph(self, f, categorized_nodes):
@@ -1635,6 +1576,18 @@ class MininetExporter:
         f.write('    info("*** Starting APs\\n")\n')
         for ap_name in all_aps:
             f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
+        f.write('\n')
+
+    def write_switch_startup(self, f, categorized_nodes):
+        """Write switch startup code."""
+
+        controller_name = 'c0'
+        if categorized_nodes['controllers']:
+            controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
+
+        for switch in categorized_nodes['switches']:
+            switch_name = self.sanitize_variable_name(switch['name'])
+            f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
         f.write('\n')
 
     def write_main_execution(self, f):

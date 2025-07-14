@@ -96,9 +96,8 @@ WORKDIR ${APP_ROOT}
 # Copy scripts and make them executable
 COPY entrypoint.sh /opt/open5gs/etc/open5gs/entrypoint.sh
 COPY ovs-setup.sh /opt/open5gs/bin/ovs-setup.sh
-COPY open5gs-ovs-config.sh /opt/open5gs/bin/open5gs-ovs-config.sh
-COPY supervisord.conf /etc/supervisor/conf.d/open5gs.conf
-RUN chmod +x /opt/open5gs/etc/open5gs/entrypoint.sh /opt/open5gs/bin/ovs-setup.sh /opt/open5gs/bin/open5gs-ovs-config.sh
+
+RUN chmod +x /opt/open5gs/etc/open5gs/entrypoint.sh /opt/open5gs/bin/ovs-setup.sh
 
 # Create required directories for OVS
 RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /var/log/supervisor /logging

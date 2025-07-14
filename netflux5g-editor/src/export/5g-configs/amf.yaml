@@ -20,7 +20,7 @@ amf:
       - uri: http://scp1:7777
   ngap:
     server:
-    - dev: eth0
+    - dev: amf1-eth0
   metrics:
     server:
     - dev: eth0
@@ -49,7 +49,7 @@ amf:
   network_name:
     full: Open5GS
     short: Next
-  amf_name: open5gs-amf0
+  amf_name: amf1
   time:
     #    t3502:
     #      value: 720   # 12 minutes * 60 = 720 seconds

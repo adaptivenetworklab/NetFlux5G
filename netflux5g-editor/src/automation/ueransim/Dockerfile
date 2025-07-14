@@ -158,7 +158,7 @@ ENV PDU_SESSIONS=1
 ENV MOBILITY_ENABLED=false
 
 # Create necessary directories
-RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /etc/openvswitch
+RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /etc/openvswitch /logging
 RUN mkdir -p /var/log/ueransim /tmp/ueransim
 RUN mkdir -p /etc/ueransim
 

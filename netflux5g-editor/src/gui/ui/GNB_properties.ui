@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
+    <width>481</width>
     <height>600</height>
    </rect>
   </property>
@@ -22,8 +22,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>430</width>
-      <height>540</height>
+      <width>461</width>
+      <height>501</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -38,8 +38,8 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>400</width>
-        <height>319</height>
+        <width>441</width>
+        <height>354</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_5g">
@@ -73,7 +73,7 @@
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
          </property>
          <property name="text">
-          <string></string>
+          <string/>
          </property>
          <property name="placeholderText">
           <string>Optional: e.g., 192.168.1.100</string>
@@ -93,7 +93,7 @@
           <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
          </property>
          <property name="text">
-          <string>mn.gnb</string>
+          <string>gnb</string>
          </property>
         </widget>
        </item>
@@ -237,6 +237,114 @@
       </layout>
      </widget>
     </widget>
+    <widget class="QWidget" name="tab_interfaces">
+     <attribute name="title">
+      <string>Network Interfaces</string>
+     </attribute>
+     <widget class="QWidget" name="formLayoutWidget_interfaces">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>441</width>
+        <height>300</height>
+       </rect>
+      </property>
+      <layout class="QFormLayout" name="formLayout_interfaces">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_n2_iface">
+         <property name="text">
+          <string>N2 Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="GNB_N2_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_n3_iface">
+         <property name="text">
+          <string>N3 Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="GNB_N3_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_radio_iface">
+         <property name="text">
+          <string>Radio Interface:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="GNB_Radio_Interface">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="text">
+          <string>eth0</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_bridge_priority">
+         <property name="text">
+          <string>Bridge Priority:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSpinBox" name="GNB_Bridge_Priority">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>65535</number>
+         </property>
+         <property name="value">
+          <number>32768</number>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_stp_enabled">
+         <property name="text">
+          <string>STP Enabled:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QCheckBox" name="GNB_STP_Enabled">
+         <property name="toolTip">
+          <string>Enable Spanning Tree Protocol on the bridge</string>
+         </property>
+         <property name="text">
+          <string>Enable STP</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
     <widget class="QWidget" name="tab_ap_config">
      <attribute name="title">
       <string>Access Point</string>
@@ -246,13 +354,16 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>400</width>
-        <height>460</height>
+        <width>441</width>
+        <height>311</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_ap">
        <item>
         <widget class="QCheckBox" name="GNB_AP_Enabled">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
          <property name="toolTip">
           <string>Enable the gNB to act as a WiFi Access Point for mininet-wifi integration</string>
          </property>
@@ -261,6 +372,9 @@
          </property>
          <property name="text">
           <string>Enable Access Point Functionality</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -363,23 +477,6 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_ap_bridge">
-           <property name="text">
-            <string>Bridge Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="GNB_AP_BridgeName">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-           </property>
-           <property name="text">
-            <string>br-gnb</string>
-           </property>
-          </widget>
-         </item>
         </layout>
        </item>
       </layout>
@@ -394,8 +491,8 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>400</width>
-        <height>480</height>
+        <width>441</width>
+        <height>281</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_ovs">
@@ -465,12 +562,12 @@
            </property>
            <item>
             <property name="text">
-             <string>standalone</string>
+             <string>secure</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>secure</string>
+             <string>standalone</string>
             </property>
            </item>
           </widget>
@@ -533,215 +630,7 @@
            </item>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_ovs_auto_setup">
-           <property name="text">
-            <string>Auto Setup:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QCheckBox" name="GNB_OVS_AutoSetup">
-           <property name="toolTip">
-            <string>Automatically add network interfaces to the OVS bridge</string>
-           </property>
-           <property name="text">
-            <string>Auto-add interfaces to bridge</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="0">
-          <widget class="QLabel" name="label_ovs_bridge_interfaces">
-           <property name="text">
-            <string>Bridge Interfaces:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="GNB_OVS_BridgeInterfaces">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-           </property>
-           <property name="text">
-            <string>auto</string>
-           </property>
-           <property name="placeholderText">
-            <string>auto, eth0, or eth0,eth1,wlan0</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_ovs_controller_ip">
-           <property name="text">
-            <string>Controller IP:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QLineEdit" name="GNB_OVS_ControllerIP">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="placeholderText">
-            <string>127.0.0.1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_ovs_controller_port">
-           <property name="text">
-            <string>Controller Port:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="1">
-          <widget class="QSpinBox" name="GNB_OVS_ControllerPort">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-           </property>
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>65535</number>
-           </property>
-           <property name="value">
-            <number>6633</number>
-           </property>
-          </widget>
-         </item>
         </layout>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="tab_interfaces">
-     <attribute name="title">
-      <string>Network Interfaces</string>
-     </attribute>
-     <widget class="QWidget" name="formLayoutWidget_interfaces">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>400</width>
-        <height>300</height>
-       </rect>
-      </property>
-      <layout class="QFormLayout" name="formLayout_interfaces">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_n2_iface">
-         <property name="text">
-          <string>N2 Interface:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="GNB_N2_Interface">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <property name="text">
-          <string>eth0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_n3_iface">
-         <property name="text">
-          <string>N3 Interface:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="GNB_N3_Interface">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <property name="text">
-          <string>eth0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_radio_iface">
-         <property name="text">
-          <string>Radio Interface:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="GNB_Radio_Interface">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <property name="text">
-          <string>eth0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_network_iface">
-         <property name="text">
-          <string>Network Interface:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="GNB_Network_Interface">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <property name="text">
-          <string>eth0</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_bridge_priority">
-         <property name="text">
-          <string>Bridge Priority:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="GNB_Bridge_Priority">
-         <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>65535</number>
-         </property>
-         <property name="value">
-          <number>32768</number>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_stp_enabled">
-         <property name="text">
-          <string>STP Enabled:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QCheckBox" name="GNB_STP_Enabled">
-         <property name="toolTip">
-          <string>Enable Spanning Tree Protocol on the bridge</string>
-         </property>
-         <property name="text">
-          <string>Enable STP</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>

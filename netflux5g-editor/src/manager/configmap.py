@@ -64,52 +64,40 @@ class ConfigurationMapper:
         """Map gNB properties to configuration parameters with enhanced UERANSIM Docker support"""
         config = {}
         
-        # Enhanced 5G configuration using new field names matching UERANSIM Dockerfile
+        # Enhanced 5G configuration using field names matching current UI
         config['amf_hostname'] = properties.get('GNB_AMFHostName', properties.get('5g_amf_hostname', 'amf'))
         config['amf_ip'] = properties.get('GNB_AMF_IP', properties.get('5g_amf_ip', ''))  # Explicit AMF IP for direct connection
-        config['gnb_hostname'] = properties.get('GNB_GNBHostName', properties.get('5g_gnb_hostname', 'localhost'))
+        config['gnb_hostname'] = properties.get('GNB_GNBHostName', properties.get('5g_gnb_hostname', 'gnb'))
         config['mcc'] = properties.get('GNB_MCC', properties.get('5g_mcc', '999'))
         config['mnc'] = properties.get('GNB_MNC', properties.get('5g_mnc', '70'))
         config['sst'] = properties.get('GNB_SST', properties.get('5g_sst', '1'))
         config['sd'] = properties.get('GNB_SD', properties.get('5g_sd', '0xffffff'))
         config['tac'] = properties.get('GNB_TAC', properties.get('5g_tac', '1'))
         
-        # Network interfaces configuration - must match Dockerfile environment variables
+        # Network interfaces configuration - matching current UI
         config['n2_iface'] = properties.get('GNB_N2_Interface', properties.get('network_n2_iface', 'eth0'))
         config['n3_iface'] = properties.get('GNB_N3_Interface', properties.get('network_n3_iface', 'eth0'))
         config['radio_iface'] = properties.get('GNB_Radio_Interface', properties.get('network_radio_iface', 'eth0'))
-        config['network_interface'] = properties.get('GNB_Network_Interface', properties.get('network_network_interface', 'eth0'))
         
         # UERANSIM component type
         config['ueransim_component'] = 'gnb'
         
-        # Wireless configuration for mininet-wifi
-        power_fields = ["GNB_Power", "wireless_txpower", "GNB_TxPower", "lineEdit_power", "doubleSpinBox_power"]
-        for field in power_fields:
-            if properties.get(field):
-                power = str(properties[field]).strip()
-                if power:
-                    try:
-                        power_val = float(power)
-                        if power_val > 0:
-                            config['txpower'] = power_val
-                    except ValueError:
-                        pass
-                    break
+        # Wireless configuration for mininet-wifi - using current UI field names
+        if properties.get('GNB_Power'):
+            try:
+                power_val = float(properties['GNB_Power'])
+                if power_val > 0:
+                    config['txpower'] = power_val
+            except (ValueError, TypeError):
+                pass
         
-        # Range configuration (coverage area)
-        range_fields = ["GNB_Range", "wireless_range", "GNB_Coverage", "spinBox_range"]
-        for field in range_fields:
-            if properties.get(field):
-                range_val = str(properties[field]).strip()
-                if range_val:
-                    try:
-                        range_num = float(range_val)
-                        if range_num > 0:
-                            config['range'] = range_num
-                    except ValueError:
-                        pass
-                    break
+        if properties.get('GNB_Range'):
+            try:
+                range_val = float(properties['GNB_Range'])
+                if range_val > 0:
+                    config['range'] = range_val
+            except (ValueError, TypeError):
+                pass
         
         # Set default values if not specified
         if 'txpower' not in config:
@@ -120,105 +108,31 @@ class ConfigurationMapper:
         # OVS/OpenFlow configuration from GNB properties dialog
         ovs_config = {}
         
-        # Check if OVS is enabled - look for various field names
-        ovs_enabled_fields = ['GNB_OVS_Enabled', 'ovs_ovs_enabled', 'checkBox_ovs_enabled', 'ovs_enabled']
-        ovs_enabled = False
-        for field in ovs_enabled_fields:
-            if properties.get(field):
-                ovs_enabled = True
-                break
-        
-        if ovs_enabled:
+        # Check if OVS is enabled - using current UI field name
+        if properties.get('GNB_OVS_Enabled'):
             ovs_config['OVS_ENABLED'] = 'true'
             
-            # Bridge configuration
-            ovs_config['OVS_BRIDGE_NAME'] = (
-                properties.get('GNB_OVS_BridgeName') or 
-                properties.get('ovs_ovs_bridge_name') or 
-                properties.get('lineEdit_ovs_bridge_name') or
-                'br-ueransim'
-            )
+            # Bridge configuration - using current UI field names
+            ovs_config['OVS_BRIDGE_NAME'] = properties.get('GNB_OVS_BridgeName', 'br-gnb')
+            ovs_config['OVS_FAIL_MODE'] = properties.get('GNB_OVS_FailMode', 'secure')
+            ovs_config['OPENFLOW_PROTOCOLS'] = properties.get('GNB_OVS_Protocols', 'OpenFlow14')
+            ovs_config['OVS_DATAPATH'] = properties.get('GNB_OVS_Datapath', 'kernel')
             
-            ovs_config['OVS_FAIL_MODE'] = (
-                properties.get('GNB_OVS_FailMode') or 
-                properties.get('ovs_ovs_fail_mode') or 
-                properties.get('comboBox_ovs_fail_mode') or
-                'standalone'
-            )
-            
-            ovs_config['OPENFLOW_PROTOCOLS'] = (
-                properties.get('GNB_OVS_Protocols') or 
-                properties.get('ovs_openflow_protocols') or 
-                properties.get('lineEdit_openflow_protocols') or
-                'OpenFlow14'
-            )
-            
-            ovs_config['OVS_DATAPATH'] = (
-                properties.get('GNB_OVS_Datapath') or 
-                properties.get('ovs_ovs_datapath') or 
-                properties.get('comboBox_ovs_datapath') or
-                'kernel'
-            )
-            
-            # Auto setup configuration
-            auto_setup_fields = ['GNB_OVS_AutoSetup', 'ovs_ovs_auto_setup', 'checkBox_ovs_auto_setup']
-            ovs_auto_setup = False
-            for field in auto_setup_fields:
-                if properties.get(field):
-                    ovs_auto_setup = True
-                    break
-            ovs_config['OVS_AUTO_SETUP'] = 'true' if ovs_auto_setup else 'false'
-            
-            # Controller configuration
-            controller_fields = ['GNB_OVS_Controller', 'ovs_ovs_controller', 'lineEdit_ovs_controller']
-            for field in controller_fields:
-                controller = properties.get(field)
-                if controller:
-                    ovs_config['OVS_CONTROLLER'] = str(controller)
-                    break
-                    
-            controller_ip_fields = ['GNB_OVS_ControllerIP', 'ovs_controller_ip', 'lineEdit_controller_ip']
-            for field in controller_ip_fields:
-                controller_ip = properties.get(field)
-                if controller_ip:
-                    ovs_config['CONTROLLER_IP'] = str(controller_ip)
-                    break
-                    
-            controller_port_fields = ['GNB_OVS_ControllerPort', 'ovs_controller_port', 'spinBox_controller_port']
-            for field in controller_port_fields:
-                controller_port = properties.get(field)
-                if controller_port:
-                    ovs_config['CONTROLLER_PORT'] = str(controller_port)
-                    break
-            if 'CONTROLLER_PORT' not in ovs_config:
-                ovs_config['CONTROLLER_PORT'] = '6633'
+            # Controller configuration - using current UI field names
+            if properties.get('GNB_OVS_Controller'):
+                ovs_config['OVS_CONTROLLER'] = properties.get('GNB_OVS_Controller')
                 
-            # Bridge interfaces
-            bridge_iface_fields = ['GNB_OVS_BridgeInterfaces', 'ovs_bridge_interfaces', 'lineEdit_bridge_interfaces']
-            for field in bridge_iface_fields:
-                bridge_ifaces = properties.get(field)
-                if bridge_ifaces:
-                    ovs_config['BRIDGE_INTERFACES'] = str(bridge_ifaces)
-                    break
-                
-            # Bridge priority and STP
-            priority_fields = ['GNB_Bridge_Priority', 'network_bridge_priority', 'spinBox_bridge_priority']
-            for field in priority_fields:
-                priority = properties.get(field)
-                if priority:
-                    ovs_config['BRIDGE_PRIORITY'] = str(priority)
-                    break
-            if 'BRIDGE_PRIORITY' not in ovs_config:
+            # Bridge priority and STP - using current UI field names
+            if properties.get('GNB_Bridge_Priority'):
+                ovs_config['BRIDGE_PRIORITY'] = str(properties.get('GNB_Bridge_Priority'))
+            else:
                 ovs_config['BRIDGE_PRIORITY'] = '32768'
                 
-            # STP configuration
-            stp_fields = ['GNB_STP_Enabled', 'network_stp_enabled', 'checkBox_stp_enabled']
-            stp_enabled = False
-            for field in stp_fields:
-                if properties.get(field):
-                    stp_enabled = True
-                    break
-            ovs_config['STP_ENABLED'] = 'true' if stp_enabled else 'false'
+            # STP configuration - using current UI field names
+            if properties.get('GNB_STP_Enabled'):
+                ovs_config['STP_ENABLED'] = 'true'
+            else:
+                ovs_config['STP_ENABLED'] = 'false'
         else:
             ovs_config['OVS_ENABLED'] = 'false'
             
@@ -227,73 +141,28 @@ class ConfigurationMapper:
         # AP configuration from GNB properties dialog
         ap_config = {}
         
-        # Check if AP is enabled - look for various field names
-        ap_enabled_fields = ['GNB_AP_Enabled', 'ap_ap_enabled', 'checkBox_ap_enabled', 'ap_enabled']
-        ap_enabled = False
-        for field in ap_enabled_fields:
-            if properties.get(field):
-                ap_enabled = True
-                break
-        
-        if ap_enabled:
+        # Check if AP is enabled - using current UI field name
+        if properties.get('GNB_AP_Enabled'):
             ap_config['AP_ENABLED'] = 'true'
             
-            # Basic AP configuration
-            ap_config['AP_SSID'] = (
-                properties.get('GNB_AP_SSID') or 
-                properties.get('ap_ap_ssid') or 
-                properties.get('lineEdit_ap_ssid') or
-                'gnb-hotspot'
-            )
+            # Basic AP configuration - using current UI field names
+            ap_config['AP_SSID'] = properties.get('GNB_AP_SSID', 'gnb-hotspot')
             
-            channel_fields = ['GNB_AP_Channel', 'ap_ap_channel', 'spinBox_ap_channel']
-            for field in channel_fields:
-                channel = properties.get(field)
-                if channel:
-                    ap_config['AP_CHANNEL'] = str(channel)
-                    break
-            if 'AP_CHANNEL' not in ap_config:
+            if properties.get('GNB_AP_Channel'):
+                ap_config['AP_CHANNEL'] = str(properties.get('GNB_AP_Channel'))
+            else:
                 ap_config['AP_CHANNEL'] = '6'
                 
-            ap_config['AP_MODE'] = (
-                properties.get('GNB_AP_Mode') or 
-                properties.get('ap_ap_mode') or 
-                properties.get('comboBox_ap_mode') or
-                'g'
-            )
+            ap_config['AP_MODE'] = properties.get('GNB_AP_Mode', 'g')
             
             # Password configuration
-            passwd_fields = ['GNB_AP_Password', 'ap_ap_passwd', 'lineEdit_ap_password']
-            for field in passwd_fields:
-                passwd = properties.get(field)
-                if passwd:
-                    ap_config['AP_PASSWD'] = str(passwd)
-                    break
-            if 'AP_PASSWD' not in ap_config:
-                ap_config['AP_PASSWD'] = ''
-                
-            # Bridge configuration
-            ap_config['AP_BRIDGE_NAME'] = (
-                properties.get('GNB_AP_BridgeName') or 
-                properties.get('ap_ap_bridge_name') or 
-                properties.get('lineEdit_ap_bridge_name') or
-                'br-gnb'
-            )
+            ap_config['AP_PASSWD'] = properties.get('GNB_AP_Password', '')
             
             # OpenFlow configuration for AP (shared with OVS configuration)
             if ovs_config.get('OVS_CONTROLLER'):
                 ap_config['OVS_CONTROLLER'] = ovs_config['OVS_CONTROLLER']
-            ap_config['AP_FAILMODE'] = ovs_config.get('OVS_FAIL_MODE', 'standalone')
+            ap_config['AP_FAILMODE'] = ovs_config.get('OVS_FAIL_MODE', 'secure')
             ap_config['OPENFLOW_PROTOCOLS'] = ovs_config.get('OPENFLOW_PROTOCOLS', 'OpenFlow14')
-            
-            # DHCP configuration (optional)
-            dhcp_fields = ['GNB_AP_EnableDHCP', 'ap_enable_dhcp', 'checkBox_ap_dhcp']
-            dhcp_enabled = False
-            for field in dhcp_fields:
-                if properties.get(field):
-                    dhcp_enabled = True
-                    break
-            ap_config['ENABLE_DHCP'] = 'true' if dhcp_enabled else 'false'
         else:
             ap_config['AP_ENABLED'] = 'false'
             
@@ -310,7 +179,7 @@ class ConfigurationMapper:
         gnb_hostname = (properties.get('UE_GNBHostName') or 
                        properties.get('5g_gnb_hostname') or 
                        properties.get('network_gnb_hostname') or 
-                       'localhost')
+                       'gnb')
         config['gnb_hostname'] = gnb_hostname
         
         # Basic UE parameters - must match Dockerfile environment variables
@@ -320,7 +189,6 @@ class ConfigurationMapper:
         config['mnc'] = properties.get('UE_MNC', properties.get('5g_mnc', '70'))
         config['sst'] = properties.get('UE_SST', properties.get('5g_sst', '1'))
         config['sd'] = properties.get('UE_SD', properties.get('5g_sd', '0xffffff'))
-        config['tac'] = properties.get('UE_TAC', properties.get('5g_tac', '1'))
         
         # Authentication parameters
         config['key'] = properties.get('UE_KEY', properties.get('5g_key', '465B5CE8B199B49FAA5F0A2EE238A6BC'))
@@ -350,62 +218,35 @@ class ConfigurationMapper:
         else:
             config['pdu_sessions'] = 1
         
-        # Mobility configuration
-        config['mobility'] = properties.get('UE_Mobility', properties.get('network_mobility_enabled', False))
-        
         # UERANSIM component type
         config['ueransim_component'] = 'ue'
         
-        # Wireless configuration for mininet-wifi
-        power_fields = ["UE_Power", "wireless_txpower", "UE_TxPower", "lineEdit_power", "doubleSpinBox_power"]
-        for field in power_fields:
-            if properties.get(field):
-                power = str(properties[field]).strip()
-                if power:
-                    try:
-                        power_val = float(power)
-                        if power_val > 0:
-                            config['txpower'] = power_val
-                    except ValueError:
-                        pass
-                    break
+        # Wireless configuration for mininet-wifi - using current UI field names
+        if properties.get('UE_Power'):
+            try:
+                power_val = float(properties['UE_Power'])
+                if power_val > 0:
+                    config['txpower'] = power_val
+            except (ValueError, TypeError):
+                pass
         
         # Range configuration (coverage area)
-        range_fields = ["UE_Range", "wireless_range", "UE_Coverage", "UE_TxRange", "spinBox_range"]
-        for field in range_fields:
-            if properties.get(field):
-                range_val = str(properties[field]).strip()
-                if range_val:
-                    try:
-                        range_num = float(range_val)
-                        if range_num > 0:
-                            config['range'] = range_num
-                    except ValueError:
-                        pass
-                    break
+        if properties.get('UE_Range'):
+            try:
+                range_val = float(properties['UE_Range'])
+                if range_val > 0:
+                    config['range'] = range_val
+            except (ValueError, TypeError):
+                pass
         
         # Set default values if not specified
         if 'txpower' not in config:
             config['txpower'] = 20  # Default UE power
         if 'range' not in config:
-            config['range'] = 116  # Default UE range
+            config['range'] = 300  # Default UE range
         
-        # Association and mobility
+        # Association mode
         config['association'] = properties.get('UE_AssociationMode', properties.get('wireless_association', 'auto'))
-        
-        # OVS configuration for UE (less common but possible)
-        ovs_config = {}
-        if properties.get('UE_OVS_Enabled') or properties.get('ovs_ovs_enabled'):
-            ovs_config['OVS_ENABLED'] = 'true'
-            ovs_config['OVS_BRIDGE_NAME'] = properties.get('UE_OVS_BridgeName', properties.get('ovs_ovs_bridge_name', 'br-ue'))
-            ovs_config['OVS_FAIL_MODE'] = properties.get('UE_OVS_FailMode', properties.get('ovs_ovs_fail_mode', 'standalone'))
-            ovs_config['OPENFLOW_PROTOCOLS'] = properties.get('UE_OVS_Protocols', properties.get('ovs_openflow_protocols', 'OpenFlow14'))
-            ovs_config['OVS_DATAPATH'] = properties.get('UE_OVS_Datapath', properties.get('ovs_ovs_datapath', 'kernel'))
-            ovs_config['UERANSIM_COMPONENT'] = 'ue'
-        else:
-            ovs_config['OVS_ENABLED'] = 'false'
-        
-        config['ovs_config'] = ovs_config
         
         return config
     
@@ -708,6 +549,42 @@ class ConfigurationMapper:
             config[config_key] = properties.get(f"{comp_type}_configs", [])
         
         return config
+    
+    @staticmethod
+    def map_link_config(properties):
+        """Map link properties to Mininet link parameters"""
+        params = []
+        
+        # Bandwidth configuration
+        bandwidth = properties.get('bandwidth', '')
+        if bandwidth and bandwidth != '0':
+            try:
+                bw_value = int(bandwidth)
+                if bw_value > 0:
+                    params.append(f"bw={bw_value}")
+            except (ValueError, TypeError):
+                pass
+        
+        # Delay configuration
+        delay = properties.get('delay', '')
+        if delay and delay.strip():
+            # Ensure delay has proper format (e.g., "10ms", "1s")
+            delay_str = delay.strip()
+            if delay_str and not delay_str.endswith(('ms', 's', 'us')):
+                delay_str += 'ms'  # Default to milliseconds
+            params.append(f"delay='{delay_str}'")
+        
+        # Loss configuration
+        loss = properties.get('loss', '')
+        if loss and loss != '0' and loss != '0.0':
+            try:
+                loss_value = float(loss)
+                if loss_value > 0:
+                    params.append(f"loss={loss_value}")
+            except (ValueError, TypeError):
+                pass
+        
+        return params
     
     @staticmethod
     def get_component_config(node_type, properties):
