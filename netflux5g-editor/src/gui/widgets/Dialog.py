@@ -1860,9 +1860,9 @@ class LinkPropertiesWindow(BasePropertiesWindow):
             try:
                 # Remove 'Mbps' suffix if present and convert to int (via float for float strings)
                 if isinstance(bandwidth, str) and bandwidth.endswith('Mbps'):
-                    bandwidth = int(float(bandwidth.replace('Mbps', '').strip()))
+                    bandwidth = int(bandwidth.replace('Mbps', '').strip())
                 else:
-                    bandwidth = int(float(bandwidth))
+                    bandwidth = int(bandwidth)
                 self.spinBox_bandwidth.setValue(bandwidth)
             except (ValueError, TypeError):
                 self.spinBox_bandwidth.setValue(0)
@@ -1876,14 +1876,14 @@ class LinkPropertiesWindow(BasePropertiesWindow):
             try:
                 # Remove '%' suffix if present and convert to float
                 if isinstance(loss, str) and loss.endswith('%'):
-                    loss = float(loss.replace('%', '').strip())
+                    loss = int(loss.replace('%', '').strip())
                 else:
-                    loss = float(loss)
-                self.doubleSpinBox_loss.setValue(loss)
+                    loss = int(loss)
+                self.spinBox_loss.setValue(loss)
             except (ValueError, TypeError):
-                self.doubleSpinBox_loss.setValue(0.0)
+                self.spinBox_loss.setValue(0)
         else:
-            self.doubleSpinBox_loss.setValue(0.0)
+            self.spinBox_loss.setValue(0)
             
     def saveProperties(self):
         """Save the link properties from UI to component"""
@@ -1908,7 +1908,7 @@ class LinkPropertiesWindow(BasePropertiesWindow):
         else:
             self.component.properties.pop('delay', None)
             
-        loss = self.doubleSpinBox_loss.value()
+        loss = self.spinBox_loss.value()
         if loss > 0:
             self.component.properties['loss'] = str(loss)
         else:

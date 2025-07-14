@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>300</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,13 +21,6 @@
        <string>Basic Information</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_basic">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_name">
-         <property name="text">
-          <string>Name:</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="lineEdit_name">
          <property name="placeholderText">
@@ -35,10 +28,24 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_type">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_name">
          <property name="text">
-          <string>Type:</string>
+          <string>Name:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEdit_source">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEdit_destination">
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -54,11 +61,13 @@
            <string>wifi</string>
           </property>
          </item>
-         <item>
-          <property name="text">
-           <string>optical</string>
-          </property>
-         </item>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_type">
+         <property name="text">
+          <string>Type:</string>
+         </property>
         </widget>
        </item>
        <item row="2" column="0">
@@ -68,24 +77,10 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_source">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_destination">
          <property name="text">
           <string>Destination:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_destination">
-         <property name="readOnly">
-          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -107,6 +102,9 @@
        </item>
        <item row="0" column="1">
         <widget class="QSpinBox" name="spinBox_bandwidth">
+         <property name="specialValueText">
+          <string>Auto</string>
+         </property>
          <property name="suffix">
           <string> Mbps</string>
          </property>
@@ -118,9 +116,6 @@
          </property>
          <property name="value">
           <number>0</number>
-         </property>
-         <property name="specialValueText">
-          <string>Auto</string>
          </property>
         </widget>
        </item>
@@ -146,21 +141,15 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QDoubleSpinBox" name="doubleSpinBox_loss">
+        <widget class="QSpinBox" name="spinBox_loss">
+         <property name="inputMethodHints">
+          <set>Qt::ImhFormattedNumbersOnly</set>
+         </property>
          <property name="suffix">
           <string> %</string>
          </property>
-         <property name="minimum">
-          <number>0.000000000000000</number>
-         </property>
-         <property name="maximum">
-          <number>100.000000000000000</number>
-         </property>
-         <property name="singleStep">
-          <number>0.100000000000000</number>
-         </property>
-         <property name="value">
-          <number>0.000000000000000</number>
+         <property name="prefix">
+          <string/>
          </property>
         </widget>
        </item>
