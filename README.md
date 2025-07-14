@@ -69,7 +69,7 @@ This will Install the latest compatible version of :
 - Docker Engine 
 
 ```sh
-git clone https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
+git clone -b netflux5g https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
 ```
 
 ```sh
