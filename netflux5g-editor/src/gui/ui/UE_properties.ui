@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>650</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,11 +23,14 @@
       <x>10</x>
       <y>10</y>
       <width>430</width>
-      <height>590</height>
+      <height>471</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_ue_config">
      <attribute name="title">
@@ -477,8 +480,8 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>610</y>
+      <x>20</x>
+      <y>500</y>
       <width>168</width>
       <height>31</height>
      </rect>

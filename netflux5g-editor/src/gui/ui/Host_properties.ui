@@ -26,6 +26,24 @@
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QPushButton" name="pushButton">
+       <property name="styleSheet">
+        <string notr="true">
+         QPushButton {
+          background-color: rgb(0, 123, 255);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-weight: bold;
+         }
+         QPushButton:hover {
+          background-color: rgb(0, 105, 217);
+         }
+         QPushButton:pressed {
+          background-color: rgb(0, 86, 179);
+         }
+        </string>
+       </property>
        <property name="text">
         <string>OK</string>
        </property>
@@ -33,6 +51,24 @@
      </item>
      <item row="0" column="1">
       <widget class="QPushButton" name="pushButton_5">
+       <property name="styleSheet">
+        <string notr="true">
+         QPushButton {
+          background-color: rgb(108, 117, 125);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-weight: bold;
+         }
+         QPushButton:hover {
+          background-color: rgb(90, 98, 104);
+         }
+         QPushButton:pressed {
+          background-color: rgb(73, 80, 87);
+         }
+        </string>
+       </property>
        <property name="text">
         <string>Cancel</string>
        </property>
@@ -48,6 +84,9 @@
       <width>511</width>
       <height>291</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
      <number>0</number>
@@ -266,7 +305,7 @@
         <x>10</x>
         <y>10</y>
         <width>231</width>
-        <height>21</height>
+        <height>25</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_2">
@@ -351,11 +390,11 @@
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>false</bool>
       </attribute>
-      <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>46</number>
-      </attribute>
       <attribute name="horizontalHeaderHighlightSections">
        <bool>false</bool>
+      </attribute>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>46</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>true</bool>

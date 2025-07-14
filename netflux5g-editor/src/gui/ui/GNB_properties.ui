@@ -26,6 +26,9 @@
       <height>501</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
@@ -639,8 +642,8 @@
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>560</y>
+      <x>20</x>
+      <y>550</y>
       <width>168</width>
       <height>31</height>
      </rect>

@@ -1,198 +1,261 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LinkPropertiesWindow</class>
- <widget class="QMainWindow" name="LinkPropertiesWindow">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>368</height>
+    <height>329</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Link Properties</string>
+   <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_main">
-    <item>
-     <widget class="QGroupBox" name="groupBox_basic">
-      <property name="title">
-       <string>Basic Information</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_basic">
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="lineEdit_name">
-         <property name="placeholderText">
-          <string>Link name</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_name">
-         <property name="text">
-          <string>Name:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="lineEdit_source">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="lineEdit_destination">
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox_type">
-         <item>
-          <property name="text">
-           <string>ethernet</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>wifi</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_type">
-         <property name="text">
-          <string>Type:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_source">
-         <property name="text">
-          <string>Source:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_destination">
-         <property name="text">
-          <string>Destination:</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="groupBox_parameters">
-      <property name="title">
-       <string>Network Parameters</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_parameters">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_bandwidth">
-         <property name="text">
-          <string>Bandwidth:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="spinBox_bandwidth">
-         <property name="specialValueText">
-          <string>Auto</string>
-         </property>
-         <property name="suffix">
-          <string> Mbps</string>
-         </property>
-         <property name="minimum">
-          <number>0</number>
-         </property>
-         <property name="maximum">
-          <number>10000</number>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_delay">
-         <property name="text">
-          <string>Delay:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="lineEdit_delay">
-         <property name="placeholderText">
-          <string>e.g., 10ms, 1s</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_loss">
-         <property name="text">
-          <string>Loss:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="spinBox_loss">
-         <property name="inputMethodHints">
-          <set>Qt::ImhFormattedNumbersOnly</set>
-         </property>
-         <property name="suffix">
-          <string> %</string>
-         </property>
-         <property name="prefix">
-          <string/>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QFrame" name="frame_buttons">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_buttons">
+   <widget class="QGroupBox" name="groupBox_basic">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>432</width>
+      <height>129</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="title">
+     <string>Basic Information</string>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_basic">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_name">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="placeholderText">
+        <string>Link name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_name">
+       <property name="text">
+        <string>Name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBox_type">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
        <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
+        <property name="text">
+         <string>ethernet</string>
+        </property>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_ok">
-         <property name="text">
-          <string>OK</string>
-         </property>
-        </widget>
+        <property name="text">
+         <string>wifi</string>
+        </property>
        </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_cancel">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-   </layout>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="lineEdit_destination">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="lineEdit_source">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_type">
+       <property name="text">
+        <string>Type:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_source">
+       <property name="text">
+        <string>Source:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_destination">
+       <property name="text">
+        <string>Destination:</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_parameters">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>150</y>
+      <width>432</width>
+      <height>116</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="title">
+     <string>Network Parameters</string>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_parameters">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_bandwidth">
+       <property name="text">
+        <string>Bandwidth:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="spinBox_bandwidth">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="specialValueText">
+        <string>Auto</string>
+       </property>
+       <property name="suffix">
+        <string> Mbps</string>
+       </property>
+       <property name="minimum">
+        <number>0</number>
+       </property>
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>0</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_delay">
+       <property name="text">
+        <string>Delay:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEdit_delay">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="placeholderText">
+        <string>e.g., 10ms, 1s</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_loss">
+       <property name="text">
+        <string>Loss:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="spinBox_loss">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhFormattedNumbersOnly</set>
+       </property>
+       <property name="suffix">
+        <string> %</string>
+       </property>
+       <property name="prefix">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="gridLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>280</y>
+      <width>168</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="pushButton_ok">
+       <property name="styleSheet">
+        <string notr="true">
+         QPushButton {
+          background-color: rgb(0, 123, 255);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-weight: bold;
+         }
+         QPushButton:hover {
+          background-color: rgb(0, 105, 217);
+         }
+         QPushButton:pressed {
+          background-color: rgb(0, 86, 179);
+         }
+        </string>
+       </property>
+       <property name="text">
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="pushButton_cancel">
+       <property name="styleSheet">
+        <string notr="true">
+         QPushButton {
+          background-color: rgb(108, 117, 125);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-weight: bold;
+         }
+         QPushButton:hover {
+          background-color: rgb(90, 98, 104);
+         }
+         QPushButton:pressed {
+          background-color: rgb(73, 80, 87);
+         }
+        </string>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
  </widget>
  <resources/>
