@@ -165,11 +165,11 @@ class Canvas(QGraphicsView):
         # Force a viewport update to ensure proper rendering
         self.viewport().update()
 
-    def zoomIn(self, zoom_factor=0.5):
+    def zoomIn(self, zoom_factor=1.5):
         self.zoom_level *= zoom_factor
         self.scale(zoom_factor, zoom_factor)
 
-    def zoomOut(self, zoom_factor=0.5):
+    def zoomOut(self, zoom_factor=1.5):
         self.zoom_level /= zoom_factor
         self.scale(1 / zoom_factor, 1 / zoom_factor)
 

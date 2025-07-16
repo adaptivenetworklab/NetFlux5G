@@ -57,7 +57,7 @@ class MininetExporter:
         nodes, links = self.main_window.extractTopology()
         
         if not nodes:
-            self.main_window.showCanvasStatus("No components found to export!")
+            self.main_window.status_manager.showCanvasStatus("No components found to export!")
             return
         
         # Categorize nodes by type for proper script generation
@@ -70,14 +70,13 @@ class MininetExporter:
             with open(filename, "w") as f:
                 self.write_mininet_script(f, nodes, links, categorized_nodes)
             
-            self.main_window.showCanvasStatus(f"Exported topology to {os.path.basename(filename)}")
+            self.main_window.status_manager.showCanvasStatus(f"Exported topology to {os.path.basename(filename)}")
             debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links to {filename}")
             
         except Exception as e:
             error_msg = f"Error exporting to Mininet: {str(e)}"
-            self.main_window.showCanvasStatus(error_msg)
+            self.main_window.status_manager.showCanvasStatus(error_msg)
             error_print(f"ERROR: {error_msg}")
-            import traceback
             traceback.print_exc()
 
     def categorize_nodes(self, nodes):
@@ -667,7 +666,8 @@ class MininetExporter:
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
                     f'"/lib/modules:/lib/modules:ro"',
-                    f'export_dir + "/log-{gnb_name}/:/logging/"'
+                    f'export_dir + "/log-{gnb_name}/:/logging/"',
+                    f'os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), "automation", "webshark") + "/captures/:/logging/captures/"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -751,7 +751,7 @@ class MininetExporter:
                         protocols = 'OpenFlow13'
                     
                     # Create AP with same position as gNB (slightly offset)
-                    ap_position = f"{gnb.get('x', 0) - 2.3:.1f},{gnb.get('y', 0):.1f},0"
+                    ap_position = f"{gnb.get('x', 0):.1f},{gnb.get('y', 0):.1f},0"
                     
                     f.write(f'    {ap_name} = net.addAccessPoint(\'{ap_name}\', cls=OVSKernelAP, ssid=\'{ap_ssid}\', failMode=\'{fail_mode}\', datapath=\'{datapath}\',\n')
                     f.write(f'                             channel=\'{ap_channel}\', mode=\'{ap_mode}\', position=\'{ap_position}\', range={ap_range}, txpower={ap_txpower}, protocols="{protocols}")\n')
@@ -785,7 +785,8 @@ class MininetExporter:
 
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
-                    f'export_dir + "/log-{ue_name}/:/logging/"'
+                    f'export_dir + "/log-{ue_name}/:/logging/"',
+                    f'os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), "automation", "webshark") + "/captures/:/logging/captures/"'
                 ]
                 ue_params.append(f'volumes=[{", ".join(volumes)}]')
 
@@ -1132,7 +1133,7 @@ class MininetExporter:
                     # Debug output for config file mapping
                     f.write(f'    info("      Config file: {config_filename}\\n")\n')
                     
-                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log-{comp_name.lower()}/:/logging/"]')
+                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log-{comp_name.lower()}/:/logging/", os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), "automation", "webshark") + "/captures/:/logging/captures/"]')
 
                     # Add environment variables for configuration
                     if 'env_vars' in config and config['env_vars']:
@@ -1625,7 +1626,6 @@ class MininetExporter:
 
     def sanitize_variable_name(self, name):
         """Convert display name to valid Python variable name."""
-        import re
         # Remove special characters and spaces
         clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', str(name))
         # Ensure it starts with a letter or underscore
