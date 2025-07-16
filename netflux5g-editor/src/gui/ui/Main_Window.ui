@@ -137,6 +137,7 @@ QFrame {
     <addaction name="actionDeploy_Database"/>
     <addaction name="actionDeploy_User_Manager"/>
     <addaction name="actionDeploy_Monitoring"/>
+    <addaction name="actionDeploy_Packet_Analyzer"/>
     <addaction name="separator"/>
     <addaction name="actionStop_All"/>
     <addaction name="separator"/>
@@ -146,6 +147,7 @@ QFrame {
     <addaction name="actionStop_Database"/>
     <addaction name="actionStop_User_Manager"/>
     <addaction name="actionStop_Monitoring"/>
+    <addaction name="actionStop_Packet_Analyzer"/>
     <addaction name="separator"/>
     <addaction name="actionClear_All_Data"/>
    </widget>
@@ -510,6 +512,16 @@ QFrame {
   <action name="actionStop_ONOS_Controller">
    <property name="text">
     <string>Stop ONOS Controller</string>
+   </property>
+  </action>
+  <action name="actionDeploy_Packet_Analyzer">
+   <property name="text">
+    <string>Deploy Packet Analyzer</string>
+   </property>
+  </action>
+  <action name="actionStop_Packet_Analyzer">
+   <property name="text">
+    <string>Stop Packet Analyzer</string>
    </property>
   </action>
  </widget>

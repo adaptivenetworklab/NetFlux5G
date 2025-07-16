@@ -22,6 +22,7 @@ from manager.docker_network import DockerNetworkManager
 from manager.database import DatabaseManager
 from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
+from manager.packet_analyzer import PacketAnalyzerManager
 from manager.template_updater import TemplateUpdater
 
 # Import existing modules
@@ -58,6 +59,7 @@ class NetFlux5GApp(QMainWindow):
         self.database_manager = DatabaseManager(self)
         self.monitoring_manager = MonitoringManager(self)
         self.controller_manager = ControllerManager(self)
+        self.packet_analyzer_manager = PacketAnalyzerManager(self)
         self.template_updater = TemplateUpdater(self)
         
         # Initialize other components
@@ -253,6 +255,12 @@ class NetFlux5GApp(QMainWindow):
                 self.actionDeploy_Monitoring.triggered.connect(self.monitoring_manager.deployMonitoring)
             if hasattr(self, 'actionStop_Monitoring'):
                 self.actionStop_Monitoring.triggered.connect(self.monitoring_manager.stopMonitoring)
+
+            # Packet Analyzer connections
+            if hasattr(self, 'actionDeploy_Packet_Analyzer'):
+                self.actionDeploy_Packet_Analyzer.triggered.connect(self.packet_analyzer_manager.deployPacketAnalyzer)
+            if hasattr(self, 'actionStop_Packet_Analyzer'):
+                self.actionStop_Packet_Analyzer.triggered.connect(self.packet_analyzer_manager.stopPacketAnalyzer)
 
             # Controller connections
             if hasattr(self, 'actionDeploy_Ryu_Controller'):

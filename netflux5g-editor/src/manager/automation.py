@@ -76,7 +76,7 @@ class AutomationManager:
         reply = QMessageBox.question(
             self.main_window,
             "Stop All Services",
-            f"Are you sure you want to stop all running services?\n\nThis will:\n- Stop MongoDB Database\n- Stop WebUI (User Manager)\n- Stop Monitoring Stack\n- Stop {controller_type.upper()} Controller\n- Clean up Mininet with 'sudo mn -c'\n- Terminate all processes",
+            f"Are you sure you want to stop all running services?\n\nThis will:\n- Stop MongoDB Database\n- Stop WebUI (User Manager)\n- Stop Monitoring Stack\n- Stop Packet Analyzer\n- Stop {controller_type.upper()} Controller\n- Clean up Mininet with 'sudo mn -c'\n- Terminate all processes",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
@@ -109,7 +109,12 @@ class AutomationManager:
             if hasattr(self.main_window, 'monitoring_manager'):
                 self.main_window.monitoring_manager.stopMonitoring()
             
-            # 4. Stop Controllers
+            # 4. Stop Packet Analyzer
+            self.main_window.status_manager.showCanvasStatus("Stopping Packet Analyzer...")
+            if hasattr(self.main_window, 'packet_analyzer_manager'):
+                self.main_window.packet_analyzer_manager.stopPacketAnalyzer()
+            
+            # 5. Stop Controllers
             self.main_window.status_manager.showCanvasStatus("Stopping Controllers...")
             if hasattr(self.main_window, 'controller_manager'):
                 if controller_type == 'onos':
@@ -277,6 +282,22 @@ class AutomationManager:
         if hasattr(self.main_window, 'monitoring_manager'):
             return self.main_window.monitoring_manager.getMonitoringStatus()
         return "Monitoring manager not available"
+
+    def deployPacketAnalyzer(self):
+        """Deploy packet analyzer for the current topology."""
+        if hasattr(self.main_window, 'packet_analyzer_manager'):
+            self.main_window.packet_analyzer_manager.deployPacketAnalyzer()
+
+    def stopPacketAnalyzer(self):
+        """Stop packet analyzer for the current topology."""
+        if hasattr(self.main_window, 'packet_analyzer_manager'):
+            self.main_window.packet_analyzer_manager.stopPacketAnalyzer()
+
+    def getPacketAnalyzerStatus(self):
+        """Get the current packet analyzer status."""
+        if hasattr(self.main_window, 'packet_analyzer_manager'):
+            return "Running on port 8085" if self.main_window.packet_analyzer_manager.is_packet_analyzer_running() else "Not running"
+        return "Packet analyzer manager not available"
 
     def deployController(self):
         """Deploy Ryu SDN controller for the current topology."""

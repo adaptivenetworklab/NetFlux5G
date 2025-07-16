@@ -243,6 +243,21 @@ class AutomationRunner(QObject):
         else:
             self.status_updated.emit("Monitoring stack is already running")
         
+        # Step 5: Check Packet Analyzer (optional)
+        self.status_updated.emit("Checking packet analyzer...")
+        if not self._check_packet_analyzer_running():
+            reply = QMessageBox.question(
+                self.main_window,
+                "Deploy Packet Analyzer",
+                "Packet analyzer is not running. Deploy it now?\n\n(This is optional and can be skipped)",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.Yes:
+                self._deploy_packet_analyzer()
+        else:
+            self.status_updated.emit("Packet analyzer is already running")
+        
         self.status_updated.emit("All prerequisites are ready")
     
     def _check_controller_running(self, controller_type=None):
@@ -361,6 +376,41 @@ class AutomationRunner(QObject):
         except Exception as e:
             warning_print(f"WARNING: Failed to deploy monitoring stack: {str(e)}")
             self.status_updated.emit("Monitoring stack deployment failed (continuing anyway)")
+    
+    def _check_packet_analyzer_running(self):
+        """Check if packet analyzer is running."""
+        if not hasattr(self.main_window, 'packet_analyzer_manager'):
+            return False
+        if hasattr(self.main_window.packet_analyzer_manager, 'is_packet_analyzer_running'):
+            return self.main_window.packet_analyzer_manager.is_packet_analyzer_running()
+        return False
+    
+    def _deploy_packet_analyzer(self):
+        """Deploy packet analyzer."""
+        if not hasattr(self.main_window, 'packet_analyzer_manager'):
+            raise Exception("Packet analyzer manager not available")
+            
+        self.status_updated.emit("Deploying packet analyzer...")
+        
+        try:
+            # Use synchronous deployment for automation
+            if hasattr(self.main_window.packet_analyzer_manager, 'deploy_packet_analyzer_sync'):
+                success = self.main_window.packet_analyzer_manager.deploy_packet_analyzer_sync()
+                if success:
+                    self.status_updated.emit("Packet analyzer deployed successfully")
+                    debug_print("Packet analyzer deployment successful")
+                else:
+                    warning_print("WARNING: Failed to deploy packet analyzer")
+                    self.status_updated.emit("Packet analyzer deployment failed (continuing anyway)")
+            else:
+                # Fallback to async method
+                self.main_window.packet_analyzer_manager.deploy_packet_analyzer()
+                # Wait a moment for deployment
+                time.sleep(3)
+                self.status_updated.emit("Packet analyzer deployed successfully")
+        except Exception as e:
+            warning_print(f"WARNING: Packet analyzer deployment failed: {e}")
+            self.status_updated.emit("Packet analyzer deployment failed (continuing anyway)")
     
     def _generate_mininet_script(self):
         """Generate Mininet script."""
@@ -718,8 +768,22 @@ read
                         self.status_updated.emit("Failed to stop monitoring stack (continuing)")
             except Exception as e:
                 warning_print(f"Error stopping monitoring stack: {e}")
-                self.status_updated.emit(f"Error stopping monitoring stack: {e}")
             
+            # Stop packet analyzer if it was deployed
+            try:
+                if hasattr(self.main_window, 'packet_analyzer_manager') and hasattr(self.main_window.packet_analyzer_manager, '_stop_container_sync'):
+                    debug_print("Stopping packet analyzer...")
+                    self.status_updated.emit("Stopping packet analyzer...")
+                    success = self.main_window.packet_analyzer_manager._stop_container_sync("netflux5g-webshark")
+                    if success:
+                        debug_print("Packet analyzer stopped")
+                        self.status_updated.emit("Packet analyzer stopped")
+                    else:
+                        warning_print("Failed to stop packet analyzer")
+                        self.status_updated.emit("Failed to stop packet analyzer (continuing)")
+            except Exception as e:
+                warning_print(f"Error stopping packet analyzer: {e}")
+                
             # Additional cleanup for any leftover processes
             try:
                 # Clean up any remaining Open vSwitch processes
