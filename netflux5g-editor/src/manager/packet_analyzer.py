@@ -171,18 +171,13 @@ class PacketAnalyzerDeploymentWorker(QThread):
     def _get_webshark_path(self):
         """Get the path to the webshark directory."""
         # Try to find webshark directory relative to current location
-        current_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        webshark_path = os.path.join(os.path.dirname(current_dir), "webshark")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        webshark_path = os.path.join(os.path.dirname(current_dir), "automation", "webshark")
         
         if os.path.exists(webshark_path) and os.path.isfile(os.path.join(webshark_path, "Dockerfile")):
             return webshark_path
         
-        # Try alternative path
-        alt_path = "/home/litfan/Code/webshark"
-        if os.path.exists(alt_path) and os.path.isfile(os.path.join(alt_path, "Dockerfile")):
-            return alt_path
-        
-        error_print(f"Webshark directory not found. Tried: {webshark_path}, {alt_path}")
+        error_print(f"Webshark directory not found. Tried: {webshark_path}")
         return None
 
 
@@ -387,36 +382,26 @@ class PacketAnalyzerManager:
     def _get_captures_path(self):
         """Get the path to the captures directory."""
         # Try to find webshark directory relative to current location
-        current_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        webshark_path = os.path.join(os.path.dirname(current_dir), "webshark")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        webshark_path = os.path.join(os.path.dirname(current_dir), "automation", "webshark")
         captures_path = os.path.join(webshark_path, "captures")
         
         if os.path.exists(captures_path):
             return captures_path
         
-        # Try alternative path
-        alt_path = "/home/litfan/Code/webshark/captures"
-        if os.path.exists(alt_path):
-            return alt_path
-        
-        error_print(f"Captures directory not found. Tried: {captures_path}, {alt_path}")
+        error_print(f"Captures directory not found. Tried: {captures_path}")
         return None
     
     def _get_webshark_path(self):
         """Get the path to the webshark directory."""
         # Try to find webshark directory relative to current location
-        current_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        webshark_path = os.path.join(os.path.dirname(current_dir), "webshark")
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        webshark_path = os.path.join(os.path.dirname(current_dir), "automation", "webshark")
         
         if os.path.exists(webshark_path) and os.path.isfile(os.path.join(webshark_path, "Dockerfile")):
             return webshark_path
         
-        # Try alternative path
-        alt_path = "/home/litfan/Code/webshark"
-        if os.path.exists(alt_path) and os.path.isfile(os.path.join(alt_path, "Dockerfile")):
-            return alt_path
-        
-        error_print(f"Webshark directory not found. Tried: {webshark_path}, {alt_path}")
+        error_print(f"Webshark directory not found. Tried: {webshark_path}")
         return None
     
     def _network_exists(self, network_name):
