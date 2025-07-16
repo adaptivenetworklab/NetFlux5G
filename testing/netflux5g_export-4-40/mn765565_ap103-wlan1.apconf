@@ -1,0 +1,8 @@
+interface=ap103-wlan1
+driver=nl80211
+ssid=gnb-hotspot3
+wds_sta=1
+hw_mode=g
+channel=11
+ctrl_interface=/var/run/hostapd
+ctrl_interface_group=0

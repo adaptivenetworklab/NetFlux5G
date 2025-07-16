@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidg
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QFont, QPixmap, QIcon, QCursor
 from PyQt5 import uic
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 import os
 import webbrowser 
 

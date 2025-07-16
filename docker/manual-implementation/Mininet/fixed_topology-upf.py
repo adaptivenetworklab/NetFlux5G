@@ -230,9 +230,9 @@ def topology(args):
     ue5.cmd('ip route add 10.46.0.0/16 dev uesimtun0')
     ue6.cmd('ip route add 10.46.0.0/16 dev uesimtun0')
 
-    # info( '\n *** Capture all packet sent through uesimtun0\n')
-    # Capture2 = cwd + "/capture-packet-fixed.sh"
-    # CLI(net, script=Capture2)
+    info( '\n *** Capture all packet sent through uesimtun0\n')
+    Capture2 = cwd + "/capture-packet-fixed.sh"
+    CLI(net, script=Capture2)
 
     info('*** Running CLI\n')
     CLI(net)

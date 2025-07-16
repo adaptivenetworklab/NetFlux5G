@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphics
 from PyQt5.QtCore import Qt, QRectF, QPoint, QPointF
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
+from utils.power_range_calculator import PowerRangeCalculator
 
 
 class NetworkComponent(QGraphicsPixmapItem):
@@ -59,13 +60,17 @@ class NetworkComponent(QGraphicsPixmapItem):
             "y": 0,  # Initial y position
         }
         
-        # Set default range for wireless components (matching mininet-wifi defaults)
+        # Set default power and range for wireless components (matching mininet-wifi defaults)
         if self.component_type == "AP":
-            self.properties["AP_SignalRange"] = "100"  # Default AP range in meters (as string for dialog compatibility)
+            self.properties["AP_Power"] = 20  # Default AP power in dBm
+            self.properties["AP_SignalRange"] = "100"  # Legacy field for backwards compatibility
             self.properties["range"] = 100.0  # Also set as float for calculations
         elif self.component_type == "GNB":
-            self.properties["GNB_Range"] = 300  # Default gNB range in meters (as int for SpinBox compatibility)
+            self.properties["GNB_Power"] = 30  # Default gNB power in dBm
+            self.properties["GNB_Range"] = 300  # Legacy field for backwards compatibility
             self.properties["range"] = 300.0  # Also set as float for calculations
+        elif self.component_type == "UE":
+            self.properties["UE_Power"] = 20  # Default UE power in dBm
     
         # Set the pixmap for the item (increase icon size to 80x80)
         pixmap = QPixmap(self.icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -111,9 +116,9 @@ class NetworkComponent(QGraphicsPixmapItem):
         if "x" in properties_dict and "y" in properties_dict:
             self.setPos(properties_dict["x"], properties_dict["y"])
         
-        # Update coverage radius if range-related properties changed
-        range_fields = ["AP_SignalRange", "GNB_Range", "range", "lineEdit_range"]
-        if any(field in properties_dict for field in range_fields):
+        # Update coverage radius if power-related properties changed
+        power_fields = ["AP_Power", "GNB_Power", "UE_Power", "AP_SignalRange", "GNB_Range", "range", "lineEdit_range"]
+        if any(field in properties_dict for field in power_fields):
             self.updateCoverageRadius()
 
     def getProperties(self):
@@ -515,54 +520,48 @@ class NetworkComponent(QGraphicsPixmapItem):
         super().keyPressEvent(event)
 
     def calculateCoverageRadius(self):
-        """Calculate coverage radius based on component range settings (in meters).
+        """Calculate coverage radius based on transmission power (dBm) following Mininet-WiFi methodology.
         
-        This method aligns with mininet-wifi's plotGraph behavior, where coverage
-        circles are drawn based on the 'range' property of wireless interfaces.
+        This method uses the same propagation models as Mininet-WiFi to ensure that coverage
+        visualization in the GUI matches the actual wireless range in the simulation.
         """
         if self.component_type not in ["AP", "GNB"]:
             return 0
         
-        # Get range from properties (in meters)
-        range_meters = None
-        range_fields = []
-        
-        if self.component_type == "AP":
-            range_fields = ["AP_SignalRange", "range", "lineEdit_range"]
-        elif self.component_type == "GNB":
-            range_fields = ["GNB_Range", "range", "lineEdit_range"]
-        
-        # Try to get range value from properties
-        for field in range_fields:
-            if self.properties.get(field):
-                try:
-                    range_meters = float(str(self.properties[field]).strip())
-                    if range_meters > 0:
-                        break
-                except (ValueError, TypeError):
-                    continue
-        
-        # Use mininet-wifi defaults if not specified
-        if range_meters is None or range_meters <= 0:
+        # Calculate range based on power using Mininet-WiFi propagation models
+        try:
+            range_meters = PowerRangeCalculator.get_component_range(
+                self.component_type, self.properties
+            )
+            
+            debug_print(f"DEBUG: {self.component_type} {self.display_name} calculated range: {range_meters:.1f}m")
+            
+            # Convert meters to pixels for GUI display
+            # Use a configurable scale: 1 meter = 1 pixel (matches typical mininet-wifi plot scales)
+            # This ensures that the GUI scale is consistent with mininet-wifi's meter-based plots
+            meters_to_pixels = 1.0
+            radius_pixels = range_meters * meters_to_pixels
+            
+            # Clamp radius to reasonable visual limits for GUI display
+            min_radius = 10.0   # Minimum visual radius (10m range)
+            max_radius = 1000.0  # Maximum visual radius (1000m range)
+            
+            final_radius = max(min_radius, min(radius_pixels, max_radius))
+            
+            debug_print(f"DEBUG: {self.component_type} {self.display_name} visual radius: {final_radius:.1f}px")
+            
+            return final_radius
+            
+        except Exception as e:
+            error_print(f"Failed to calculate coverage radius for {self.display_name}: {e}")
+            
+            # Fallback to default values
             if self.component_type == "AP":
-                # Default AP range based on 802.11g mode (from mininet-wifi devices.py)
-                range_meters = 100.0
+                return 50.0  # ~50m default for AP
             elif self.component_type == "GNB":
-                # Default gNB range (5G base station typically has longer range)
-                range_meters = 300.0
-        
-        # Convert meters to pixels for GUI display
-        # Use a configurable scale: 1 meter = 2 pixels (reasonable for typical canvas sizes)
-        # This ensures that the GUI scale is consistent with mininet-wifi's meter-based plots
-        # You can adjust this scale factor to match your canvas size preferences
-        meters_to_pixels = 2.0
-        radius_pixels = range_meters * meters_to_pixels
-        
-        # Clamp radius to reasonable visual limits (but allow larger ranges than before)
-        min_radius = 20.0   # Minimum visual radius (10m range)
-        max_radius = 800.0  # Maximum visual radius (400m range)
-        
-        return max(min_radius, min(radius_pixels, max_radius))
+                return 100.0  # ~100m default for gNB
+            else:
+                return 30.0
 
     def updateCoverageRadius(self):
         """Update the coverage radius and trigger a repaint."""
@@ -576,28 +575,31 @@ class NetworkComponent(QGraphicsPixmapItem):
                 self.update()
 
     def getCurrentRange(self):
-        """Get the current range setting for this component (in meters)."""
+        """Get the current range setting for this component (in meters) calculated from power.
+        
+        Returns the actual wireless range based on transmission power using the same
+        propagation models as Mininet-WiFi.
+        """
         if self.component_type not in ["AP", "GNB"]:
             return 0
         
-        # Get range from properties
-        range_fields = []
-        if self.component_type == "AP":
-            range_fields = ["AP_SignalRange", "range", "lineEdit_range"]
-        elif self.component_type == "GNB":
-            range_fields = ["GNB_Range", "range", "lineEdit_range"]
-        
-        # Try to get range value from properties
-        for field in range_fields:
-            if self.properties.get(field):
-                try:
-                    range_meters = float(str(self.properties[field]).strip())
-                    if range_meters > 0:
-                        return range_meters
-                except (ValueError, TypeError):
-                    continue
-        
-        # Return default range if not specified
+        try:
+            # Calculate range based on power using Mininet-WiFi propagation models
+            range_meters = PowerRangeCalculator.get_component_range(
+                self.component_type, self.properties
+            )
+            return range_meters
+            
+        except Exception as e:
+            error_print(f"Failed to calculate range for {self.display_name}: {e}")
+            
+            # Fallback to default ranges
+            if self.component_type == "AP":
+                return 50.0  # ~50m default for AP
+            elif self.component_type == "GNB":
+                return 100.0  # ~100m default for gNB
+            else:
+                return 30.0
         return 100.0 if self.component_type == "AP" else 300.0
 
     @staticmethod

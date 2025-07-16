@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QMimeData, QPoint, QRectF, QTimer
 from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen, QCursor
 from .widgets.Dialog import *
 from .components import NetworkComponent
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 
 class MovableLabel(QLabel):
     PROPERTIES_MAP = {

@@ -1,7 +1,10 @@
 """
 Configuration mapping for different component types to Mininet parameters
-Streamlined version focused on essential 5G core functionality
+Enhanced version with power-based range calculation following Mininet-WiFi methodology
 """
+
+from utils.power_range_calculator import PowerRangeCalculator
+from utils.debug import debug_print, error_print, warning_print
 
 class ConfigurationMapper:
     """Maps UI component configurations to Mininet script parameters"""
@@ -82,19 +85,24 @@ class ConfigurationMapper:
         # UERANSIM component type
         config['ueransim_component'] = 'gnb'
         
-        # Wireless configuration for mininet-wifi
+        # Wireless configuration for mininet-wifi - use power-based approach
         power_val = properties.get('GNB_Power')
         if power_val:
             try:
                 power_val = float(power_val)
                 if power_val > 0:
                     config['txpower'] = power_val
+                    debug_print(f"DEBUG: gNB configured with txpower={power_val}dBm")
             except (ValueError, TypeError):
                 pass
         
-        # Set default values if not specified
+        # Set default power if not specified
         if 'txpower' not in config:
-            config['txpower'] = 30  # Default gNB power
+            config['txpower'] = PowerRangeCalculator._get_default_power("GNB")
+            debug_print(f"DEBUG: gNB using default txpower={config['txpower']}dBm")
+        
+        # Remove explicit range configuration - let mininet-wifi calculate from power
+        # This ensures consistency with mininet-wifi's propagation models
         
         # OVS/OpenFlow configuration
         ovs_config = {
@@ -112,7 +120,8 @@ class ConfigurationMapper:
             
         config['ovs_config'] = ovs_config
         
-        # AP configuration
+        # AP configuration - use power-based approach
+        ap_power = properties.get('GNB_Power', config.get('txpower', 20))
         ap_config = {
             'AP_ENABLED': 'true' if properties.get('GNB_AP_Enabled') else 'false',
             'AP_SSID': properties.get('GNB_AP_SSID', 'gnb-hotspot'),
@@ -121,9 +130,11 @@ class ConfigurationMapper:
             'AP_PASSWD': properties.get('GNB_AP_Password', ''),
             'AP_FAILMODE': ovs_config.get('OVS_FAIL_MODE', 'secure'),
             'OPENFLOW_PROTOCOLS': ovs_config.get('OPENFLOW_PROTOCOLS', 'OpenFlow14'),
-            'AP_TXPOWER': str(properties.get('GNB_Power', '20')),
-            'AP_RANGE': str(properties.get('GNB_Range', '300'))
+            'AP_TXPOWER': str(ap_power)
         }
+        
+        # Remove explicit range - let mininet-wifi calculate from power
+        debug_print(f"DEBUG: gNB AP configured with txpower={ap_power}dBm")
         
         if ovs_config.get('OVS_CONTROLLER'):
             ap_config['OVS_CONTROLLER'] = ovs_config['OVS_CONTROLLER']
@@ -177,30 +188,24 @@ class ConfigurationMapper:
         # UERANSIM component type
         config['ueransim_component'] = 'ue'
         
-        # Wireless configuration for mininet-wifi
+        # Wireless configuration for mininet-wifi - use power-based approach
         power_val = properties.get('UE_Power')
         if power_val:
             try:
                 power_val = float(power_val)
                 if power_val > 0:
                     config['txpower'] = power_val
+                    debug_print(f"DEBUG: UE configured with txpower={power_val}dBm")
             except (ValueError, TypeError):
                 pass
         
-        range_val = properties.get('UE_Range')
-        if range_val:
-            try:
-                range_val = float(range_val)
-                if range_val > 0:
-                    config['range'] = range_val
-            except (ValueError, TypeError):
-                pass
-        
-        # Set default values if not specified
+        # Set default power if not specified
         if 'txpower' not in config:
-            config['txpower'] = 20  # Default UE power
-        if 'range' not in config:
-            config['range'] = 300  # Default UE range
+            config['txpower'] = PowerRangeCalculator._get_default_power("UE")
+            debug_print(f"DEBUG: UE using default txpower={config['txpower']}dBm")
+        
+        # Remove explicit range configuration - let mininet-wifi calculate from power
+        # This ensures consistency with mininet-wifi's propagation models
         
         # Association mode
         config['association'] = properties.get('UE_AssociationMode', 'auto')
@@ -272,7 +277,7 @@ class ConfigurationMapper:
     
     @staticmethod
     def map_ap_config(properties):
-        """Map Access Point properties to Mininet AP parameters"""
+        """Map Access Point properties to Mininet AP parameters with power-based range calculation"""
         opts = []
         
         # SSID - standardized field mapping
@@ -295,25 +300,26 @@ class ConfigurationMapper:
         if mode and mode.strip() and mode != "g":
             opts.append(f"mode='{mode.strip()}'")
         
-        # Power configuration for radio propagation
+        # Power configuration for radio propagation - PRIMARY parameter
         power = properties.get('AP_Power')
         if power:
             try:
                 power_val = float(power)
                 if power_val > 0:
                     opts.append(f"txpower={power_val}")
+                    # Note: Range will be calculated automatically by mininet-wifi based on txpower
+                    # This ensures consistency with mininet-wifi's behavior
+                    debug_print(f"DEBUG: AP configured with txpower={power_val}dBm")
             except (ValueError, TypeError):
                 pass
+        else:
+            # Use default power if not specified
+            default_power = PowerRangeCalculator._get_default_power("AP")
+            opts.append(f"txpower={default_power}")
+            debug_print(f"DEBUG: AP using default txpower={default_power}dBm")
         
-        # Range configuration (coverage area)
-        range_val = properties.get('AP_Range')
-        if range_val:
-            try:
-                range_int = int(range_val)
-                if range_int > 0:
-                    opts.append(f"range={range_int}")
-            except (ValueError, TypeError):
-                pass
+        # Remove explicit range configuration to let mininet-wifi calculate it from power
+        # This ensures the GUI visualization matches the actual mininet-wifi behavior
         
         return opts
     
@@ -374,25 +380,24 @@ class ConfigurationMapper:
             except (ValueError, TypeError):
                 pass
         
-        # Power configuration for radio propagation
+        # Power configuration for radio propagation - PRIMARY parameter
         power = properties.get('STA_Power')
         if power:
             try:
                 power_val = float(power)
                 if power_val > 0:
                     opts.append(f"txpower={power_val}")
+                    debug_print(f"DEBUG: STA configured with txpower={power_val}dBm")
             except (ValueError, TypeError):
                 pass
+        else:
+            # Use default power if not specified
+            default_power = PowerRangeCalculator._get_default_power("STA")
+            opts.append(f"txpower={default_power}")
+            debug_print(f"DEBUG: STA using default txpower={default_power}dBm")
         
-        # Range configuration (coverage area)
-        range_val = properties.get('STA_Range')
-        if range_val:
-            try:
-                range_int = int(range_val)
-                if range_int > 0:
-                    opts.append(f"range={range_int}")
-            except (ValueError, TypeError):
-                pass
+        # Remove explicit range configuration to let mininet-wifi calculate it from power
+        # This ensures consistency with mininet-wifi's propagation models
         
         return opts
     

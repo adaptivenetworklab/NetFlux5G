@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 import yaml
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 
 class BasePropertiesWindow(QMainWindow):
     """Base class for all properties windows that automatically sets the icon."""
@@ -442,6 +442,27 @@ class APPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'AP_CancelButton'):
             self.AP_CancelButton.clicked.connect(self.onCancel)
         
+        # Connect power change to range calculation
+        if hasattr(self, 'AP_Power'):
+            self.AP_Power.valueChanged.connect(self.updateRangeDisplay)
+            # Initial range calculation
+            self.updateRangeDisplay()
+        
+    def updateRangeDisplay(self):
+        """Update the calculated range display based on power value."""
+        if hasattr(self, 'AP_Power') and hasattr(self, 'AP_RangeCalculated'):
+            try:
+                from utils.power_range_calculator import PowerRangeCalculator
+                power_value = self.AP_Power.value()
+                
+                # Create mock properties for calculation
+                mock_properties = {'AP_Power': power_value}
+                calculated_range = PowerRangeCalculator.get_component_range("AP", mock_properties)
+                
+                self.AP_RangeCalculated.setText(f"~{calculated_range:.0f}m (calculated from {power_value}dBm)")
+            except Exception as e:
+                self.AP_RangeCalculated.setText(f"Range calculation error: {str(e)}")
+        
     def onOK(self):
         self.saveProperties()
         self.close()
@@ -527,6 +548,27 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         # Connect OVS enable checkbox to enable/disable OVS configuration widgets
         if hasattr(self, 'GNB_OVS_Enabled'):
             self.GNB_OVS_Enabled.toggled.connect(self.onOVSEnabledToggled)
+        
+        # Connect power change to range calculation
+        if hasattr(self, 'GNB_Power'):
+            self.GNB_Power.valueChanged.connect(self.updateRangeDisplay)
+            # Initial range calculation
+            self.updateRangeDisplay()
+            
+    def updateRangeDisplay(self):
+        """Update the calculated range display based on power value."""
+        if hasattr(self, 'GNB_Power') and hasattr(self, 'GNB_RangeCalculated'):
+            try:
+                from utils.power_range_calculator import PowerRangeCalculator
+                power_value = self.GNB_Power.value()
+                
+                # Create mock properties for calculation
+                mock_properties = {'GNB_Power': power_value}
+                calculated_range = PowerRangeCalculator.get_component_range("GNB", mock_properties)
+                
+                self.GNB_RangeCalculated.setText(f"~{calculated_range:.0f}m (calculated from {power_value}dBm)")
+            except Exception as e:
+                self.GNB_RangeCalculated.setText(f"Range calculation error: {str(e)}")
     
     def setupDefaultValues(self):
         """Setup default values for the enhanced gNB configuration"""
@@ -690,8 +732,7 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         
         if hasattr(self, 'GNB_Power'):
             config['txpower'] = self.GNB_Power.value()
-        if hasattr(self, 'GNB_Range'):
-            config['range'] = self.GNB_Range.value()
+        # Range is now calculated from power, not set manually
             
         return config
         
@@ -755,6 +796,27 @@ class UEPropertiesWindow(BasePropertiesWindow):
         # Connect OK and Cancel buttons
         self.UE_OKButton.clicked.connect(self.onOK)
         self.UE_CancelButton.clicked.connect(self.onCancel)
+        
+        # Connect power change to range calculation
+        if hasattr(self, 'UE_Power'):
+            self.UE_Power.valueChanged.connect(self.updateRangeDisplay)
+            # Initial range calculation
+            self.updateRangeDisplay()
+            
+    def updateRangeDisplay(self):
+        """Update the calculated range display based on power value."""
+        if hasattr(self, 'UE_Power') and hasattr(self, 'UE_RangeCalculated'):
+            try:
+                from utils.power_range_calculator import PowerRangeCalculator
+                power_value = self.UE_Power.value()
+                
+                # Create mock properties for calculation
+                mock_properties = {'UE_Power': power_value}
+                calculated_range = PowerRangeCalculator.get_component_range("UE", mock_properties)
+                
+                self.UE_RangeCalculated.setText(f"~{calculated_range:.0f}m (calculated from {power_value}dBm)")
+            except Exception as e:
+                self.UE_RangeCalculated.setText(f"Range calculation error: {str(e)}")
     
     def setupDefaultValues(self):
         """Setup default values for the UE configuration"""

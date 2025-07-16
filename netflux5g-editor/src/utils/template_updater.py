@@ -9,7 +9,7 @@ This ensures templates work correctly regardless of where the application is ins
 import os
 import json
 import glob
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 
 class TemplateUpdater:
     """Updates template files to use correct config paths for the current installation."""

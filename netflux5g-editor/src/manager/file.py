@@ -3,7 +3,7 @@ import json
 import yaml
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog, QApplication
 from PyQt5.QtCore import QDateTime, Qt
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 import traceback
 
 class FileManager:

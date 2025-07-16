@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtCore import Qt, QPoint
 from PyQt5.QtGui import QIcon
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 import os
 
 class WindowManager:

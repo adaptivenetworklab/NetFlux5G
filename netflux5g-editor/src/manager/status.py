@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont
-from manager.debug import debug_print, error_print
+from utils.debug import debug_print, error_print
 
 class StatusManager:
     def __init__(self, main_window):

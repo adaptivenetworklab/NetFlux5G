@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QTimer
-from manager.debug import debug_print
+from utils.debug import debug_print
 
 class CanvasManager:
     def __init__(self, main_window):

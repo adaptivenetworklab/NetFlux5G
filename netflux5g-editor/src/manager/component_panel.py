@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QPushButton,
                            QHBoxLayout, QScrollArea, QGraphicsDropShadowEffect)
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QRect
 from PyQt5.QtGui import QPixmap, QIcon, QFont, QPalette, QColor, QPainter, QLinearGradient
-from manager.debug import debug_print, error_print
+from utils.debug import debug_print, error_print
 import os
 
 class ModernComponentWidget(QFrame):

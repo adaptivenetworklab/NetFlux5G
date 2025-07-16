@@ -7,7 +7,7 @@ import os
 import subprocess
 import re
 from PyQt5.QtWidgets import QMessageBox
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 
 class DockerNetworkManager:
     """Manager for Docker network operations."""

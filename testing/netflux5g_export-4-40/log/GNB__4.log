@@ -1,0 +1,525 @@
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+Starting OVS services...
+Creating OVS database...
+2025-07-16T21:55:59Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-16T21:55:59Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-16T21:55:59Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-16T21:55:59Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-16T21:55:59Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-16T21:55:59Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-gnb
+Bridge br-gnb created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+3606c4de-b11c-4274-a79f-cea8659c2a67
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.066s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.047s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.100s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.028s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1241
+ovs-system
+br-gnb
+GNB__4-eth0@if1331
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: gnb
+Setting up OpenFlow/OVS integration for UERANSIM gnb...
+Waiting for OVS setup to complete...
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+OVS services already running
+Bridge br-gnb already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+3606c4de-b11c-4274-a79f-cea8659c2a67
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.066s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.048s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.100s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.028s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1241
+ovs-system
+br-gnb
+GNB__4-eth0@if1331
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+OVS setup completed
+Get N2
+Get N3
+Get Radio
+Get AMF
+Resolving AMF_HOSTNAME: amf1
+Resolved AMF_HOSTNAME (amf1) to AMF_IP: 10.0.0.3
+N2_BIND_IP: 10.0.0.13
+N3_BIND_IP: 10.0.0.13
+RADIO_BIND_IP: 10.0.0.13
+AMF_HOSTNAME: amf1
+AMF_IP: 10.0.0.3
+Launching gnb: nr-gnb -c gnb.yaml
+=== UERANSIM gNB Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1241: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 76:8a:b4:50:98:bd brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether d2:07:8e:49:32:07 brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether c2:90:ae:21:eb:41 brd ff:ff:ff:ff:ff:ff
+1330: GNB__4-eth0@if1331: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 62:4c:db:18:f9:45 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1241: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 76:8a:b4:50:98:bd brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.23/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether d2:07:8e:49:32:07 brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether c2:90:ae:21:eb:41 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::c090:aeff:fe21:eb41/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+1330: GNB__4-eth0@if1331: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 62:4c:db:18:f9:45 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.13/8 scope global GNB__4-eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev GNB__4-eth0 proto kernel scope link src 10.0.0.13 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.23 
+
+=== OVS Status Check ===
+OVS bridges:
+br-gnb
+Bridge configuration:
+controller          : [1c3f96e9-e8f2-4056-bc5c-498eae489408]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+==============================================
+=== Access Point Setup ===
+AP_ENABLED is true, setting up access point functionality...
+WARNING: ap-setup.sh not found, AP functionality may not work
+UERANSIM v3.2.7
+[2025-07-16 21:56:03.399] [sctp] [info] Trying to establish SCTP connection... (10.0.0.3:38412)
+[2025-07-16 21:56:03.405] [sctp] [info] SCTP connection established (10.0.0.3:38412)
+[2025-07-16 21:56:03.405] [sctp] [debug] SCTP association setup ascId[27]
+[2025-07-16 21:56:03.405] [ngap] [debug] Sending NG Setup Request
+[2025-07-16 21:56:03.425] [ngap] [debug] NG Setup Response received
+[2025-07-16 21:56:03.425] [ngap] [info] NG Setup procedure is successful
+[2025-07-16 21:56:14.041] [rrc] [debug] UE[1] new signal detected
+[2025-07-16 21:56:14.044] [rrc] [debug] UE[2] new signal detected
+[2025-07-16 21:56:14.049] [rrc] [info] RRC Setup for UE[1]
+[2025-07-16 21:56:14.053] [rrc] [info] RRC Setup for UE[2]
+[2025-07-16 21:56:14.055] [ngap] [debug] Initial NAS message received from UE[1]
+[2025-07-16 21:56:14.059] [ngap] [debug] Initial NAS message received from UE[2]
+[2025-07-16 21:56:14.079] [rrc] [debug] UE[3] new signal detected
+[2025-07-16 21:56:14.085] [rrc] [debug] UE[4] new signal detected
+[2025-07-16 21:56:14.087] [rrc] [info] RRC Setup for UE[3]
+[2025-07-16 21:56:14.093] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-16 21:56:14.093] [rrc] [info] RRC Setup for UE[4]
+[2025-07-16 21:56:14.093] [rrc] [debug] UE[5] new signal detected
+[2025-07-16 21:56:14.100] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-16 21:56:14.101] [rrc] [info] RRC Setup for UE[5]
+[2025-07-16 21:56:14.107] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-16 21:56:14.109] [rrc] [debug] UE[6] new signal detected
+[2025-07-16 21:56:14.115] [rrc] [info] RRC Setup for UE[6]
+[2025-07-16 21:56:14.117] [ngap] [debug] Initial NAS message received from UE[6]
+[2025-07-16 21:56:14.132] [rrc] [debug] UE[7] new signal detected
+[2025-07-16 21:56:14.138] [rrc] [info] RRC Setup for UE[7]
+[2025-07-16 21:56:14.139] [ngap] [debug] Initial NAS message received from UE[7]
+[2025-07-16 21:56:14.139] [rrc] [debug] UE[8] new signal detected
+[2025-07-16 21:56:14.143] [rrc] [debug] UE[9] new signal detected
+[2025-07-16 21:56:14.144] [rrc] [debug] UE[10] new signal detected
+[2025-07-16 21:56:14.144] [rrc] [info] RRC Setup for UE[8]
+[2025-07-16 21:56:14.154] [rrc] [info] RRC Setup for UE[9]
+[2025-07-16 21:56:14.154] [rrc] [info] RRC Setup for UE[10]
+[2025-07-16 21:56:14.156] [ngap] [debug] Initial NAS message received from UE[8]
+[2025-07-16 21:56:14.230] [ngap] [error] Error indication received. Cause: radio-network/unknown-local-UE-NGAP-ID
+[2025-07-16 21:56:14.280] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:14.290] [ngap] [debug] UE Context Release Command received
+[2025-07-16 21:56:14.290] [rrc] [info] Releasing RRC connection for UE[3]
+[2025-07-16 21:56:14.298] [ngap] [debug] UE Context Release Command received
+[2025-07-16 21:56:14.299] [rrc] [info] Releasing RRC connection for UE[6]
+[2025-07-16 21:56:14.316] [ngap] [debug] UE Context Release Command received
+[2025-07-16 21:56:14.316] [rrc] [info] Releasing RRC connection for UE[2]
+[2025-07-16 21:56:14.341] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:14.360] [ngap] [info] PDU session resource(s) setup for UE[1] count[1]
+[2025-07-16 21:56:14.405] [ngap] [info] PDU session resource(s) setup for UE[5] count[1]
+[2025-07-16 21:56:14.406] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:14.407] [ngap] [debug] UE Context Release Command received
+[2025-07-16 21:56:14.407] [rrc] [info] Releasing RRC connection for UE[4]
+[2025-07-16 21:56:14.435] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:14.476] [ngap] [info] PDU session resource(s) setup for UE[7] count[1]
+[2025-07-16 21:56:14.515] [ngap] [info] PDU session resource(s) setup for UE[8] count[1]
+[2025-07-16 21:56:15.204] [ngap] [debug] UE Context Release Command received
+[2025-07-16 21:56:15.204] [rrc] [info] Releasing RRC connection for UE[5]
+[2025-07-16 21:56:18.123] [rrc] [info] RRC Setup for UE[5]
+[2025-07-16 21:56:18.125] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-16 21:56:18.125] [ngap] [error] AMF selection for UE[5] failed. Could not find a suitable AMF.
+[2025-07-16 21:56:18.125] [ngap] [error] AMF context not found with id: 0
+[2025-07-16 21:56:25.054] [rrc] [info] RRC Setup for UE[2]
+[2025-07-16 21:56:25.056] [ngap] [debug] Initial NAS message received from UE[2]
+[2025-07-16 21:56:25.079] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:25.088] [rrc] [info] RRC Setup for UE[3]
+[2025-07-16 21:56:25.089] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-16 21:56:25.092] [rrc] [info] RRC Setup for UE[4]
+[2025-07-16 21:56:25.093] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-16 21:56:25.118] [rrc] [info] RRC Setup for UE[6]
+[2025-07-16 21:56:25.119] [ngap] [debug] Initial NAS message received from UE[6]
+[2025-07-16 21:56:25.297] [ngap] [info] PDU session resource(s) setup for UE[2] count[1]
+[2025-07-16 21:56:25.516] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:25.520] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:25.529] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:25.532] [ngap] [info] PDU session resource(s) setup for UE[3] count[1]
+[2025-07-16 21:56:25.545] [ngap] [info] PDU session resource(s) setup for UE[4] count[1]
+[2025-07-16 21:56:25.555] [ngap] [info] PDU session resource(s) setup for UE[6] count[1]
+[2025-07-16 21:56:29.214] [rrc] [debug] UE[11] new signal detected
+[2025-07-16 21:56:29.214] [rrc] [debug] UE[12] new signal detected
+[2025-07-16 21:56:30.219] [rls] [debug] UE[9] signal lost
+[2025-07-16 21:56:30.219] [rls] [debug] UE[10] signal lost
+[2025-07-16 21:56:39.164] [rrc] [info] RRC Setup for UE[12]
+[2025-07-16 21:56:39.165] [ngap] [debug] Initial NAS message received from UE[12]
+[2025-07-16 21:56:39.168] [rrc] [info] RRC Setup for UE[11]
+[2025-07-16 21:56:39.169] [ngap] [debug] Initial NAS message received from UE[11]
+[2025-07-16 21:56:39.187] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:39.196] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 21:56:39.207] [ngap] [info] PDU session resource(s) setup for UE[12] count[1]
+[2025-07-16 21:56:39.221] [ngap] [info] PDU session resource(s) setup for UE[11] count[1]
+[2025-07-16 22:07:21.281] [rls] [debug] UE[1] signal lost
+[2025-07-16 22:07:21.281] [rls] [debug] UE[11] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[2] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[3] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[4] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[5] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[6] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[7] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[8] signal lost
+[2025-07-16 22:07:22.282] [rls] [debug] UE[12] signal lost
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+Starting OVS services...
+Creating OVS database...
+2025-07-16T22:32:45Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-16T22:32:45Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-16T22:32:45Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-16T22:32:45Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-16T22:32:45Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-16T22:32:45Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-gnb
+Bridge br-gnb created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+f7929952-2b67-427e-82e9-945df0e8f2d4
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.072s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.050s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.110s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.029s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1461
+ovs-system
+br-gnb
+GNB__4-eth0@if1551
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: gnb
+Setting up OpenFlow/OVS integration for UERANSIM gnb...
+Waiting for OVS setup to complete...
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+OVS services already running
+Bridge br-gnb already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+f7929952-2b67-427e-82e9-945df0e8f2d4
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.070s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.050s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.107s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.031s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1461
+ovs-system
+br-gnb
+GNB__4-eth0@if1551
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+OVS setup completed
+Get N2
+Get N3
+Get Radio
+Get AMF
+Resolving AMF_HOSTNAME: amf1
+Resolved AMF_HOSTNAME (amf1) to AMF_IP: 10.0.0.3
+N2_BIND_IP: 10.0.0.13
+N3_BIND_IP: 10.0.0.13
+RADIO_BIND_IP: 10.0.0.13
+AMF_HOSTNAME: amf1
+AMF_IP: 10.0.0.3
+Launching gnb: nr-gnb -c gnb.yaml
+=== UERANSIM gNB Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1461: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 66:8d:08:ed:ea:62 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether ca:2a:cb:da:f2:9e brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 9e:56:25:02:14:40 brd ff:ff:ff:ff:ff:ff
+1550: GNB__4-eth0@if1551: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 96:29:43:0d:59:8e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1461: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 66:8d:08:ed:ea:62 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.23/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether ca:2a:cb:da:f2:9e brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 9e:56:25:02:14:40 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::9c56:25ff:fe02:1440/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+1550: GNB__4-eth0@if1551: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 96:29:43:0d:59:8e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.13/8 scope global GNB__4-eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev GNB__4-eth0 proto kernel scope link src 10.0.0.13 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.23 
+
+=== OVS Status Check ===
+OVS bridges:
+br-gnb
+Bridge configuration:
+controller          : [48bbae75-d360-4f45-ba5b-79e271c793ce]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+==============================================
+=== Access Point Setup ===
+AP_ENABLED is true, setting up access point functionality...
+WARNING: ap-setup.sh not found, AP functionality may not work
+UERANSIM v3.2.7
+[2025-07-16 22:32:49.379] [sctp] [info] Trying to establish SCTP connection... (10.0.0.3:38412)
+[2025-07-16 22:32:49.383] [sctp] [info] SCTP connection established (10.0.0.3:38412)
+[2025-07-16 22:32:49.384] [sctp] [debug] SCTP association setup ascId[35]
+[2025-07-16 22:32:49.384] [ngap] [debug] Sending NG Setup Request
+[2025-07-16 22:32:49.404] [ngap] [debug] NG Setup Response received
+[2025-07-16 22:32:49.404] [ngap] [info] NG Setup procedure is successful
+[2025-07-16 22:33:00.040] [rrc] [debug] UE[1] new signal detected
+[2025-07-16 22:33:00.044] [rrc] [debug] UE[2] new signal detected
+[2025-07-16 22:33:00.048] [rrc] [info] RRC Setup for UE[1]
+[2025-07-16 22:33:00.048] [rrc] [info] RRC Setup for UE[2]
+[2025-07-16 22:33:00.051] [ngap] [debug] Initial NAS message received from UE[1]
+[2025-07-16 22:33:00.053] [ngap] [debug] Initial NAS message received from UE[2]
+[2025-07-16 22:33:00.083] [rrc] [debug] UE[3] new signal detected
+[2025-07-16 22:33:00.090] [rrc] [info] RRC Setup for UE[3]
+[2025-07-16 22:33:00.091] [rrc] [debug] UE[4] new signal detected
+[2025-07-16 22:33:00.093] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-16 22:33:00.100] [rrc] [info] RRC Setup for UE[4]
+[2025-07-16 22:33:00.102] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-16 22:33:00.121] [rrc] [debug] UE[5] new signal detected
+[2025-07-16 22:33:00.129] [rrc] [info] RRC Setup for UE[5]
+[2025-07-16 22:33:00.131] [rrc] [debug] UE[6] new signal detected
+[2025-07-16 22:33:00.133] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-16 22:33:00.140] [rrc] [debug] UE[7] new signal detected
+[2025-07-16 22:33:00.144] [rrc] [info] RRC Setup for UE[7]
+[2025-07-16 22:33:00.146] [ngap] [debug] Initial NAS message received from UE[7]
+[2025-07-16 22:33:00.162] [rrc] [debug] UE[8] new signal detected
+[2025-07-16 22:33:00.169] [rrc] [debug] UE[9] new signal detected
+[2025-07-16 22:33:00.174] [rrc] [info] RRC Setup for UE[8]
+[2025-07-16 22:33:00.179] [ngap] [debug] Initial NAS message received from UE[8]
+[2025-07-16 22:33:00.182] [rrc] [info] RRC Setup for UE[9]
+[2025-07-16 22:33:00.185] [ngap] [debug] Initial NAS message received from UE[9]
+[2025-07-16 22:33:00.194] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.196] [rrc] [debug] UE[10] new signal detected
+[2025-07-16 22:33:00.203] [rrc] [info] RRC Setup for UE[10]
+[2025-07-16 22:33:00.207] [ngap] [debug] Initial NAS message received from UE[10]
+[2025-07-16 22:33:00.257] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.306] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.326] [ngap] [info] PDU session resource(s) setup for UE[1] count[1]
+[2025-07-16 22:33:00.341] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.351] [ngap] [info] PDU session resource(s) setup for UE[2] count[1]
+[2025-07-16 22:33:00.409] [ngap] [info] PDU session resource(s) setup for UE[3] count[1]
+[2025-07-16 22:33:00.410] [ngap] [error] Error indication received. Cause: radio-network/unknown-local-UE-NGAP-ID
+[2025-07-16 22:33:00.419] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.426] [ngap] [info] PDU session resource(s) setup for UE[4] count[1]
+[2025-07-16 22:33:00.426] [ngap] [error] Error indication received. Cause: radio-network/unknown-local-UE-NGAP-ID
+[2025-07-16 22:33:00.431] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.471] [ngap] [info] PDU session resource(s) setup for UE[7] count[1]
+[2025-07-16 22:33:00.475] [ngap] [debug] UE Context Release Command received
+[2025-07-16 22:33:00.475] [rrc] [info] Releasing RRC connection for UE[3]
+[2025-07-16 22:33:00.490] [ngap] [debug] UE Context Release Command received
+[2025-07-16 22:33:00.490] [rrc] [info] Releasing RRC connection for UE[4]
+[2025-07-16 22:33:00.500] [ngap] [debug] UE Context Release Command received
+[2025-07-16 22:33:00.500] [rrc] [info] Releasing RRC connection for UE[5]
+[2025-07-16 22:33:00.505] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.506] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:00.538] [ngap] [info] PDU session resource(s) setup for UE[8] count[1]
+[2025-07-16 22:33:00.585] [ngap] [info] PDU session resource(s) setup for UE[9] count[1]
+[2025-07-16 22:33:00.587] [ngap] [info] PDU session resource(s) setup for UE[10] count[1]
+[2025-07-16 22:33:00.634] [ngap] [debug] UE Context Release Command received
+[2025-07-16 22:33:00.634] [rrc] [info] Releasing RRC connection for UE[1]
+[2025-07-16 22:33:00.861] [rrc] [info] RRC Setup for UE[4]
+[2025-07-16 22:33:00.862] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-16 22:33:00.862] [ngap] [error] AMF selection for UE[4] failed. Could not find a suitable AMF.
+[2025-07-16 22:33:00.862] [ngap] [error] AMF context not found with id: 0
+[2025-07-16 22:33:00.900] [rrc] [info] RRC Setup for UE[3]
+[2025-07-16 22:33:00.901] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-16 22:33:00.901] [ngap] [error] AMF selection for UE[3] failed. Could not find a suitable AMF.
+[2025-07-16 22:33:00.901] [ngap] [error] AMF context not found with id: 0
+[2025-07-16 22:33:01.260] [rrc] [info] RRC Setup for UE[1]
+[2025-07-16 22:33:01.260] [ngap] [debug] Initial NAS message received from UE[1]
+[2025-07-16 22:33:01.260] [ngap] [error] AMF selection for UE[1] failed. Could not find a suitable AMF.
+[2025-07-16 22:33:01.260] [ngap] [error] AMF context not found with id: 0
+[2025-07-16 22:33:02.630] [rrc] [info] RRC Setup for UE[6]
+[2025-07-16 22:33:02.630] [ngap] [debug] Initial NAS message received from UE[6]
+[2025-07-16 22:33:02.658] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:02.870] [ngap] [info] PDU session resource(s) setup for UE[6] count[1]
+[2025-07-16 22:33:11.131] [rrc] [info] RRC Setup for UE[5]
+[2025-07-16 22:33:11.133] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-16 22:33:11.157] [ngap] [debug] Initial Context Setup Request received
+[2025-07-16 22:33:11.375] [ngap] [info] PDU session resource(s) setup for UE[5] count[1]

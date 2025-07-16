@@ -8,7 +8,7 @@ import subprocess
 import time
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, QThread, QMutex
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 
 class DatabaseDeploymentWorker(QThread):
     """Worker thread for database operations to avoid blocking the UI."""

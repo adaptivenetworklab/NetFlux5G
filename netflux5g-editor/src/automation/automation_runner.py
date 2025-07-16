@@ -7,7 +7,7 @@ import yaml
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, pyqtSlot, Qt
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
 from export.mininet_export import MininetExporter
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 from prerequisites.checker import PrerequisitesChecker
 
 class AutomationRunner(QObject):

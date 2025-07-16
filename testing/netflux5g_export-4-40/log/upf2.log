@@ -1,0 +1,496 @@
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-16T21:55:48Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-16T21:55:49Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-16T21:55:49Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-16T21:55:49Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-16T21:55:49Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-16T21:55:49Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+5759987e-b5bc-4252-9278-854e8035beb5
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.032s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1230
+ovs-system
+br-open5gs
+upf2-eth0@if1361
+upf2-eth1@if1369
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+5759987e-b5bc-4252-9278-854e8035beb5
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.032s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1230
+ovs-system
+br-open5gs
+upf2-eth0@if1361
+upf2-eth1@if1369
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1230: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 6e:d6:fa:47:00:a7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether ee:0c:58:25:be:85 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 1a:2e:df:b0:2f:4a brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+1360: upf2-eth0@if1361: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether b6:7a:76:41:c1:5a brd ff:ff:ff:ff:ff:ff link-netnsid 0
+1368: upf2-eth1@if1369: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 66:d4:2b:94:49:ed brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1230: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 6e:d6:fa:47:00:a7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.12/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether ee:0c:58:25:be:85 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 1a:2e:df:b0:2f:4a brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::182e:dfff:feb0:2f4a/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+1360: upf2-eth0@if1361: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether b6:7a:76:41:c1:5a brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.2/8 scope global upf2-eth0
+       valid_lft forever preferred_lft forever
+1368: upf2-eth1@if1369: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 66:d4:2b:94:49:ed brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::64d4:2bff:fe94:49ed/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf2-eth0 proto kernel scope link src 10.0.0.2 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.12 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [5f2e71d1-3610-4eaf-8be7-a881de20d578]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/16 21:56:03.341[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/16 21:56:03.341[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/16 21:56:03.398[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.12]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/16 21:56:03.398[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.2]:8805 (../lib/pfcp/path.c:30)
+[32m07/16 21:56:03.398[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.2]:2152 (../lib/gtp/path.c:30)
+[32m07/16 21:56:03.399[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+[32m07/16 21:56:04.344[0m: [[33mupf[0m] [1;32mINFO[0m: PFCP associated [10.0.0.4]:8805 (../src/upf/pfcp-sm.c:168)
+[32m07/16 21:56:14.376[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:212)
+[32m07/16 21:56:14.376[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.4]:2152 (../lib/gtp/path.c:60)
+[32m07/16 21:56:14.376[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xc10 CP:0x84a] APN[web1] PDN-Type[1] IPv4[10.51.0.2] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.384[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.15]:2152 (../lib/gtp/path.c:60)
+[32m07/16 21:56:14.400[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 2 (../src/upf/context.c:212)
+[32m07/16 21:56:14.400[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x8a9 CP:0xfeb] APN[web1] PDN-Type[1] IPv4[10.51.0.3] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.412[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.13]:2152 (../lib/gtp/path.c:60)
+[32m07/16 21:56:14.498[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 3 (../src/upf/context.c:212)
+[32m07/16 21:56:14.498[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x3cc CP:0xaa4] APN[web1] PDN-Type[1] IPv4[10.51.0.5] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.499[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 4 (../src/upf/context.c:212)
+[32m07/16 21:56:14.499[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xa9b CP:0x83d] APN[web1] PDN-Type[1] IPv4[10.51.0.4] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.508[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.14]:2152 (../lib/gtp/path.c:60)
+[32m07/16 21:56:14.513[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 5 (../src/upf/context.c:212)
+[32m07/16 21:56:14.513[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xbd8 CP:0x352] APN[web1] PDN-Type[1] IPv4[10.51.0.6] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.548[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 6 (../src/upf/context.c:212)
+[32m07/16 21:56:14.548[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xfcf CP:0x944] APN[web1] PDN-Type[1] IPv4[10.51.0.7] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.557[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 7 (../src/upf/context.c:212)
+[32m07/16 21:56:14.557[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xdde CP:0x92a] APN[web2] PDN-Type[1] IPv4[10.52.0.2] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.561[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 8 (../src/upf/context.c:212)
+[32m07/16 21:56:14.561[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xe00 CP:0x53b] APN[web2] PDN-Type[1] IPv4[10.52.0.3] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.563[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 9 (../src/upf/context.c:212)
+[32m07/16 21:56:14.563[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x19e CP:0x87b] APN[web2] PDN-Type[1] IPv4[10.52.0.4] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.574[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 10 (../src/upf/context.c:212)
+[32m07/16 21:56:14.574[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xc03 CP:0x969] APN[web1] PDN-Type[1] IPv4[10.51.0.8] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.575[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 11 (../src/upf/context.c:212)
+[32m07/16 21:56:14.575[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x95a CP:0xe09] APN[web2] PDN-Type[1] IPv4[10.52.0.5] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.604[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 12 (../src/upf/context.c:212)
+[32m07/16 21:56:14.605[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x349 CP:0x967] APN[web2] PDN-Type[1] IPv4[10.52.0.6] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.608[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 13 (../src/upf/context.c:212)
+[32m07/16 21:56:14.608[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xdb CP:0x9d6] APN[web1] PDN-Type[1] IPv4[10.51.0.9] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:14.739[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 14 (../src/upf/context.c:212)
+[32m07/16 21:56:14.739[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x56f CP:0x655] APN[web1] PDN-Type[1] IPv4[10.51.0.10] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:15.193[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 13 (../src/upf/context.c:256)
+[32m07/16 21:56:15.427[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 14 (../src/upf/context.c:212)
+[32m07/16 21:56:15.427[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x180 CP:0x738] APN[web1] PDN-Type[1] IPv4[10.51.0.11] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:17.020[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 15 (../src/upf/context.c:212)
+[32m07/16 21:56:17.020[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x5ee CP:0xc01] APN[web1] PDN-Type[1] IPv4[10.51.0.12] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:25.058[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 14 (../src/upf/context.c:256)
+[32m07/16 21:56:25.287[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 13 (../src/upf/context.c:256)
+[32m07/16 21:56:25.287[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 12 (../src/upf/context.c:256)
+[32m07/16 21:56:25.287[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 11 (../src/upf/context.c:256)
+[32m07/16 21:56:25.295[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 12 (../src/upf/context.c:212)
+[32m07/16 21:56:25.295[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x743 CP:0x281] APN[web1] PDN-Type[1] IPv4[10.51.0.13] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:25.529[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 13 (../src/upf/context.c:212)
+[32m07/16 21:56:25.529[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x51c CP:0xf32] APN[web1] PDN-Type[1] IPv4[10.51.0.14] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:25.542[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 14 (../src/upf/context.c:212)
+[32m07/16 21:56:25.542[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x65d CP:0x4f2] APN[web1] PDN-Type[1] IPv4[10.51.0.15] IPv6[] (../src/upf/context.c:498)
+[32m07/16 21:56:25.553[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 15 (../src/upf/context.c:212)
+[32m07/16 21:56:25.553[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x83b CP:0x8d1] APN[web1] PDN-Type[1] IPv4[10.51.0.16] IPv6[] (../src/upf/context.c:498)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-16T22:32:34Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-16T22:32:34Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-16T22:32:34Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-16T22:32:34Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-16T22:32:34Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-16T22:32:34Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+930ea58f-894c-44e6-b691-cb0ed3336b9b
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.034s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1450
+ovs-system
+br-open5gs
+upf2-eth0@if1581
+upf2-eth1@if1589
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+930ea58f-894c-44e6-b691-cb0ed3336b9b
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.033s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1450
+ovs-system
+br-open5gs
+upf2-eth0@if1581
+upf2-eth1@if1589
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1450: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 32:39:04:18:82:e9 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 9a:f0:02:72:72:dd brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 06:29:92:cc:fb:4f brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+1580: upf2-eth0@if1581: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 86:73:63:c0:f9:e8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+1588: upf2-eth1@if1589: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether ce:12:18:4f:ef:32 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1450: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 32:39:04:18:82:e9 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.12/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 9a:f0:02:72:72:dd brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 06:29:92:cc:fb:4f brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::429:92ff:fecc:fb4f/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+1580: upf2-eth0@if1581: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 86:73:63:c0:f9:e8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.2/8 scope global upf2-eth0
+       valid_lft forever preferred_lft forever
+1588: upf2-eth1@if1589: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether ce:12:18:4f:ef:32 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::cc12:18ff:fe4f:ef32/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf2-eth0 proto kernel scope link src 10.0.0.2 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.12 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [69a5c003-4f96-4cd2-a776-ac4b21e85f25]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/16 22:32:49.286[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/16 22:32:49.286[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/16 22:32:49.349[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.12]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/16 22:32:49.349[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.2]:8805 (../lib/pfcp/path.c:30)
+[32m07/16 22:32:49.349[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.2]:2152 (../lib/gtp/path.c:30)
+[32m07/16 22:32:49.350[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+[32m07/16 22:32:50.327[0m: [[33mupf[0m] [1;32mINFO[0m: PFCP associated [10.0.0.4]:8805 (../src/upf/pfcp-sm.c:168)
+[32m07/16 22:33:00.308[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:212)
+[32m07/16 22:33:00.309[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.4]:2152 (../lib/gtp/path.c:60)
+[32m07/16 22:33:00.309[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xcb CP:0x97f] APN[web1] PDN-Type[1] IPv4[10.51.0.2] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.311[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 2 (../src/upf/context.c:212)
+[32m07/16 22:33:00.311[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xdc7 CP:0xcf5] APN[web1] PDN-Type[1] IPv4[10.51.0.3] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.334[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.13]:2152 (../lib/gtp/path.c:60)
+[32m07/16 22:33:00.365[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.15]:2152 (../lib/gtp/path.c:60)
+[32m07/16 22:33:00.393[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 1 (../src/upf/context.c:256)
+[32m07/16 22:33:00.401[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 2 (../src/upf/context.c:212)
+[32m07/16 22:33:00.401[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xbc8 CP:0xdc2] APN[web1] PDN-Type[1] IPv4[10.51.0.4] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.420[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 3 (../src/upf/context.c:212)
+[32m07/16 22:33:00.420[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x277 CP:0x5ba] APN[web1] PDN-Type[1] IPv4[10.51.0.5] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.568[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 4 (../src/upf/context.c:212)
+[32m07/16 22:33:00.568[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x146 CP:0xf86] APN[web1] PDN-Type[1] IPv4[10.51.0.6] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.600[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 5 (../src/upf/context.c:212)
+[32m07/16 22:33:00.600[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xf49 CP:0xc7] APN[web2] PDN-Type[1] IPv4[10.52.0.2] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.626[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 4 (../src/upf/context.c:256)
+[32m07/16 22:33:00.638[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 3 (../src/upf/context.c:256)
+[32m07/16 22:33:00.657[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 4 (../src/upf/context.c:212)
+[32m07/16 22:33:00.657[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x359 CP:0x5aa] APN[web2] PDN-Type[1] IPv4[10.52.0.3] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.661[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 5 (../src/upf/context.c:212)
+[32m07/16 22:33:00.661[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xa08 CP:0x51a] APN[web2] PDN-Type[1] IPv4[10.52.0.4] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.667[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 6 (../src/upf/context.c:212)
+[32m07/16 22:33:00.667[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xfb9 CP:0xd14] APN[web1] PDN-Type[1] IPv4[10.51.0.7] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.669[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 7 (../src/upf/context.c:212)
+[32m07/16 22:33:00.669[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x50a CP:0x1ed] APN[web1] PDN-Type[1] IPv4[10.51.0.8] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.695[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 8 (../src/upf/context.c:212)
+[32m07/16 22:33:00.695[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xdd4 CP:0xa45] APN[web1] PDN-Type[1] IPv4[10.51.0.9] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.696[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 9 (../src/upf/context.c:212)
+[32m07/16 22:33:00.696[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x8f3 CP:0x9e3] APN[web1] PDN-Type[1] IPv4[10.51.0.10] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.706[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.14]:2152 (../lib/gtp/path.c:60)
+[32m07/16 22:33:00.731[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 10 (../src/upf/context.c:212)
+[32m07/16 22:33:00.732[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x279 CP:0xa6d] APN[web1] PDN-Type[1] IPv4[10.51.0.11] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.733[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 11 (../src/upf/context.c:212)
+[32m07/16 22:33:00.733[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x3c3 CP:0x7f] APN[web1] PDN-Type[1] IPv4[10.51.0.12] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.734[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 12 (../src/upf/context.c:212)
+[32m07/16 22:33:00.734[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x3be CP:0x34e] APN[web1] PDN-Type[1] IPv4[10.51.0.13] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:00.744[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 13 (../src/upf/context.c:212)
+[32m07/16 22:33:00.744[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x3e6 CP:0x369] APN[web1] PDN-Type[1] IPv4[10.51.0.14] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:02.633[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 12 (../src/upf/context.c:256)
+[32m07/16 22:33:02.868[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 13 (../src/upf/context.c:212)
+[32m07/16 22:33:02.868[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xac7 CP:0x362] APN[web1] PDN-Type[1] IPv4[10.51.0.15] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:02.997[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 14 (../src/upf/context.c:212)
+[32m07/16 22:33:02.997[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x2f5 CP:0x9c6] APN[web2] PDN-Type[1] IPv4[10.52.0.5] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:03.427[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 15 (../src/upf/context.c:212)
+[32m07/16 22:33:03.427[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xd40 CP:0xe94] APN[web2] PDN-Type[1] IPv4[10.52.0.6] IPv6[] (../src/upf/context.c:498)
+[32m07/16 22:33:11.135[0m: [[33mupf[0m] [1;32mINFO[0m: [Removed] Number of UPF-sessions is now 14 (../src/upf/context.c:256)
+[32m07/16 22:33:11.372[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 15 (../src/upf/context.c:212)
+[32m07/16 22:33:11.372[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x7c CP:0x400] APN[web1] PDN-Type[1] IPv4[10.51.0.16] IPv6[] (../src/upf/context.c:498)

@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
-from manager.debug import debug_print
+from utils.debug import debug_print
 import os
 import subprocess
 

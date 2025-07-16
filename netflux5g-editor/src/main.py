@@ -16,14 +16,14 @@ from manager.canvas import CanvasManager
 from manager.automation import AutomationManager
 from manager.keyboard import KeyboardManager
 from manager.component_operations import ComponentOperationsManager
-from manager.debug import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
+from utils.debug import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
 from manager.welcome import WelcomeScreenManager
 from manager.docker_network import DockerNetworkManager
 from manager.database import DatabaseManager
 from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
 from manager.packet_analyzer import PacketAnalyzerManager
-from manager.template_updater import TemplateUpdater
+from utils.template_updater import TemplateUpdater
 
 # Import existing modules
 from gui.canvas import Canvas, MovableLabel
