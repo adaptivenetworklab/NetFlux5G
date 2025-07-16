@@ -24,7 +24,10 @@ class NetworkLink(QGraphicsItem):
             "destination": getattr(dest_node, 'display_name', getattr(dest_node, 'name', 'Unnamed Destination')),
             "bandwidth": "",  # Default empty, will be auto
             "delay": "",      # Default empty, no delay
-            "loss": ""        # Default empty, no loss
+            "loss": "",       # Default empty, no loss
+            "source_ip": "",  # Source IP address
+            "dest_ip": "",    # Destination IP address
+            "enable_ip": False  # Whether IP configuration is enabled
         }
         
         # Make item selectable
@@ -113,6 +116,17 @@ class NetworkLink(QGraphicsItem):
             summary_parts.append(f"Loss: {loss}%")
         else:
             summary_parts.append("Loss: 0%")
+        
+        # IP Configuration
+        if props.get('enable_ip', False):
+            source_ip = props.get('source_ip', '')
+            dest_ip = props.get('dest_ip', '')
+            if source_ip or dest_ip:
+                summary_parts.append(f"IP: {source_ip} <-> {dest_ip}")
+            else:
+                summary_parts.append("IP: Enabled")
+        else:
+            summary_parts.append("IP: Auto")
         
         return " | ".join(summary_parts)
     

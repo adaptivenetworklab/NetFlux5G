@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>329</height>
+    <height>450</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -194,11 +194,70 @@
      </item>
     </layout>
    </widget>
+   <widget class="QGroupBox" name="groupBox_ip">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>280</y>
+      <width>432</width>
+      <height>120</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="title">
+     <string>IP Configuration</string>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_ip">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_source_ip">
+       <property name="text">
+        <string>Source IP:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_source_ip">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="placeholderText">
+        <string>e.g., 192.168.1.1/24</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_dest_ip">
+       <property name="text">
+        <string>Destination IP:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lineEdit_dest_ip">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="placeholderText">
+        <string>e.g., 192.168.1.2/24</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QCheckBox" name="checkBox_enable_ip">
+       <property name="text">
+        <string>Enable IP Configuration</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
    <widget class="QWidget" name="gridLayoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>280</y>
+      <y>410</y>
       <width>168</width>
       <height>31</height>
      </rect>

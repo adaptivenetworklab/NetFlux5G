@@ -171,7 +171,7 @@ class MininetExporter:
         # Import standard Mininet components
         f.write('from mininet.net import Mininet\n')
         f.write('from mininet.link import TCLink, Link, Intf\n')
-        f.write('from mininet.node import RemoteController, OVSKernelSwitch, Host, Node\n')
+        f.write('from mininet.node import RemoteController, OVSController, OVSKernelSwitch, Host, Node\n')
         f.write('from mininet.log import setLogLevel, info\n')
         
         if has_wireless:
@@ -466,7 +466,7 @@ class MininetExporter:
         else:
             # Add default controller like in the original
             f.write('    c0 = net.addController(name=\'c0\',\n')
-            f.write('                           controller=RemoteController)\n')
+            f.write('                           controller=OVSController)\n')
         f.write('\n')
 
     def write_access_points(self, f, categorized_nodes):
@@ -1158,31 +1158,8 @@ class MininetExporter:
         # Get core components for startup sequence
         core_components = categorized_nodes.get('core5g_components', {})
         
-        # # Start APs
-        # f.write('    info("*** Starting APs\\n")\n')
-        # controller_name = 'c0'
-        # if categorized_nodes['controllers']:
-        #     controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
-            
-        # # Start traditional APs
-        # for ap in categorized_nodes['aps']:
-        #     ap_name = self.sanitize_variable_name(ap['name'])
-        #     f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
-            
-        # # Start generated APs from gNBs
-        # for gnb in categorized_nodes['gnbs']:
-        #     if '_generated_ap' in gnb:
-        #         ap_name = gnb['_generated_ap']['name']
-        #         f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
-            
-        # # Start switches
-        # for switch in categorized_nodes['switches']:
-        #     switch_name = self.sanitize_variable_name(switch['name'])
-        #     f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
-        # f.write('\n')
-        
         # Start 5G Core components in proper order with makeTerm2
-        startup_order = ['NRF', 'SCP', 'AUSF', 'UDM', 'UDR', 'PCF', 'BSF', 'NSSF', 'SMF', 'AMF', 'UPF']
+        startup_order = ['UPF', 'AMF', 'SMF', 'NSSF', 'BSF', 'PCF', 'UDR', 'UDM', 'AUSF', 'SCP', 'NRF']
 
         # Start other core components (if configured)
         for comp_type in startup_order:
@@ -1405,6 +1382,28 @@ class MininetExporter:
         if not links:
             return
 
+        # Track interface counts for each host/node for proper interface naming
+        interface_counts = {}
+        
+        # Initialize interface counts for all nodes
+        for node_category in ['hosts', 'stas', 'ues', 'gnbs', 'controllers', 'switches', 'docker_hosts']:
+            for node in categorized_nodes.get(node_category, []):
+                node_name = self.sanitize_variable_name(node.get('name', ''))
+                if node_name:
+                    interface_counts[node_name] = 0
+        
+        # Also initialize for 5G core components
+        core5g_components = categorized_nodes.get('core5g_components', {})
+        for component_type in ['AMF', 'UPF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']:
+            for comp in core5g_components.get(component_type, []):
+                comp_name = self.sanitize_variable_name(comp.get('name', ''))
+                if comp_name:
+                    interface_counts[comp_name] = 0
+        
+        # Initialize interface counts for generated AP nodes
+        for ap_name in gnb_to_ap.values():
+            interface_counts[ap_name] = 0
+
         # Dynamically get AMF, UPF, SMF instance names from extracted 5G core components
         core5g_components = categorized_nodes.get('core5g_components', {})
         amf_names = [self.sanitize_variable_name(comp.get('name', f'amf{i+1}')) for i, comp in enumerate(core5g_components.get('AMF', []))]
@@ -1509,6 +1508,27 @@ class MininetExporter:
             ap_pattern = re.compile(r'^ap\d+$', re.IGNORECASE)
 
             f.write(f'    net.addLink({", ".join(link_params)})\n')
+            
+            # Configure IP addresses for link endpoints if specified
+            ip_config = ConfigurationMapper.get_link_ip_config(link_props)
+            if ip_config:
+                source_ip = ip_config.get('source_ip')
+                dest_ip = ip_config.get('dest_ip')
+                
+                # Get interface names using node name prefix
+                source_intf = f'{source_name}-eth{interface_counts.get(source_name, 0)}'
+                dest_intf = f'{dest_name}-eth{interface_counts.get(dest_name, 0)}'
+                
+                if source_ip:
+                    f.write(f'    {source_name}.setIP(\'{source_ip}\', intf=\'{source_intf}\')\n')
+                if dest_ip:
+                    f.write(f'    {dest_name}.setIP(\'{dest_ip}\', intf=\'{dest_intf}\')\n')
+            
+            # Increment interface counts for both nodes
+            if source_name in interface_counts:
+                interface_counts[source_name] += 1
+            if dest_name in interface_counts:
+                interface_counts[dest_name] += 1
 
             # Write extra links for upf and smf if needed
             for extra_source, extra_dest in extra_links:
@@ -1528,8 +1548,15 @@ class MininetExporter:
                     extra_config_params = ConfigurationMapper.map_link_config(link_props)
                     extra_params.extend(extra_config_params)
 
-                # Write the extra link
+                # Write the extra link and increment interface counters
                 f.write(f'    net.addLink({", ".join(extra_params)})\n')
+                # Initialize interface counts if not already present
+                if extra_source not in interface_counts:
+                    interface_counts[extra_source] = 0
+                if extra_dest not in interface_counts:
+                    interface_counts[extra_dest] = 0
+                interface_counts[extra_source] += 1
+                interface_counts[extra_dest] += 1
         
         f.write('\n')
 

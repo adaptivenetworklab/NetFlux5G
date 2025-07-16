@@ -17,7 +17,7 @@ smf:
       #      nrf:
       #        - uri: http://127.0.0.10:7777
       scp:
-      - uri: http://scp1:7777
+      - uri: http://mn.scp1:7777
   pfcp:
     server:
     - dev: smf1-eth0

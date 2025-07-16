@@ -1822,7 +1822,7 @@ class LinkPropertiesWindow(BasePropertiesWindow):
             
         # Set window properties
         self.setWindowTitle(f"Link Properties - {label_text}")
-        self.setFixedSize(450, 300)
+        self.setFixedSize(450, 470)  # Increased height for IP configuration
         
         # Load existing properties
         self.loadProperties()
@@ -1834,6 +1834,14 @@ class LinkPropertiesWindow(BasePropertiesWindow):
         """Setup button connections"""
         self.pushButton_ok.clicked.connect(self.onOK)
         self.pushButton_cancel.clicked.connect(self.onCancel)
+        
+        # Connect IP enable checkbox to enable/disable IP fields
+        self.checkBox_enable_ip.toggled.connect(self.onIpEnableToggled)
+        
+    def onIpEnableToggled(self, checked):
+        """Enable/disable IP configuration fields based on checkbox state"""
+        self.lineEdit_source_ip.setEnabled(checked)
+        self.lineEdit_dest_ip.setEnabled(checked)
         
     def loadProperties(self):
         """Load current link properties into the UI"""
@@ -1885,6 +1893,18 @@ class LinkPropertiesWindow(BasePropertiesWindow):
         else:
             self.spinBox_loss.setValue(0)
             
+        # IP Configuration
+        enable_ip = properties.get('enable_ip', False)
+        self.checkBox_enable_ip.setChecked(enable_ip)
+        
+        source_ip = properties.get('source_ip', '')
+        dest_ip = properties.get('dest_ip', '')
+        self.lineEdit_source_ip.setText(source_ip)
+        self.lineEdit_dest_ip.setText(dest_ip)
+        
+        # Enable/disable IP fields based on checkbox state
+        self.onIpEnableToggled(enable_ip)
+            
     def saveProperties(self):
         """Save the link properties from UI to component"""
         if not self.component:
@@ -1914,6 +1934,19 @@ class LinkPropertiesWindow(BasePropertiesWindow):
         else:
             self.component.properties.pop('loss', None)
             
+        # Update IP configuration
+        enable_ip = self.checkBox_enable_ip.isChecked()
+        self.component.properties['enable_ip'] = enable_ip
+        
+        if enable_ip:
+            source_ip = self.lineEdit_source_ip.text().strip()
+            dest_ip = self.lineEdit_dest_ip.text().strip()
+            self.component.properties['source_ip'] = source_ip
+            self.component.properties['dest_ip'] = dest_ip
+        else:
+            self.component.properties.pop('source_ip', None)
+            self.component.properties.pop('dest_ip', None)
+            
         # Update display name if name was changed
         if self.lineEdit_name.text():
             self.component.name = self.lineEdit_name.text()
@@ -1929,7 +1962,7 @@ class LinkPropertiesWindow(BasePropertiesWindow):
             if hasattr(self.component.main_window, 'onTopologyChanged'):
                 self.component.main_window.onTopologyChanged()
                 
-        debug_print(f"DEBUG: Link properties saved - bandwidth: {self.component.properties.get('bandwidth', 'Auto')}, delay: {self.component.properties.get('delay', 'None')}, loss: {self.component.properties.get('loss', '0')}")
+        debug_print(f"DEBUG: Link properties saved - bandwidth: {self.component.properties.get('bandwidth', 'Auto')}, delay: {self.component.properties.get('delay', 'None')}, loss: {self.component.properties.get('loss', '0')}, IP: {self.component.properties.get('enable_ip', False)}")
         
     def onOK(self):
         """Save properties and close dialog"""

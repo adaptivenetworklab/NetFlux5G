@@ -587,6 +587,22 @@ class ConfigurationMapper:
         return params
     
     @staticmethod
+    def get_link_ip_config(properties):
+        """Get IP configuration for link endpoints"""
+        ip_config = {}
+        
+        if properties.get('enable_ip', False):
+            source_ip = properties.get('source_ip', '').strip()
+            dest_ip = properties.get('dest_ip', '').strip()
+            
+            if source_ip:
+                ip_config['source_ip'] = source_ip
+            if dest_ip:
+                ip_config['dest_ip'] = dest_ip
+        
+        return ip_config
+    
+    @staticmethod
     def get_component_config(node_type, properties):
         """Get the complete configuration for a component type"""
         config_map = {
