@@ -31,6 +31,7 @@ Docker Network Usage:
 
 import sys
 import os
+import subprocess
 from mininet.net import Mininet
 from mininet.link import TCLink, Link, Intf
 from mininet.node import RemoteController, OVSController, OVSKernelSwitch, Host, Node
@@ -825,7 +826,14 @@ def topology(args):
 
     info("*** Generating maximum load traffic on all UE devices\n")
     Capture2 = export_dir + "/capture-packet-maxload.sh"
-    CLI(net, script=Capture2)
+    
+    # Make the script executable
+    os.chmod(Capture2, 0o755)
+    
+    # Execute the script in the background
+    subprocess.Popen(["/bin/bash", Capture2], 
+                     stdout=subprocess.PIPE, 
+                     stderr=subprocess.PIPE)
 
     info("*** Running CLI\n")
     CLI(net)

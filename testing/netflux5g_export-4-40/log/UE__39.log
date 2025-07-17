@@ -187,3 +187,1304 @@ UERANSIM v3.2.7
 [2025-07-16 22:33:17.056] [nas] [debug] NAS timer[3517] expired [1]
 [2025-07-16 22:33:17.056] [nas] [info] UE switches to state [MM-REGISTERED/PS]
 [2025-07-16 22:33:17.056] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:14:37.607] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 00:14:37.607] [nas] [error] Radio link failure detected
+[2025-07-17 00:14:37.607] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:14:37.607] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:14:37.607] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 00:14:37.607] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:39.982] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 00:14:39.982] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 00:14:40.687] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:42.889] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is disabled, skipping OpenFlow setup
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: ue
+OVS integration disabled (OVS_ENABLED not set to 'true')
+Proceeding with standard UERANSIM configuration...
+Get GNB
+Resolving GNB_HOSTNAME: GNB__4
+Resolved GNB_HOSTNAME (GNB__4) to GNB_IP: 10.0.0.13
+GNB_HOSTNAME: GNB__4
+GNB_IP: 10.0.0.13
+=== UERANSIM UE Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1870: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether ba:93:d1:90:f6:cc brd ff:ff:ff:ff:ff:ff link-netnsid 0
+1911: UE__39-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 02:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1870: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether ba:93:d1:90:f6:cc brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.27/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+1911: UE__39-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.17/8 brd 10.255.255.255 scope global UE__39-wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2001::1/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff:fe00:0/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Launching ue: nr-ue -c ue.yaml
+UERANSIM v3.2.7
+[2025-07-17 00:50:52.915] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2025-07-17 00:50:52.917] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2025-07-17 00:50:52.919] [nas] [info] Selected plmn[999/70]
+[2025-07-17 00:50:52.919] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 00:50:52.919] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 00:50:52.919] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:50:52.919] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2025-07-17 00:50:52.919] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 00:50:52.919] [nas] [debug] Sending Initial Registration
+[2025-07-17 00:50:52.919] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 00:50:52.920] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 00:50:52.922] [rrc] [info] RRC connection established
+[2025-07-17 00:50:52.922] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 00:50:52.922] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 00:50:52.951] [nas] [debug] Authentication Request received
+[2025-07-17 00:50:52.951] [nas] [debug] Received SQN [000000000321]
+[2025-07-17 00:50:52.951] [nas] [debug] SQN-MS [000000000000]
+[2025-07-17 00:50:52.976] [nas] [debug] Security Mode Command received
+[2025-07-17 00:50:52.976] [nas] [debug] Selected integrity[2] ciphering[0]
+[2025-07-17 00:50:53.058] [nas] [debug] Registration accept received
+[2025-07-17 00:50:53.058] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:50:53.058] [nas] [debug] Sending Registration Complete
+[2025-07-17 00:50:53.058] [nas] [info] Initial Registration is successful
+[2025-07-17 00:50:53.058] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 00:50:53.059] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 00:50:53.071] [nas] [debug] Configuration Update Command received
+[2025-07-17 00:50:53.126] [nas] [debug] PDU Session Establishment Accept received
+[2025-07-17 00:50:53.126] [nas] [info] PDU Session establishment is successful PSI[1]
+[2025-07-17 00:50:53.156] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.51.0.2] is up.
+[2025-07-17 00:50:53.370] [rrc] [debug] RRC Release received
+[2025-07-17 00:50:53.370] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:50:56.907] [nas] [debug] Uplink data status changed PSI[1] pending[true]
+[2025-07-17 00:50:56.907] [nas] [debug] Service request required due to [IDLE-UPLINK-DATA-PENDING]
+[2025-07-17 00:50:56.907] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_data]
+[2025-07-17 00:50:56.907] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-DATA-PENDING]
+[2025-07-17 00:50:56.907] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 00:50:56.907] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 00:50:56.912] [rrc] [info] RRC connection established
+[2025-07-17 00:50:56.912] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 00:50:56.912] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 00:51:04.843] [nas] [debug] Uplink data status changed PSI[1] pending[false]
+[2025-07-17 00:51:11.934] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 00:51:11.934] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:51:11.934] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:54:14.113] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 00:54:14.113] [nas] [error] Radio link failure detected
+[2025-07-17 00:54:14.113] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:54:14.113] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:54:14.113] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 00:54:14.113] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:15.496] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 00:54:15.496] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 00:54:16.600] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:18.802] [nas] [error] PLMN selection failure, no cells in coverage
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is disabled, skipping OpenFlow setup
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: ue
+OVS integration disabled (OVS_ENABLED not set to 'true')
+Proceeding with standard UERANSIM configuration...
+Get GNB
+Resolving GNB_HOSTNAME: GNB__4
+Resolved GNB_HOSTNAME (GNB__4) to GNB_IP: 10.0.0.13
+GNB_HOSTNAME: GNB__4
+GNB_IP: 10.0.0.13
+=== UERANSIM UE Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if2226: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether aa:bd:54:59:fe:b8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+2267: UE__39-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 02:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if2226: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether aa:bd:54:59:fe:b8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.27/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+2267: UE__39-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.17/8 brd 10.255.255.255 scope global UE__39-wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2001::1/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff:fe00:0/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Launching ue: nr-ue -c ue.yaml
+UERANSIM v3.2.7
+[2025-07-17 01:17:37.191] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2025-07-17 01:17:37.194] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2025-07-17 01:17:37.195] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:17:37.195] [rrc] [warning] Suitable cell selection failed in [1] cells. [0] out of PLMN, [1] no SI, [0] reserved, [0] barred, ftai [0]
+[2025-07-17 01:17:37.195] [rrc] [warning] Acceptable cell selection failed in [1] cells. [1] no SI, [0] reserved, [0] barred, ftai [0]
+[2025-07-17 01:17:37.195] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 01:17:39.691] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:17:39.691] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 01:17:39.691] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:17:39.691] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2025-07-17 01:17:39.691] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:39.691] [nas] [debug] Sending Initial Registration
+[2025-07-17 01:17:39.691] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 01:17:39.691] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:17:39.692] [rrc] [info] RRC connection established
+[2025-07-17 01:17:39.692] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 01:17:39.692] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 01:17:39.696] [nas] [debug] Authentication Request received
+[2025-07-17 01:17:39.696] [nas] [debug] Received SQN [000000000361]
+[2025-07-17 01:17:39.696] [nas] [debug] SQN-MS [000000000000]
+[2025-07-17 01:17:39.701] [nas] [debug] Security Mode Command received
+[2025-07-17 01:17:39.701] [nas] [debug] Selected integrity[2] ciphering[0]
+[2025-07-17 01:17:39.712] [nas] [debug] Registration accept received
+[2025-07-17 01:17:39.712] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:17:39.712] [nas] [debug] Sending Registration Complete
+[2025-07-17 01:17:39.712] [nas] [info] Initial Registration is successful
+[2025-07-17 01:17:39.712] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:17:39.712] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:39.903] [rrc] [debug] RRC Release received
+[2025-07-17 01:17:39.903] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 01:17:56.209] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:17:56.209] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:56.209] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:17:56.209] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:17:56.209] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:56.209] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:17:56.209] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:17:56.209] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:17:56.210] [rrc] [info] RRC connection established
+[2025-07-17 01:17:56.210] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 01:17:56.210] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 01:18:10.959] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 01:18:10.959] [nas] [error] Radio link failure detected
+[2025-07-17 01:18:10.959] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 01:18:10.961] [rrc] [debug] New signal detected for cell[2], total [1] cells in coverage
+[2025-07-17 01:18:11.225] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:18:11.225] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:11.225] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 01:18:11.225] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:18:12.205] [rrc] [warning] Acceptable cell selection failed in [1] cells. [1] no SI, [0] reserved, [0] barred, ftai [0]
+[2025-07-17 01:18:12.205] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 01:18:12.226] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:18:12.227] [nas] [error] UAC access attempt is barred for identity[0], category[MO_sig]
+[2025-07-17 01:18:12.963] [rrc] [debug] Signal lost for cell[2], total [0] cells in coverage
+[2025-07-17 01:18:12.965] [rrc] [debug] New signal detected for cell[3], total [1] cells in coverage
+[2025-07-17 01:18:13.523] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:18:15.725] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:18:16.547] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+[2025-07-17 01:18:16.547] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:18:16.547] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:18:16.547] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:16.547] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:18:28.242] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:18:28.242] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:18:28.242] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:18:28.242] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:18:28.242] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:18:28.242] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:18:28.242] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:18:28.242] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:18:43.258] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:18:43.258] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:43.258] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:18:44.259] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:18:44.259] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:18:44.259] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:18:44.259] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:18:44.259] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:18:44.259] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:18:44.259] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:18:44.259] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:18:59.274] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:18:59.274] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:59.274] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:19:00.275] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:19:00.275] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:19:00.866] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:19:00.866] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:19:00.866] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:19:00.866] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:19:00.866] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:19:00.866] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:19:00.866] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:19:00.866] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:19:16.291] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:19:16.291] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:19:16.291] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:19:17.292] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:19:17.292] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:19:17.292] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:19:17.292] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:19:17.292] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:19:17.292] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:19:17.292] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:19:17.292] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:19:32.307] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:19:32.307] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:19:32.307] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:19:33.308] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:19:33.308] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:19:33.308] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:19:33.308] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:19:33.308] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:33.896] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:34.997] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:36.098] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:36.549] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:36.552] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:37.199] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:38.300] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:39.401] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:40.502] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:41.603] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:42.704] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:43.805] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:44.906] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:46.007] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:46.550] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:46.552] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:47.108] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:48.209] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:49.310] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:49.324] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:19:49.324] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:19:49.324] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:19:50.411] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:51.512] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:52.613] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:53.714] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:54.815] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:55.916] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:56.551] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:56.552] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:57.017] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:58.118] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:19:59.219] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:00.320] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:01.421] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:02.522] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:03.623] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:04.724] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:05.340] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:20:05.340] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:20:05.340] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:20:05.825] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:06.553] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:06.555] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:06.926] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:08.027] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:09.128] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:10.229] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:11.330] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:12.431] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:13.532] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:14.633] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:15.734] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:16.553] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:16.554] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:16.835] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:17.936] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:19.037] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:20.138] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:21.239] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:21.356] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:20:21.356] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:20:22.340] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:22.340] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:20:22.340] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:20:22.340] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:20:23.441] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:24.542] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:25.643] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:26.554] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:26.555] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:26.744] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:27.845] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:28.946] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:30.047] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:31.148] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:32.249] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:33.350] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:20:33.350] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:20:33.350] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:20:33.350] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:20:38.373] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:20:38.373] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:20:38.373] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:20:48.383] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:20:48.383] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:20:48.383] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:20:54.389] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:20:54.389] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:20:54.389] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:20:54.389] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:20:54.389] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:55.370] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:56.471] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:56.558] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:56.559] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:57.572] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:58.673] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:20:59.774] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:00.875] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:01.976] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:03.077] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:04.178] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:05.279] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:06.380] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:06.558] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:06.559] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:07.481] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:08.582] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:09.683] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:10.405] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:21:10.405] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:21:10.405] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:21:10.784] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:11.885] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:12.986] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:14.087] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:15.188] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:16.289] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:16.559] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:16.561] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:17.390] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:18.491] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:19.592] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:20.693] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:21.794] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:22.895] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:23.996] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:25.097] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:26.198] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:26.421] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:21:26.421] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:21:26.421] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:21:26.561] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:26.562] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:27.299] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:28.400] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:29.501] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:30.602] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:31.703] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:32.804] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:33.905] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:35.006] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:36.107] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:36.562] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:36.563] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:37.208] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:38.309] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:39.410] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:40.511] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:41.612] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:42.437] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:21:42.437] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:21:42.713] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:42.713] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:21:42.713] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:21:42.713] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:21:43.814] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:44.915] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:46.016] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:46.563] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:46.564] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:47.117] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:48.218] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:21:49.319] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:21:49.319] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:21:49.319] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:21:49.319] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:21:59.454] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:21:59.454] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:21:59.454] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:22:04.459] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:22:04.459] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:22:04.459] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:22:15.470] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:22:15.470] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:22:15.470] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:22:15.470] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:22:15.470] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:15.743] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:16.565] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:16.567] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:16.844] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:17.945] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:19.046] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:20.147] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:21.248] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:22.349] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:23.450] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:24.551] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:25.652] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:26.566] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:26.567] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:26.753] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:27.854] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:28.955] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:30.056] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:31.157] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:31.486] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:22:31.486] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:22:31.486] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:22:32.258] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:33.359] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:34.460] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:35.561] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:36.567] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:36.569] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:36.662] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:37.763] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:38.864] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:39.965] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:41.066] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:42.167] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:43.268] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:44.369] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:45.470] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:46.568] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:46.569] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:46.571] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:47.502] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:22:47.502] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:22:47.502] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:22:47.672] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:48.773] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:49.874] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:50.975] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:52.076] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:53.177] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:54.278] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:55.379] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:56.480] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:56.569] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:56.570] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:57.581] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:58.682] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:22:59.783] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:00.884] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:01.985] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:03.086] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:03.518] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:23:03.518] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:23:04.187] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:04.187] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:23:04.187] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:23:04.187] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:23:05.288] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:23:05.288] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:23:05.288] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:23:05.288] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:23:20.535] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:23:20.535] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:23:20.535] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:23:20.535] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:23:20.535] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:23:20.535] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:23:36.551] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:23:36.551] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:23:36.551] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:23:36.551] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:23:36.551] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:36.573] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:36.574] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:37.217] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:38.318] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:39.419] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:40.520] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:41.621] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:42.722] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:43.823] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:44.924] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:46.025] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:46.574] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:46.575] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:47.126] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:48.227] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:49.328] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:50.429] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:51.530] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:52.567] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:23:52.567] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:23:52.567] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:23:52.631] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:53.732] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:54.833] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:55.934] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:56.576] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:56.577] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:57.035] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:58.136] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:23:59.237] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:00.338] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:01.439] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:02.540] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:03.641] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:04.742] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:05.843] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:06.576] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:06.577] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:06.944] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:08.045] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:08.583] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:24:08.583] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:24:08.583] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:24:09.146] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:10.247] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:11.348] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:12.449] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:13.550] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:14.651] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:15.752] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:16.577] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:16.579] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:16.853] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:17.954] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:19.055] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:20.156] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:21.257] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:24:21.257] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:24:21.257] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:24:21.257] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:24:24.599] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:24:24.599] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:24:36.611] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:24:36.611] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:24:36.611] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:24:36.611] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:24:36.611] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:24:36.611] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:24:36.611] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:24:36.611] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:36.671] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:37.772] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:38.873] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:39.974] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:41.075] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:42.176] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:43.277] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:44.378] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:45.479] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:46.580] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:46.580] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:46.582] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:46.987] [rrc] [debug] Signal lost for cell[3], total [0] cells in coverage
+[2025-07-17 01:24:46.987] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:24:46.987] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 01:24:46.987] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:24:46.989] [rrc] [debug] New signal detected for cell[4], total [1] cells in coverage
+[2025-07-17 01:24:47.362] [rrc] [warning] Acceptable cell selection failed in [1] cells. [1] no SI, [0] reserved, [0] barred, ftai [0]
+[2025-07-17 01:24:47.362] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 01:24:49.883] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:24:52.085] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+[2025-07-17 01:24:52.627] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:24:52.627] [nas] [error] UAC access attempt is barred for identity[0], category[MO_sig]
+[2025-07-17 01:24:56.583] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:24:56.583] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:24:56.583] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:24:56.583] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:24:56.583] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:57.590] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:58.691] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:24:59.792] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:00.893] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:01.994] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:03.095] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:04.196] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:05.297] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:06.398] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:06.582] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:06.584] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:07.499] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:08.600] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:08.643] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:25:08.643] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:25:08.643] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:25:09.701] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:10.802] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:11.903] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:13.004] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:14.105] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:15.206] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:16.307] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:16.583] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:16.586] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:17.408] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:18.509] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:19.610] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:20.711] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:21.812] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:22.913] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:24.014] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:24.659] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:25:24.659] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:25:24.659] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:25:25.115] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:26.216] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:26.584] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:26.586] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:27.317] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:28.418] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:29.519] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:30.620] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:31.721] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:32.822] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:33.923] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:35.024] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:36.125] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:36.586] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:36.588] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:37.226] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:25:37.226] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:25:37.226] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:25:37.226] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:25:40.675] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:25:40.675] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:25:40.675] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:25:52.687] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:25:52.687] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:25:52.687] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:25:55.203] [rrc] [debug] Signal lost for cell[4], total [0] cells in coverage
+[2025-07-17 01:25:55.203] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:25:55.203] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 01:25:55.203] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:25:55.204] [rrc] [debug] New signal detected for cell[5], total [1] cells in coverage
+[2025-07-17 01:25:56.589] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:25:56.589] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:25:56.589] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:25:56.589] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:25:56.691] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:25:56.691] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:25:57.044] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:25:57.044] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:25:57.044] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:25:57.044] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:25:57.044] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:58.145] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:25:59.246] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:00.347] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:01.448] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:02.549] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:03.650] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:04.751] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:05.852] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:06.588] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:06.589] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:06.953] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:08.054] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:09.155] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:10.256] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:11.357] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:12.458] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:13.559] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:13.708] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:26:13.708] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:26:13.708] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:26:14.660] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:15.761] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:16.589] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:16.590] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:16.862] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:17.963] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:19.064] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:20.165] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:21.266] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:22.367] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:23.468] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:24.569] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:25.670] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:26.590] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:26.592] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:26.771] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:27.872] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:28.973] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:29.724] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:26:29.724] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:26:29.724] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:26:30.074] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:31.175] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:32.276] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:33.377] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:34.478] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:35.579] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:36.591] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:36.592] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:36.680] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:37.781] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:38.882] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:39.983] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:41.084] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:42.185] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:43.286] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:44.387] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:45.488] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:45.740] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:26:45.740] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:26:45.740] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:26:46.589] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:46.592] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:46.593] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:47.690] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:48.791] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:49.892] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:50.993] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:52.094] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:26:53.195] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:26:53.195] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:26:53.195] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:26:53.195] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:27:01.756] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:27:01.756] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:27:01.756] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:27:08.763] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:27:08.763] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:27:08.763] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:27:11.766] [nas] [debug] NAS timer[3512] expired [1]
+[2025-07-17 01:27:11.766] [nas] [debug] Mobility registration updating required due to [T3512-EXPIRY]
+[2025-07-17 01:27:11.766] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:27:11.766] [nas] [debug] Sending Periodic Registration with update cause [T3512-EXPIRY]
+[2025-07-17 01:27:11.766] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 01:27:11.766] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:27:17.772] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:27:17.772] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:27:26.781] [nas] [debug] NAS timer[3510] expired [1]
+[2025-07-17 01:27:26.781] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:27:26.781] [rrc] [info] UE switches to state [RRC-IDLE]
+[2025-07-17 01:27:26.781] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:27:26.781] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:27:26.781] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:27:26.781] [nas] [debug] Service request required due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:27:26.781] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:26.781] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.202] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.204] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.204] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.205] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.206] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.206] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:27.326] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:28.427] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.211] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.213] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.214] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.216] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.418] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.420] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:29.528] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:30.629] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:31.730] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:32.831] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:33.932] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:35.033] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:36.134] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:36.597] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:36.599] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:37.235] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:38.336] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:39.437] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:40.538] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:41.639] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:42.740] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:42.797] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:27:42.797] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:27:42.797] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:27:43.841] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:44.942] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:46.043] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:46.598] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:46.600] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:47.144] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:48.245] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:49.346] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:50.447] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:51.548] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:52.649] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:53.750] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:54.851] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:55.952] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:56.600] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:56.602] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:57.053] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:58.154] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:27:58.813] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:27:58.813] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:27:58.813] [nas] [warning] NAS Transport aborted, Service Request is needed for uplink signalling
+[2025-07-17 01:27:59.255] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:00.356] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:01.457] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:02.558] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:03.659] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:04.760] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:05.861] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:06.600] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:06.601] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:06.962] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:08.063] [nas] [debug] Service Request canceled, T3346 is running
+[2025-07-17 01:28:09.164] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:28:09.164] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-SIGNAL-PENDING]
+[2025-07-17 01:28:09.164] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:28:09.164] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:28:09.171] [rrc] [info] RRC connection established
+[2025-07-17 01:28:09.171] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 01:28:09.171] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 01:28:14.829] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:28:14.829] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:28:24.839] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:28:24.839] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:28:24.839] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:28:30.845] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:28:30.845] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:28:46.861] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:28:46.861] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:28:47.699] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:28:47.699] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:29:03.878] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:29:03.878] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:29:19.894] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:29:19.894] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:29:35.910] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:29:35.910] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:29:51.926] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:29:51.926] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:30:07.942] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:30:07.942] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:30:08.072] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:30:08.072] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:30:24.959] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:30:24.959] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:30:40.975] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:30:40.975] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:30:56.991] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:30:56.991] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:31:13.007] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:31:13.007] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:31:29.023] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:31:29.023] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:31:29.546] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:31:29.546] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:31:46.040] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:31:46.040] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:32:02.056] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:32:02.056] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:32:18.072] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:32:18.072] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:32:34.088] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:32:34.088] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:32:50.104] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:32:50.104] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:32:51.020] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:32:51.020] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:33:07.121] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:33:07.121] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:33:23.137] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:33:23.137] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:33:39.153] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:33:39.153] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:33:55.169] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:33:55.169] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:34:11.185] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:34:11.185] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:34:11.393] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:34:11.393] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:34:28.202] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:34:28.202] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:34:44.218] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:34:44.218] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:35:00.234] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:35:00.234] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:35:16.250] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:35:16.250] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:35:32.266] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:35:32.266] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:35:32.867] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:35:32.867] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:35:49.283] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:35:49.283] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:36:05.299] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:36:05.299] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:36:21.315] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:36:21.315] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:36:37.331] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:36:37.331] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:36:53.347] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:36:53.347] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:36:54.341] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:36:54.341] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:37:10.364] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:37:10.364] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:37:26.380] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:37:26.380] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:37:42.396] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:37:42.396] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:37:58.412] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:37:58.412] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:38:14.428] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:38:14.428] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:38:14.714] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:38:14.714] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:38:31.445] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:38:31.445] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:38:47.461] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:38:47.461] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:39:03.477] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:39:03.477] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:39:19.493] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:39:19.493] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:39:35.509] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:39:35.509] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:39:36.188] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:39:36.188] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:39:52.526] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:39:52.526] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:40:08.542] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:40:08.542] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:40:24.558] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:40:24.558] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:40:40.574] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:40:40.574] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:40:56.590] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:40:56.590] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:40:56.677] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:40:56.677] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:41:13.607] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:41:13.607] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:41:29.623] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:41:29.623] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:41:45.639] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:41:45.639] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:42:01.655] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:42:01.655] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:42:17.671] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:42:17.671] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:42:18.035] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:42:18.035] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:42:34.690] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:42:34.690] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:42:50.708] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:42:50.708] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:43:06.724] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:43:06.724] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:43:22.740] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:43:22.740] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:43:38.756] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:43:38.756] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:43:39.509] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:43:39.509] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:43:55.773] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:43:55.773] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:44:11.789] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:44:11.789] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:44:27.805] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:44:27.805] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:44:43.821] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:44:43.821] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:44:59.837] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:44:59.837] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:44:59.882] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:44:59.882] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:45:16.854] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:45:16.854] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:45:32.870] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:45:32.870] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:45:48.886] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:45:48.886] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:46:04.902] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:46:04.902] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:46:20.918] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:46:20.918] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:46:21.356] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:46:21.356] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:46:37.935] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:46:37.935] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:46:53.951] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:46:53.951] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:47:09.967] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:47:09.967] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:47:25.983] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:47:25.983] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:47:41.999] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:47:41.999] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:47:42.833] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:47:42.833] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:47:59.016] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:47:59.016] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:48:15.032] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:48:15.032] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:48:31.048] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:48:31.048] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:48:47.064] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:48:47.064] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:49:03.080] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:49:03.080] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:49:03.206] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:49:03.206] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:49:20.097] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:49:20.097] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:49:36.113] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:49:36.113] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:49:52.129] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:49:52.129] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:50:08.145] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:50:08.145] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:50:24.161] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:50:24.161] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:50:24.680] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:50:24.680] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:50:41.178] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:50:41.178] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:50:57.194] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:50:57.194] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:51:13.210] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:51:13.210] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:51:29.226] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:51:29.226] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:51:45.242] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:51:45.242] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:51:46.154] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:51:46.154] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:52:02.259] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:52:02.259] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:52:18.275] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:52:18.275] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:52:34.291] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:52:34.291] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:52:50.307] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:52:50.307] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:53:06.323] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:53:06.323] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:53:06.527] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:53:06.527] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:53:23.340] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:53:23.340] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:53:39.356] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:53:39.356] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:53:55.372] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:53:55.372] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:54:11.388] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:54:11.388] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:54:27.404] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:54:27.404] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:54:28.001] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:54:28.001] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:54:44.421] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:54:44.421] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:55:00.437] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:55:00.437] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:55:16.453] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:55:16.453] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:55:32.469] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:55:32.469] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:55:48.485] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:55:48.485] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:55:49.475] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:55:49.475] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:56:05.502] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:56:05.502] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:56:21.518] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:56:21.518] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:56:37.534] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:56:37.534] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:56:53.550] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:56:53.550] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:57:09.566] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:57:09.566] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:57:09.849] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:57:09.849] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:57:26.583] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:57:26.583] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:57:42.599] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:57:42.599] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:57:58.615] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:57:58.615] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:58:14.631] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:58:14.631] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:58:30.647] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:58:30.647] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:58:31.323] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:58:31.323] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:58:47.664] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:58:47.664] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:59:03.680] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:59:03.680] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:59:19.698] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:59:19.698] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:59:35.714] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 01:59:35.714] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:59:51.730] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 01:59:51.730] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 01:59:52.797] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:59:52.797] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:00:09.748] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:00:09.748] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:00:25.764] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:00:25.764] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:00:41.780] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:00:41.780] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:00:57.796] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:00:57.796] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:01:13.812] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:01:13.812] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:01:14.271] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:01:14.271] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:01:30.829] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:01:30.829] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:01:46.845] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:01:46.845] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:02:02.861] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:02:02.861] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:02:18.877] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:02:18.877] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:02:34.893] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:02:34.893] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:02:35.745] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:02:35.745] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:02:51.910] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:02:51.910] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:03:07.926] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:03:07.926] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:03:23.942] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:03:23.942] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:03:39.958] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:03:39.958] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:03:55.974] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:03:55.974] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:03:56.118] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:03:56.118] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:04:12.991] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:04:12.991] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:04:29.007] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:04:29.007] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:04:45.023] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:04:45.023] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:05:01.039] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:05:01.039] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:05:17.055] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:05:17.055] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:05:17.592] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:05:17.592] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:05:34.072] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:05:34.072] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:05:50.088] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:05:50.088] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:06:06.104] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:06:06.104] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:06:22.120] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:06:22.120] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:06:38.136] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:06:38.136] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:06:39.066] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:06:39.066] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:06:55.153] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:06:55.153] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:07:11.169] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:07:11.169] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:07:27.185] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:07:27.185] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:07:43.201] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:07:43.201] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:07:59.217] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:07:59.217] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:07:59.439] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:07:59.439] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:08:16.234] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:08:16.234] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:08:32.250] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:08:32.250] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:08:48.266] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:08:48.266] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:09:04.282] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:09:04.282] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:09:20.298] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:09:20.298] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:09:20.913] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:09:20.913] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:09:37.315] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:09:37.315] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:09:53.331] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:09:53.331] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:10:09.347] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:10:09.347] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:10:25.363] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:10:25.363] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:10:41.379] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:10:41.379] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:10:42.387] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:10:42.387] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:10:58.396] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:10:58.396] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:11:14.412] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:11:14.412] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:11:30.428] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:11:30.428] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:11:46.444] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:11:46.444] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:12:02.460] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:12:02.460] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:12:02.761] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:12:02.761] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:12:19.477] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:12:19.477] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:12:35.493] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:12:35.493] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:12:51.509] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:12:51.509] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:13:07.525] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:13:07.525] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:13:23.541] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:13:23.541] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:13:24.235] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:13:24.235] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:13:40.558] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:13:40.558] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:13:56.574] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:13:56.574] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:14:12.590] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:14:12.590] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:14:28.606] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:14:28.606] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:14:44.622] [nas] [error] PDU Session Establishment procedure failure, no response from the network after 5 attempts
+[2025-07-17 02:14:44.622] [nas] [debug] Aborting SM procedure for PTI[1], PSI[1]
+[2025-07-17 02:14:45.709] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 02:14:45.709] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:15:02.640] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:15:02.640] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:15:18.656] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:15:18.656] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:15:34.672] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:15:34.672] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 02:15:50.495] [rrc] [debug] Signal lost for cell[5], total [0] cells in coverage
+[2025-07-17 02:15:50.496] [nas] [error] Radio link failure detected
+[2025-07-17 02:15:50.496] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 02:15:50.496] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 02:15:50.496] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 02:15:50.496] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:50.688] [nas] [warning] Retransmitting PDU Session Establishment Request due to T3580 expiry
+[2025-07-17 02:15:50.688] [nas] [error] UAC access attempt is barred for identity[0], category[MO_sig]
+[2025-07-17 02:15:51.087] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 02:15:51.087] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 02:15:52.870] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:55.072] [nas] [error] PLMN selection failure, no cells in coverage

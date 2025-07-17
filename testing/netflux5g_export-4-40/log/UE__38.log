@@ -189,3 +189,246 @@ UERANSIM v3.2.7
 [2025-07-16 22:33:16.105] [nas] [debug] NAS timer[3517] expired [1]
 [2025-07-16 22:33:16.105] [nas] [info] UE switches to state [MM-REGISTERED/PS]
 [2025-07-16 22:33:16.105] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:14:37.605] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 00:14:37.606] [nas] [error] Radio link failure detected
+[2025-07-17 00:14:37.606] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:14:37.606] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:14:37.606] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 00:14:37.606] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:39.632] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:40.032] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 00:14:40.032] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 00:14:41.834] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:42.935] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is disabled, skipping OpenFlow setup
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: ue
+OVS integration disabled (OVS_ENABLED not set to 'true')
+Proceeding with standard UERANSIM configuration...
+Get GNB
+Resolving GNB_HOSTNAME: GNB__4
+Resolved GNB_HOSTNAME (GNB__4) to GNB_IP: 10.0.0.13
+GNB_HOSTNAME: GNB__4
+GNB_IP: 10.0.0.13
+=== UERANSIM UE Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1878: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether ce:ac:77:f4:71:72 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+1919: UE__38-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 02:00:00:00:08:00 brd ff:ff:ff:ff:ff:ff
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1878: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether ce:ac:77:f4:71:72 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.35/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+1919: UE__38-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:00:00:00:08:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.25/8 brd 10.255.255.255 scope global UE__38-wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2001::9/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff:fe00:800/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Launching ue: nr-ue -c ue.yaml
+UERANSIM v3.2.7
+[2025-07-17 00:50:52.964] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2025-07-17 00:50:52.965] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2025-07-17 00:50:52.968] [nas] [info] Selected plmn[999/70]
+[2025-07-17 00:50:52.968] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 00:50:52.968] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 00:50:52.968] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:50:52.968] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2025-07-17 00:50:52.968] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 00:50:52.968] [nas] [debug] Sending Initial Registration
+[2025-07-17 00:50:52.968] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 00:50:52.968] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 00:50:52.972] [rrc] [info] RRC connection established
+[2025-07-17 00:50:52.972] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 00:50:52.973] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 00:50:52.998] [nas] [debug] Authentication Request received
+[2025-07-17 00:50:52.998] [nas] [debug] Received SQN [000000000401]
+[2025-07-17 00:50:52.998] [nas] [debug] SQN-MS [000000000000]
+[2025-07-17 00:50:53.045] [nas] [debug] Security Mode Command received
+[2025-07-17 00:50:53.046] [nas] [debug] Selected integrity[2] ciphering[0]
+[2025-07-17 00:50:53.132] [nas] [debug] Registration accept received
+[2025-07-17 00:50:53.132] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:50:53.132] [nas] [debug] Sending Registration Complete
+[2025-07-17 00:50:53.132] [nas] [info] Initial Registration is successful
+[2025-07-17 00:50:53.132] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 00:50:53.132] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 00:50:53.155] [nas] [debug] Configuration Update Command received
+[2025-07-17 00:50:53.214] [nas] [debug] PDU Session Establishment Accept received
+[2025-07-17 00:50:53.214] [nas] [info] PDU Session establishment is successful PSI[1]
+[2025-07-17 00:50:53.240] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.51.0.4] is up.
+[2025-07-17 00:50:53.365] [rrc] [debug] RRC Release received
+[2025-07-17 00:50:53.365] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:50:54.027] [nas] [debug] Uplink data status changed PSI[1] pending[true]
+[2025-07-17 00:50:54.027] [nas] [debug] Service request required due to [IDLE-UPLINK-DATA-PENDING]
+[2025-07-17 00:50:54.027] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_data]
+[2025-07-17 00:50:54.027] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-DATA-PENDING]
+[2025-07-17 00:50:54.027] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 00:50:54.027] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 00:50:54.028] [rrc] [info] RRC connection established
+[2025-07-17 00:50:54.028] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 00:50:54.028] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 00:50:57.035] [nas] [debug] Uplink data status changed PSI[1] pending[false]
+[2025-07-17 00:51:09.981] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 00:51:09.981] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:51:09.981] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:54:13.913] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 00:54:13.913] [nas] [error] Radio link failure detected
+[2025-07-17 00:54:13.913] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:54:13.913] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:54:13.913] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 00:54:13.913] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:15.545] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 00:54:15.545] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 00:54:16.649] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:18.851] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:19.952] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is disabled, skipping OpenFlow setup
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: ue
+OVS integration disabled (OVS_ENABLED not set to 'true')
+Proceeding with standard UERANSIM configuration...
+Get GNB
+Resolving GNB_HOSTNAME: GNB__4
+Resolved GNB_HOSTNAME (GNB__4) to GNB_IP: 10.0.0.13
+GNB_HOSTNAME: GNB__4
+GNB_IP: 10.0.0.13
+=== UERANSIM UE Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if2234: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 62:47:67:0a:8f:ef brd ff:ff:ff:ff:ff:ff link-netnsid 0
+2275: UE__38-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 02:00:00:00:08:00 brd ff:ff:ff:ff:ff:ff
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if2234: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 62:47:67:0a:8f:ef brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.35/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+2275: UE__38-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:00:00:00:08:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.25/8 brd 10.255.255.255 scope global UE__38-wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2001::9/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff:fe00:800/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Launching ue: nr-ue -c ue.yaml
+UERANSIM v3.2.7
+[2025-07-17 01:17:37.259] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2025-07-17 01:17:37.265] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2025-07-17 01:17:37.269] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:17:37.271] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:17:37.271] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 01:17:37.271] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:17:37.271] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2025-07-17 01:17:37.272] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:37.272] [nas] [debug] Sending Initial Registration
+[2025-07-17 01:17:37.272] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 01:17:37.273] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:17:37.280] [rrc] [info] RRC connection established
+[2025-07-17 01:17:37.280] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 01:17:37.280] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 01:17:37.393] [nas] [debug] Authentication Request received
+[2025-07-17 01:17:37.393] [nas] [debug] Received SQN [000000000461]
+[2025-07-17 01:17:37.393] [nas] [debug] SQN-MS [000000000000]
+[2025-07-17 01:17:52.273] [nas] [debug] NAS timer[3510] expired [1]
+[2025-07-17 01:17:52.273] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 01:17:52.273] [nas] [info] UE switches to state [5U2-NOT-UPDATED]
+[2025-07-17 01:17:52.273] [nas] [info] Performing local release of NAS connection
+[2025-07-17 01:17:52.273] [nas] [info] UE switches to state [MM-DEREGISTERED/ATTEMPTING-REGISTRATION]
+[2025-07-17 01:17:52.273] [rrc] [info] UE switches to state [RRC-IDLE]
+[2025-07-17 01:17:52.273] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 01:18:02.283] [nas] [debug] NAS timer[3511] expired [1]
+[2025-07-17 01:18:02.283] [nas] [debug] Initial registration required due to [T3511-EXPIRY-IN-ATT-REG]
+[2025-07-17 01:18:02.283] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:18:02.283] [nas] [debug] Sending Initial Registration
+[2025-07-17 01:18:02.283] [nas] [debug] Deleting NAS security context
+[2025-07-17 01:18:02.283] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 01:18:02.283] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:18:02.284] [rrc] [info] RRC connection established
+[2025-07-17 01:18:02.284] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 01:18:02.284] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 01:18:02.298] [nas] [debug] Authentication Request received
+[2025-07-17 01:18:02.298] [nas] [debug] Received SQN [0000000004A1]
+[2025-07-17 01:18:02.298] [nas] [debug] SQN-MS [000000000461]
+[2025-07-17 01:18:02.312] [nas] [debug] Security Mode Command received
+[2025-07-17 01:18:02.312] [nas] [debug] Selected integrity[2] ciphering[0]
+[2025-07-17 01:18:02.331] [nas] [debug] Registration accept received
+[2025-07-17 01:18:02.331] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:18:02.331] [nas] [info] UE switches to state [5U1-UPDATED]
+[2025-07-17 01:18:02.331] [nas] [debug] Sending Registration Complete
+[2025-07-17 01:18:02.331] [nas] [info] Initial Registration is successful
+[2025-07-17 01:18:02.331] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:18:02.332] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:18:02.532] [nas] [debug] Configuration Update Command received
+[2025-07-17 01:18:02.545] [nas] [debug] PDU Session Establishment Accept received
+[2025-07-17 01:18:02.545] [nas] [info] PDU Session establishment is successful PSI[1]
+[2025-07-17 01:18:02.564] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.51.0.14] is up.
+[2025-07-17 01:18:13.182] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 01:18:13.182] [nas] [error] Radio link failure detected
+[2025-07-17 01:18:13.182] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 01:18:13.182] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:13.182] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 01:18:13.182] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:18:13.188] [rrc] [debug] New signal detected for cell[2], total [1] cells in coverage
+[2025-07-17 01:18:14.773] [rrc] [warning] Acceptable cell selection failed in [1] cells. [1] no SI, [0] reserved, [0] barred, ftai [0]
+[2025-07-17 01:18:14.773] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 01:18:15.793] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 01:18:16.548] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:18:16.548] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:18:16.548] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:16.548] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:18:16.554] [nas] [debug] Uplink data status changed PSI[1] pending[true]
+[2025-07-17 01:18:16.554] [nas] [debug] Service request required due to [IDLE-UPLINK-DATA-PENDING]
+[2025-07-17 01:18:16.560] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_data]
+[2025-07-17 01:18:16.560] [nas] [debug] Sending Service Request due to [IDLE-UPLINK-DATA-PENDING]
+[2025-07-17 01:18:16.560] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:18:16.563] [nas] [info] UE switches to state [MM-SERVICE-REQUEST-INITIATED]
+[2025-07-17 01:18:32.319] [nas] [debug] NAS timer[3517] expired [1]
+[2025-07-17 01:18:32.319] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 01:18:32.319] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:27:13.840] [nas] [debug] NAS timer[3512] expired [1]
+[2025-07-17 01:27:13.840] [nas] [debug] Mobility registration updating required due to [T3512-EXPIRY]
+[2025-07-17 01:27:13.840] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_data]
+[2025-07-17 01:27:13.840] [nas] [debug] Sending Periodic Registration with update cause [T3512-EXPIRY]
+[2025-07-17 01:27:13.840] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 01:27:13.840] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:27:28.855] [nas] [debug] NAS timer[3510] expired [1]
+[2025-07-17 01:27:28.855] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:27:28.855] [rrc] [info] UE switches to state [RRC-IDLE]
+[2025-07-17 02:15:50.693] [rrc] [debug] Signal lost for cell[2], total [0] cells in coverage
+[2025-07-17 02:15:50.693] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 02:15:50.693] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 02:15:50.693] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:51.157] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 02:15:51.157] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 02:15:52.939] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:55.141] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:56.242] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]

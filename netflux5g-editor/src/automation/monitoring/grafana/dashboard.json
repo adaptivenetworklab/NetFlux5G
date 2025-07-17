@@ -551,7 +551,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(container_last_seen{name=~\"mn\\\\.UE__[0-9]+.*\"})",
+          "expr": "count(container_last_seen{name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"})",
           "format": "time_series",
           "instant": false,
           "interval": "5s",
@@ -634,7 +634,7 @@
             "uid": "AdaptiveJaya"
           },
           "editorMode": "code",
-          "expr": "count(container_network_receive_bytes_total{interface=\"uesimtun0\", name=~\"mn\\\\.UE__[0-9]+.*\"}) / count(container_last_seen{name=~\"mn\\\\.UE__[0-9]+.*\"}) * 100",
+          "expr": "count(container_network_receive_bytes_total{interface=\"uesimtun0\", name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}) / count(container_last_seen{name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}) * 100",
           "format": "time_series",
           "interval": "5s",
           "intervalMs": 5000,
@@ -699,7 +699,7 @@
             "uid": "AdaptiveJaya"
           },
           "editorMode": "code",
-          "expr": "count(container_last_seen{name=~\"mn\\\\.GNB__[0-9]+.*\"})",
+          "expr": "count(container_last_seen{name=~\"mn\\\\.GNB__[0-9]+.*\", image=\"adaptive/ueransim:latest\"})",
           "format": "time_series",
           "interval": "5s",
           "intervalMs": 5000,
@@ -870,7 +870,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.UE__[0-9]+.*\"}[5m])) * 100",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}[5m])) * 100",
           "legendFormat": "CPU Usage",
           "range": true,
           "refId": "A"
@@ -973,7 +973,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(container_memory_usage_bytes{name=~\"mn\\\\.UE__[0-9]+.*\"}) / sum(machine_memory_bytes) * 100",
+          "expr": "sum(container_memory_usage_bytes{name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}) / sum(machine_memory_bytes) * 100",
           "legendFormat": "RAM Usage",
           "range": true,
           "refId": "A"
@@ -1074,7 +1074,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.GNB__[0-9]+.*\"}[5m])) * 100",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.GNB__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}[5m])) * 100",
           "legendFormat": "CPU Usage",
           "range": true,
           "refId": "A"
@@ -1177,7 +1177,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "sum(container_memory_usage_bytes{name=~\"mn\\\\.UE__[0-9]+.*\"}) / sum(machine_memory_bytes) * 100",
+          "expr": "sum(container_memory_usage_bytes{name=~\"mn\\\\.GNB__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}) / sum(machine_memory_bytes) * 100",
           "legendFormat": "RAM Usage",
           "range": true,
           "refId": "A"
@@ -1249,13 +1249,83 @@
             "uid": "AdaptiveJaya"
           },
           "editorMode": "code",
-          "expr": "sort_desc(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.UE__[0-9]+.*\"}[5m]) * 100)",
+          "expr": "sort_desc(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}[5m]) * 100)",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Individual UE CPU Usage (%)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "AdaptiveJaya"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 54
+      },
+      "id": 25,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "AdaptiveJaya"
+          },
+          "editorMode": "code",
+          "expr": "sort_desc(container_memory_usage_bytes{name=~\"mn\\\\.UE__[0-9]+.*\", image=\"adaptive/ueransim:latest\"})",
+          "legendFormat": "{{name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Individual UE Memory Usage",
       "type": "gauge"
     },
     {
@@ -1295,7 +1365,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 63
       },
       "id": 24,
       "options": {
@@ -1321,7 +1391,7 @@
             "uid": "AdaptiveJaya"
           },
           "editorMode": "code",
-          "expr": "sort_desc(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.GNB__[0-9]+.*\"}[5m]) * 100)",
+          "expr": "sort_desc(rate(container_cpu_usage_seconds_total{name=~\"mn\\\\.GNB__[0-9]+.*\", image=\"adaptive/ueransim:latest\"}[5m]) * 100)",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -1365,7 +1435,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 63
+        "y": 72
       },
       "id": 4,
       "options": {
@@ -1391,7 +1461,7 @@
             "uid": "AdaptiveJaya"
           },
           "editorMode": "code",
-          "expr": "sort_desc(container_memory_usage_bytes{name=~\"mn\\\\.GNB__[0-9]+.*\"})",
+          "expr": "sort_desc(container_memory_usage_bytes{name=~\"mn\\\\.GNB__[0-9]+.*\", image=\"adaptive/ueransim:latest\"})",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -1444,7 +1514,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 81
       },
       "id": 2,
       "options": {
@@ -1633,7 +1703,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 78
+        "y": 87
       },
       "id": 5,
       "options": {
@@ -1741,7 +1811,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 78
+        "y": 87
       },
       "id": 6,
       "options": {
@@ -1849,7 +1919,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 86
+        "y": 95
       },
       "id": 14,
       "options": {
@@ -1959,7 +2029,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 86
+        "y": 95
       },
       "id": 15,
       "options": {
@@ -2026,48 +2096,12 @@
           "text": [
             "mn.GNB__1",
             "mn.GNB__2",
-            "mn.GNB__3",
-            "mn.GNB__4",
             "mn.UE__1",
-            "mn.UE__10",
-            "mn.UE__11",
-            "mn.UE__12",
-            "mn.UE__13",
-            "mn.UE__14",
-            "mn.UE__15",
-            "mn.UE__16",
-            "mn.UE__17",
-            "mn.UE__18",
-            "mn.UE__19",
             "mn.UE__2",
-            "mn.UE__20",
-            "mn.UE__21",
-            "mn.UE__22",
-            "mn.UE__23",
-            "mn.UE__24",
-            "mn.UE__25",
-            "mn.UE__26",
-            "mn.UE__27",
-            "mn.UE__28",
-            "mn.UE__29",
             "mn.UE__3",
-            "mn.UE__30",
-            "mn.UE__31",
-            "mn.UE__32",
-            "mn.UE__33",
-            "mn.UE__34",
-            "mn.UE__35",
-            "mn.UE__36",
-            "mn.UE__37",
-            "mn.UE__38",
-            "mn.UE__39",
             "mn.UE__4",
-            "mn.UE__40",
             "mn.UE__5",
             "mn.UE__6",
-            "mn.UE__7",
-            "mn.UE__8",
-            "mn.UE__9",
             "mn.amf1",
             "mn.ausf1",
             "mn.bsf1",
@@ -2093,48 +2127,12 @@
           "value": [
             "mn.GNB__1",
             "mn.GNB__2",
-            "mn.GNB__3",
-            "mn.GNB__4",
             "mn.UE__1",
-            "mn.UE__10",
-            "mn.UE__11",
-            "mn.UE__12",
-            "mn.UE__13",
-            "mn.UE__14",
-            "mn.UE__15",
-            "mn.UE__16",
-            "mn.UE__17",
-            "mn.UE__18",
-            "mn.UE__19",
             "mn.UE__2",
-            "mn.UE__20",
-            "mn.UE__21",
-            "mn.UE__22",
-            "mn.UE__23",
-            "mn.UE__24",
-            "mn.UE__25",
-            "mn.UE__26",
-            "mn.UE__27",
-            "mn.UE__28",
-            "mn.UE__29",
             "mn.UE__3",
-            "mn.UE__30",
-            "mn.UE__31",
-            "mn.UE__32",
-            "mn.UE__33",
-            "mn.UE__34",
-            "mn.UE__35",
-            "mn.UE__36",
-            "mn.UE__37",
-            "mn.UE__38",
-            "mn.UE__39",
             "mn.UE__4",
-            "mn.UE__40",
             "mn.UE__5",
             "mn.UE__6",
-            "mn.UE__7",
-            "mn.UE__8",
-            "mn.UE__9",
             "mn.amf1",
             "mn.ausf1",
             "mn.bsf1",
@@ -2180,12 +2178,12 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "5G Core Network Monitoring Dashboard",
   "uid": "9f9e4b0b-280d-4d15-80d8-061f6df61acc",
-  "version": 8
+  "version": 6
 }

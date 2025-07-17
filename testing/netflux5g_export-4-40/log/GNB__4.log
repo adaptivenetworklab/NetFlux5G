@@ -523,3 +523,779 @@ UERANSIM v3.2.7
 [2025-07-16 22:33:11.133] [ngap] [debug] Initial NAS message received from UE[5]
 [2025-07-16 22:33:11.157] [ngap] [debug] Initial Context Setup Request received
 [2025-07-16 22:33:11.375] [ngap] [info] PDU session resource(s) setup for UE[5] count[1]
+[2025-07-17 00:14:37.406] [rls] [debug] UE[2] signal lost
+[2025-07-17 00:14:37.406] [rls] [debug] UE[3] signal lost
+[2025-07-17 00:14:37.406] [rls] [debug] UE[5] signal lost
+[2025-07-17 00:14:37.406] [rls] [debug] UE[10] signal lost
+[2025-07-17 00:14:38.407] [rls] [debug] UE[1] signal lost
+[2025-07-17 00:14:38.407] [rls] [debug] UE[4] signal lost
+[2025-07-17 00:14:38.407] [rls] [debug] UE[6] signal lost
+[2025-07-17 00:14:38.407] [rls] [debug] UE[7] signal lost
+[2025-07-17 00:14:38.407] [rls] [debug] UE[8] signal lost
+[2025-07-17 00:14:38.407] [rls] [debug] UE[9] signal lost
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+Starting OVS services...
+Creating OVS database...
+2025-07-17T00:50:37Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-17T00:50:37Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-17T00:50:37Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-17T00:50:37Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-17T00:50:37Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-17T00:50:37Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-gnb
+Bridge br-gnb created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+bf3afefa-87c2-485b-a866-624b1cf28d31
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.069s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.049s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.108s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.030s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1866
+ovs-system
+br-gnb
+GNB__4-eth0@if1956
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: gnb
+Setting up OpenFlow/OVS integration for UERANSIM gnb...
+Waiting for OVS setup to complete...
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+OVS services already running
+Bridge br-gnb already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+bf3afefa-87c2-485b-a866-624b1cf28d31
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.074s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.054s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.109s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.035s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if1866
+ovs-system
+br-gnb
+GNB__4-eth0@if1956
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+OVS setup completed
+Get N2
+Get N3
+Get Radio
+Get AMF
+Resolving AMF_HOSTNAME: amf1
+Resolved AMF_HOSTNAME (amf1) to AMF_IP: 10.0.0.3
+N2_BIND_IP: 10.0.0.13
+N3_BIND_IP: 10.0.0.13
+RADIO_BIND_IP: 10.0.0.13
+AMF_HOSTNAME: amf1
+AMF_IP: 10.0.0.3
+Launching gnb: nr-gnb -c gnb.yaml
+=== UERANSIM gNB Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1866: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 02:43:ba:66:da:41 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 7e:e9:a8:f4:6b:0c brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 02:ce:4e:4a:02:4b brd ff:ff:ff:ff:ff:ff
+1955: GNB__4-eth0@if1956: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether fe:ba:3a:d7:0e:ac brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1866: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:43:ba:66:da:41 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.23/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 7e:e9:a8:f4:6b:0c brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 02:ce:4e:4a:02:4b brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::ce:4eff:fe4a:24b/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+1955: GNB__4-eth0@if1956: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether fe:ba:3a:d7:0e:ac brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.13/8 scope global GNB__4-eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev GNB__4-eth0 proto kernel scope link src 10.0.0.13 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.23 
+
+=== OVS Status Check ===
+OVS bridges:
+br-gnb
+Bridge configuration:
+controller          : [fa7dcfa9-4c91-43d7-ac97-37dfcfc31106]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+==============================================
+=== Access Point Setup ===
+AP_ENABLED is true, setting up access point functionality...
+WARNING: ap-setup.sh not found, AP functionality may not work
+UERANSIM v3.2.7
+[2025-07-17 00:50:42.287] [sctp] [info] Trying to establish SCTP connection... (10.0.0.3:38412)
+[2025-07-17 00:50:42.292] [sctp] [info] SCTP connection established (10.0.0.3:38412)
+[2025-07-17 00:50:42.292] [sctp] [debug] SCTP association setup ascId[55]
+[2025-07-17 00:50:42.292] [ngap] [debug] Sending NG Setup Request
+[2025-07-17 00:50:42.326] [ngap] [debug] NG Setup Response received
+[2025-07-17 00:50:42.326] [ngap] [info] NG Setup procedure is successful
+[2025-07-17 00:50:52.914] [rrc] [debug] UE[1] new signal detected
+[2025-07-17 00:50:52.917] [rrc] [debug] UE[2] new signal detected
+[2025-07-17 00:50:52.921] [rrc] [info] RRC Setup for UE[2]
+[2025-07-17 00:50:52.924] [ngap] [debug] Initial NAS message received from UE[2]
+[2025-07-17 00:50:52.960] [rrc] [debug] UE[3] new signal detected
+[2025-07-17 00:50:52.965] [rrc] [debug] UE[4] new signal detected
+[2025-07-17 00:50:52.970] [rrc] [info] RRC Setup for UE[3]
+[2025-07-17 00:50:52.970] [rrc] [info] RRC Setup for UE[4]
+[2025-07-17 00:50:52.974] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-17 00:50:52.974] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-17 00:50:52.982] [rrc] [debug] UE[5] new signal detected
+[2025-07-17 00:50:52.988] [rrc] [debug] UE[6] new signal detected
+[2025-07-17 00:50:52.992] [rrc] [info] RRC Setup for UE[5]
+[2025-07-17 00:50:52.994] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-17 00:50:52.999] [rrc] [info] RRC Setup for UE[6]
+[2025-07-17 00:50:53.003] [ngap] [debug] Initial NAS message received from UE[6]
+[2025-07-17 00:50:53.004] [rrc] [debug] UE[7] new signal detected
+[2025-07-17 00:50:53.009] [rrc] [info] RRC Setup for UE[7]
+[2025-07-17 00:50:53.013] [ngap] [debug] Initial NAS message received from UE[7]
+[2025-07-17 00:50:53.021] [rrc] [debug] UE[8] new signal detected
+[2025-07-17 00:50:53.026] [rrc] [debug] UE[9] new signal detected
+[2025-07-17 00:50:53.027] [rrc] [info] RRC Setup for UE[8]
+[2025-07-17 00:50:53.032] [ngap] [debug] Initial NAS message received from UE[8]
+[2025-07-17 00:50:53.038] [rrc] [debug] UE[10] new signal detected
+[2025-07-17 00:50:53.045] [rrc] [info] RRC Setup for UE[10]
+[2025-07-17 00:50:53.047] [ngap] [debug] Initial NAS message received from UE[10]
+[2025-07-17 00:50:53.055] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.112] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.125] [ngap] [info] PDU session resource(s) setup for UE[2] count[1]
+[2025-07-17 00:50:53.131] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.152] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.188] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.194] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.197] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.202] [ngap] [info] PDU session resource(s) setup for UE[3] count[1]
+[2025-07-17 00:50:53.213] [ngap] [info] PDU session resource(s) setup for UE[4] count[1]
+[2025-07-17 00:50:53.213] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:53.223] [ngap] [info] PDU session resource(s) setup for UE[5] count[1]
+[2025-07-17 00:50:53.235] [ngap] [info] PDU session resource(s) setup for UE[7] count[1]
+[2025-07-17 00:50:53.251] [ngap] [info] PDU session resource(s) setup for UE[6] count[1]
+[2025-07-17 00:50:53.253] [ngap] [info] PDU session resource(s) setup for UE[10] count[1]
+[2025-07-17 00:50:53.356] [ngap] [debug] UE Context Release Command received
+[2025-07-17 00:50:53.356] [rrc] [info] Releasing RRC connection for UE[3]
+[2025-07-17 00:50:53.363] [ngap] [debug] UE Context Release Command received
+[2025-07-17 00:50:53.363] [rrc] [info] Releasing RRC connection for UE[4]
+[2025-07-17 00:50:53.369] [ngap] [debug] UE Context Release Command received
+[2025-07-17 00:50:53.370] [rrc] [info] Releasing RRC connection for UE[2]
+[2025-07-17 00:50:53.372] [ngap] [debug] UE Context Release Command received
+[2025-07-17 00:50:53.372] [rrc] [info] Releasing RRC connection for UE[6]
+[2025-07-17 00:50:53.395] [ngap] [debug] UE Context Release Command received
+[2025-07-17 00:50:53.395] [rrc] [info] Releasing RRC connection for UE[5]
+[2025-07-17 00:50:53.396] [rrc] [info] RRC Setup for UE[6]
+[2025-07-17 00:50:53.397] [ngap] [debug] Initial NAS message received from UE[6]
+[2025-07-17 00:50:53.397] [ngap] [error] AMF selection for UE[6] failed. Could not find a suitable AMF.
+[2025-07-17 00:50:53.398] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 00:50:53.771] [rrc] [info] RRC Setup for UE[3]
+[2025-07-17 00:50:53.772] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-17 00:50:53.772] [ngap] [error] AMF selection for UE[3] failed. Could not find a suitable AMF.
+[2025-07-17 00:50:53.772] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 00:50:54.027] [rrc] [info] RRC Setup for UE[4]
+[2025-07-17 00:50:54.028] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-17 00:50:54.028] [ngap] [error] AMF selection for UE[4] failed. Could not find a suitable AMF.
+[2025-07-17 00:50:54.028] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 00:50:54.091] [rrc] [info] RRC Setup for UE[5]
+[2025-07-17 00:50:54.092] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-17 00:50:54.092] [ngap] [error] AMF selection for UE[5] failed. Could not find a suitable AMF.
+[2025-07-17 00:50:54.092] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 00:50:55.414] [rrc] [info] RRC Setup for UE[1]
+[2025-07-17 00:50:55.415] [ngap] [debug] Initial NAS message received from UE[1]
+[2025-07-17 00:50:55.435] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:55.523] [rrc] [info] RRC Setup for UE[9]
+[2025-07-17 00:50:55.524] [ngap] [debug] Initial NAS message received from UE[9]
+[2025-07-17 00:50:55.656] [ngap] [info] PDU session resource(s) setup for UE[1] count[1]
+[2025-07-17 00:50:55.871] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 00:50:56.085] [ngap] [info] PDU session resource(s) setup for UE[9] count[1]
+[2025-07-17 00:50:56.910] [rrc] [info] RRC Setup for UE[2]
+[2025-07-17 00:50:56.913] [ngap] [debug] Initial NAS message received from UE[2]
+[2025-07-17 00:50:56.913] [ngap] [error] AMF selection for UE[2] failed. Could not find a suitable AMF.
+[2025-07-17 00:50:56.913] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 00:50:59.210] [ngap] [info] PDU session resource(s) setup for UE[8] count[1]
+[2025-07-17 00:54:13.730] [rls] [debug] UE[6] signal lost
+[2025-07-17 00:54:13.730] [rls] [debug] UE[7] signal lost
+[2025-07-17 00:54:13.730] [rls] [debug] UE[10] signal lost
+[2025-07-17 00:54:14.731] [rls] [debug] UE[1] signal lost
+[2025-07-17 00:54:14.731] [rls] [debug] UE[2] signal lost
+[2025-07-17 00:54:14.731] [rls] [debug] UE[3] signal lost
+[2025-07-17 00:54:14.731] [rls] [debug] UE[4] signal lost
+[2025-07-17 00:54:14.731] [rls] [debug] UE[5] signal lost
+[2025-07-17 00:54:14.731] [rls] [debug] UE[8] signal lost
+[2025-07-17 00:54:14.732] [rls] [debug] UE[9] signal lost
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+Starting OVS services...
+Creating OVS database...
+2025-07-17T01:17:22Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-17T01:17:22Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-17T01:17:22Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-17T01:17:22Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-17T01:17:22Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-17T01:17:22Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-gnb
+Bridge br-gnb created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+bb56b262-7feb-437b-996a-21b2aa8b0d5a
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.071s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.053s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.106s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.032s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if2222
+ovs-system
+br-gnb
+GNB__4-eth0@if2312
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: gnb
+Setting up OpenFlow/OVS integration for UERANSIM gnb...
+Waiting for OVS setup to complete...
+Starting OVS setup for UERANSIM container...
+OVS is enabled, setting up OpenFlow integration for UERANSIM...
+OVS services already running
+Bridge br-gnb already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-gnb
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-gnb
+OVS bridge setup completed
+Setting up OpenFlow flows for UERANSIM gnb...
+OpenFlow flows configured for gnb
+=== UERANSIM OVS Status ===
+Bridges:
+br-gnb
+
+Bridge br-gnb details:
+bb56b262-7feb-437b-996a-21b2aa8b0d5a
+    Bridge br-gnb
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-gnb
+            Interface br-gnb
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.065s, table=0, n_packets=0, n_bytes=0, priority=1000,arp actions=NORMAL
+ cookie=0x0, duration=0.045s, table=0, n_packets=0, n_bytes=0, priority=1000,icmp actions=NORMAL
+ cookie=0x0, duration=0.101s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+ cookie=0x0, duration=0.027s, table=0, n_packets=0, n_bytes=0, priority=0 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if2222
+ovs-system
+br-gnb
+GNB__4-eth0@if2312
+==========================
+UERANSIM OVS setup completed successfully
+UERANSIM OVS setup script completed
+OVS setup completed
+Get N2
+Get N3
+Get Radio
+Get AMF
+Resolving AMF_HOSTNAME: amf1
+Resolved AMF_HOSTNAME (amf1) to AMF_IP: 10.0.0.3
+N2_BIND_IP: 10.0.0.13
+N3_BIND_IP: 10.0.0.13
+RADIO_BIND_IP: 10.0.0.13
+AMF_HOSTNAME: amf1
+AMF_IP: 10.0.0.3
+Launching gnb: nr-gnb -c gnb.yaml
+=== UERANSIM gNB Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if2222: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 2a:fa:3e:be:e8:e8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 5e:fe:11:b1:83:89 brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 4a:24:50:54:32:45 brd ff:ff:ff:ff:ff:ff
+2311: GNB__4-eth0@if2312: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 2e:1c:75:d0:c8:c6 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if2222: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 2a:fa:3e:be:e8:e8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.23/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 5e:fe:11:b1:83:89 brd ff:ff:ff:ff:ff:ff
+4: br-gnb: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 4a:24:50:54:32:45 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::4824:50ff:fe54:3245/64 scope link tentative 
+       valid_lft forever preferred_lft forever
+2311: GNB__4-eth0@if2312: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 2e:1c:75:d0:c8:c6 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.13/8 scope global GNB__4-eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev GNB__4-eth0 proto kernel scope link src 10.0.0.13 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.23 
+
+=== OVS Status Check ===
+OVS bridges:
+br-gnb
+Bridge configuration:
+controller          : [80ceb398-772f-4d42-b6d7-5d867e73a0a6]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+==============================================
+=== Access Point Setup ===
+AP_ENABLED is true, setting up access point functionality...
+WARNING: ap-setup.sh not found, AP functionality may not work
+UERANSIM v3.2.7
+[2025-07-17 01:17:26.535] [sctp] [info] Trying to establish SCTP connection... (10.0.0.3:38412)
+[2025-07-17 01:17:26.549] [sctp] [info] SCTP connection established (10.0.0.3:38412)
+[2025-07-17 01:17:26.549] [sctp] [debug] SCTP association setup ascId[65]
+[2025-07-17 01:17:26.549] [ngap] [debug] Sending NG Setup Request
+[2025-07-17 01:17:26.576] [ngap] [debug] NG Setup Response received
+[2025-07-17 01:17:26.576] [ngap] [info] NG Setup procedure is successful
+[2025-07-17 01:17:37.193] [rrc] [debug] UE[1] new signal detected
+[2025-07-17 01:17:37.198] [rrc] [debug] UE[2] new signal detected
+[2025-07-17 01:17:37.201] [rrc] [info] RRC Setup for UE[2]
+[2025-07-17 01:17:37.204] [ngap] [debug] Initial NAS message received from UE[2]
+[2025-07-17 01:17:37.249] [rrc] [debug] UE[3] new signal detected
+[2025-07-17 01:17:37.257] [rrc] [info] RRC Setup for UE[3]
+[2025-07-17 01:17:37.257] [rrc] [debug] UE[4] new signal detected
+[2025-07-17 01:17:37.263] [rrc] [debug] UE[5] new signal detected
+[2025-07-17 01:17:37.263] [ngap] [debug] Initial NAS message received from UE[3]
+[2025-07-17 01:17:37.270] [rrc] [info] RRC Setup for UE[4]
+[2025-07-17 01:17:37.275] [rrc] [info] RRC Setup for UE[5]
+[2025-07-17 01:17:37.275] [ngap] [debug] Initial NAS message received from UE[4]
+[2025-07-17 01:17:37.281] [ngap] [debug] Initial NAS message received from UE[5]
+[2025-07-17 01:17:37.286] [rrc] [debug] UE[6] new signal detected
+[2025-07-17 01:17:37.290] [rrc] [debug] UE[7] new signal detected
+[2025-07-17 01:17:37.294] [rrc] [info] RRC Setup for UE[6]
+[2025-07-17 01:17:37.295] [rrc] [info] RRC Setup for UE[7]
+[2025-07-17 01:17:37.296] [ngap] [debug] Initial NAS message received from UE[6]
+[2025-07-17 01:17:37.298] [ngap] [debug] Initial NAS message received from UE[7]
+[2025-07-17 01:17:37.312] [rrc] [debug] UE[8] new signal detected
+[2025-07-17 01:17:37.317] [rrc] [info] RRC Setup for UE[8]
+[2025-07-17 01:17:37.320] [rrc] [debug] UE[9] new signal detected
+[2025-07-17 01:17:37.321] [ngap] [debug] Initial NAS message received from UE[8]
+[2025-07-17 01:17:37.325] [rrc] [debug] UE[10] new signal detected
+[2025-07-17 01:17:37.331] [rrc] [info] RRC Setup for UE[9]
+[2025-07-17 01:17:37.333] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:17:37.334] [rrc] [info] RRC Setup for UE[10]
+[2025-07-17 01:17:37.334] [ngap] [debug] Initial NAS message received from UE[9]
+[2025-07-17 01:17:37.336] [ngap] [debug] Initial NAS message received from UE[10]
+[2025-07-17 01:17:37.489] [ngap] [info] PDU session resource(s) setup for UE[2] count[1]
+[2025-07-17 01:17:37.603] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:17:37.628] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:17:37.654] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:17:37.686] [ngap] [info] PDU session resource(s) setup for UE[8] count[1]
+[2025-07-17 01:17:37.700] [ngap] [info] PDU session resource(s) setup for UE[10] count[1]
+[2025-07-17 01:17:37.732] [ngap] [info] PDU session resource(s) setup for UE[7] count[1]
+[2025-07-17 01:17:37.742] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:17:37.958] [ngap] [info] PDU session resource(s) setup for UE[9] count[1]
+[2025-07-17 01:17:39.692] [rrc] [info] RRC Setup for UE[1]
+[2025-07-17 01:17:39.692] [ngap] [debug] Initial NAS message received from UE[1]
+[2025-07-17 01:17:39.711] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:17:39.902] [ngap] [debug] UE Context Release Command received
+[2025-07-17 01:17:39.902] [rrc] [info] Releasing RRC connection for UE[1]
+[2025-07-17 01:17:39.902] [ngap] [error] Error indication received. Cause: radio-network/unknown-local-UE-NGAP-ID
+[2025-07-17 01:17:39.903] [ngap] [error] Error indication received. Cause: radio-network/unknown-local-UE-NGAP-ID
+[2025-07-17 01:17:52.553] [rrc] [debug] UE[11] new signal detected
+[2025-07-17 01:17:52.555] [rrc] [debug] UE[12] new signal detected
+[2025-07-17 01:17:52.556] [rrc] [debug] UE[13] new signal detected
+[2025-07-17 01:17:52.557] [rrc] [debug] UE[14] new signal detected
+[2025-07-17 01:17:54.371] [rls] [debug] UE[3] signal lost
+[2025-07-17 01:17:54.371] [rls] [debug] UE[4] signal lost
+[2025-07-17 01:17:54.371] [rls] [debug] UE[5] signal lost
+[2025-07-17 01:17:54.371] [rls] [debug] UE[6] signal lost
+[2025-07-17 01:17:56.210] [rrc] [info] RRC Setup for UE[1]
+[2025-07-17 01:17:56.211] [ngap] [debug] Initial NAS message received from UE[1]
+[2025-07-17 01:17:56.211] [ngap] [error] AMF selection for UE[1] failed. Could not find a suitable AMF.
+[2025-07-17 01:17:56.211] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:18:02.272] [rrc] [info] RRC Setup for UE[14]
+[2025-07-17 01:18:02.274] [ngap] [debug] Initial NAS message received from UE[14]
+[2025-07-17 01:18:02.279] [rrc] [info] RRC Setup for UE[12]
+[2025-07-17 01:18:02.281] [ngap] [debug] Initial NAS message received from UE[12]
+[2025-07-17 01:18:02.283] [rrc] [info] RRC Setup for UE[13]
+[2025-07-17 01:18:02.284] [ngap] [debug] Initial NAS message received from UE[13]
+[2025-07-17 01:18:02.308] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:18:02.308] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:18:02.309] [rrc] [info] RRC Setup for UE[11]
+[2025-07-17 01:18:02.311] [ngap] [debug] Initial NAS message received from UE[11]
+[2025-07-17 01:18:02.328] [ngap] [info] PDU session resource(s) setup for UE[12] count[1]
+[2025-07-17 01:18:02.330] [ngap] [info] PDU session resource(s) setup for UE[14] count[1]
+[2025-07-17 01:18:02.330] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:18:02.545] [ngap] [info] PDU session resource(s) setup for UE[13] count[1]
+[2025-07-17 01:18:02.545] [ngap] [debug] Initial Context Setup Request received
+[2025-07-17 01:18:02.770] [ngap] [info] PDU session resource(s) setup for UE[11] count[1]
+[2025-07-17 01:18:12.965] [rls] [debug] UE[7] signal lost
+[2025-07-17 01:18:12.965] [rls] [debug] UE[8] signal lost
+[2025-07-17 01:18:12.965] [rls] [debug] UE[11] signal lost
+[2025-07-17 01:18:16.558] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:18:16.558] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:18:16.561] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:18:16.564] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:18:16.569] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:18:28.242] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:18:44.259] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:19:00.867] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:19:17.292] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:20:33.351] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:21:49.319] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:23:05.288] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:24:21.257] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:25:37.226] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:26:53.195] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:10.774] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:11.766] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:11.869] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:13.840] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:13.863] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:13.889] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:27:25.814] [rrc] [debug] UE[15] new signal detected
+[2025-07-17 01:27:26.819] [rls] [debug] UE[2] signal lost
+[2025-07-17 01:27:27.200] [rrc] [debug] UE[16] new signal detected
+[2025-07-17 01:27:27.200] [rrc] [debug] UE[17] new signal detected
+[2025-07-17 01:27:29.009] [rls] [debug] UE[1] signal lost
+[2025-07-17 01:27:29.009] [rls] [debug] UE[11] signal lost
+[2025-07-17 01:27:29.210] [rrc] [debug] UE[18] new signal detected
+[2025-07-17 01:27:29.210] [rrc] [debug] UE[19] new signal detected
+[2025-07-17 01:27:29.417] [rrc] [debug] UE[20] new signal detected
+[2025-07-17 01:27:31.022] [rls] [debug] UE[7] signal lost
+[2025-07-17 01:27:31.023] [rls] [debug] UE[8] signal lost
+[2025-07-17 01:27:31.023] [rls] [debug] UE[13] signal lost
+[2025-07-17 01:28:09.164] [rrc] [info] RRC Setup for UE[17]
+[2025-07-17 01:28:09.171] [ngap] [debug] Initial NAS message received from UE[17]
+[2025-07-17 01:28:09.171] [ngap] [error] AMF selection for UE[17] failed. Could not find a suitable AMF.
+[2025-07-17 01:28:09.171] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:28:14.829] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:28:30.846] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:28:47.699] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:29:03.878] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:29:19.894] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:29:35.910] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:29:51.926] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:30:08.073] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:30:24.959] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:30:40.975] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:30:56.991] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:31:13.007] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:31:29.547] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:31:46.040] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:32:02.056] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:32:18.072] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:32:34.088] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:32:51.020] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:33:07.121] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:33:23.137] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:33:39.153] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:33:41.772] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:33:55.169] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:34:11.393] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:34:28.202] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:34:44.218] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:35:00.234] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:35:16.251] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:35:32.867] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:35:49.284] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:36:05.299] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:36:21.315] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:36:37.332] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:36:54.341] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:36:58.381] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:37:10.364] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:37:26.380] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:37:42.397] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:37:58.412] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:38:14.715] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:38:31.445] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:38:47.462] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:39:03.478] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:39:19.493] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:39:36.188] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:39:52.526] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:40:08.543] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:40:24.559] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:40:40.575] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:40:56.679] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:41:03.664] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:41:03.729] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 01:41:13.607] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:41:18.887] [rrc] [debug] UE[21] new signal detected
+[2025-07-17 01:41:18.888] [rrc] [debug] UE[22] new signal detected
+[2025-07-17 01:41:20.697] [rls] [debug] UE[10] signal lost
+[2025-07-17 01:41:20.697] [rls] [debug] UE[12] signal lost
+[2025-07-17 01:41:29.624] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:41:45.640] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:42:01.655] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:42:18.035] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:42:34.690] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:42:50.709] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:43:06.724] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:43:22.740] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:43:39.510] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:43:55.773] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:44:11.789] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:44:27.805] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:44:43.821] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:44:59.883] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:45:16.854] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:45:32.871] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:45:48.886] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:46:04.902] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:46:21.356] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:46:37.935] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:46:53.951] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:47:09.968] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:47:25.984] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:47:42.834] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:47:59.016] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:48:15.032] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:48:31.048] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:48:47.064] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:49:03.206] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:49:20.098] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:49:36.113] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:49:52.129] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:50:08.145] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:50:24.681] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:50:41.179] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:50:57.194] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:51:13.210] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:51:29.227] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:51:46.154] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:52:02.259] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:52:18.275] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:52:34.291] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:52:50.308] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:53:06.528] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:53:23.340] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:53:39.357] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:53:55.372] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:54:11.388] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:54:28.002] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:54:44.421] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:55:00.437] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:55:16.453] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:55:32.469] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:55:49.475] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:56:05.503] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:56:21.518] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:56:37.534] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:56:53.550] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:57:09.849] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:57:26.583] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:57:42.599] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:57:58.615] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:58:14.632] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:58:31.323] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:58:47.665] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:59:03.680] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:59:19.698] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:59:35.714] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 01:59:52.797] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:00:09.749] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:00:25.764] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:00:41.780] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:00:57.796] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:01:14.271] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:01:30.829] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:01:46.845] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:02:02.861] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:02:18.877] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:02:35.746] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:02:51.911] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:03:07.926] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:03:23.942] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:03:39.958] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:03:56.118] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:04:12.991] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:04:29.008] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:04:45.023] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:05:01.039] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:05:17.592] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:05:34.072] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:05:50.088] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:06:06.104] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:06:22.120] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:06:39.066] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:06:55.153] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:07:11.169] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:07:27.185] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:07:43.201] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:07:59.440] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:08:06.156] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 02:08:16.234] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:08:32.250] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:08:48.266] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:09:04.282] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:09:20.913] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:09:37.315] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:09:53.331] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:10:09.347] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:10:25.363] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:10:42.387] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:10:58.396] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:11:14.412] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:11:30.428] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:11:46.445] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:12:02.761] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:12:19.477] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:12:35.493] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:12:51.510] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:13:07.526] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:13:24.235] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:13:40.558] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:13:56.574] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:14:11.643] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 02:14:11.725] [rrc] [warning] Discarding RRC Setup Request, UE context already exists
+[2025-07-17 02:14:12.591] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:14:26.701] [rrc] [debug] UE[23] new signal detected
+[2025-07-17 02:14:27.883] [rrc] [debug] UE[24] new signal detected
+[2025-07-17 02:14:28.606] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:14:28.688] [rls] [debug] UE[14] signal lost
+[2025-07-17 02:14:29.689] [rls] [debug] UE[9] signal lost
+[2025-07-17 02:14:45.710] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:15:02.640] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:15:18.656] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:15:34.672] [ngap] [error] AMF context not found with id: 0
+[2025-07-17 02:15:51.298] [rls] [debug] UE[15] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[16] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[17] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[18] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[19] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[20] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[21] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[22] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[23] signal lost
+[2025-07-17 02:15:51.298] [rls] [debug] UE[24] signal lost

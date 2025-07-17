@@ -153,3 +153,180 @@ UERANSIM v3.2.7
 [2025-07-16 22:33:00.564] [nas] [debug] PDU Session Establishment Accept received
 [2025-07-16 22:33:00.564] [nas] [info] PDU Session establishment is successful PSI[1]
 [2025-07-16 22:33:00.582] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.100.0.5] is up.
+[2025-07-17 00:14:37.617] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 00:14:37.617] [nas] [error] Radio link failure detected
+[2025-07-17 00:14:37.617] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:14:37.617] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:14:37.617] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 00:14:37.617] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:39.676] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:40.069] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 00:14:40.069] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 00:14:41.878] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:14:42.979] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is disabled, skipping OpenFlow setup
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: ue
+OVS integration disabled (OVS_ENABLED not set to 'true')
+Proceeding with standard UERANSIM configuration...
+Get GNB
+Resolving GNB_HOSTNAME: GNB__1
+Resolved GNB_HOSTNAME (GNB__1) to GNB_IP: 10.0.0.16
+GNB_HOSTNAME: GNB__1
+GNB_IP: 10.0.0.16
+=== UERANSIM UE Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1876: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether be:33:aa:dd:46:2b brd ff:ff:ff:ff:ff:ff link-netnsid 0
+1917: UE__3-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 02:00:00:00:06:00 brd ff:ff:ff:ff:ff:ff
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1876: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether be:33:aa:dd:46:2b brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.33/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+1917: UE__3-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:00:00:00:06:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.23/8 brd 10.255.255.255 scope global UE__3-wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2001::7/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff:fe00:600/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Launching ue: nr-ue -c ue.yaml
+UERANSIM v3.2.7
+[2025-07-17 00:50:53.005] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2025-07-17 00:50:53.010] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2025-07-17 00:50:53.012] [nas] [info] Selected plmn[999/70]
+[2025-07-17 00:50:53.013] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 00:50:53.014] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 00:50:53.014] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:50:53.014] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2025-07-17 00:50:53.015] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 00:50:53.015] [nas] [debug] Sending Initial Registration
+[2025-07-17 00:50:53.015] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 00:50:53.015] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 00:50:53.018] [rrc] [info] RRC connection established
+[2025-07-17 00:50:53.018] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 00:50:53.018] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 00:50:53.124] [nas] [debug] Authentication Request received
+[2025-07-17 00:50:53.124] [nas] [debug] Received SQN [000000000721]
+[2025-07-17 00:50:53.124] [nas] [debug] SQN-MS [000000000000]
+[2025-07-17 00:50:53.161] [nas] [debug] Security Mode Command received
+[2025-07-17 00:50:53.161] [nas] [debug] Selected integrity[2] ciphering[0]
+[2025-07-17 00:50:53.224] [nas] [debug] Registration accept received
+[2025-07-17 00:50:53.225] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 00:50:53.225] [nas] [debug] Sending Registration Complete
+[2025-07-17 00:50:53.225] [nas] [info] Initial Registration is successful
+[2025-07-17 00:50:53.225] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 00:50:53.227] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 00:50:53.233] [nas] [debug] Configuration Update Command received
+[2025-07-17 00:50:53.261] [nas] [debug] PDU Session Establishment Accept received
+[2025-07-17 00:50:53.261] [nas] [info] PDU Session establishment is successful PSI[1]
+[2025-07-17 00:50:53.282] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.100.0.4] is up.
+[2025-07-17 00:54:14.097] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 00:54:14.097] [nas] [error] Radio link failure detected
+[2025-07-17 00:54:14.097] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 00:54:14.097] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 00:54:14.097] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 00:54:14.097] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:15.585] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 00:54:15.585] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 00:54:16.689] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:18.891] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 00:54:19.992] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]
+nohup: ignoring input
+Starting OVS setup for UERANSIM container...
+OVS is disabled, skipping OpenFlow setup
+UERANSIM OVS setup script completed
+Initializing UERANSIM container with command: ue
+OVS integration disabled (OVS_ENABLED not set to 'true')
+Proceeding with standard UERANSIM configuration...
+Get GNB
+Resolving GNB_HOSTNAME: GNB__1
+Resolved GNB_HOSTNAME (GNB__1) to GNB_IP: 10.0.0.16
+GNB_HOSTNAME: GNB__1
+GNB_IP: 10.0.0.16
+=== UERANSIM UE Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if2232: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 46:f3:c0:85:92:99 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+2273: UE__3-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 02:00:00:00:06:00 brd ff:ff:ff:ff:ff:ff
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if2232: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 46:f3:c0:85:92:99 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.33/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+2273: UE__3-wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:00:00:00:06:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.0.23/8 brd 10.255.255.255 scope global UE__3-wlan0
+       valid_lft forever preferred_lft forever
+    inet6 2001::7/64 scope global 
+       valid_lft forever preferred_lft forever
+    inet6 fe80::ff:fe00:600/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Launching ue: nr-ue -c ue.yaml
+UERANSIM v3.2.7
+[2025-07-17 01:17:37.310] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2025-07-17 01:17:37.312] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2025-07-17 01:17:37.313] [nas] [info] Selected plmn[999/70]
+[2025-07-17 01:17:39.810] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2025-07-17 01:17:39.810] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2025-07-17 01:17:39.810] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:17:39.810] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2025-07-17 01:17:39.810] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:39.810] [nas] [debug] Sending Initial Registration
+[2025-07-17 01:17:39.810] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2025-07-17 01:17:39.810] [rrc] [debug] Sending RRC Setup Request
+[2025-07-17 01:17:39.811] [rrc] [info] RRC connection established
+[2025-07-17 01:17:39.811] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2025-07-17 01:17:39.811] [nas] [info] UE switches to state [CM-CONNECTED]
+[2025-07-17 01:17:39.816] [nas] [debug] Authentication Request received
+[2025-07-17 01:17:39.816] [nas] [debug] Received SQN [000000000761]
+[2025-07-17 01:17:39.816] [nas] [debug] SQN-MS [000000000000]
+[2025-07-17 01:17:39.821] [nas] [debug] Security Mode Command received
+[2025-07-17 01:17:39.821] [nas] [debug] Selected integrity[2] ciphering[0]
+[2025-07-17 01:17:39.832] [nas] [debug] Registration accept received
+[2025-07-17 01:17:39.832] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2025-07-17 01:17:39.832] [nas] [debug] Sending Registration Complete
+[2025-07-17 01:17:39.832] [nas] [info] Initial Registration is successful
+[2025-07-17 01:17:39.832] [nas] [debug] Sending PDU Session Establishment Request
+[2025-07-17 01:17:39.832] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2025-07-17 01:17:40.036] [nas] [debug] Configuration Update Command received
+[2025-07-17 01:17:40.047] [nas] [debug] PDU Session Establishment Accept received
+[2025-07-17 01:17:40.047] [nas] [info] PDU Session establishment is successful PSI[1]
+[2025-07-17 01:17:40.061] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.100.0.11] is up.
+[2025-07-17 02:15:51.299] [rrc] [debug] Signal lost for cell[1], total [0] cells in coverage
+[2025-07-17 02:15:51.299] [nas] [error] Radio link failure detected
+[2025-07-17 02:15:51.299] [nas] [info] UE switches to state [CM-IDLE]
+[2025-07-17 02:15:51.299] [nas] [info] UE switches to state [MM-REGISTERED/PS]
+[2025-07-17 02:15:51.299] [nas] [info] UE switches to state [MM-REGISTERED/PLMN-SEARCH]
+[2025-07-17 02:15:51.299] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:53.713] [rrc] [warning] Acceptable cell selection failed, no cell is in coverage
+[2025-07-17 02:15:53.713] [rrc] [error] Cell selection failure, no suitable or acceptable cell found
+[2025-07-17 02:15:54.092] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:56.294] [nas] [error] PLMN selection failure, no cells in coverage
+[2025-07-17 02:15:57.395] [nas] [info] UE switches to state [MM-REGISTERED/NO-CELL-AVAILABLE]

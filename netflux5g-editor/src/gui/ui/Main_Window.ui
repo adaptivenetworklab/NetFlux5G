@@ -149,6 +149,7 @@ QFrame {
     <addaction name="actionStop_Monitoring"/>
     <addaction name="actionStop_Packet_Analyzer"/>
     <addaction name="separator"/>
+    <addaction name="actionGenerate_Load_Traffic"/>
     <addaction name="actionClear_All_Data"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -522,6 +523,11 @@ QFrame {
   <action name="actionStop_Packet_Analyzer">
    <property name="text">
     <string>Stop Packet Analyzer</string>
+   </property>
+  </action>
+  <action name="actionGenerate_Load_Traffic">
+   <property name="text">
+    <string>Generate Load Traffic</string>
    </property>
   </action>
  </widget>

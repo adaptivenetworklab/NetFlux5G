@@ -1,0 +1,51 @@
+{
+  "basic_e2e": {
+    "name": "Basic End-to-End Traffic",
+    "description": "Simple host-to-host communication",
+    "duration": 60,
+    "patterns": [
+      "e2e_tcp",
+      "ping"
+    ]
+  },
+  "wifi_e2edge": {
+    "name": "WiFi End-to-Edge Traffic",
+    "description": "STA to AP communication patterns",
+    "duration": 120,
+    "patterns": [
+      "e2edge_wifi",
+      "udp_streaming"
+    ]
+  },
+  "5g_comprehensive": {
+    "name": "5G Comprehensive Traffic",
+    "description": "Full 5G traffic patterns including eMBB, URLLC, mMTC",
+    "duration": 300,
+    "patterns": [
+      "5g_embb",
+      "5g_urllc",
+      "5g_mmtc"
+    ]
+  },
+  "mixed_network": {
+    "name": "Mixed Network Traffic",
+    "description": "Combined traditional, WiFi, and 5G traffic",
+    "duration": 600,
+    "patterns": [
+      "e2e_tcp",
+      "e2edge_wifi",
+      "5g_embb",
+      "ping"
+    ]
+  },
+  "high_load": {
+    "name": "High Load Stress Test",
+    "description": "Maximum load testing with all traffic types",
+    "duration": 300,
+    "patterns": [
+      "high_bandwidth",
+      "parallel_streams",
+      "continuous_ping"
+    ]
+  }
+}

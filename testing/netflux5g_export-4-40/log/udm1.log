@@ -241,3 +241,247 @@ Open5GS daemon v2.7.5-58-gfc38ede
 [32m07/16 22:33:02.990[0m: [[33msbi[0m] [1;32mINFO[0m: [cb0b7c14-6294-41f0-adaf-05326b07f2e8] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
 [32m07/16 22:33:03.002[0m: [[33msbi[0m] [1;32mINFO[0m: [cb0b7c14-6294-41f0-adaf-05326b07f2e8] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
 [32m07/16 22:33:03.432[0m: [[33msbi[0m] [1;32mINFO[0m: [cb0b7c14-6294-41f0-adaf-05326b07f2e8] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-udmd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1864: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether ea:a3:25:5b:5a:f0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1864: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether ea:a3:25:5b:5a:f0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.21/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.21 
+
+================================
+Starting Open5GS service: open5gs-udmd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/17 00:50:27.868[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/udm.yaml' (../lib/app/ogs-init.c:144)
+[32m07/17 00:50:27.868[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/udm.log' (../lib/app/ogs-init.c:147)
+[32m07/17 00:50:27.871[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/17 00:50:27.872[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudm-ueau] (../lib/sbi/context.c:1994)
+[32m07/17 00:50:27.872[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudm-uecm] (../lib/sbi/context.c:1994)
+[32m07/17 00:50:27.872[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudm-sdm] (../lib/sbi/context.c:1994)
+[32m07/17 00:50:27.873[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.21]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/17 00:50:27.873[0m: [[33mapp[0m] [1;32mINFO[0m: UDM initialize...done (../src/udm/app.c:31)
+[32m07/17 00:50:27.875[0m: [[33msbi[0m] [1;36mWARNING[0m: Couldn't connect to server (7): Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/17 00:50:27.875[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/17 00:50:38.884[0m: [[33msbi[0m] [1;36mWARNING[0m: [081e3d54-62a8-41f0-ae5e-bf429bd5c413] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/17 00:50:38.886[0m: [[33msbi[0m] [1;32mINFO[0m: [081e3d54-62a8-41f0-ae5e-bf429bd5c413] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/17 00:50:38.888[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/17 00:50:38.888[0m: [[33msbi[0m] [1;32mINFO[0m: [0eaf2bf6-62a8-41f0-a7d3-b59f12afdff3] Subscription created until 2025-07-18T00:50:38.887466+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+[32m07/17 00:50:38.888[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/17 00:50:38.888[0m: [[33msbi[0m] [1;32mINFO[0m: [0eaf37ea-62a8-41f0-a7d3-b59f12afdff3] Subscription created until 2025-07-18T00:50:38.887758+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+[32m07/17 00:50:48.876[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] (NRF-notify) NF registered (../lib/sbi/nnrf-handler.c:1140)
+[32m07/17 00:50:48.876[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] (NRF-notify) NF Profile updated [type:UDR] (../lib/sbi/nnrf-handler.c:1154)
+[32m07/17 00:50:48.876[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.22:80] (../lib/sbi/context.c:2374)
+[32m07/17 00:50:48.876[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.22:7777] (../lib/sbi/context.c:2113)
+[32m07/17 00:50:52.930[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:52.934[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:52.936[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:52.959[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:52.980[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:52.980[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.000[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.029[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.029[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.048[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.056[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.107[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.135[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.208[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.212[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.218[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.225[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.227[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.239[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.249[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.255[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.264[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.265[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.267[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.267[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.268[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.268[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.276[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.276[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.276[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.312[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.313[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.331[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.333[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.334[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.334[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.335[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.336[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.361[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.390[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.449[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.458[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.459[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.497[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.512[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.516[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.541[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.542[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.543[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.548[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.557[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.558[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.559[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.570[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:53.773[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:54.207[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:54.449[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.416[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.525[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.645[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.651[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.658[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.760[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.877[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:55.890[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:56.087[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:56.319[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:50:59.211[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:51:02.284[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 00:51:02.520[0m: [[33msbi[0m] [1;32mINFO[0m: [0e1360d6-62a8-41f0-9e58-4933d16b474e] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-udmd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if2220: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether aa:6f:59:90:71:bc brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if2220: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether aa:6f:59:90:71:bc brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.21/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.21 
+
+================================
+Starting Open5GS service: open5gs-udmd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/17 01:17:12.163[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/udm.yaml' (../lib/app/ogs-init.c:144)
+[32m07/17 01:17:12.163[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/udm.log' (../lib/app/ogs-init.c:147)
+[32m07/17 01:17:12.169[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/17 01:17:12.170[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudm-ueau] (../lib/sbi/context.c:1994)
+[32m07/17 01:17:12.170[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudm-uecm] (../lib/sbi/context.c:1994)
+[32m07/17 01:17:12.170[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nudm-sdm] (../lib/sbi/context.c:1994)
+[32m07/17 01:17:12.173[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.21]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/17 01:17:12.174[0m: [[33mapp[0m] [1;32mINFO[0m: UDM initialize...done (../src/udm/app.c:31)
+[32m07/17 01:17:12.176[0m: [[33msbi[0m] [1;36mWARNING[0m: Couldn't connect to server (7): Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/17 01:17:12.176[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/17 01:17:23.182[0m: [[33msbi[0m] [1;36mWARNING[0m: [c45a4afa-62ab-41f0-8b4a-b17d0b0a4132] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/17 01:17:23.184[0m: [[33msbi[0m] [1;32mINFO[0m: [c45a4afa-62ab-41f0-8b4a-b17d0b0a4132] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/17 01:17:23.188[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/17 01:17:23.188[0m: [[33msbi[0m] [1;32mINFO[0m: [caebb30e-62ab-41f0-aeee-2946d4054edb] Subscription created until 2025-07-18T01:17:23.185970+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+[32m07/17 01:17:23.189[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/17 01:17:23.189[0m: [[33msbi[0m] [1;32mINFO[0m: [caebbdfe-62ab-41f0-aeee-2946d4054edb] Subscription created until 2025-07-18T01:17:23.186288+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+[32m07/17 01:17:33.162[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] (NRF-notify) NF registered (../lib/sbi/nnrf-handler.c:1140)
+[32m07/17 01:17:33.162[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] (NRF-notify) NF Profile updated [type:UDR] (../lib/sbi/nnrf-handler.c:1154)
+[32m07/17 01:17:33.162[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.22:80] (../lib/sbi/context.c:2374)
+[32m07/17 01:17:33.162[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.22:7777] (../lib/sbi/context.c:2113)
+[32m07/17 01:17:37.211[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.221[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.231[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.256[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.341[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.342[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.342[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.345[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.345[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.345[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.345[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.346[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.350[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.374[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.385[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.386[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.418[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.485[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.486[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.488[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.489[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.500[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.516[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.516[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.516[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.523[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.531[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.538[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.590[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.591[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.593[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.596[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.596[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.596[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.596[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.599[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.635[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.690[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.703[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.717[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.732[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.736[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.739[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.740[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.755[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.773[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.778[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.787[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.789[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.796[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.820[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.824[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.830[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.831[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.833[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.843[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.848[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.959[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:37.997[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:38.008[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:38.053[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:39.694[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:39.813[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:40.049[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:40.131[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:43.695[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:48.614[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:48.659[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:48.663[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
+[32m07/17 01:17:48.870[0m: [[33msbi[0m] [1;32mINFO[0m: [ca4c514c-62ab-41f0-b567-0f73fde2e470] Setup NF Instance [type:UDR] (../lib/sbi/path.c:307)
