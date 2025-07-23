@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>902</width>
-    <height>460</height>
+    <height>477</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
    <widget class="QLabel" name="Examples_1">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>260</y>
+      <x>70</x>
+      <y>300</y>
       <width>191</width>
       <height>21</height>
      </rect>
@@ -114,8 +114,8 @@
    <widget class="QLabel" name="NetFluxLogo">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>60</y>
+      <x>450</x>
+      <y>50</y>
       <width>371</width>
       <height>81</height>
      </rect>
@@ -133,10 +133,10 @@
    <widget class="QLabel" name="Description">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>420</x>
       <y>150</y>
-      <width>341</width>
-      <height>121</height>
+      <width>411</width>
+      <height>111</height>
      </rect>
     </property>
     <property name="font">
@@ -158,9 +158,9 @@
    <widget class="QLabel" name="Start">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>450</x>
       <y>270</y>
-      <width>371</width>
+      <width>391</width>
       <height>41</height>
      </rect>
     </property>
@@ -182,8 +182,8 @@
    <widget class="QLabel" name="ExamplesIcon_1">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>261</y>
+      <x>40</x>
+      <y>301</y>
       <width>21</width>
       <height>20</height>
      </rect>
@@ -201,8 +201,8 @@
    <widget class="QLabel" name="Examples_2">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>290</y>
+      <x>70</x>
+      <y>330</y>
       <width>191</width>
       <height>21</height>
      </rect>
@@ -221,8 +221,8 @@
    <widget class="QLabel" name="ExamplesIcon_2">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>291</y>
+      <x>40</x>
+      <y>331</y>
       <width>21</width>
       <height>20</height>
      </rect>
@@ -240,8 +240,8 @@
    <widget class="QLabel" name="Examples_3">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>320</y>
+      <x>70</x>
+      <y>360</y>
       <width>191</width>
       <height>21</height>
      </rect>
@@ -260,8 +260,8 @@
    <widget class="QLabel" name="ExamplesIcon_3">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>321</y>
+      <x>40</x>
+      <y>361</y>
       <width>21</width>
       <height>20</height>
      </rect>
