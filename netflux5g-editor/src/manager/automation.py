@@ -2,7 +2,6 @@ from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMessageBox
 from utils.debug import debug_print
 import os
-import subprocess
 
 class AutomationManager:
     def __init__(self, main_window):

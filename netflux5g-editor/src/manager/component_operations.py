@@ -2,8 +2,7 @@
 Component Operations Manager
 Handles cut, copy, and paste operations for network components
 """
-from PyQt5.QtCore import Qt, QPointF, QRectF
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QPointF
 from gui.components import NetworkComponent
 from utils.debug import debug_print, error_print, warning_print
 import copy

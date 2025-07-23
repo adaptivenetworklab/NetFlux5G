@@ -1,106 +1,10 @@
 import os
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QLabel, QGraphicsSceneContextMenuEvent, QMenu, QGraphicsItem
-from PyQt5.QtCore import Qt, QMimeData, QPoint, QRectF, QTimer
-from PyQt5.QtGui import QDrag, QPixmap, QPainter, QPen, QCursor
+from PyQt5.QtCore import Qt, QPoint, QRectF, QTimer
+from PyQt5.QtGui import QPen, QCursor
 from .widgets.Dialog import *
 from .components import NetworkComponent
 from utils.debug import debug_print, error_print, warning_print
-
-class MovableLabel(QLabel):
-    PROPERTIES_MAP = {
-        "Host": HostPropertiesWindow,
-        "STA": STAPropertiesWindow,
-        "UE": UEPropertiesWindow,
-        "GNB": GNBPropertiesWindow,
-        "DockerHost": DockerHostPropertiesWindow,
-        "AP": APPropertiesWindow,
-        "VGcore": Component5GPropertiesWindow,
-        "Controller": ControllerPropertiesWindow
-    }
-
-    def __init__(self, text, icon=None, parent=None):
-        super().__init__(parent)
-        self.setFixedSize(50, 50)
-        self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setFocusPolicy(Qt.ClickFocus)
-
-        if icon and not icon.isNull():
-            pixmap = icon.scaled(50, 50, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.setPixmap(pixmap)
-        else:
-            self.setText(text)
-
-        self.dragging = False
-        self.offset = QPoint()
-        self.dialog = None
-        self.object_type = text
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            if self.parent().app_instance.current_tool == "delete":
-                self.close()
-                return
-            
-            self.dragging = True
-            self.offset = event.pos()
-            self.setFocus()
-
-    def mouseReleaseEvent(self, event):
-        self.dragging = False
-
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete:
-            # Find the parent canvas to handle deletion properly
-            parent_widget = self.parent()
-            while parent_widget and not isinstance(parent_widget, Canvas):
-                parent_widget = parent_widget.parent()
-            
-            if parent_widget:
-                # Let the canvas handle the deletion to ensure proper link cleanup
-                parent_widget.keyPressEvent(event)
-            else:
-                # Fallback: just delete this label
-                self.deleteLater()
-                
-        elif event.key() == Qt.Key_Escape:
-            self.clearFocus()
-        
-        super().keyPressEvent(event)
-    
-    def contextMenuEvent(self, event):
-        # Always reset dragging state and offset on context menu
-        self.dragging = False
-        self.offset = QPoint()
-        menu = QMenu(self)
-        if self.object_type in ["Switch", "Router"]:
-            menu.addAction("Delete", self.close)
-        else:
-            menu.addAction("Properties", self.openPropertiesDialog)
-            menu.addSeparator()
-            menu.addAction("Delete", self.close)
-        menu.exec_(event.globalPos())
-
-    def openPropertiesDialog(self):
-        dialog_class = self.PROPERTIES_MAP.get(self.object_type)
-        if dialog_class:
-            dialog = dialog_class(label_text=self.object_type, parent=self.parent(), component=self)
-            dialog.show()
-            
-            # After dialog closes, always reset dragging state and offset
-            self.dragging = False
-            self.offset = QPoint()
-
-    def setHighlighted(self, highlight=True):
-        self.highlighted = highlight
-        self.update()
-
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        if hasattr(self, 'highlighted') and self.highlighted:
-            painter = QPainter(self)
-            painter.setPen(QPen(Qt.red, 3))
-            painter.drawRect(self.rect().adjusted(1, 1, -1, -1))
 
 class Canvas(QGraphicsView):
     def __init__(self, app_instance, parent=None):

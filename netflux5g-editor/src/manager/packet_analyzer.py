@@ -6,8 +6,8 @@ Handles Webshark container creation and removal with bind mount to captures fold
 import os
 import subprocess
 import time
-from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
-from PyQt5.QtCore import QObject, pyqtSignal, QTimer, QThread, QMutex, Qt
+from PyQt5.QtWidgets import QMessageBox, QProgressDialog
+from PyQt5.QtCore import pyqtSignal, QThread, QMutex
 from utils.debug import debug_print, error_print, warning_print
 
 class PacketAnalyzerDeploymentWorker(QThread):

@@ -545,7 +545,7 @@ class MininetExporter:
             
             # Add IP if specified
             ip_addr = props.get('Host_IPAddress', props.get('lineEdit_2'))
-            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "192.168.1.1":
+            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "10.0.0.1":
                 host_params.append(f"ip='{ip_addr}'")
             
             # Add MAC if specified
@@ -619,7 +619,7 @@ class MininetExporter:
             
             # Add IP if specified
             ip_addr = props.get('DockerHost_IPAddress', props.get('lineEdit_2'))
-            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "192.168.1.1":
+            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "10.0.0.1":
                 host_params.append(f"ip='{ip_addr}'")
             
             # Add MAC if specified

@@ -19,7 +19,7 @@ class ConfigurationMapper:
         for field in ip_fields:
             if properties.get(field):
                 ip = properties[field].strip()
-                if ip and ip != "192.168.1.1":  # Skip default values
+                if ip and ip != "10.0.0.1": 
                     opts.append(f"ip='{ip}'")
                     break
         

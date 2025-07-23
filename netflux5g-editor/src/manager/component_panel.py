@@ -1,8 +1,8 @@
-from PyQt5.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, QPushButton, 
-                           QLabel, QSizePolicy, QSplitter, QToolButton, QFrame,
+from PyQt5.QtWidgets import (QWidget, QGridLayout, QVBoxLayout, 
+                           QLabel, QSizePolicy, QToolButton, QFrame,
                            QHBoxLayout, QScrollArea, QGraphicsDropShadowEffect)
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve, QRect
-from PyQt5.QtGui import QPixmap, QIcon, QFont, QPalette, QColor, QPainter, QLinearGradient
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QPropertyAnimation, QEasingCurve
+from PyQt5.QtGui import QPixmap, QFont, QColor
 from utils.debug import debug_print, error_print
 import os
 

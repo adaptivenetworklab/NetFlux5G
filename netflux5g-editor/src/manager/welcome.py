@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QWidget, QPushButton
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QFont, QPixmap, QIcon, QCursor
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QFont, QIcon, QCursor
 from PyQt5 import uic
 from utils.debug import debug_print, error_print, warning_print
 import os
@@ -133,7 +133,7 @@ class WelcomeScreen(QMainWindow):
             'Examples_1': ('load_example', 'basic_gnb_core'),
             'Examples_2': ('load_example', 'multi_ran'),
             'Examples_3': ('load_example', 'sdn_deployment'),
-            'linkRepo': ('open_link', 'https://github.com/adaptivenetworklab/Riset_23-24_SDN/tree/netflux5g'),
+            'linkRepo': ('open_link', 'https://github.com/adaptivenetworklab/NetFlux5G'),
         }
         
         for label_name, (action, data) in clickable_labels.items():

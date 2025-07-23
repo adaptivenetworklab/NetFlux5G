@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QGraphicsView
-from PyQt5.QtCore import Qt, QPoint, QMimeData, QTimer
+from PyQt5.QtCore import Qt, QMimeData
 from PyQt5.QtGui import QDrag, QPixmap, QCursor
 from gui.links import NetworkLink
 from utils.debug import debug_print, error_print, warning_print

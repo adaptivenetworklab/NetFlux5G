@@ -223,7 +223,7 @@
         <string notr="true">background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="placeholderText">
-        <string>e.g., 192.168.1.1/24</string>
+        <string>e.g., 10.0.0.1/24</string>
        </property>
       </widget>
      </item>
@@ -240,7 +240,7 @@
         <string notr="true">background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="placeholderText">
-        <string>e.g., 192.168.1.2/24</string>
+        <string>e.g., 10.0.0.2/24</string>
        </property>
       </widget>
      </item>

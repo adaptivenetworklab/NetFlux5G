@@ -1,7 +1,5 @@
-import os
-from .links import NetworkLink
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
-from PyQt5.QtCore import Qt, QRectF, QPoint, QPointF
+from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
 from utils.debug import debug_print, error_print, warning_print

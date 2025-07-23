@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QMainWindow, QLineEdit, QComboBox, QCheckBox, QTable
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-import yaml
 from utils.debug import debug_print, error_print, warning_print
 
 class BasePropertiesWindow(QMainWindow):

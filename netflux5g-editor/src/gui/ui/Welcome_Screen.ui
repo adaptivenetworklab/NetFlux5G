@@ -117,6 +117,8 @@
    <widget class="QLabel" name="NetFluxLogo">
     <property name="geometry">
      <rect>
+      <x>460</x>
+      <y>60</y>
       <x>450</x>
       <y>50</y>
       <width>371</width>
@@ -145,7 +147,7 @@
     <property name="font">
      <font>
       <family>Poppins Light</family>
-      <pointsize>8</pointsize>
+      <pointsize>9</pointsize>
      </font>
     </property>
     <property name="text">
@@ -170,7 +172,7 @@
     <property name="font">
      <font>
       <family>Poppins Medium</family>
-      <pointsize>12</pointsize>
+      <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -283,9 +285,9 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>380</y>
-      <width>361</width>
-      <height>81</height>
+      <y>400</y>
+      <width>411</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -316,12 +318,12 @@
      <rect>
       <x>430</x>
       <y>420</y>
-      <width>411</width>
+      <width>301</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>https://github.com/adaptivenetworklab/Riset_23-24_SDN/tree/netflux5g</string>
+     <string>https://github.com/adaptivenetworklab/NetFlux5G</string>
     </property>
    </widget>
   </widget>
