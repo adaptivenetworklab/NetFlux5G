@@ -9,6 +9,51 @@ import time
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog
 from PyQt5.QtCore import pyqtSignal, QThread, QMutex
 from utils.debug import debug_print, error_print, warning_print
+from utils.docker_utils import DockerUtils, DockerContainerBuilder
+
+def _find_onos_controller_dockerfile():
+    """Find the ONOS controller Dockerfile in the project structure."""
+    # Common paths to check for ONOS controller Dockerfile
+    possible_paths = [
+        # Path relative to src directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "automation", "onos-controller"),
+        # Path relative to project root
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "onos-controller"),
+        # Absolute path based on current working directory
+        os.path.join(os.getcwd(), "onos-controller"),
+        # Check in netflux5g-editor directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "netflux5g-editor", "src", "automation", "onos-controller")
+    ]
+    
+    for path in possible_paths:
+        dockerfile_path = os.path.join(path, "Dockerfile")
+        if os.path.exists(dockerfile_path):
+            debug_print(f"Found ONOS Dockerfile at: {dockerfile_path}")
+            return path
+    
+    return None
+
+def _find_ryu_controller_dockerfile():
+    """Find the Ryu controller Dockerfile in the project structure."""
+    # Common paths to check for Ryu controller Dockerfile
+    possible_paths = [
+        # Path relative to src directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "automation", "ryu-controller"),
+        # Path relative to project root
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "ryu-controller"),
+        # Absolute path based on current working directory
+        os.path.join(os.getcwd(), "ryu-controller"),
+        # Check in netflux5g-editor directory
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "netflux5g-editor", "src", "automation", "ryu-controller")
+    ]
+    
+    for path in possible_paths:
+        dockerfile_path = os.path.join(path, "Dockerfile")
+        if os.path.exists(dockerfile_path):
+            debug_print(f"Found Dockerfile at: {dockerfile_path}")
+            return path
+    
+    return None
 
 class ControllerDeploymentWorker(QThread):
     """Worker thread for controller operations to avoid blocking the UI."""
@@ -72,30 +117,28 @@ class ControllerDeploymentWorker(QThread):
             self.status_updated.emit("Checking Ryu controller image...")
             self.progress_updated.emit(20)
             
-            image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/ryu:latest']
-            image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if 'adaptive/ryu:latest' not in image_result.stdout:
+            image_name = 'adaptive/ryu:latest'
+            if not DockerUtils.image_exists(image_name):
                 # Image doesn't exist, build it
                 self.status_updated.emit("Building Ryu controller image...")
                 self.progress_updated.emit(30)
                 
                 # Find the controller Dockerfile path
-                controller_dir = self._find_controller_dockerfile()
+                controller_dir = _find_ryu_controller_dockerfile()
                 if not controller_dir:
                     raise Exception("Controller Dockerfile not found in expected locations")
                 
                 # Build the image
-                build_cmd = ['docker', 'build', '-t', 'adaptive/ryu:latest', controller_dir]
-                build_process = subprocess.run(build_cmd, capture_output=True, text=True, timeout=300)
+                build_cmd = ['docker', 'build', '-t', image_name, controller_dir]
+                build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
                 
                 if build_process.returncode != 0:
                     raise Exception(f"Failed to build Ryu image: {build_process.stderr}")
                 
-                debug_print("Successfully built adaptive/ryu:latest image")
+                debug_print(f"Successfully built {image_name} image")
                 self.progress_updated.emit(60)
             else:
-                debug_print("Ryu image adaptive/ryu:latest already exists")
+                debug_print(f"Ryu image {image_name} already exists")
                 self.progress_updated.emit(60)
             
             # Check if netflux5g network exists
@@ -122,7 +165,7 @@ class ControllerDeploymentWorker(QThread):
                 '--network', self.network_name,
                 '-p', '6633:6633',
                 '-p', '6653:6653',
-                'adaptive/ryu:latest'
+                image_name
             ]
             
             run_result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=30)
@@ -192,30 +235,28 @@ class ControllerDeploymentWorker(QThread):
             self.status_updated.emit("Checking ONOS controller image...")
             self.progress_updated.emit(20)
             
-            image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/onos:latest']
-            image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if 'adaptive/onos:latest' not in image_result.stdout:
+            image_name = 'adaptive/onos:latest'
+            if not DockerUtils.image_exists(image_name):
                 # Image doesn't exist, build it
                 self.status_updated.emit("Building ONOS controller image...")
                 self.progress_updated.emit(30)
                 
                 # Find the ONOS controller Dockerfile path
-                controller_dir = self._find_onos_controller_dockerfile()
+                controller_dir = _find_onos_controller_dockerfile()
                 if not controller_dir:
                     raise Exception("ONOS Controller Dockerfile not found in expected locations")
                 
                 # Build the image
-                build_cmd = ['docker', 'build', '-t', 'adaptive/onos:latest', controller_dir]
-                build_process = subprocess.run(build_cmd, capture_output=True, text=True, timeout=600)  # Longer timeout for ONOS build
+                build_cmd = ['docker', 'build', '-t', image_name, controller_dir]
+                build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
                 
                 if build_process.returncode != 0:
                     raise Exception(f"Failed to build ONOS image: {build_process.stderr}")
                 
-                debug_print("Successfully built adaptive/onos:latest image")
+                debug_print(f"Successfully built {image_name} image")
                 self.progress_updated.emit(60)
             else:
-                debug_print("ONOS image adaptive/onos:latest already exists")
+                debug_print(f"ONOS image {image_name} already exists")
                 self.progress_updated.emit(60)
             
             # Check if netflux5g network exists
@@ -245,7 +286,7 @@ class ControllerDeploymentWorker(QThread):
                 '-p', '8181:8181',  # GUI
                 '-p', '8101:8101',  # ONOS CLI
                 '-p', '9876:9876',  # ONOS intra-cluster communication
-                'adaptive/onos:latest'
+                image_name
             ]
             
             run_result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
@@ -324,50 +365,6 @@ class ControllerDeploymentWorker(QThread):
         except Exception as e:
             error_print(f"Unexpected error during stop: {e}")
             self.operation_finished.emit(False, str(e))
-    
-    def _find_onos_controller_dockerfile(self):
-        """Find the ONOS controller Dockerfile in the project structure."""
-        # Common paths to check for ONOS controller Dockerfile
-        possible_paths = [
-            # Path relative to src directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "automation", "onos-controller"),
-            # Path relative to project root
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "onos-controller"),
-            # Absolute path based on current working directory
-            os.path.join(os.getcwd(), "onos-controller"),
-            # Check in netflux5g-editor directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "netflux5g-editor", "src", "automation", "onos-controller")
-        ]
-        
-        for path in possible_paths:
-            dockerfile_path = os.path.join(path, "Dockerfile")
-            if os.path.exists(dockerfile_path):
-                debug_print(f"Found ONOS Dockerfile at: {dockerfile_path}")
-                return path
-        
-        return None
-
-    def _find_controller_dockerfile(self):
-        """Find the controller Dockerfile in the project structure."""
-        # Common paths to check for controller Dockerfile
-        possible_paths = [
-            # Path relative to src directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "automation", "ryu-controller"),
-            # Path relative to project root
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "ryu-controller"),
-            # Absolute path based on current working directory
-            os.path.join(os.getcwd(), "ryu-controller"),
-            # Check in netflux5g-editor directory
-            os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "netflux5g-editor", "src", "automation", "ryu-controller")
-        ]
-        
-        for path in possible_paths:
-            dockerfile_path = os.path.join(path, "Dockerfile")
-            if os.path.exists(dockerfile_path):
-                debug_print(f"Found Dockerfile at: {dockerfile_path}")
-                return path
-        
-        return None
 
 
 class ControllerManager:
@@ -854,8 +851,8 @@ class ControllerManager:
                     debug_print(f"ONOS controller '{container_name}' is already running")
                     return True
                 
-                # Deploy ONOS directly
-                return self._deploy_onos_direct(container_name, "netflux5g")
+                # Deploy ONOS using consolidated logic
+                return self._deploy_controller_internal('onos', container_name, "netflux5g")
             else:
                 container_name = "netflux5g-ryu-controller"
                 onos_container_name = "netflux5g-onos-controller"
@@ -870,118 +867,119 @@ class ControllerManager:
                     debug_print(f"RYU controller '{container_name}' is already running")
                     return True
                 
-                # Deploy RYU directly
-                return self._deploy_ryu_direct(container_name, "netflux5g")
+                # Deploy RYU using consolidated logic
+                return self._deploy_controller_internal('ryu', container_name, "netflux5g")
                 
         except Exception as e:
             error_print(f"ERROR: Failed to deploy {controller_type} controller: {e}")
             return False
 
-    def _deploy_ryu_direct(self, container_name, network_name):
-        """Deploy RYU controller directly without threads."""
+    def _deploy_controller_internal(self, controller_type, container_name, network_name):
+        """Internal consolidated deployment logic for both RYU and ONOS controllers."""
         try:
-            # Check if the Ryu image exists
-            debug_print("Checking Ryu controller image...")
-            image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/ryu:latest']
-            image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if 'adaptive/ryu:latest' not in image_result.stdout:
-                # Image doesn't exist, build it
-                debug_print("Building Ryu controller image...")
-                controller_dir = self._find_controller_dockerfile()
-                if not controller_dir:
-                    error_print("Controller Dockerfile not found")
-                    return False
-                
-                # Build the image
-                build_cmd = ['docker', 'build', '-t', 'adaptive/ryu:latest', controller_dir]
-                build_process = subprocess.run(build_cmd, capture_output=True, text=True, timeout=300)
-                
-                if build_process.returncode != 0:
-                    error_print(f"Failed to build Ryu image: {build_process.stderr}")
-                    return False
-                
-                debug_print("Successfully built adaptive/ryu:latest image")
-            
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_controller_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
                 remove_cmd = ['docker', 'rm', container_name]
                 subprocess.run(remove_cmd, capture_output=True, timeout=10)
             
-            # Create and run Ryu controller container
-            debug_print(f"Creating Ryu controller container: {container_name}")
-            run_cmd = [
-                'docker', 'run', '-itd',
-                '--name', container_name,
-                '--network', network_name,
-                '-p', '6633:6633',
-                '-p', '6653:6653',
-                'adaptive/ryu:latest'
-            ]
-            
-            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            if result.returncode != 0:
-                error_print(f"Failed to create Ryu controller container: {result.stderr}")
-                return False
-            
-            # Wait for container to be ready
-            debug_print("Waiting for Ryu controller to be ready...")
-            for i in range(20):  # Wait up to 20 seconds
-                if self._is_controller_running(container_name):
-                    debug_print("Ryu controller is ready")
-                    return True
-                time.sleep(1)
-            
-            error_print("Ryu controller container started but failed to become ready")
-            return False
-            
-        except Exception as e:
-            error_print(f"Failed to deploy Ryu controller directly: {e}")
-            return False
+            if controller_type == 'ryu':
+                # Check if the Ryu image exists and build if needed
+                debug_print("Checking Ryu controller image...")
+                image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/ryu:latest']
+                image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
+                
+                if 'adaptive/ryu:latest' not in image_result.stdout:
+                    debug_print("Building Ryu controller image...")
+                    controller_dir = _find_ryu_controller_dockerfile()
+                    if not controller_dir:
+                        error_print("Controller Dockerfile not found")
+                        return False
+                    
+                    build_cmd = ['docker', 'build', '-t', 'adaptive/ryu:latest', controller_dir]
+                    build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
+                    
+                    if build_process.returncode != 0:
+                        error_print(f"Failed to build Ryu image: {build_process.stderr}")
+                        return False
+                    
+                    debug_print("Successfully built adaptive/ryu:latest image")
+                
+                # Create and run Ryu controller container
+                debug_print(f"Creating Ryu controller container: {container_name}")
+                run_cmd = [
+                    'docker', 'run', '-itd',
+                    '--name', container_name,
+                    '--network', network_name,
+                    '-p', '6633:6633',
+                    '-p', '6653:6653',
+                    'adaptive/ryu:latest'
+                ]
+                
+                wait_time = 20  # RYU startup time
+                
+            elif controller_type == 'onos':
+                # Check if ONOS controller image exists
+                debug_print("Checking Onos controller image...")
+                image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/onos:latest']
+                image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
 
-    def _deploy_onos_direct(self, container_name, network_name):
-        """Deploy ONOS controller directly without threads."""
-        try:
-            # Remove existing container if it exists but is not running
-            if self._container_exists(container_name) and not self._is_controller_running(container_name):
-                debug_print(f"Removing existing stopped container: {container_name}")
-                remove_cmd = ['docker', 'rm', container_name]
-                subprocess.run(remove_cmd, capture_output=True, timeout=10)
+                if 'adaptive/onos:latest' not in image_result.stdout:
+                    debug_print("Building ONOS controller image...")
+                    controller_dir = _find_onos_controller_dockerfile()
+                    if not controller_dir:
+                        error_print("Controller Dockerfile not found")
+                        return False
+
+                    build_cmd = ['docker', 'build', '-t', 'adaptive/onos:latest', controller_dir]
+                    build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
+                    
+                    if build_process.returncode != 0:
+                        error_print(f"Failed to build ONOS image: {build_process.stderr}")
+                        return False
+
+                    debug_print("Successfully built adaptive/onos:latest image")
+                    
+                # Create and run ONOS controller container (image should exist)
+                debug_print(f"Creating ONOS controller container: {container_name}")
+                run_cmd = [
+                    'docker', 'run', '-itd',
+                    '--name', container_name,
+                    '--restart', 'always',
+                    '--network', network_name,
+                    '-p', '6653:6653',  # OpenFlow
+                    '-p', '6640:6640',  # OVSDB
+                    '-p', '8181:8181',  # GUI
+                    '-p', '8101:8101',  # ONOS CLI
+                    '-p', '9876:9876',  # ONOS intra-cluster communication
+                    'adaptive/onos:latest'
+                ]
+                
+                wait_time = 30  # ONOS takes longer to start
             
-            # Create and run ONOS controller container
-            debug_print(f"Creating ONOS controller container: {container_name}")
-            run_cmd = [
-                'docker', 'run', '-itd',
-                '--name', container_name,
-                '--restart', 'always',
-                '--network', network_name,
-                '-p', '6653:6653',  # OpenFlow
-                '-p', '6640:6640',  # OVSDB
-                '-p', '8181:8181',  # GUI
-                '-p', '8101:8101',  # ONOS CLI
-                '-p', '9876:9876',  # ONOS intra-cluster communication
-                'adaptive/onos:latest'
-            ]
+            else:
+                error_print(f"Unknown controller type: {controller_type}")
+                return False
             
+            # Run the container
             result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
             if result.returncode != 0:
-                error_print(f"Failed to create ONOS controller container: {result.stderr}")
+                error_print(f"Failed to create {controller_type} controller container: {result.stderr}")
                 return False
             
             # Wait for container to be ready
-            debug_print("Waiting for ONOS controller to be ready...")
-            for i in range(30):  # Wait up to 30 seconds (ONOS takes longer to start)
+            debug_print(f"Waiting for {controller_type} controller to be ready...")
+            for i in range(wait_time):
                 if self._is_controller_running(container_name):
-                    debug_print("ONOS controller is ready")
+                    debug_print(f"{controller_type} controller is ready")
                     return True
                 time.sleep(1)
             
-            error_print("ONOS controller container started but failed to become ready")
+            error_print(f"{controller_type} controller container started but failed to become ready")
             return False
             
         except Exception as e:
-            error_print(f"Failed to deploy ONOS controller directly: {e}")
+            error_print(f"Failed to deploy {controller_type} controller: {e}")
             return False
 
     def _container_exists(self, container_name):

@@ -9,6 +9,7 @@ import time
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog
 from PyQt5.QtCore import pyqtSignal, QThread, QMutex
 from utils.debug import debug_print, error_print, warning_print
+from utils.docker_utils import DockerUtils, DockerContainerBuilder
 
 cwd = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -144,6 +145,10 @@ class MonitoringDeploymentWorker(QThread):
     
     def _create_container(self, container_name, config, full_container_name):
         """Create a single monitoring container."""
+        # First, ensure the image is available (pull if not present)
+        image = config['image']
+        self._ensure_image_available(image, container_name)
+        
         run_cmd = [
             'docker', 'run', '-d',
             '--name', full_container_name,
@@ -168,7 +173,7 @@ class MonitoringDeploymentWorker(QThread):
             run_cmd.extend(['--pid', config['pid_mode']])
         
         # Add the image
-        run_cmd.append(config['image'])
+        run_cmd.append(image)
         
         # Add extra arguments
         if 'extra_args' in config:
@@ -180,6 +185,20 @@ class MonitoringDeploymentWorker(QThread):
             raise subprocess.CalledProcessError(result.returncode, run_cmd, result.stderr)
         
         debug_print(f"Created container: {full_container_name}")
+    
+    def _ensure_image_available(self, image, container_name):
+        """Ensure Docker image is available, pull if necessary."""
+        try:
+            success, message = DockerUtils.ensure_image_available(image, timeout=300)
+            if not success:
+                raise Exception(message)
+            
+            if not DockerUtils.image_exists(image):
+                self.status_updated.emit(f"Pulling image for {container_name}...")
+                
+        except Exception as e:
+            error_print(f"Failed to ensure image {image} is available: {e}")
+            raise
     
     def _stop_monitoring(self):
         """Stop all monitoring containers."""
@@ -241,29 +260,11 @@ class MonitoringDeploymentWorker(QThread):
     
     def _container_exists(self, container_name):
         """Check if container exists (running or stopped)."""
-        try:
-            result = subprocess.run(
-                ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            return container_name in result.stdout
-        except:
-            return False
+        return DockerUtils.container_exists(container_name)
     
     def _is_container_running(self, container_name):
         """Check if container is currently running."""
-        try:
-            result = subprocess.run(
-                ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            return container_name in result.stdout
-        except:
-            return False
+        return DockerUtils.is_container_running(container_name)
 
 
 class MonitoringManager:
@@ -591,42 +592,11 @@ class MonitoringManager:
     
     def _check_docker_available(self):
         """Check if Docker are available."""
-        try:
-            # Check Docker
-            result = subprocess.run(
-                ['docker', '--version'], 
-                capture_output=True, 
-                text=True, 
-                timeout=10
-            )
-            if result.returncode != 0:
-                raise subprocess.CalledProcessError(result.returncode, 'docker --version')
-            
-            return True
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-            QMessageBox.critical(
-                self.main_window,
-                "Docker Not Available",
-                "Docker is not installed or not accessible.\n\n"
-                "Please install Docker and ensure it's running:\n"
-            )
-            return False
+        return DockerUtils.check_docker_available(self.main_window, show_error=True)
     
     def _network_exists(self, network_name):
         """Check if Docker network exists."""
-        if not network_name:
-            return False
-        
-        try:
-            result = subprocess.run(
-                ['docker', 'network', 'ls', '--filter', f'name={network_name}', '--format', '{{.Name}}'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            return network_name in result.stdout
-        except:
-            return False
+        return DockerUtils.network_exists(network_name)
     
     def _get_running_monitoring_containers(self, container_prefix):
         """Get list of running monitoring containers with the given prefix."""
@@ -777,32 +747,6 @@ class MonitoringManager:
         running_essential = [svc for svc in essential_services if svc in running_containers]
         
         return len(running_essential) >= 2  # Both prometheus and grafana must be running
-    
-    def _container_exists(self, container_name):
-        """Check if container exists (running or stopped)."""
-        try:
-            result = subprocess.run(
-                ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            return container_name in result.stdout
-        except:
-            return False
-    
-    def _is_container_running(self, container_name):
-        """Check if container is currently running."""
-        try:
-            result = subprocess.run(
-                ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}'],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            return container_name in result.stdout
-        except:
-            return False
 
     def stop_monitoring_sync(self):
         """Stop monitoring stack synchronously for automation."""

@@ -699,7 +699,7 @@ read
                 try:
                     # Try graceful shutdown first
                     self.mininet_process.terminate()
-                    self.mininet_process.wait(timeout=10)
+                    self.mininet_process.wait(timeout=20)
                     debug_print("Mininet process terminated gracefully")
                 except subprocess.TimeoutExpired:
                     # Force kill if necessary
@@ -743,7 +743,7 @@ read
                 debug_print("Stopping Docker containers...")
                 try:
                     self.docker_process.terminate()
-                    self.docker_process.wait(timeout=10)
+                    self.docker_process.wait(timeout=20)
                     debug_print("Docker process terminated gracefully")
                 except subprocess.TimeoutExpired:
                     debug_print("Docker process did not terminate gracefully, force killing...")
@@ -948,7 +948,7 @@ read
                 try:
                     # Try graceful shutdown first
                     self.mininet_process.terminate()
-                    self.mininet_process.wait(timeout=10)
+                    self.mininet_process.wait(timeout=20)
                     debug_print("Mininet process terminated gracefully")
                 except subprocess.TimeoutExpired:
                     # Force kill if necessary

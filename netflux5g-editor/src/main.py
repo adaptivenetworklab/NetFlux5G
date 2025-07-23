@@ -550,7 +550,7 @@ class NetFlux5GApp(QMainWindow):
         
         event.accept()
 
-    def showCanvasStatus(self, message, timeout=0):
+    def showCanvasStatus(self, message, timeout=1):
         """Wrapper method for status manager."""
         self.status_manager.showCanvasStatus(message, timeout)
 

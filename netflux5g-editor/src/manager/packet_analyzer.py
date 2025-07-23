@@ -9,6 +9,7 @@ import time
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog
 from PyQt5.QtCore import pyqtSignal, QThread, QMutex
 from utils.debug import debug_print, error_print, warning_print
+from utils.docker_utils import DockerUtils, DockerContainerBuilder
 
 class PacketAnalyzerDeploymentWorker(QThread):
     """Worker thread for packet analyzer operations to avoid blocking the UI."""
@@ -69,19 +70,35 @@ class PacketAnalyzerDeploymentWorker(QThread):
                     return
             
             # Build the Webshark image if needed
-            self.status_updated.emit("Building Webshark image...")
+            self.status_updated.emit("Checking Webshark image...")
             self.progress_updated.emit(20)
             
-            # Get the webshark directory path
-            webshark_path = self._get_webshark_path()
-            if not webshark_path:
-                self.operation_finished.emit(False, "Webshark directory not found")
-                return
-            
-            # Build the Docker image
-            build_cmd = ['docker', 'build', '-t', 'adaptive/netflux5g-webshark:latest', '.']
-            subprocess.run(build_cmd, cwd=webshark_path, check=True, timeout=300)  # Allow 5 minutes for build
-            debug_print("Built Webshark image: adaptive/netflux5g-webshark:latest")
+            # Check if image already exists
+            image_name = 'adaptive/netflux5g-webshark:latest'
+            if not DockerUtils.image_exists(image_name):
+                # Image doesn't exist, build it
+                self.status_updated.emit("Building Webshark image...")
+                self.progress_updated.emit(30)
+                
+                # Get the webshark directory path
+                webshark_path = self._get_webshark_path()
+                if not webshark_path:
+                    self.operation_finished.emit(False, "Webshark directory not found")
+                    return
+                
+                # Build the Docker image
+                build_cmd = ['docker', 'build', '-t', image_name, '.']
+                build_result = subprocess.run(build_cmd, cwd=webshark_path, capture_output=True, text=True, timeout=300)  # Allow 5 minutes for build
+                
+                if build_result.returncode != 0:
+                    self.operation_finished.emit(False, f"Failed to build Webshark image: {build_result.stderr}")
+                    return
+                
+                debug_print(f"Built Webshark image: {image_name}")
+                self.progress_updated.emit(50)
+            else:
+                debug_print(f"Webshark image {image_name} already exists")
+                self.progress_updated.emit(50)
             
             # Create and run Webshark container
             self.status_updated.emit("Creating Webshark container...")
@@ -96,7 +113,7 @@ class PacketAnalyzerDeploymentWorker(QThread):
                 '-v', f'{self.captures_path}:/captures',
                 '--env', 'SHARKD_SOCKET=/home/node/sharkd.sock',
                 '--env', 'CAPTURES_PATH=/captures/',
-                'adaptive/netflux5g-webshark:latest'
+                image_name
             ]
             
             subprocess.run(run_cmd, check=True, timeout=60)
@@ -279,13 +296,6 @@ class PacketAnalyzerManager:
         container_name = "netflux5g-webshark"
         return self._is_container_running(container_name)
     
-    def deploy_packet_analyzer(self):
-        """Deploy packet analyzer and return success status."""
-        self.deployPacketAnalyzer()
-        # Wait a moment for deployment to complete
-        time.sleep(1)
-        return self.is_packet_analyzer_running()
-    
     def deploy_packet_analyzer_sync(self):
         """Synchronously deploy packet analyzer and return success status."""
         debug_print("DEBUG: Starting synchronous Webshark deployment")
@@ -355,29 +365,15 @@ class PacketAnalyzerManager:
     
     def _check_docker_available(self):
         """Check if Docker is available and running."""
-        try:
-            subprocess.run(['docker', '--version'], capture_output=True, check=True, timeout=5)
-            return True
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-            return False
+        return DockerUtils.check_docker_available(show_error=False)
     
     def _is_container_running(self, container_name):
         """Check if a specific container is running."""
-        try:
-            cmd = ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            return container_name in result.stdout
-        except Exception:
-            return False
+        return DockerUtils.is_container_running(container_name)
     
     def _container_exists(self, container_name):
         """Check if a container exists (running or stopped)."""
-        try:
-            cmd = ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            return container_name in result.stdout
-        except Exception:
-            return False
+        return DockerUtils.container_exists(container_name)
     
     def _get_captures_path(self):
         """Get the path to the captures directory."""
@@ -406,12 +402,7 @@ class PacketAnalyzerManager:
     
     def _network_exists(self, network_name):
         """Check if a Docker network exists."""
-        try:
-            cmd = ['docker', 'network', 'ls', '--filter', f'name={network_name}', '--format', '{{.Name}}']
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
-            return network_name in result.stdout
-        except Exception:
-            return False
+        return DockerUtils.network_exists(network_name)
     
     def _create_network(self, network_name):
         """Create a Docker network."""
@@ -426,27 +417,12 @@ class PacketAnalyzerManager:
     
     def _stop_container_sync(self, container_name):
         """Synchronously stop and remove a container."""
-        try:
-            # Stop container
-            stop_cmd = ['docker', 'stop', container_name]
-            subprocess.run(stop_cmd, check=True, timeout=30)
-            
-            # Remove container
-            remove_cmd = ['docker', 'rm', container_name]
-            subprocess.run(remove_cmd, check=True, timeout=30)
-            
+        success, message = DockerUtils.stop_container(container_name)
+        if success:
             debug_print(f"Stopped and removed container: {container_name}")
-            return True
-        except subprocess.CalledProcessError as e:
-            if "No such container" in str(e):
-                debug_print(f"Container '{container_name}' was not running")
-                return True
-            else:
-                error_print(f"Failed to stop container: {e}")
-                return False
-        except Exception as e:
-            error_print(f"Unexpected error stopping container: {e}")
-            return False
+        else:
+            error_print(f"Failed to stop container: {message}")
+        return success
     
     def _start_operation(self, operation, container_name, captures_path, network_name):
         """Start a deployment operation in background thread with progress dialog."""

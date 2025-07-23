@@ -39,7 +39,7 @@ This enhanced Open5GS Docker image provides full SDN (Software-Defined Networkin
 
 ```bash
 cd /home/litfan/Code/NetFlux5G/docker/manual-implementation/Open5Gs-UERANSIM/images/Open5Gs
-docker build --build-arg version=2.7.0 -t open5gs-sdn:latest .
+docker build --build-arg version=2.7.5 -t adaptive/open5gs:latest .
 ```
 
 ### 2. Basic Usage with SDN Controller
@@ -50,7 +50,7 @@ docker run -d --name amf --privileged --cap-add=NET_ADMIN \
     -e OVS_ENABLED=true \
     -e OVS_CONTROLLER=tcp:192.168.1.100:6633 \
     -e OVS_BRIDGE_NAME=br-amf \
-    open5gs-sdn:latest open5gs-amfd
+    adaptive/open5gs:latest open5gs-amfd
 ```
 
 ### 3. Mininet-wifi Integration
@@ -66,7 +66,7 @@ net = Mininet_wifi()
 # Create Open5GS AMF as DockerSta
 amf = net.addDockerSta(
     'amf',
-    dimage='open5gs-sdn:latest',
+    dimage='adaptive/open5gs:latest',
     dcmd='open5gs-amfd',
     environment={
         'OVS_ENABLED': 'true',
@@ -110,14 +110,14 @@ docker run -d --name amf --privileged \
     -e OVS_ENABLED=true \
     -e OVS_BRIDGE_NAME=br-amf \
     -e OVS_CONTROLLER=tcp:controller:6633 \
-    open5gs-sdn:latest open5gs-amfd
+    adaptive/open5gs:latest open5gs-amfd
 
 # UPF with different controller
 docker run -d --name upf --privileged \
     -e OVS_ENABLED=true \
     -e OVS_BRIDGE_NAME=br-upf \
     -e OVS_CONTROLLER=tcp:upf-controller:6634 \
-    open5gs-sdn:latest open5gs-upfd
+    adaptive/open5gs:latest open5gs-upfd
 ```
 
 ## Advanced Usage
@@ -162,7 +162,7 @@ For complex deployments with multiple controllers:
 docker run -d --name amf --privileged \
     -e OVS_ENABLED=true \
     -e OVS_CONTROLLER=tcp:primary-controller:6633 \
-    open5gs-sdn:latest open5gs-amfd
+    adaptive/open5gs:latest open5gs-amfd
 
 # Add secondary controller
 docker exec amf ovs-vsctl set-controller br-amf \
@@ -181,7 +181,7 @@ Example exported mininet-wifi code:
 ```python
 amf = net.addDockerSta(
     'amf',
-    dimage='open5gs-sdn:latest',
+    dimage='adaptive/open5gs:latest',
     dcmd='open5gs-amfd',
     environment={
         'OVS_ENABLED': 'true',
@@ -268,21 +268,21 @@ docker run -d --name amf --privileged \
     -e OVS_ENABLED=true \
     -e OVS_CONTROLLER=tcp:192.168.1.100:6633 \
     -e OVS_BRIDGE_NAME=br-amf \
-    open5gs-sdn:latest open5gs-amfd
+    adaptive/open5gs:latest open5gs-amfd
 
 # SMF with SDN
 docker run -d --name smf --privileged \
     -e OVS_ENABLED=true \
     -e OVS_CONTROLLER=tcp:192.168.1.100:6633 \
     -e OVS_BRIDGE_NAME=br-smf \
-    open5gs-sdn:latest open5gs-smfd
+    adaptive/open5gs:latest open5gs-smfd
 
 # UPF with dedicated data plane controller
 docker run -d --name upf --privileged \
     -e OVS_ENABLED=true \
     -e OVS_CONTROLLER=tcp:192.168.1.101:6633 \
     -e OVS_BRIDGE_NAME=br-upf \
-    open5gs-sdn:latest open5gs-upfd
+    adaptive/open5gs:latest open5gs-upfd
 ```
 
 ### 2. Mininet-wifi with Multiple Controllers
@@ -301,7 +301,7 @@ c2 = net.addController('c2', controller=RemoteController,
 
 # Add Open5GS components with SDN
 amf = net.addDockerSta('amf', 
-                       dimage='open5gs-sdn:latest',
+                       dimage='adaptive/open5gs:latest',
                        dcmd='open5gs-amfd',
                        environment={
                            'OVS_ENABLED': 'true',
@@ -309,7 +309,7 @@ amf = net.addDockerSta('amf',
                        })
 
 upf = net.addDockerSta('upf',
-                       dimage='open5gs-sdn:latest', 
+                       dimage='adaptive/open5gs:latest', 
                        dcmd='open5gs-upfd',
                        environment={
                            'OVS_ENABLED': 'true',
