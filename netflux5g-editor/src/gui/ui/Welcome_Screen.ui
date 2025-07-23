@@ -40,7 +40,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>300</y>
+      <y>260</y>
       <width>191</width>
       <height>21</height>
      </rect>
@@ -62,10 +62,13 @@
       <x>40</x>
       <y>110</y>
       <width>261</width>
-      <height>175</height>
+      <height>121</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+     <property name="spacing">
+      <number>7</number>
+     </property>
      <item>
       <widget class="QLabel" name="NewTopo">
        <property name="font">
@@ -183,7 +186,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>301</y>
+      <y>261</y>
       <width>21</width>
       <height>20</height>
      </rect>
@@ -202,8 +205,8 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>330</y>
-      <width>191</width>
+      <y>290</y>
+      <width>251</width>
       <height>21</height>
      </rect>
     </property>
@@ -222,7 +225,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>331</y>
+      <y>291</y>
       <width>21</width>
       <height>20</height>
      </rect>
@@ -241,7 +244,7 @@
     <property name="geometry">
      <rect>
       <x>70</x>
-      <y>360</y>
+      <y>320</y>
       <width>191</width>
       <height>21</height>
      </rect>
@@ -261,7 +264,7 @@
     <property name="geometry">
      <rect>
       <x>40</x>
-      <y>361</y>
+      <y>321</y>
       <width>21</width>
       <height>20</height>
      </rect>
