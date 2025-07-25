@@ -8,79 +8,330 @@ class AutomationManager:
     def __init__(self, main_window):
         self.main_window = main_window
         
+    def promptControllerChoice(self):
+        """Prompt the user to choose between Ryu and ONOS controller."""
+        options = ["Ryu Controller", "ONOS Controller"]
+        choice, ok = QInputDialog.getItem(
+            self.main_window,
+            "Select SDN Controller",
+            "Choose which controller to deploy:",
+            options,
+            0,
+            False
+        )
+        if ok:
+            if "ONOS" in choice:
+                return "onos"
+            else:
+                return "ryu"
+        return None
+
+    def runAllComponents(self):
+        """Run All - Deploy and start all components including controller, database, monitoring, and topology"""
+        debug_print("DEBUG: RunAll triggered - comprehensive deployment")
+        
+        # Prompt for controller type
+        controller_type = self.promptControllerChoice()
+        if not controller_type:
+            debug_print("DEBUG: User cancelled controller selection.")
+            return
+        
+        # Store controller type for this session
+        self.main_window.selected_controller_type = controller_type
+        
+        # Disable Run All button immediately
+        if hasattr(self.main_window, 'actionRun_All'):
+            self.main_window.actionRun_All.setEnabled(False)
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.setEnabled(False)
+        
+        # Start deployment sequence using individual managers
+        try:
+            self.main_window.status_manager.showCanvasStatus("Starting comprehensive deployment...")
+            
+            # Step 1: Ensure Docker network exists
+            debug_print("DEBUG: Step 1 - Creating Docker network")
+            self.main_window.status_manager.showCanvasStatus("Creating Docker network...")
+            if hasattr(self.main_window, 'docker_network_manager'):
+                self.main_window.docker_network_manager.create_netflux5g_network_if_needed()
+            
+            # Step 2: Deploy Controller (Ryu or ONOS)
+            debug_print(f"DEBUG: Step 2 - Deploying {controller_type.upper()} controller")
+            self.main_window.status_manager.showCanvasStatus(f"Deploying {controller_type.upper()} controller...")
+            if hasattr(self.main_window, 'controller_manager'):
+                if controller_type == 'onos':
+                    self.main_window.controller_manager.deployOnosController()
+                else:
+                    self.main_window.controller_manager.deployController()
+            
+            # Step 3: Deploy Database (MongoDB)
+            debug_print("DEBUG: Step 3 - Deploying MongoDB database")
+            self.main_window.status_manager.showCanvasStatus("Deploying MongoDB database...")
+            if hasattr(self.main_window, 'database_manager'):
+                self.main_window.database_manager.deployDatabase()
+            
+            # Step 4: Deploy WebUI (User Manager)
+            debug_print("DEBUG: Step 4 - Deploying WebUI User Manager")
+            self.main_window.status_manager.showCanvasStatus("Deploying WebUI User Manager...")
+            if hasattr(self.main_window, 'database_manager'):
+                self.main_window.database_manager.deployWebUI()
+            
+            # Step 5: Deploy Monitoring Stack
+            debug_print("DEBUG: Step 5 - Deploying Monitoring stack")
+            self.main_window.status_manager.showCanvasStatus("Deploying Monitoring stack...")
+            if hasattr(self.main_window, 'monitoring_manager'):
+                self.main_window.monitoring_manager.deployMonitoring()
+            
+            # Step 6: Deploy Packet Analyzer (Webshark)
+            debug_print("DEBUG: Step 6 - Deploying Packet Analyzer")
+            self.main_window.status_manager.showCanvasStatus("Deploying Packet Analyzer...")
+            if hasattr(self.main_window, 'packet_analyzer_manager'):
+                self.main_window.packet_analyzer_manager.deployPacketAnalyzer()
+            
+            # Step 7: Run Topology
+            debug_print("DEBUG: Step 7 - Running topology")
+            self.main_window.status_manager.showCanvasStatus("Starting topology...")
+            if hasattr(self.main_window, 'automation_runner'):
+                self.main_window.automation_runner.run_topology_only()
+            
+            # Update UI state after successful deployment
+            if hasattr(self.main_window, 'actionStop_All'):
+                self.main_window.actionStop_All.setEnabled(True)
+            if hasattr(self.main_window, 'actionStopAll'):
+                self.main_window.actionStopAll.setEnabled(True)
+            if hasattr(self.main_window, 'actionStop'):
+                self.main_window.actionStop.setEnabled(True)
+                
+            self.main_window.status_manager.showCanvasStatus("All services deployed successfully!")
+            
+            QMessageBox.information(
+                self.main_window,
+                "Services Started",
+                "All NetFlux5G services have been started successfully.\n\nServices deployed:\n" +
+                f"- {controller_type.upper()} Controller\n" +
+                "- MongoDB Database\n" +
+                "- WebUI User Manager\n" +
+                "- Monitoring Stack\n" +
+                "- Packet Analyzer\n" +
+                "- Network Topology\n\n" +
+                "You can now use the topology."
+            )
+                
+        except Exception as e:
+            error_print(f"ERROR: Failed to start automation: {e}")
+            
+            # Re-enable Run All button on error
+            if hasattr(self.main_window, 'actionRun_All'):
+                self.main_window.actionRun_All.setEnabled(True)
+            if hasattr(self.main_window, 'actionRunAll'):
+                self.main_window.actionRunAll.setEnabled(True)
+                
+            QMessageBox.critical(
+                self.main_window,
+                "Deployment Error",
+                f"Failed to start deployment:\n{str(e)}"
+            )
+    
     def stopAllComponents(self):
         """Stop All - Stop all running services including controller, database, monitoring, and clean mininet"""
         debug_print("DEBUG: StopAll triggered - comprehensive cleanup")
         
-        # Get the selected controller type for cleanup
+        # Use the selected controller type for cleanup
         controller_type = getattr(self.main_window, 'selected_controller_type', 'ryu')
         
         reply = QMessageBox.question(
             self.main_window,
             "Stop All Services",
-            f"Are you sure you want to stop all running services?\n\n"
-            f"This will:\n"
-            f"• Stop {controller_type.upper()} Controller\n"
-            f"• Stop MongoDB Database\n"
-            f"• Stop WebUI (User Manager)\n"
-            f"• Stop Monitoring Stack\n"
-            f"• Stop Packet Analyzer\n"
-            f"• Clean up Mininet with 'sudo mn -c'\n"
-            f"• Terminate all processes",
+            f"Are you sure you want to stop all running services?\n\nThis will:\n- Stop MongoDB Database\n- Stop WebUI (User Manager)\n- Stop Monitoring Stack\n- Stop {controller_type.upper()} Controller\n- Clean up Mininet with 'sudo mn -c'\n- Terminate all processes",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No
         )
         
-        if reply != QMessageBox.Yes:
-            return
-        
-        # Create progress dialog for stopping
-        progress = QMessageBox(self.main_window)
-        progress.setWindowTitle("Stopping Services")
-        progress.setText("Stopping all services...")
-        progress.setStandardButtons(QMessageBox.NoButton)
-        progress.setModal(True)
-        progress.show()
+        if reply == QMessageBox.Yes:
+            self._performComprehensiveStopAll(controller_type=controller_type)
+
+    def _performComprehensiveStopAll(self, controller_type='ryu'):
+        """Perform cleanup for all services, using the selected controller type."""
+        debug_print("DEBUG: Performing comprehensive stop of all services")
         
         try:
-            self._stop_all_services(controller_type, progress)
+            # 1. Stop Mininet first (if running)
+            if self.main_window.automation_runner.is_deployment_running():
+                self.main_window.status_manager.showCanvasStatus("Stopping Mininet and cleaning up...")
+                self.main_window.automation_runner.stop_all()
+            else:
+                # Run mininet cleanup even if automation runner isn't running
+                self.main_window.status_manager.showCanvasStatus("Cleaning up Mininet...")
+                self._cleanupMininet()
             
-            progress.close()
-            self._update_ui_state(False)
+            # 2. Stop all NetFlux5G Docker containers comprehensively
+            self.main_window.status_manager.showCanvasStatus("Stopping all NetFlux5G containers...")
+            self._stop_all_netflux5g_containers()
             
-            QMessageBox.information(
-                self.main_window,
-                "Services Stopped",
-                "All NetFlux5G services have been stopped successfully."
-            )
+            # 3. Stop Database and WebUI (additional cleanup via managers)
+            self.main_window.status_manager.showCanvasStatus("Stopping Database and WebUI...")
+            if hasattr(self.main_window, 'database_manager'):
+                self.main_window.database_manager.stopWebUI()
+                self.main_window.database_manager.stopDatabase()
+            
+            # 4. Stop Monitoring Stack (additional cleanup via managers)
+            self.main_window.status_manager.showCanvasStatus("Stopping Monitoring Stack...")
+            if hasattr(self.main_window, 'monitoring_manager'):
+                self.main_window.monitoring_manager.stopMonitoring()
+            
+            # 5. Stop Controllers (additional cleanup via managers)
+            self.main_window.status_manager.showCanvasStatus("Stopping Controllers...")
+            if hasattr(self.main_window, 'controller_manager'):
+                if controller_type == 'onos':
+                    self.main_window.controller_manager.stopOnosController()
+                else:
+                    self.main_window.controller_manager.stopController()
+            
+            # Reset all UI states after stopping
+            self._resetAllUIStates()
+            
+            self.main_window.status_manager.showCanvasStatus("All services stopped successfully")
             
         except Exception as e:
-            progress.close()
-            error_print(f"Failed to stop all services: {e}")
+            debug_print(f"ERROR: Error during comprehensive stop: {e}")
             QMessageBox.critical(
                 self.main_window,
-                "Stop Failed",
-                f"Failed to stop some services: {str(e)}\n\n"
-                f"Please check the debug output for more details."
+                "Stop All Error",
+                f"An error occurred while stopping services:\n{str(e)}\n\nSome services may still be running."
             )
-    
-    def _stop_all_services(self, controller_type, progress_dialog):
-        """Stop all services in reverse deployment order."""
-        services = [
-            ("Cleaning up Mininet", self._cleanup_mininet),
-            ("Stopping packet analyzer", lambda: self._stop_service(self.main_window.packet_analyzer_manager, 'packet_analyzer')),
-            ("Stopping monitoring", lambda: self._stop_service(self.main_window.monitoring_manager, 'monitoring')),
-            ("Stopping WebUI", lambda: self._stop_service(self.main_window.database_manager, 'webui')),
-            ("Stopping database", lambda: self._stop_service(self.main_window.database_manager, 'database')),
-            ("Stopping controller", lambda: self._stop_controller(controller_type))
-        ]
+
+    def _cleanupMininet(self):
+        """Clean up Mininet using sudo mn -c"""
+        try:
+            debug_print("DEBUG: Executing 'sudo mn -c' for Mininet cleanup")
+            result = subprocess.run(
+                ["sudo", "mn", "-c"], 
+                capture_output=True, 
+                text=True, 
+                timeout=30
+            )
+            
+            if result.returncode == 0:
+                debug_print("DEBUG: Mininet cleanup successful")
+            else:
+                debug_print(f"WARNING: Mininet cleanup warning: {result.stderr}")
+                
+        except subprocess.TimeoutExpired:
+            debug_print("ERROR: Mininet cleanup timed out")
+        except subprocess.CalledProcessError as e:
+            debug_print(f"ERROR: Mininet cleanup failed: {e}")
+        except Exception as e:
+            debug_print(f"ERROR: Unexpected error during Mininet cleanup: {e}")
+
+    def _resetAllUIStates(self):
+        """Reset all UI states after stopping services"""
+        # Reset Run All / Stop All buttons
+        if hasattr(self.main_window, 'actionRun_All'):
+            self.main_window.actionRun_All.setEnabled(True)
+        if hasattr(self.main_window, 'actionStop_All'):
+            self.main_window.actionStop_All.setEnabled(False)
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.setEnabled(True)
+        if hasattr(self.main_window, 'actionStopAll'):
+            self.main_window.actionStopAll.setEnabled(False)
+        if hasattr(self.main_window, 'actionRun'):
+            self.main_window.actionRun.setEnabled(True)
+        if hasattr(self.main_window, 'actionStop'):
+            self.main_window.actionStop.setEnabled(False)
+
+    def onAutomationFinished(self, success, message):
+        """Handle automation completion."""
+        if success:
+            # Check if this is a stop/cleanup operation based on the message
+            if "cleanup" in message.lower() or "stop" in message.lower() or "terminated" in message.lower():
+                # Reset UI state after successful stop
+                self._resetAllUIStates()
+                QMessageBox.information(
+                    self.main_window,
+                    "Services Stopped",
+                    "All NetFlux5G services have been stopped successfully."
+                )
+            else:
+                # Enable stop buttons after successful start
+                if hasattr(self.main_window, 'actionStop_All'):
+                    self.main_window.actionStop_All.setEnabled(True)
+                if hasattr(self.main_window, 'actionStopAll'):
+                    self.main_window.actionStopAll.setEnabled(True)
+                if hasattr(self.main_window, 'actionStop'):
+                    self.main_window.actionStop.setEnabled(True)
+                QMessageBox.information(
+                    self.main_window,
+                    "Services Started",
+                    "All NetFlux5G services have been started successfully.\n\nYou can now use the topology."
+                )
+        else:
+            # Check if this is a stop/cleanup failure
+            if "cleanup" in message.lower() or "stop" in message.lower() or "terminated" in message.lower():
+                # Show error but reset UI anyway
+                self._resetAllUIStates()
+                QMessageBox.warning(
+                    self.main_window,
+                    "Stop Error",
+                    f"Some services may not have stopped properly:\n{message}"
+                )
+            else:
+                # Re-enable start buttons after failed start
+                if hasattr(self.main_window, 'actionRun_All'):
+                    self.main_window.actionRun_All.setEnabled(True)
+                if hasattr(self.main_window, 'actionRunAll'):
+                    self.main_window.actionRunAll.setEnabled(True)
+                if hasattr(self.main_window, 'actionRun'):
+                    self.main_window.actionRun.setEnabled(True)
+                QMessageBox.critical(
+                    self.main_window,
+                    "Start Error",
+                    f"Failed to start services:\n{message}"
+                )
+
+    def stopTopology(self):
+        """Stop and clean up the current topology - Simple cleanup with mn -c"""
+        debug_print("DEBUG: Stop topology triggered")
         
-        for message, stop_func in services:
-            progress_dialog.setText(message)
-            try:
-                stop_func()
-            except Exception as e:
-                warning_print(f"Warning: {message} failed: {e}")
+        # Show confirmation dialog
+        reply = QMessageBox.question(
+            self.main_window,
+            "Clean Topology",
+            "Are you sure you want to clean up the current topology?\n\nThis will:\n- Execute 'sudo mn -c' to clean Mininet\n- Stop any running topology processes",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Delegate to automation runner's stop_topology
+            self.main_window.automation_runner.stop_topology()
+
+    def runTopology(self):
+        """Run the topology (actionRun) with proper UI state management."""
+        debug_print("DEBUG: Run topology triggered")
+        
+        # Check if already running
+        if self.main_window.automation_runner.is_deployment_running():
+            reply = QMessageBox.question(
+                self.main_window,
+                "Already Running",
+                "Deployment is already running. Do you want to stop it first?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                self.stopTopology()
+                QTimer.singleShot(2000, self.runTopology)
+            return
+        
+        # Start the topology
+        self.main_window.automation_runner.run_topology_only()
+        
+        # Update UI state
+        if hasattr(self.main_window, 'actionRun'):
+            self.main_window.actionRun.setEnabled(False)
+        if hasattr(self.main_window, 'actionStop'):
+            self.main_window.actionStop.setEnabled(True)
                 # Continue with other services even if one fails
     
     def _stop_service(self, manager, service_type):
@@ -116,422 +367,149 @@ class AutomationManager:
         except Exception as e:
             warning_print(f"Mininet cleanup error: {e}")
 
-    def promptControllerChoice(self):
-        """Prompt the user to choose between Ryu and ONOS controller."""
-        options = ["Ryu Controller", "ONOS Controller"]
-        choice, ok = QInputDialog.getItem(
-            self.main_window,
-            "Select SDN Controller",
-            "Choose which controller to deploy:",
-            options,
-            0,
-            False
-        )
-        if ok:
-            if "ONOS" in choice:
-                return "onos"
-            else:
-                return "ryu"
-        return None
-
-    def runAllComponents(self):
-        """Run All - Deploy and start all components including controller, database, monitoring, and topology"""
-        debug_print("DEBUG: RunAll triggered - comprehensive deployment")
-        
-        # Check if already running
-        if self._is_any_service_running():
-            reply = QMessageBox.question(
-                self.main_window,
-                "Services Already Running",
-                "Some services are already running. Do you want to stop them first?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No
-            )
-            
-            if reply == QMessageBox.Yes:
-                self.stopAllComponents()
-                # Wait a moment then retry
-                QTimer.singleShot(2000, self.runAllComponents)
-            return
-        
-        # Prompt for controller type
-        controller_type = self.promptControllerChoice()
-        if not controller_type:
-            debug_print("DEBUG: User cancelled controller selection.")
-            return
-        
-        # Store controller type for this session
-        self.main_window.selected_controller_type = controller_type
-        
-        # Check if we have components to deploy
-        nodes, links = self.main_window.extractTopology()
-        if not self._has_deployable_components(nodes):
-            QMessageBox.information(
-                self.main_window,
-                "No Components",
-                "No deployable components found in the topology.\n\n"
-                "Please add 5G components (VGcore, GNB, UE) or network elements (Host, STA) to deploy."
-            )
-            return
-        
-        # Create progress dialog
-        self.progress_dialog = QMessageBox(self.main_window)
-        self.progress_dialog.setWindowTitle("NetFlux5G Deployment")
-        self.progress_dialog.setText("Deploying services...")
-        self.progress_dialog.setStandardButtons(QMessageBox.Cancel)
-        self.progress_dialog.setModal(True)
-        self.progress_dialog.show()
-        
-        # Start deployment sequence
-        self._deploy_all_services(controller_type)
-    
-    def _is_any_service_running(self):
-        """Check if any NetFlux5G service is currently running."""
-        managers = [
-            ('controller', self.main_window.controller_manager),
-            ('database', self.main_window.database_manager),
-            ('monitoring', self.main_window.monitoring_manager),
-            ('packet_analyzer', self.main_window.packet_analyzer_manager)
-        ]
-        
-        for name, manager in managers:
-            if hasattr(manager, f'is_{name}_running') and getattr(manager, f'is_{name}_running')():
-                return True
-        return False
-    
-    def _has_deployable_components(self, nodes):
-        """Check if topology has deployable components."""
-        deployable_types = ['VGcore', 'GNB', 'UE', 'Host', 'STA', 'AP']
-        return any(n['type'] in deployable_types for n in nodes)
-    
-    def _deploy_all_services(self, controller_type):
-        """Deploy all services in the correct order."""
+    def _stop_all_netflux5g_containers(self):
+        """Stop all NetFlux5G containers systematically."""
         try:
-            # Step 1: Ensure Docker network exists
-            self.progress_dialog.setText("Checking Docker network...")
-            if not self._ensure_docker_network():
-                return
+            debug_print("DEBUG: Stopping all NetFlux5G containers")
             
-            # Step 2: Deploy Controller
-            self.progress_dialog.setText(f"Deploying {controller_type.upper()} controller...")
-            if not self._deploy_controller(controller_type):
-                return
+            # List of all possible NetFlux5G container names
+            container_names = [
+                "netflux5g-ryu-controller",
+                "netflux5g-onos-controller", 
+                "netflux5g-mongodb",
+                "netflux5g-webui",
+                "netflux5g-prometheus",
+                "netflux5g-grafana",
+                "netflux5g-webshark"
+            ]
             
-            # Step 3: Deploy Database
-            self.progress_dialog.setText("Deploying MongoDB database...")
-            if not self._deploy_database():
-                return
+            # Use DockerUtils to stop containers
+            from utils.docker_utils import DockerUtils
             
-            # Step 4: Deploy WebUI
-            self.progress_dialog.setText("Deploying Web UI...")
-            if not self._deploy_webui():
-                return
-            
-            # Step 5: Deploy Monitoring
-            self.progress_dialog.setText("Deploying monitoring stack...")
-            if not self._deploy_monitoring():
-                return
-            
-            # Step 6: Deploy Packet Analyzer
-            self.progress_dialog.setText("Deploying packet analyzer...")
-            if not self._deploy_packet_analyzer():
-                return
-            
-            # Step 7: Export and run topology
-            self.progress_dialog.setText("Generating and running topology...")
-            if not self._run_topology():
-                return
-            
-            # Success!
-            self.progress_dialog.close()
-            self._update_ui_state(True)
-            
-            QMessageBox.information(
-                self.main_window,
-                "Deployment Complete",
-                f"All services deployed successfully!\n\n"
-                f"Services running:\n"
-                f"• {controller_type.upper()} Controller\n"
-                f"• MongoDB Database\n"
-                f"• Web UI (User Manager)\n"
-                f"• Monitoring Stack (Prometheus, Grafana)\n"
-                f"• Packet Analyzer (Webshark)\n"
-                f"• Mininet Topology\n\n"
-                f"You can now interact with your topology."
-            )
+            for container_name in container_names:
+                if DockerUtils.is_container_running(container_name):
+                    debug_print(f"DEBUG: Stopping container: {container_name}")
+                    DockerUtils.stop_container(container_name)
+                    
+            debug_print("DEBUG: All NetFlux5G containers stopped")
             
         except Exception as e:
-            self.progress_dialog.close()
-            error_print(f"Deployment failed: {e}")
-            QMessageBox.critical(
-                self.main_window,
-                "Deployment Failed",
-                f"Failed to deploy services: {str(e)}\n\n"
-                f"Please check the debug output for more details."
-            )
-    
-    def _ensure_docker_network(self):
-        """Ensure netflux5g Docker network exists."""
-        try:
-            return self.main_window.docker_network_manager.create_netflux5g_network_if_needed()
-        except Exception as e:
-            error_print(f"Failed to create Docker network: {e}")
-            return False
-    
-    def _deploy_controller(self, controller_type):
-        """Deploy the selected controller."""
-        try:
-            if controller_type == "ryu":
-                return self.main_window.controller_manager.deploy_controller_sync()
-            elif controller_type == "onos":
-                return self.main_window.controller_manager.deploy_controller_sync("onos")
-            return False
-        except Exception as e:
-            error_print(f"Failed to deploy controller: {e}")
-            return False
-    
-    def _deploy_database(self):
-        """Deploy MongoDB database."""
-        try:
-            return self.main_window.database_manager.deploy_database_sync()
-        except Exception as e:
-            error_print(f"Failed to deploy database: {e}")
-            return False
-    
-    def _deploy_webui(self):
-        """Deploy Web UI."""
-        try:
-            return self.main_window.database_manager.deploy_webui_sync()
-        except Exception as e:
-            error_print(f"Failed to deploy WebUI: {e}")
-            return False
-    
-    def _deploy_monitoring(self):
-        """Deploy monitoring stack."""
-        try:
-            return self.main_window.monitoring_manager.deploy_monitoring_sync()
-        except Exception as e:
-            error_print(f"Failed to deploy monitoring: {e}")
-            return False
-    
-    def _deploy_packet_analyzer(self):
-        """Deploy packet analyzer."""
-        try:
-            return self.main_window.packet_analyzer_manager.deploy_packet_analyzer_sync()
-        except Exception as e:
-            error_print(f"Failed to deploy packet analyzer: {e}")
-            return False
-    
-    def _run_topology(self):
-        """Export and run the topology."""
-        try:
-            # Export topology to Mininet script
-            self.main_window.mininet_exporter.export_to_mininet()
-            
-            # TODO: Add actual Mininet execution here when ready
-            debug_print("Topology exported successfully")
-            return True
-        except Exception as e:
-            error_print(f"Failed to run topology: {e}")
-            return False
-    
-    def _update_ui_state(self, deployment_active):
-        """Update UI buttons based on deployment state."""
-        # Update Run All / Stop All buttons
-        if hasattr(self.main_window, 'actionRun_All'):
-            self.main_window.actionRun_All.setEnabled(not deployment_active)
-        if hasattr(self.main_window, 'actionStop_All'):
-            self.main_window.actionStop_All.setEnabled(deployment_active)
-        if hasattr(self.main_window, 'actionRunAll'):
-            self.main_window.actionRunAll.setEnabled(not deployment_active)
-        if hasattr(self.main_window, 'actionStopAll'):
-            self.main_window.actionStopAll.setEnabled(deployment_active)
+            error_print(f"ERROR: Failed to stop all containers: {e}")
 
     # Individual service management methods (delegate to specific managers)
     def exportToMininet(self):
-        """Export the current topology to a Mininet script."""
-        self.main_window.mininet_exporter.export_to_mininet()
+        """Export topology to Mininet script."""
+        if hasattr(self.main_window, 'mininet_exporter'):
+            self.main_window.mininet_exporter.export_to_mininet()
+        else:
+            from export.mininet_export import MininetExporter
+            exporter = MininetExporter(self.main_window)
+            exporter.export_to_mininet()
 
     def createDockerNetwork(self):
-        """Create Docker network for the current topology."""
+        """Create Docker network."""
         if hasattr(self.main_window, 'docker_network_manager'):
             self.main_window.docker_network_manager.create_docker_network()
 
     def deleteDockerNetwork(self):
-        """Delete Docker network for the current topology."""
+        """Delete Docker network."""
         if hasattr(self.main_window, 'docker_network_manager'):
             self.main_window.docker_network_manager.delete_docker_network()
 
     def deployDatabase(self):
-        """Deploy MongoDB database for the current topology."""
+        """Deploy database service."""
         if hasattr(self.main_window, 'database_manager'):
             self.main_window.database_manager.deployDatabase()
 
     def stopDatabase(self):
-        """Stop MongoDB database for the current topology."""
+        """Stop database service."""
         if hasattr(self.main_window, 'database_manager'):
             self.main_window.database_manager.stopDatabase()
 
     def getDatabaseStatus(self):
-        """Get the current database status."""
+        """Get database status."""
         if hasattr(self.main_window, 'database_manager'):
             return self.main_window.database_manager.getContainerStatus()
-        return "Database manager not available"
+        return False
 
     def deployWebUI(self):
-        """Deploy Web UI for the current topology."""
+        """Deploy WebUI service."""
         if hasattr(self.main_window, 'database_manager'):
             self.main_window.database_manager.deployWebUI()
 
     def stopWebUI(self):
-        """Stop Web UI for the current topology."""
+        """Stop WebUI service."""
         if hasattr(self.main_window, 'database_manager'):
             self.main_window.database_manager.stopWebUI()
 
     def getWebUIStatus(self):
-        """Get the current Web UI status."""
+        """Get WebUI status."""
         if hasattr(self.main_window, 'database_manager'):
             return self.main_window.database_manager.getWebUIStatus()
-        return "Database manager not available"
+        return False
 
     def deployMonitoring(self):
-        """Deploy monitoring stack for the current topology."""
+        """Deploy monitoring service."""
         if hasattr(self.main_window, 'monitoring_manager'):
             self.main_window.monitoring_manager.deployMonitoring()
 
     def stopMonitoring(self):
-        """Stop monitoring stack for the current topology."""
+        """Stop monitoring service."""
         if hasattr(self.main_window, 'monitoring_manager'):
             self.main_window.monitoring_manager.stopMonitoring()
 
     def getMonitoringStatus(self):
-        """Get the current monitoring status."""
+        """Get monitoring status."""
         if hasattr(self.main_window, 'monitoring_manager'):
-            return self.main_window.monitoring_manager.getMonitoringStatus()
-        return "Monitoring manager not available"
+            if hasattr(self.main_window.monitoring_manager, 'is_monitoring_running'):
+                return self.main_window.monitoring_manager.is_monitoring_running()
+        return False
 
     def deployPacketAnalyzer(self):
-        """Deploy packet analyzer for the current topology."""
+        """Deploy packet analyzer service."""
         if hasattr(self.main_window, 'packet_analyzer_manager'):
             self.main_window.packet_analyzer_manager.deployPacketAnalyzer()
 
     def stopPacketAnalyzer(self):
-        """Stop packet analyzer for the current topology."""
+        """Stop packet analyzer service."""
         if hasattr(self.main_window, 'packet_analyzer_manager'):
             self.main_window.packet_analyzer_manager.stopPacketAnalyzer()
 
     def getPacketAnalyzerStatus(self):
-        """Get the current packet analyzer status."""
+        """Get packet analyzer status."""
         if hasattr(self.main_window, 'packet_analyzer_manager'):
-            return "Running on port 8085" if self.main_window.packet_analyzer_manager.is_packet_analyzer_running() else "Not running"
-        return "Packet analyzer manager not available"
+            if hasattr(self.main_window.packet_analyzer_manager, 'is_packet_analyzer_running'):
+                return self.main_window.packet_analyzer_manager.is_packet_analyzer_running()
+        return False
 
     def deployController(self):
-        """Deploy Ryu SDN controller for the current topology."""
+        """Deploy controller service."""
         if hasattr(self.main_window, 'controller_manager'):
             self.main_window.controller_manager.deployController()
 
     def stopController(self):
-        """Stop Ryu SDN controller for the current topology."""
+        """Stop controller service."""
         if hasattr(self.main_window, 'controller_manager'):
             self.main_window.controller_manager.stopController()
 
     def getControllerStatus(self):
-        """Get the current controller status."""
+        """Get controller status."""
         if hasattr(self.main_window, 'controller_manager'):
             return self.main_window.controller_manager.getControllerStatus()
-        return "Controller manager not available"
+        return False
 
     def deployOnosController(self):
-        """Deploy ONOS SDN controller for the current topology."""
+        """Deploy ONOS controller service."""
         if hasattr(self.main_window, 'controller_manager'):
             self.main_window.controller_manager.deployOnosController()
 
     def stopOnosController(self):
-        """Stop ONOS SDN controller for the current topology."""
+        """Stop ONOS controller service."""
         if hasattr(self.main_window, 'controller_manager'):
             self.main_window.controller_manager.stopOnosController()
 
     def getOnosControllerStatus(self):
-        """Get the current ONOS controller status."""
+        """Get ONOS controller status."""
         if hasattr(self.main_window, 'controller_manager'):
             return self.main_window.controller_manager.getOnosControllerStatus()
-        return "Controller manager not available"
-    
-    def runTopology(self):
-        """Run topology only (export and start Mininet without services)."""
-        debug_print("DEBUG: Run topology triggered")
-        
-        # Check if we have components to deploy
-        nodes, links = self.main_window.extractTopology()
-        if not self._has_deployable_components(nodes):
-            QMessageBox.information(
-                self.main_window,
-                "No Components",
-                "No deployable components found in the topology.\n\n"
-                "Please add network elements to deploy."
-            )
-            return
-        
-        try:
-            # Export topology to Mininet script
-            self.main_window.mininet_exporter.export_to_mininet()
-            self._update_ui_state(True)
-            
-            QMessageBox.information(
-                self.main_window,
-                "Topology Exported",
-                "Topology has been exported to Mininet script successfully.\n\n"
-                "You can now run the script manually or use 'Run All' for full deployment."
-            )
-            
-        except Exception as e:
-            error_print(f"Failed to run topology: {e}")
-            QMessageBox.critical(
-                self.main_window,
-                "Topology Export Failed",
-                f"Failed to export topology: {str(e)}"
-            )
-
-    def stopTopology(self):
-        """Stop and clean up the current topology."""
-        debug_print("DEBUG: Stop topology triggered")
-        
-        reply = QMessageBox.question(
-            self.main_window,
-            "Clean Topology",
-            "Are you sure you want to clean up the current topology?\n\n"
-            "This will execute 'sudo mn -c' to clean Mininet.",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
-        )
-        
-        if reply == QMessageBox.Yes:
-            self._cleanup_mininet()
-            self._update_ui_state(False)
-            
-            QMessageBox.information(
-                self.main_window,
-                "Topology Cleaned",
-                "Topology has been cleaned up successfully."
-            )
-
-    def onAutomationFinished(self, success, message):
-        """Handle automation completion events from AutomationRunner."""
-        debug_print(f"Automation finished: success={success}, message={message}")
-        
-        if success:
-            QMessageBox.information(
-                self.main_window,
-                "Automation Complete",
-                message or "Automation completed successfully."
-            )
-        else:
-            QMessageBox.critical(
-                self.main_window,
-                "Automation Failed", 
-                message or "Automation failed. Check the debug output for details."
-            )
-        
-        # Update UI state after automation completes
-        self._update_ui_state(success)
+        return False

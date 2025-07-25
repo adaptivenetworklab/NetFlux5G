@@ -4,7 +4,6 @@ Handles MongoDB container creation and removal based on webui-db.yaml configurat
 """
 
 import os
-import subprocess
 import time
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog
 from PyQt5.QtCore import pyqtSignal, QThread, QMutex
@@ -47,282 +46,96 @@ class DatabaseDeploymentWorker(QThread):
             self.operation_finished.emit(False, str(e))
     
     def _deploy_database(self):
-        """Deploy MongoDB container with volume."""
+        """Deploy MongoDB container with DockerUtils and DockerContainerBuilder."""
         try:
-            self.status_updated.emit("Checking if container already exists...")
-            self.progress_updated.emit(10)
-            
-            # Check if container already exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name in result.stdout:
-                # Container exists, check if it's running
-                status_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-                status_result = subprocess.run(status_cmd, capture_output=True, text=True, timeout=10)
-                
-                if self.container_name in status_result.stdout:
-                    self.operation_finished.emit(True, f"Database container '{self.container_name}' is already running")
-                    return
-                else:
-                    # Container exists but not running, start it
-                    self.status_updated.emit("Starting existing container...")
-                    self.progress_updated.emit(50)
-                    start_cmd = ['docker', 'start', self.container_name]
-                    subprocess.run(start_cmd, check=True, timeout=30)
-                    self.progress_updated.emit(100)
-                    self.operation_finished.emit(True, f"Database container '{self.container_name}' started successfully")
-                    return
-            
-            # Create volume if it doesn't exist
-            self.status_updated.emit("Creating Docker volume...")
-            self.progress_updated.emit(20)
-            
-            volume_cmd = ['docker', 'volume', 'create', self.volume_name]
-            subprocess.run(volume_cmd, check=True, timeout=10)
-            debug_print(f"Created volume: {self.volume_name}")
-            
-            # Pull MongoDB image if not present
-            self.status_updated.emit("Checking MongoDB image...")
-            self.progress_updated.emit(30)
-            
-            # Check and ensure MongoDB image is available
-            mongo_image = 'mongo:latest'
-            if not DockerUtils.image_exists(mongo_image):
+            self.status_updated.emit("Checking if MongoDB image exists...")
+            image_name = "mongo:latest"
+            if not DockerUtils.image_exists(image_name):
                 self.status_updated.emit("Pulling MongoDB image...")
-                self.progress_updated.emit(35)
-                
-                success, message = DockerUtils.pull_image(mongo_image, timeout=120)
-                if not success:
-                    raise Exception(f"Failed to pull MongoDB image: {message}")
-                
-                debug_print(f"Successfully pulled {mongo_image}")
-            else:
-                debug_print(f"MongoDB image {mongo_image} already exists locally")
-            
-            self.progress_updated.emit(50)
-            
-            # Create and run MongoDB container
+                DockerUtils.pull_image(image_name)
+            builder = DockerContainerBuilder(image=image_name, container_name=self.container_name)
+            builder.set_network(self.network_name)
+            # Add volumes, ports as needed
+            builder.add_volume(f'{self.volume_name}:/data/db')
+            builder.add_env('MONGO_INITDB_DATABASE=open5gs')
             self.status_updated.emit("Creating MongoDB container...")
-            self.progress_updated.emit(60)
-            
-            run_cmd = [
-                'docker', 'run', '-d',
-                '--name', self.container_name,
-                '--restart', 'always',
-                '--network', self.network_name,
-                '-e', 'MONGO_INITDB_DATABASE=open5gs',
-                '-p', '27017:27017',
-                '-v', f'{self.volume_name}:/data/db'
-            ]
-            
-            run_cmd.append(mongo_image)
-            
-            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            if result.returncode != 0:
-                raise subprocess.CalledProcessError(result.returncode, run_cmd, result.stderr)
-            
-            # Wait for container to be healthy
-            self.status_updated.emit("Waiting for database to be ready...")
-            self.progress_updated.emit(80)
-            
-            # Simple health check - wait for container to be running
-            for i in range(10):  # Wait up to 10 seconds
-                health_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Status}}']
-                health_result = subprocess.run(health_cmd, capture_output=True, text=True, timeout=5)
-                
-                if 'Up' in health_result.stdout:
-                    break
-                time.sleep(1)
-            
-            self.progress_updated.emit(100)
-            self.operation_finished.emit(True, f"Database container '{self.container_name}' deployed successfully")
-            
-        except subprocess.TimeoutExpired:
-            self.operation_finished.emit(False, "Operation timed out")
-        except subprocess.CalledProcessError as e:
-            self.operation_finished.emit(False, f"Docker command failed: {e.stderr}")
+            builder.run()
+            self.operation_finished.emit(True, f"MongoDB container '{self.container_name}' deployed successfully.")
         except Exception as e:
-            self.operation_finished.emit(False, f"Unexpected error: {str(e)}")
-    
+            error_print(f"Failed to deploy MongoDB: {e}")
+            self.operation_finished.emit(False, str(e))
+
     def _stop_database(self):
-        """Stop and remove MongoDB container and volume."""
+        """Stop MongoDB container using DockerUtils."""
         try:
-            self.status_updated.emit("Checking container status...")
-            self.progress_updated.emit(10)
-            
-            # Check if container exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name not in result.stdout:
-                self.operation_finished.emit(True, f"Database container '{self.container_name}' does not exist")
-                return
-            
-            # Stop container
-            self.status_updated.emit("Stopping container...")
-            self.progress_updated.emit(30)
-            
-            stop_cmd = ['docker', 'stop', self.container_name]
-            subprocess.run(stop_cmd, capture_output=True, text=True, timeout=30)
-            
-            # Remove container
-            self.status_updated.emit("Removing container...")
-            self.progress_updated.emit(60)
-            
-            remove_cmd = ['docker', 'rm', self.container_name]
-            subprocess.run(remove_cmd, check=True, timeout=10)
-            
-            # Note: Volume is preserved for data persistence
-            self.progress_updated.emit(100)
-            self.operation_finished.emit(True, f"Database container '{self.container_name}' stopped and removed successfully (volume preserved)")
-            
-        except subprocess.TimeoutExpired:
-            self.operation_finished.emit(False, "Operation timed out")
-        except subprocess.CalledProcessError as e:
-            self.operation_finished.emit(False, f"Docker command failed: {e.stderr}")
+            DockerUtils.stop_container(self.container_name)
+            self.operation_finished.emit(True, f"MongoDB container '{self.container_name}' stopped successfully.")
         except Exception as e:
-            self.operation_finished.emit(False, f"Unexpected error: {str(e)}")
+            error_print(f"Failed to stop MongoDB: {e}")
+            self.operation_finished.emit(False, str(e))
     
     def _cleanup_database(self):
-        """Completely remove MongoDB container and volume."""
+        """Completely remove MongoDB container and volume using DockerUtils."""
         try:
             self.status_updated.emit("Starting complete cleanup...")
             self.progress_updated.emit(10)
-            
-            # Stop and remove container if it exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name in result.stdout:
+            if DockerUtils.container_exists(self.container_name):
                 self.status_updated.emit("Stopping container...")
                 self.progress_updated.emit(30)
-                
-                stop_cmd = ['docker', 'stop', self.container_name]
-                subprocess.run(stop_cmd, capture_output=True, text=True, timeout=30)
-                
+                DockerUtils.stop_container(self.container_name)
                 self.status_updated.emit("Removing container...")
                 self.progress_updated.emit(50)
-                
-                remove_cmd = ['docker', 'rm', self.container_name]
-                subprocess.run(remove_cmd, check=True, timeout=10)
-            
-            # Remove volume if it exists and is specified
-            if self.volume_name:
+                DockerUtils.remove_container(self.container_name)
+            if self.volume_name and DockerUtils.volume_exists(self.volume_name):
                 self.status_updated.emit("Removing volume and all data...")
                 self.progress_updated.emit(70)
-                
-                volume_remove_cmd = ['docker', 'volume', 'rm', self.volume_name]
-                result = subprocess.run(volume_remove_cmd, capture_output=True, text=True, timeout=10)
-                
-                if result.returncode != 0 and "no such volume" not in result.stderr.lower():
-                    warning_print(f"Warning: Could not remove volume {self.volume_name}: {result.stderr}")
-            
+                DockerUtils.remove_volume(self.volume_name)
             self.progress_updated.emit(100)
             self.operation_finished.emit(True, f"Complete cleanup finished: container and volume removed")
-            
-        except subprocess.TimeoutExpired:
-            self.operation_finished.emit(False, "Cleanup operation timed out")
-        except subprocess.CalledProcessError as e:
-            self.operation_finished.emit(False, f"Docker command failed during cleanup: {e.stderr}")
         except Exception as e:
             self.operation_finished.emit(False, f"Unexpected error during cleanup: {str(e)}")
 
     def _deploy_webui(self):
-        """Deploy Web UI container."""
+        """Deploy Web UI container using DockerUtils and DockerContainerBuilder."""
         try:
             self.status_updated.emit("Checking if Web UI container already exists...")
             self.progress_updated.emit(10)
-            
-            # Check if container already exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name in result.stdout:
-                # Container exists, check if it's running
-                status_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-                status_result = subprocess.run(status_cmd, capture_output=True, text=True, timeout=10)
-                
-                if self.container_name in status_result.stdout:
+            if DockerUtils.container_exists(self.container_name):
+                if DockerUtils.is_container_running(self.container_name):
                     self.operation_finished.emit(True, f"Web UI container '{self.container_name}' is already running")
                     return
                 else:
-                    # Container exists but not running, start it
                     self.status_updated.emit("Starting existing Web UI container...")
                     self.progress_updated.emit(50)
-                    start_cmd = ['docker', 'start', self.container_name]
-                    subprocess.run(start_cmd, check=True, timeout=30)
+                    DockerUtils.start_container(self.container_name)
                     self.progress_updated.emit(100)
                     self.operation_finished.emit(True, f"Web UI container '{self.container_name}' started successfully")
                     return
-            
-            # Pull Web UI image if not present
             self.status_updated.emit("Checking Web UI image...")
             self.progress_updated.emit(30)
-            
-            # Check and ensure Web UI image is available
             webui_image = 'gradiant/open5gs-webui:2.7.5'
             if not DockerUtils.image_exists(webui_image):
                 self.status_updated.emit("Pulling Web UI image...")
                 self.progress_updated.emit(35)
-                
-                success, message = DockerUtils.pull_image(webui_image, timeout=120)
-                if not success:
-                    raise Exception(f"Failed to pull Web UI image: {message}")
-                
-                debug_print(f"Successfully pulled {webui_image}")
-            else:
-                debug_print(f"Web UI image {webui_image} already exists locally")
-            
+                DockerUtils.pull_image(webui_image, timeout=120)
             self.progress_updated.emit(50)
-            
-            # Create and run Web UI container
             self.status_updated.emit("Creating Web UI container...")
             self.progress_updated.emit(60)
-            
-            # Get MongoDB container name for dependency - use fixed naming
             mongo_container_name = "netflux5g-mongodb"
-            
-            run_cmd = [
-                'docker', 'run', '-d',
-                '--name', self.container_name,
-                '--restart', 'on-failure',
-                '--network', self.network_name,
-                '-p', '9999:9999'
-            ]
-            
-            # Use network-based container communication since we're on the same network
-            run_cmd.extend(['-e', f'DB_URI=mongodb://{mongo_container_name}:27017/open5gs'])
-            
-            # Add environment variable
-            run_cmd.extend(['-e', 'NODE_ENV=dev'])
-
-            run_cmd.append(webui_image)
-
-            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            if result.returncode != 0:
-                raise subprocess.CalledProcessError(result.returncode, run_cmd, result.stderr)
-            
-            # Wait for container to be healthy
+            builder = DockerContainerBuilder(image=webui_image, container_name=self.container_name)
+            builder.set_network(self.network_name)
+            builder.add_port('9999:9999')
+            builder.add_env(f'DB_URI=mongodb://{mongo_container_name}:27017/open5gs')
+            builder.add_env('NODE_ENV=dev')
+            builder.run()
             self.status_updated.emit("Waiting for Web UI to be ready...")
             self.progress_updated.emit(80)
-            
-            # Simple health check - wait for container to be running
-            for i in range(10):  # Wait up to 10 seconds
-                health_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Status}}']
-                health_result = subprocess.run(health_cmd, capture_output=True, text=True, timeout=5)
-                
-                if 'Up' in health_result.stdout:
+            for i in range(10):
+                if DockerUtils.is_container_running(self.container_name):
                     break
                 time.sleep(1)
-            
             self.progress_updated.emit(100)
             self.operation_finished.emit(True, f"Web UI container '{self.container_name}' deployed successfully")
-            
-        except subprocess.TimeoutExpired:
-            self.operation_finished.emit(False, "Web UI deployment timed out")
-        except subprocess.CalledProcessError as e:
-            self.operation_finished.emit(False, f"Docker command failed: {e.stderr}")
         except Exception as e:
             self.operation_finished.emit(False, f"Unexpected error: {str(e)}")
         
@@ -538,10 +351,18 @@ class DatabaseManager:
             )
             
             if reply == QMessageBox.Yes:
-                # Start MongoDB container
+                # Start MongoDB container using DockerUtils
                 try:
-                    subprocess.run(['docker', 'start', mongo_container_name], check=True, timeout=30)
-                    self.main_window.status_manager.showCanvasStatus(f"Started MongoDB container: {mongo_container_name}")
+                    success, msg = DockerUtils.start_container(mongo_container_name)
+                    if success:
+                        self.main_window.status_manager.showCanvasStatus(f"Started MongoDB container: {mongo_container_name}")
+                    else:
+                        QMessageBox.critical(
+                            self.main_window,
+                            "Failed to Start MongoDB",
+                            f"Could not start MongoDB container: {msg}"
+                        )
+                        return
                 except Exception as e:
                     QMessageBox.critical(
                         self.main_window,
@@ -628,16 +449,6 @@ class DatabaseManager:
         # Start stop operation (without volume removal)
         self._start_operation('stop_webui', container_name, None, None)
     
-    def is_database_running(self):
-        """Check if the database container is running."""
-        container_name = "netflux5g-mongodb"
-        return self._is_container_running(container_name)
-    
-    def is_webui_running(self):
-        """Check if the WebUI container is running."""
-        container_name = "netflux5g-webui"
-        return self._is_container_running(container_name)
-    
     def deploy_database_sync(self):
         """Deploy MongoDB database synchronously for automation."""
         debug_print("DEBUG: deploy_database_sync called")
@@ -706,84 +517,56 @@ class DatabaseManager:
             return False
 
     def _deploy_database_direct(self, container_name, volume_name, network_name):
-        """Deploy MongoDB container directly without threads."""
+        """Deploy MongoDB container directly without threads, using DockerUtils."""
         try:
             # Create volume if it doesn't exist
             if not self._volume_exists(volume_name):
                 debug_print(f"Creating volume: {volume_name}")
-                volume_cmd = ['docker', 'volume', 'create', volume_name]
-                result = subprocess.run(volume_cmd, capture_output=True, text=True, timeout=30)
-                if result.returncode != 0:
-                    error_print(f"Failed to create volume: {result.stderr}")
+                if not DockerUtils.create_volume(volume_name):
+                    error_print(f"Failed to create volume: {volume_name}")
                     return False
-            
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_container_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
-                remove_cmd = ['docker', 'rm', container_name]
-                subprocess.run(remove_cmd, capture_output=True, timeout=10)
-            
+                DockerUtils.remove_container(container_name)
             # Create and run MongoDB container
             debug_print(f"Creating MongoDB container: {container_name}")
-            run_cmd = [
-                'docker', 'run', '-d',
-                '--name', container_name,
-                '--network', network_name,
-                '-p', '27017:27017',
-                '-v', f'{volume_name}:/data/db',
-                '-e', 'MONGO_INITDB_DATABASE=open5gs',
-                'mongo:latest'
-            ]
-            
-            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            if result.returncode != 0:
-                error_print(f"Failed to create MongoDB container: {result.stderr}")
-                return False
-            
+            builder = DockerContainerBuilder(image="mongo:latest", container_name=container_name)
+            builder.set_network(network_name)
+            builder.add_volume(f'{volume_name}:/data/db')
+            builder.add_env('MONGO_INITDB_DATABASE=open5gs')
+            builder.run()
             # Wait for container to be ready
             debug_print("Waiting for MongoDB to be ready...")
             for i in range(30):  # Wait up to 30 seconds
                 if self._is_container_running(container_name):
-                    # Test connection
-                    test_cmd = ['docker', 'exec', container_name, 'mongosh', '--eval', 'db.runCommand("ping")']
-                    test_result = subprocess.run(test_cmd, capture_output=True, text=True, timeout=10)
-                    if test_result.returncode == 0:
+                    # Test connection using DockerUtils.exec_in_container
+                    exec_result = DockerUtils.exec_in_container(container_name, ['mongosh', '--eval', 'db.runCommand("ping")'])
+                    if exec_result and exec_result.get('returncode', 1) == 0:
                         debug_print("MongoDB is ready")
                         return True
                 time.sleep(1)
-            
             error_print("MongoDB container started but failed to become ready")
             return False
-            
         except Exception as e:
             error_print(f"Failed to deploy MongoDB directly: {e}")
             return False
 
     def _deploy_webui_direct(self, container_name, network_name):
-        """Deploy WebUI container directly without threads."""
+        """Deploy WebUI container directly without threads, using DockerUtils."""
         try:
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_container_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
-                remove_cmd = ['docker', 'rm', container_name]
-                subprocess.run(remove_cmd, capture_output=True, timeout=10)
-            
+                DockerUtils.remove_container(container_name)
             # Create and run WebUI container
             debug_print(f"Creating WebUI container: {container_name}")
-            run_cmd = [
-                'docker', 'run', '-d',
-                '--name', container_name,
-                '--network', network_name,
-                '-p', '9999:9999',
-                '-e', 'DB_URI=mongodb://netflux5g-mongodb:27017/open5gs',
-                'gradiant/open5gs-webui:2.7.5'
-            ]
-            
-            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            if result.returncode != 0:
-                error_print(f"Failed to create WebUI container: {result.stderr}")
-                return False
-            
+            builder = DockerContainerBuilder(image='gradiant/open5gs-webui:2.7.5', container_name=container_name)
+            builder.set_network(network_name)
+            builder.add_port('9999:9999')
+            builder.add_env('DB_URI=mongodb://netflux5g-mongodb:27017/open5gs')
+            builder.add_env('NODE_ENV=dev')
+            builder.run()
             # Wait for container to be ready
             debug_print("Waiting for WebUI to be ready...")
             for i in range(20):  # Wait up to 20 seconds
@@ -791,99 +574,75 @@ class DatabaseManager:
                     debug_print("WebUI is ready")
                     return True
                 time.sleep(1)
-            
             error_print("WebUI container started but failed to become ready")
             return False
-            
         except Exception as e:
             error_print(f"Failed to deploy WebUI directly: {e}")
             return False
 
-    def _check_file_saved(self):
-        """Check if the current file is saved."""
-        if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
-            reply = QMessageBox.warning(
-                self.main_window,
-                "File Not Saved",
-                "The current file must be saved before deploying the database.\n\n"
-                "The container name will be based on the filename.\n\n"
-                "Do you want to save the file now?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
-            
-            if reply == QMessageBox.Yes:
-                if hasattr(self.main_window, 'file_manager'):
-                    self.main_window.file_manager.saveTopologyAs()
-                    # Check again if file was saved
-                    return hasattr(self.main_window, 'current_file') and self.main_window.current_file
-                else:
-                    QMessageBox.critical(
-                        self.main_window,
-                        "Error",
-                        "File manager not available. Please save the file manually."
-                    )
-            
-            return False
-        
-        return True
-    
-    def _get_container_names(self):
-        """Get container and volume names from current file."""
-        if not hasattr(self.main_window, 'current_file') or not self.main_window.current_file:
-            return None, None
-        
-        # Get filename without extension
-        filename = os.path.basename(self.main_window.current_file)
-        name_without_ext = os.path.splitext(filename)[0]
-        
-        # Clean name for Docker (remove invalid characters)
-        clean_name = "".join(c for c in name_without_ext if c.isalnum() or c in '-_').lower()
-        
-        if not clean_name:
-            clean_name = "netflux5g_topology"
-        
-        container_name = f"mongo_{clean_name}"
-        volume_name = f"mongo_data_{clean_name}"
-        
-        return container_name, volume_name
+    def getContainerStatus(self):
+        """Get the status of the database container using DockerUtils."""
+        container_name = "netflux5g-mongodb"
+        volume_name = "netflux5g-mongodb-data"
+        try:
+            # Check if container exists and is running
+            if DockerUtils.is_container_running(container_name):
+                volume_exists = self._volume_exists(volume_name)
+                volume_status = " (with data)" if volume_exists else " (no data)"
+                return f"Running: {container_name}{volume_status}"
+            # Check if container exists but is stopped
+            elif DockerUtils.container_exists(container_name):
+                volume_exists = self._volume_exists(volume_name)
+                volume_status = " (with data)" if volume_exists else " (no data)"
+                return f"Stopped: {container_name}{volume_status}"
+            else:
+                volume_exists = self._volume_exists(volume_name)
+                volume_status = " (with data)" if volume_exists else " (no data)"
+                return f"Not deployed: {container_name}{volume_status}"
+        except Exception:
+            return "Docker not available"
+
+    def getWebUIStatus(self):
+        """Get the status of the Web UI container using DockerUtils."""
+        container_name = "netflux5g-webui"
+        try:
+            if DockerUtils.is_container_running(container_name):
+                return f"Running: {container_name}"
+            elif DockerUtils.container_exists(container_name):
+                return f"Stopped: {container_name}"
+            else:
+                return f"Not deployed: {container_name}"
+        except Exception:
+            return "Docker not available"
     
     def _check_docker_available(self):
-        """Check if Docker is available."""
+        """Check if Docker is available using DockerUtils."""
         return DockerUtils.check_docker_available(self.main_window, show_error=True)
     
     def _is_container_running(self, container_name):
-        """Check if container is currently running."""
+        """Check if container is currently running using DockerUtils."""
         return DockerUtils.is_container_running(container_name)
     
     def _container_exists(self, container_name):
-        """Check if container exists (running or stopped)."""
+        """Check if container exists (running or stopped) using DockerUtils."""
         return DockerUtils.container_exists(container_name)
-    
+
     def _volume_exists(self, volume_name):
-        """Check if Docker volume exists."""
+        """Check if Docker volume exists using DockerUtils."""
         return DockerUtils.volume_exists(volume_name)
-    
-    def _get_docker_network_name(self):
-        """Get the Docker network name for the current topology."""
-        if hasattr(self.main_window, 'docker_network_manager'):
-            return self.main_window.docker_network_manager.get_current_network_name()
-        return None
-    
-    def _network_exists(self, network_name):
-        """Check if Docker network exists."""
-        return DockerUtils.network_exists(network_name)
-    
-    def _stop_container_sync(self, container_name):
-        """Stop container synchronously (for restart scenarios)."""
-        success, message = DockerUtils.stop_container(container_name)
-        # Ignore errors for restart scenario as in original implementation
-        return success
     
     def _start_operation(self, operation, container_name, volume_name=None, network_name=None):
         """Start database operation in worker thread."""
         # Create progress dialog
-        operation_text = "Deploying" if operation == 'deploy' else "Stopping" if operation == 'stop' else "Cleaning up"
+        operation_text = (
+            "Deploying" if operation == 'deploy' else
+            "Stopping" if operation == 'stop' else
+            "Cleaning up" if operation == 'cleanup' else
+            "Deploying WebUI" if operation == 'deploy_webui' else
+            "Stopping WebUI" if operation == 'stop_webui' else
+            "Cleaning up WebUI" if operation == 'cleanup_webui' else
+            "Working"
+        )
         self.progress_dialog = QProgressDialog(
             f"{operation_text} database...",
             "Cancel",
@@ -895,37 +654,34 @@ class DatabaseManager:
         self.progress_dialog.setModal(True)
         self.progress_dialog.canceled.connect(self._cancel_operation)
         self.progress_dialog.show()
-        
+
         # Create and start worker
         self.current_worker = DatabaseDeploymentWorker(operation, container_name, volume_name, network_name)
         self.current_worker.progress_updated.connect(self.progress_dialog.setValue)
         self.current_worker.status_updated.connect(self._update_progress_text)
         self.current_worker.operation_finished.connect(self._on_operation_finished)
         self.current_worker.start()
-    
+
     def _update_progress_text(self, status):
         """Update progress dialog text."""
         if self.progress_dialog:
             self.progress_dialog.setLabelText(status)
-    
+
     def _cancel_operation(self):
         """Cancel the current operation."""
         if self.current_worker and self.current_worker.isRunning():
             self.current_worker.terminate()
             self.current_worker.wait(3000)  # Wait up to 3 seconds
-        
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
-        
         self.main_window.status_manager.showCanvasStatus("Database operation cancelled")
-    
+
     def _on_operation_finished(self, success, message):
         """Handle operation completion."""
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
-        
         if success:
             QMessageBox.information(
                 self.main_window,
@@ -940,79 +696,21 @@ class DatabaseManager:
                 f"Database operation failed:\n{message}"
             )
             self.main_window.status_manager.showCanvasStatus(f"Database operation failed: {message}")
-        
         # Cleanup
         if self.current_worker:
             self.current_worker.deleteLater()
             self.current_worker = None
     
-    def getContainerStatus(self):
-        """Get the status of the database container."""
-        # Use fixed service names instead of file-based naming
-        container_name = "netflux5g-mongodb"
-        volume_name = "netflux5g-mongodb-data"
-        
-        try:
-            # Check if container exists and is running
-            result = subprocess.run(
-                ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Status}}'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            # Check if volume exists
-            volume_exists = self._volume_exists(volume_name)
-            volume_status = " (with data)" if volume_exists else " (no data)"
-            
-            if result.stdout.strip():
-                return f"Running: {container_name}{volume_status}"
-            
-            # Check if container exists but is stopped
-            result = subprocess.run(
-                ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Status}}'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            if result.stdout.strip():
-                return f"Stopped: {container_name}{volume_status}"
-            
-            return f"Not deployed: {container_name}{volume_status}"
-            
-        except:
-            return "Docker not available"
-    
-    def getWebUIStatus(self):
-        """Get the status of the Web UI container."""
-        # Use fixed service names instead of file-based naming
-        container_name = "netflux5g-webui"
-        
-        try:
-            # Check if container exists and is running
-            result = subprocess.run(
-                ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Status}}'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            if result.stdout.strip():
-                return f"Running: {container_name}"
-            
-            # Check if container exists but is stopped
-            result = subprocess.run(
-                ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Status}}'],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            
-            if result.stdout.strip():
-                return f"Stopped: {container_name}"
-            
-            return f"Not deployed: {container_name}"
-            
-        except:
-            return "Docker not available"
+    def _stop_container_sync(self, container_name):
+        """Stop container synchronously (for restart scenarios) using DockerUtils."""
+        success, _ = DockerUtils.stop_container(container_name)
+        # Ignore errors for restart scenario as in original implementation
+        return success
+
+    def get_database_container_names(self):
+        """Return a list of database container names (MongoDB)."""
+        return ["netflux5g-mongodb"]
+
+    def get_webui_container_names(self):
+        """Return a list of WebUI container names."""
+        return ["netflux5g-webui"]

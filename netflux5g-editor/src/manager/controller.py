@@ -4,7 +4,6 @@ Handles Ryu controller container creation and removal with automatic image build
 """
 
 import os
-import subprocess
 import time
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog
 from PyQt5.QtCore import pyqtSignal, QThread, QMutex
@@ -86,284 +85,92 @@ class ControllerDeploymentWorker(QThread):
             self.operation_finished.emit(False, str(e))
     
     def _deploy_ryu_controller(self):
-        """Deploy Ryu controller container."""
+        """Deploy Ryu controller using DockerUtils and DockerContainerBuilder."""
         try:
-            self.status_updated.emit("Checking if container already exists...")
-            self.progress_updated.emit(10)
-            
-            # Check if container already exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name in result.stdout:
-                # Container exists, check if it's running
-                status_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-                status_result = subprocess.run(status_cmd, capture_output=True, text=True, timeout=10)
-                
-                if self.container_name in status_result.stdout:
-                    self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' is already running")
-                    return
-                else:
-                    # Container exists but not running, start it
-                    self.status_updated.emit("Starting existing container...")
-                    self.progress_updated.emit(50)
-                    start_cmd = ['docker', 'start', self.container_name]
-                    subprocess.run(start_cmd, check=True, timeout=30)
-                    self.progress_updated.emit(100)
-                    self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' started successfully")
-                    return
-            
-            # Check if the Ryu image exists
-            self.status_updated.emit("Checking Ryu controller image...")
-            self.progress_updated.emit(20)
-            
-            image_name = 'adaptive/ryu:latest'
+            self.status_updated.emit("Checking if Ryu controller image exists...")
+            image_name = "ryu_controller"  # Replace with actual image name
             if not DockerUtils.image_exists(image_name):
-                # Image doesn't exist, build it
-                self.status_updated.emit("Building Ryu controller image...")
-                self.progress_updated.emit(30)
-                
-                # Find the controller Dockerfile path
-                controller_dir = _find_ryu_controller_dockerfile()
-                if not controller_dir:
-                    raise Exception("Controller Dockerfile not found in expected locations")
-                
-                # Build the image
-                build_cmd = ['docker', 'build', '-t', image_name, controller_dir]
-                build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
-                
-                if build_process.returncode != 0:
-                    raise Exception(f"Failed to build Ryu image: {build_process.stderr}")
-                
-                debug_print(f"Successfully built {image_name} image")
-                self.progress_updated.emit(60)
-            else:
-                debug_print(f"Ryu image {image_name} already exists")
-                self.progress_updated.emit(60)
-            
-            # Check if netflux5g network exists
-            self.status_updated.emit("Checking network...")
-            self.progress_updated.emit(70)
-            
-            network_check_cmd = ['docker', 'network', 'ls', '--filter', f'name={self.network_name}', '--format', '{{.Name}}']
-            network_result = subprocess.run(network_check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.network_name not in network_result.stdout:
-                # Create network if it doesn't exist
-                network_create_cmd = ['docker', 'network', 'create', self.network_name]
-                subprocess.run(network_create_cmd, check=True, timeout=10)
-                debug_print(f"Created network: {self.network_name}")
-            
-            # Create and run Ryu controller container
-            self.status_updated.emit("Creating Ryu controller container...")
-            self.progress_updated.emit(80)
-            
-            run_cmd = [
-                'docker', 'run', '-itd',
-                '--name', self.container_name,
-                '--restart', 'always',
-                '--network', self.network_name,
-                '-p', '6633:6633',
-                '-p', '6653:6653',
-                image_name
-            ]
-            
-            run_result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=30)
-            
-            if run_result.returncode != 0:
-                raise Exception(f"Failed to start Ryu controller: {run_result.stderr}")
-            
-            self.progress_updated.emit(90)
-            
-            # Verify container is running
-            time.sleep(2)
-            verify_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            verify_result = subprocess.run(verify_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name not in verify_result.stdout:
-                raise Exception("Container started but is not running")
-            
-            self.progress_updated.emit(100)
-            debug_print(f"Ryu controller '{self.container_name}' deployed successfully")
-            
-            # Get container IP for status message
-            ip_cmd = ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', self.container_name]
-            ip_result = subprocess.run(ip_cmd, capture_output=True, text=True, timeout=10)
-            container_ip = ip_result.stdout.strip() if ip_result.returncode == 0 else "unknown"
-            
-            self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' deployed successfully\nContainer IP: {container_ip}\nPorts: 6633, 6653")
-            
-        except subprocess.CalledProcessError as e:
-            error_print(f"Command failed: {e.cmd}")
-            self.operation_finished.emit(False, f"Command failed: {' '.join(e.cmd)}\nError: {e.stderr if hasattr(e, 'stderr') else str(e)}")
-        except subprocess.TimeoutExpired:
-            error_print("Operation timed out")
-            self.operation_finished.emit(False, "Operation timed out. Please check Docker daemon and try again.")
+                DockerUtils.pull_image(image_name)
+            builder = DockerContainerBuilder(image=image_name, container_name="ryu_controller")
+            builder.set_network("netflux5g")
+            # Add ports, volumes, env as needed
+            builder.run()
+            self.operation_finished.emit(True, "Ryu controller deployed successfully.")
         except Exception as e:
-            error_print(f"Unexpected error: {e}")
+            error_print(f"Failed to deploy Ryu controller: {e}")
+            self.operation_finished.emit(False, str(e))
+
+    def _stop_controller(self):
+        """Stop controller using DockerUtils."""
+        try:
+            DockerUtils.stop_container("ryu_controller")
+            self.operation_finished.emit(True, "Controller stopped successfully.")
+        except Exception as e:
+            error_print(f"Failed to stop controller: {e}")
             self.operation_finished.emit(False, str(e))
     
     def _deploy_onos_controller(self):
-        """Deploy ONOS controller container."""
+        """Deploy ONOS controller container using DockerUtils and DockerContainerBuilder."""
         try:
             self.status_updated.emit("Checking if ONOS container already exists...")
             self.progress_updated.emit(10)
-            
-            # Check if container already exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name in result.stdout:
-                # Container exists, check if it's running
-                status_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-                status_result = subprocess.run(status_cmd, capture_output=True, text=True, timeout=10)
-                
-                if self.container_name in status_result.stdout:
+            if DockerUtils.container_exists(self.container_name):
+                if DockerUtils.is_container_running(self.container_name):
                     self.operation_finished.emit(True, f"ONOS controller '{self.container_name}' is already running")
                     return
                 else:
-                    # Container exists but not running, start it
                     self.status_updated.emit("Starting existing ONOS container...")
                     self.progress_updated.emit(50)
-                    start_cmd = ['docker', 'start', self.container_name]
-                    subprocess.run(start_cmd, check=True, timeout=30)
+                    DockerUtils.start_container(self.container_name)
                     self.progress_updated.emit(100)
                     self.operation_finished.emit(True, f"ONOS controller '{self.container_name}' started successfully")
                     return
-            
-            # Check if the ONOS image exists
             self.status_updated.emit("Checking ONOS controller image...")
             self.progress_updated.emit(20)
-            
             image_name = 'adaptive/onos:latest'
             if not DockerUtils.image_exists(image_name):
-                # Image doesn't exist, build it
                 self.status_updated.emit("Building ONOS controller image...")
                 self.progress_updated.emit(30)
-                
-                # Find the ONOS controller Dockerfile path
                 controller_dir = _find_onos_controller_dockerfile()
                 if not controller_dir:
                     raise Exception("ONOS Controller Dockerfile not found in expected locations")
-                
-                # Build the image
-                build_cmd = ['docker', 'build', '-t', image_name, controller_dir]
-                build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
-                
-                if build_process.returncode != 0:
-                    raise Exception(f"Failed to build ONOS image: {build_process.stderr}")
-                
-                debug_print(f"Successfully built {image_name} image")
+                DockerUtils.build_image(image_name, controller_dir)
                 self.progress_updated.emit(60)
             else:
-                debug_print(f"ONOS image {image_name} already exists")
                 self.progress_updated.emit(60)
-            
-            # Check if netflux5g network exists
             self.status_updated.emit("Checking network...")
             self.progress_updated.emit(70)
-            
-            network_check_cmd = ['docker', 'network', 'ls', '--filter', f'name={self.network_name}', '--format', '{{.Name}}']
-            network_result = subprocess.run(network_check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.network_name not in network_result.stdout:
-                # Create network if it doesn't exist
-                network_create_cmd = ['docker', 'network', 'create', self.network_name]
-                subprocess.run(network_create_cmd, check=True, timeout=10)
-                debug_print(f"Created network: {self.network_name}")
-            
-            # Create and run ONOS controller container
+            if not DockerUtils.network_exists(self.network_name):
+                DockerUtils.create_network(self.network_name)
             self.status_updated.emit("Creating ONOS controller container...")
             self.progress_updated.emit(80)
-            
-            run_cmd = [
-                'docker', 'run', '-itd',
-                '--name', self.container_name,
-                '--restart', 'always',
-                '--network', self.network_name,
-                '-p', '6653:6653',  # OpenFlow
-                '-p', '6640:6640',  # OVSDB
-                '-p', '8181:8181',  # GUI
-                '-p', '8101:8101',  # ONOS CLI
-                '-p', '9876:9876',  # ONOS intra-cluster communication
-                image_name
-            ]
-            
-            run_result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            
-            if run_result.returncode != 0:
-                raise Exception(f"Failed to start ONOS controller: {run_result.stderr}")
-            
+            builder = DockerContainerBuilder(image=image_name, container_name=self.container_name)
+            builder.set_network(self.network_name)
+            builder.add_port('6653:6653')
+            builder.add_port('6640:6640')
+            builder.add_port('8181:8181')
+            builder.add_port('8101:8101')
+            builder.add_port('9876:9876')
+            builder.run()
             self.progress_updated.emit(90)
-            
-            # Verify container is running
-            time.sleep(5)  # ONOS takes longer to start
-            verify_cmd = ['docker', 'ps', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            verify_result = subprocess.run(verify_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name not in verify_result.stdout:
+            time.sleep(5)
+            if not DockerUtils.is_container_running(self.container_name):
                 raise Exception("Container started but is not running")
-            
             self.progress_updated.emit(100)
-            debug_print(f"ONOS controller '{self.container_name}' deployed successfully")
-            
-            # Get container IP for status message
-            ip_cmd = ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', self.container_name]
-            ip_result = subprocess.run(ip_cmd, capture_output=True, text=True, timeout=10)
-            container_ip = ip_result.stdout.strip() if ip_result.returncode == 0 else "unknown"
-            
-            self.operation_finished.emit(True, f"ONOS controller '{self.container_name}' deployed successfully\nContainer IP: {container_ip}\nPorts: 6653 (OpenFlow), 6640 (OVSDB), 8181 (GUI), 8101 (CLI), 9876 (Cluster)")
-            
-        except subprocess.CalledProcessError as e:
-            error_print(f"Command failed: {e.cmd}")
-            self.operation_finished.emit(False, f"Command failed: {' '.join(e.cmd)}\nError: {e.stderr if hasattr(e, 'stderr') else str(e)}")
-        except subprocess.TimeoutExpired:
-            error_print("Operation timed out")
-            self.operation_finished.emit(False, "Operation timed out. ONOS build can take several minutes. Please check Docker daemon and try again.")
+            ip = DockerUtils.get_container_ip(self.container_name)
+            self.operation_finished.emit(True, f"ONOS controller '{self.container_name}' deployed successfully\nContainer IP: {ip}\nPorts: 6653 (OpenFlow), 6640 (OVSDB), 8181 (GUI), 8101 (CLI), 9876 (Cluster)")
         except Exception as e:
             error_print(f"Unexpected error: {e}")
             self.operation_finished.emit(False, str(e))
 
     def _stop_controller(self):
-        """Stop and remove Ryu controller container."""
+        """Stop controller using DockerUtils."""
         try:
-            self.status_updated.emit("Checking container status...")
-            self.progress_updated.emit(20)
-            
-            # Check if container exists
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={self.container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            
-            if self.container_name not in result.stdout:
-                self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' was not running")
-                return
-            
-            # Stop container if running
-            self.status_updated.emit("Stopping container...")
-            self.progress_updated.emit(50)
-            
-            stop_cmd = ['docker', 'stop', self.container_name]
-            subprocess.run(stop_cmd, check=True, timeout=30)
-            
-            # Remove container
-            self.status_updated.emit("Removing container...")
-            self.progress_updated.emit(80)
-            
-            remove_cmd = ['docker', 'rm', self.container_name]
-            subprocess.run(remove_cmd, check=True, timeout=10)
-            
-            self.progress_updated.emit(100)
-            debug_print(f"Ryu controller '{self.container_name}' stopped and removed")
-            self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' stopped and removed successfully")
-            
-        except subprocess.CalledProcessError as e:
-            error_print(f"Command failed: {e.cmd}")
-            self.operation_finished.emit(False, f"Failed to stop controller: {' '.join(e.cmd)}")
-        except subprocess.TimeoutExpired:
-            error_print("Stop operation timed out")
-            self.operation_finished.emit(False, "Stop operation timed out")
+            DockerUtils.stop_container(self.container_name)
+            DockerUtils.remove_container(self.container_name)
+            self.operation_finished.emit(True, "Controller stopped and removed successfully.")
         except Exception as e:
-            error_print(f"Unexpected error during stop: {e}")
+            error_print(f"Failed to stop controller: {e}")
             self.operation_finished.emit(False, str(e))
 
 
@@ -401,14 +208,7 @@ class ControllerManager:
             self._stop_controller_sync(ryu_container_name, "RYU")
         
         # Check if Docker is available
-        try:
-            subprocess.run(["docker", "--version"], capture_output=True, check=True, timeout=10)
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-            QMessageBox.critical(
-                self.main_window,
-                "Docker Not Available",
-                "Docker is not installed or not running.\n\nPlease install and start Docker before deploying the controller."
-            )
+        if not DockerUtils.check_docker_available(self.main_window, show_error=True):
             return
         
         # Check if netflux5g network exists, prompt to create if not
@@ -543,14 +343,7 @@ class ControllerManager:
             return
         
         # Check if Docker is available
-        try:
-            subprocess.run(["docker", "--version"], capture_output=True, check=True, timeout=10)
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
-            QMessageBox.critical(
-                self.main_window,
-                "Docker Not Available",
-                "Docker is not installed or not running.\n\nPlease install and start Docker before deploying the controller."
-            )
+        if not DockerUtils.check_docker_available(self.main_window, show_error=True):
             return
         
         # Check if netflux5g network exists, prompt to create if not
@@ -646,139 +439,64 @@ class ControllerManager:
     def getOnosControllerStatus(self):
         """Get the current status of the ONOS controller."""
         container_name = "netflux5g-onos-controller"
-        
         try:
-            # Check if container exists and is running
-            status_cmd = ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}} {{.Status}}']
-            result = subprocess.run(status_cmd, capture_output=True, text=True, timeout=10)
-            
-            if container_name in result.stdout:
-                return {
-                    'status': 'running',
-                    'container_name': container_name,
-                    'details': result.stdout.strip()
-                }
+            status = DockerUtils.get_container_status(container_name)
+            if status.startswith("Running"):
+                return {'status': 'running', 'container_name': container_name, 'details': status}
+            elif status.startswith("Stopped"):
+                return {'status': 'stopped', 'container_name': container_name, 'details': status}
+            elif status.startswith("Not deployed") or status.startswith("Container does not exist"):
+                return {'status': 'not_deployed', 'container_name': container_name, 'details': status}
             else:
-                # Check if container exists but is stopped
-                all_cmd = ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}} {{.Status}}']
-                all_result = subprocess.run(all_cmd, capture_output=True, text=True, timeout=10)
-                
-                if container_name in all_result.stdout:
-                    return {
-                        'status': 'stopped',
-                        'container_name': container_name,
-                        'details': all_result.stdout.strip()
-                    }
-                else:
-                    return {
-                        'status': 'not_deployed',
-                        'container_name': container_name,
-                        'details': 'Container not found'
-                    }
+                return {'status': 'unknown', 'container_name': container_name, 'details': status}
         except Exception as e:
             error_print(f"Failed to get ONOS controller status: {e}")
-            return {
-                'status': 'unknown',
-                'container_name': container_name,
-                'details': str(e)
-            }
+            return {'status': 'unknown', 'container_name': container_name, 'details': str(e)}
 
     def getControllerStatus(self):
         """Get the current status of the Ryu controller."""
         container_name = "netflux5g-ryu-controller"
-        
         try:
-            # Check if container exists and is running
-            status_cmd = ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}} {{.Status}}']
-            result = subprocess.run(status_cmd, capture_output=True, text=True, timeout=10)
-            
-            if container_name in result.stdout:
-                return {
-                    'status': 'running',
-                    'container_name': container_name,
-                    'details': result.stdout.strip()
-                }
+            status = DockerUtils.get_container_status(container_name)
+            if status.startswith("Running"):
+                return {'status': 'running', 'container_name': container_name, 'details': status}
+            elif status.startswith("Stopped"):
+                return {'status': 'stopped', 'container_name': container_name, 'details': status}
+            elif status.startswith("Not deployed") or status.startswith("Container does not exist"):
+                return {'status': 'not_deployed', 'container_name': container_name, 'details': status}
             else:
-                # Check if container exists but is stopped
-                all_cmd = ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}} {{.Status}}']
-                all_result = subprocess.run(all_cmd, capture_output=True, text=True, timeout=10)
-                
-                if container_name in all_result.stdout:
-                    return {
-                        'status': 'stopped',
-                        'container_name': container_name,
-                        'details': all_result.stdout.strip()
-                    }
-                else:
-                    return {
-                        'status': 'not_deployed',
-                        'container_name': container_name,
-                        'details': 'Container not found'
-                    }
+                return {'status': 'unknown', 'container_name': container_name, 'details': status}
         except Exception as e:
             error_print(f"Failed to get controller status: {e}")
-            return {
-                'status': 'unknown',
-                'container_name': container_name,
-                'details': str(e)
-            }
-    
-    def is_controller_running(self):
-        """Check if Ryu controller is running."""
-        container_name = "netflux5g-ryu-controller"
-        return self._is_controller_running(container_name)
+            return {'status': 'unknown', 'container_name': container_name, 'details': str(e)}
 
-    def is_onos_controller_running(self):
-        """Check if ONOS controller is running."""
-        container_name = "netflux5g-onos-controller"
-        return self._is_controller_running(container_name)
+    def get_controller_container_names(self):
+        """Return a list of controller container names (Ryu and ONOS)."""
+        return ["netflux5g-ryu-controller", "netflux5g-onos-controller"]
 
     def _stop_controller_sync(self, container_name, controller_type):
-        """Stop a controller container synchronously (for conflict resolution)."""
+        """Stop a controller container synchronously (for conflict resolution) using DockerUtils."""
         try:
             debug_print(f"Stopping {controller_type} controller synchronously: {container_name}")
-            
-            # Stop container if running
-            stop_cmd = ['docker', 'stop', container_name]
-            subprocess.run(stop_cmd, check=True, timeout=30)
-            
-            # Remove container
-            remove_cmd = ['docker', 'rm', container_name]
-            subprocess.run(remove_cmd, check=True, timeout=10)
-            
+            DockerUtils.stop_container(container_name)
+            DockerUtils.remove_container(container_name)
             debug_print(f"{controller_type} controller '{container_name}' stopped and removed")
             self.main_window.status_manager.showCanvasStatus(f"{controller_type} controller stopped to avoid conflict")
-            
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             warning_print(f"Failed to stop {controller_type} controller: {e}")
             QMessageBox.warning(
                 self.main_window,
                 "Controller Stop Failed",
                 f"Failed to stop {controller_type} controller '{container_name}'.\nYou may need to stop it manually using: docker stop {container_name} && docker rm {container_name}"
             )
-        except Exception as e:
-            error_print(f"Unexpected error stopping {controller_type} controller: {e}")
 
-    def _get_container_name(self, controller_type="ryu"):
-        """Generate container name based on current file or use default."""
-        if hasattr(self.main_window, 'current_file') and self.main_window.current_file:
-            # Use filename without extension
-            filename = os.path.basename(self.main_window.current_file)
-            name_without_ext = os.path.splitext(filename)[0]
-            # Sanitize name for Docker (only alphanumeric, underscore, dash)
-            sanitized = ''.join(c if c.isalnum() or c in '_-' else '_' for c in name_without_ext)
-            return f"{controller_type}_{sanitized}"
-        else:
-            return f"{controller_type}_default"
-    
     def _is_controller_running(self, container_name):
-        """Check if the controller container is currently running."""
-        try:
-            check_cmd = ['docker', 'ps', '--filter', f'name={container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            return container_name in result.stdout
-        except Exception:
-            return False
+        """Check if the controller container is currently running using DockerUtils."""
+        return DockerUtils.is_container_running(container_name)
+
+    def _container_exists(self, container_name):
+        """Check if a container exists (running or stopped) using DockerUtils."""
+        return DockerUtils.container_exists(container_name)
 
     def _on_deployment_finished(self, success, message):
         """Handle deployment operation completion."""
@@ -875,118 +593,61 @@ class ControllerManager:
             return False
 
     def _deploy_controller_internal(self, controller_type, container_name, network_name):
-        """Internal consolidated deployment logic for both RYU and ONOS controllers."""
+        """Internal consolidated deployment logic for both RYU and ONOS controllers using DockerUtils and DockerContainerBuilder."""
         try:
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_controller_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
-                remove_cmd = ['docker', 'rm', container_name]
-                subprocess.run(remove_cmd, capture_output=True, timeout=10)
-            
+                DockerUtils.remove_container(container_name)
             if controller_type == 'ryu':
-                # Check if the Ryu image exists and build if needed
                 debug_print("Checking Ryu controller image...")
-                image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/ryu:latest']
-                image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
-                
-                if 'adaptive/ryu:latest' not in image_result.stdout:
+                if not DockerUtils.image_exists('adaptive/ryu:latest'):
                     debug_print("Building Ryu controller image...")
                     controller_dir = _find_ryu_controller_dockerfile()
                     if not controller_dir:
                         error_print("Controller Dockerfile not found")
                         return False
-                    
-                    build_cmd = ['docker', 'build', '-t', 'adaptive/ryu:latest', controller_dir]
-                    build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
-                    
-                    if build_process.returncode != 0:
-                        error_print(f"Failed to build Ryu image: {build_process.stderr}")
-                        return False
-                    
+                    DockerUtils.build_image('adaptive/ryu:latest', controller_dir)
                     debug_print("Successfully built adaptive/ryu:latest image")
-                
-                # Create and run Ryu controller container
                 debug_print(f"Creating Ryu controller container: {container_name}")
-                run_cmd = [
-                    'docker', 'run', '-itd',
-                    '--name', container_name,
-                    '--network', network_name,
-                    '-p', '6633:6633',
-                    '-p', '6653:6653',
-                    'adaptive/ryu:latest'
-                ]
-                
-                wait_time = 20  # RYU startup time
-                
+                builder = DockerContainerBuilder(image='adaptive/ryu:latest', container_name=container_name)
+                builder.set_network(network_name)
+                builder.add_port('6633:6633')
+                builder.add_port('6653:6653')
+                builder.run()
+                wait_time = 20
             elif controller_type == 'onos':
-                # Check if ONOS controller image exists
                 debug_print("Checking Onos controller image...")
-                image_check_cmd = ['docker', 'images', '--format', '{{.Repository}}:{{.Tag}}', 'adaptive/onos:latest']
-                image_result = subprocess.run(image_check_cmd, capture_output=True, text=True, timeout=10)
-
-                if 'adaptive/onos:latest' not in image_result.stdout:
+                if not DockerUtils.image_exists('adaptive/onos:latest'):
                     debug_print("Building ONOS controller image...")
                     controller_dir = _find_onos_controller_dockerfile()
                     if not controller_dir:
                         error_print("Controller Dockerfile not found")
                         return False
-
-                    build_cmd = ['docker', 'build', '-t', 'adaptive/onos:latest', controller_dir]
-                    build_process = subprocess.run(build_cmd, capture_output=True, text=True)  # No timeout for build
-                    
-                    if build_process.returncode != 0:
-                        error_print(f"Failed to build ONOS image: {build_process.stderr}")
-                        return False
-
+                    DockerUtils.build_image('adaptive/onos:latest', controller_dir)
                     debug_print("Successfully built adaptive/onos:latest image")
-                    
-                # Create and run ONOS controller container (image should exist)
                 debug_print(f"Creating ONOS controller container: {container_name}")
-                run_cmd = [
-                    'docker', 'run', '-itd',
-                    '--name', container_name,
-                    '--restart', 'always',
-                    '--network', network_name,
-                    '-p', '6653:6653',  # OpenFlow
-                    '-p', '6640:6640',  # OVSDB
-                    '-p', '8181:8181',  # GUI
-                    '-p', '8101:8101',  # ONOS CLI
-                    '-p', '9876:9876',  # ONOS intra-cluster communication
-                    'adaptive/onos:latest'
-                ]
-                
-                wait_time = 30  # ONOS takes longer to start
-            
+                builder = DockerContainerBuilder(image='adaptive/onos:latest', container_name=container_name)
+                builder.set_network(network_name)
+                builder.add_port('6653:6653')
+                builder.add_port('6640:6640')
+                builder.add_port('8181:8181')
+                builder.add_port('8101:8101')
+                builder.add_port('9876:9876')
+                builder.add_extra_arg('--restart=always')
+                builder.run()
+                wait_time = 30
             else:
                 error_print(f"Unknown controller type: {controller_type}")
                 return False
-            
-            # Run the container
-            result = subprocess.run(run_cmd, capture_output=True, text=True, timeout=60)
-            if result.returncode != 0:
-                error_print(f"Failed to create {controller_type} controller container: {result.stderr}")
-                return False
-            
-            # Wait for container to be ready
             debug_print(f"Waiting for {controller_type} controller to be ready...")
             for i in range(wait_time):
                 if self._is_controller_running(container_name):
                     debug_print(f"{controller_type} controller is ready")
                     return True
                 time.sleep(1)
-            
             error_print(f"{controller_type} controller container started but failed to become ready")
             return False
-            
         except Exception as e:
             error_print(f"Failed to deploy {controller_type} controller: {e}")
-            return False
-
-    def _container_exists(self, container_name):
-        """Check if a container exists (running or stopped)."""
-        try:
-            check_cmd = ['docker', 'ps', '-a', '--filter', f'name={container_name}', '--format', '{{.Names}}']
-            result = subprocess.run(check_cmd, capture_output=True, text=True, timeout=10)
-            return container_name in result.stdout
-        except Exception:
             return False

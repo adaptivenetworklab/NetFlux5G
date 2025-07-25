@@ -7,9 +7,8 @@ import yaml
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer, pyqtSlot, Qt
 from PyQt5.QtWidgets import QMessageBox, QProgressDialog, QApplication
 from export.mininet_export import MininetExporter
-from utils.debug import debug_print, error_print, warning_print
+from manager.debug import debug_print, error_print, warning_print
 from prerequisites.checker import PrerequisitesChecker
-from utils.docker_utils import DockerUtils
 
 class AutomationRunner(QObject):
     """Handler for running automated deployment of Mininet scripts."""
@@ -23,20 +22,6 @@ class AutomationRunner(QObject):
         super().__init__()
         self.main_window = main_window
         self.mininet_exporter = MininetExporter(main_window)
-        
-        # Process tracking
-        self.docker_process = None
-        self.mininet_process = None
-        self.is_running = False
-        self.export_dir = None
-        self.mininet_script_path = None
-        
-        # Connect signals - ensure they're connected on the main thread
-        if hasattr(self.main_window, 'status_manager'):
-            self.status_updated.connect(self.main_window.status_manager.showCanvasStatus, Qt.QueuedConnection)
-        else:
-            # Fallback to main window method
-            self.status_updated.connect(self.main_window.showCanvasStatus, Qt.QueuedConnection)
         
         # Process tracking
         self.docker_process = None
@@ -109,61 +94,6 @@ class AutomationRunner(QObject):
         # Connect progress updates to dialog
         self.progress_updated.connect(self.progress_dialog.setValue, Qt.QueuedConnection)
         
-        # Run the automation sequence on the main thread
-        # Use QTimer to run it asynchronously on the main thread
-        QTimer.singleShot(100, lambda: self._run_automation_sequence_main_thread(self.controller_type))
-
-        # Store controller type for this run
-        self.controller_type = controller_type or getattr(self.main_window, 'selected_controller_type', 'ryu')
-
-        all_ok, checks = PrerequisitesChecker.check_all_prerequisites()
-        if not all_ok:
-            missing = [tool for tool, ok in checks.items() if not ok]
-            instructions = PrerequisitesChecker.get_installation_instructions()
-            
-            error_msg = f"Missing prerequisites: {', '.join(missing)}\n\n"
-            for tool in missing:
-                error_msg += f"{tool.upper()}:\n{instructions[tool]}\n"
-            
-            QMessageBox.critical(
-                self.main_window,
-                "Missing Prerequisites",
-                error_msg
-            )
-            return
-
-        # Check if we have components to export
-        nodes, links = self.main_window.extractTopology()
-        core5g_components = [n for n in nodes if n['type'] == 'VGcore']
-
-        if not core5g_components and not any(n['type'] in ['GNB', 'UE', 'Host', 'STA'] for n in nodes):
-            QMessageBox.information(
-                self.main_window,
-                "No Components",
-                "No 5G components or network elements found to deploy."
-            )
-            return
-
-        # --- Ensure export directory is created before export/deployment ---
-        self.export_dir = self._create_working_directory()
-        debug_print(f"Export directory for deployment: {self.export_dir}")
-
-        # Show progress dialog
-        self.progress_dialog = QProgressDialog(
-            "Preparing deployment...", 
-            "Cancel", 
-            0, 
-            100, 
-            self.main_window
-        )
-        self.progress_dialog.setWindowTitle("NetFlux5G Automation")
-        self.progress_dialog.setModal(True)
-        self.progress_dialog.canceled.connect(self.stop_all)
-        self.progress_dialog.show()
-
-        # Connect progress updates to dialog
-        self.progress_updated.connect(self.progress_dialog.setValue, Qt.QueuedConnection)
-
         # Run the automation sequence on the main thread
         # Use QTimer to run it asynchronously on the main thread
         QTimer.singleShot(100, lambda: self._run_automation_sequence_main_thread(self.controller_type))
@@ -250,28 +180,66 @@ class AutomationRunner(QObject):
         # Step 1: Check Controller - Deploy if needed
         self.status_updated.emit("Checking controller...")
         if not self._check_controller_running(controller_type):
-            self._deploy_controller(controller_type)
+            reply = QMessageBox.question(
+                self.main_window,
+                "Deploy Controller",
+                f"The {controller_type.upper()} controller is not running. Deploy it now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if reply == QMessageBox.Yes:
+                self._deploy_controller(controller_type)
+            else:
+                raise Exception("Controller deployment cancelled by user")
         else:
             self.status_updated.emit(f"{controller_type.upper()} controller is already running")
         
         # Step 2: Check Database - Deploy if needed
         self.status_updated.emit("Checking database...")
         if not self._check_database_running():
-            self._deploy_database()
+            reply = QMessageBox.question(
+                self.main_window,
+                "Deploy Database",
+                "MongoDB database is not running. Deploy it now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if reply == QMessageBox.Yes:
+                self._deploy_database()
+            else:
+                raise Exception("Database deployment cancelled by user")
         else:
             self.status_updated.emit("MongoDB database is already running")
         
         # Step 3: Check User Manager - Deploy if needed
         self.status_updated.emit("Checking user manager...")
         if not self._check_user_manager_running():
-            self._deploy_user_manager()
+            reply = QMessageBox.question(
+                self.main_window,
+                "Deploy User Manager",
+                "User Manager (WebUI) is not running. Deploy it now?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if reply == QMessageBox.Yes:
+                self._deploy_user_manager()
+            else:
+                raise Exception("User Manager deployment cancelled by user")
         else:
             self.status_updated.emit("User Manager is already running")
         
         # Step 4: Check Monitoring (optional)
         self.status_updated.emit("Checking monitoring stack...")
         if not self._check_monitoring_running():
-            self._deploy_monitoring()
+            reply = QMessageBox.question(
+                self.main_window,
+                "Deploy Monitoring",
+                "Monitoring stack is not running. Deploy it now?\n\n(This is optional and can be skipped)",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.Yes:
+                self._deploy_monitoring()
         else:
             self.status_updated.emit("Monitoring stack is already running")
         
@@ -281,33 +249,29 @@ class AutomationRunner(QObject):
         """Check if the specified controller is running."""
         if not hasattr(self.main_window, 'controller_manager'):
             return False
+            
         if controller_type == 'onos':
-            status = self.main_window.controller_manager.getOnosControllerStatus()
-            return status and isinstance(status, dict) and status.get('status') == 'running'
+            return self.main_window.controller_manager.is_onos_controller_running()
         else:
-            status = self.main_window.controller_manager.getControllerStatus()
-            return status and isinstance(status, dict) and status.get('status') == 'running'
+            return self.main_window.controller_manager.is_controller_running()
     
     def _deploy_controller(self, controller_type=None):
         """Deploy the specified controller."""
         if not hasattr(self.main_window, 'controller_manager'):
-            warning_print("WARNING: Controller manager not available")
-            return
+            raise Exception("Controller manager not available")
             
         self.status_updated.emit(f"Deploying {controller_type.upper()} controller...")
         
-        # Use the manager's deploy method
-        if controller_type == 'onos':
-            self.main_window.controller_manager.deployOnosController()
-        else:
-            self.main_window.controller_manager.deployController()
+        success = self.main_window.controller_manager.deploy_controller_sync(controller_type)
+        if not success:
+            raise Exception(f"Failed to deploy {controller_type.upper()} controller")
         
         # Wait a moment for deployment
         time.sleep(3)
         
         # Verify deployment
         if not self._check_controller_running(controller_type):
-            warning_print(f"WARNING: Failed to deploy {controller_type.upper()} controller")
+            raise Exception(f"Failed to deploy {controller_type.upper()} controller")
         
         self.status_updated.emit(f"{controller_type.upper()} controller deployed successfully")
     
@@ -315,25 +279,25 @@ class AutomationRunner(QObject):
         """Check if MongoDB database is running."""
         if not hasattr(self.main_window, 'database_manager'):
             return False
-        return self.main_window.database_manager._is_container_running("netflux5g-mongodb")
+        return self.main_window.database_manager.is_database_running()
     
     def _deploy_database(self):
         """Deploy MongoDB database."""
         if not hasattr(self.main_window, 'database_manager'):
-            warning_print("WARNING: Database manager not available")
-            return
+            raise Exception("Database manager not available")
             
         self.status_updated.emit("Deploying MongoDB database...")
         
-        # Use the manager's deploy method
-        self.main_window.database_manager.deployDatabase()
+        success = self.main_window.database_manager.deploy_database_sync()
+        if not success:
+            raise Exception("Failed to deploy MongoDB database")
         
         # Wait a moment for deployment
         time.sleep(3)
         
         # Verify deployment
         if not self._check_database_running():
-            warning_print("WARNING: Database deployment failed - not running after deployment")
+            raise Exception("Database deployment failed - not running after deployment")
         
         self.status_updated.emit("MongoDB database deployed successfully")
     
@@ -341,25 +305,25 @@ class AutomationRunner(QObject):
         """Check if User Manager (WebUI) is running."""
         if not hasattr(self.main_window, 'database_manager'):
             return False
-        return self.main_window.database_manager._is_container_running("netflux5g-webui")
+        return self.main_window.database_manager.is_webui_running()
     
     def _deploy_user_manager(self):
         """Deploy User Manager (WebUI)."""
         if not hasattr(self.main_window, 'database_manager'):
-            warning_print("WARNING: Database manager not available")
-            return
+            raise Exception("Database manager not available")
             
         self.status_updated.emit("Deploying User Manager (WebUI)...")
         
-        # Use the manager's deploy method
-        self.main_window.database_manager.deployWebUI()
+        success = self.main_window.database_manager.deploy_webui_sync()
+        if not success:
+            raise Exception("Failed to deploy User Manager")
         
         # Wait a moment for deployment
         time.sleep(3)
         
         # Verify deployment
         if not self._check_user_manager_running():
-            warning_print("WARNING: User Manager deployment failed - not running after deployment")
+            raise Exception("User Manager deployment failed - not running after deployment")
         
         self.status_updated.emit("User Manager deployed successfully")
     
@@ -374,55 +338,29 @@ class AutomationRunner(QObject):
     def _deploy_monitoring(self):
         """Deploy monitoring stack."""
         if not hasattr(self.main_window, 'monitoring_manager'):
-            warning_print("WARNING: Monitoring manager not available")
-            return
+            raise Exception("Monitoring manager not available")
             
         self.status_updated.emit("Deploying monitoring stack...")
         
         try:
-            # Use the manager's deploy method
-            self.main_window.monitoring_manager.deployMonitoring()
-            # Wait a moment for deployment
-            time.sleep(3)
-            self.status_updated.emit("Monitoring stack deployed successfully")
+            # Use synchronous deployment for automation
+            if hasattr(self.main_window.monitoring_manager, 'deploy_monitoring_sync'):
+                success, message = self.main_window.monitoring_manager.deploy_monitoring_sync()
+                if success:
+                    self.status_updated.emit("Monitoring stack deployed successfully")
+                    debug_print(f"Monitoring deployment successful: {message}")
+                else:
+                    warning_print(f"WARNING: Failed to deploy monitoring stack: {message}")
+                    self.status_updated.emit("Monitoring stack deployment failed (continuing anyway)")
+            else:
+                # Fallback to async method
+                self.main_window.monitoring_manager.deploy_monitoring()
+                # Wait a moment for deployment
+                time.sleep(3)
+                self.status_updated.emit("Monitoring stack deployed successfully")
         except Exception as e:
             warning_print(f"WARNING: Failed to deploy monitoring stack: {str(e)}")
             self.status_updated.emit("Monitoring stack deployment failed (continuing anyway)")
-    
-    def _check_packet_analyzer_running(self):
-        """Check if packet analyzer is running."""
-        if not hasattr(self.main_window, 'packet_analyzer_manager'):
-            return False
-        if hasattr(self.main_window.packet_analyzer_manager, 'is_packet_analyzer_running'):
-            return self.main_window.packet_analyzer_manager.is_packet_analyzer_running()
-        return False
-    
-    def _deploy_packet_analyzer(self):
-        """Deploy packet analyzer."""
-        if not hasattr(self.main_window, 'packet_analyzer_manager'):
-            raise Exception("Packet analyzer manager not available")
-            
-        self.status_updated.emit("Deploying packet analyzer...")
-        
-        try:
-            # Use synchronous deployment for automation
-            if hasattr(self.main_window.packet_analyzer_manager, 'deploy_packet_analyzer_sync'):
-                success = self.main_window.packet_analyzer_manager.deploy_packet_analyzer_sync()
-                if success:
-                    self.status_updated.emit("Packet analyzer deployed successfully")
-                    debug_print("Packet analyzer deployment successful")
-                else:
-                    warning_print("WARNING: Failed to deploy packet analyzer")
-                    self.status_updated.emit("Packet analyzer deployment failed (continuing anyway)")
-            else:
-                # Fallback to async method
-                self.main_window.packet_analyzer_manager.deploy_packet_analyzer()
-                # Wait a moment for deployment
-                time.sleep(3)
-                self.status_updated.emit("Packet analyzer deployed successfully")
-        except Exception as e:
-            warning_print(f"WARNING: Packet analyzer deployment failed: {e}")
-            self.status_updated.emit("Packet analyzer deployment failed (continuing anyway)")
     
     def _generate_mininet_script(self):
         """Generate Mininet script."""
@@ -766,17 +704,18 @@ read
                     
                 self.docker_process = None
             
-            # Stop all NetFlux5G Docker containers comprehensively
-            self.status_updated.emit("Stopping all NetFlux5G containers...")
-            self._stop_all_netflux5g_containers()
-            
             # Stop monitoring stack if it was deployed
             try:
-                if hasattr(self.main_window, 'monitoring_manager') and hasattr(self.main_window.monitoring_manager, 'stopMonitoring'):
+                if hasattr(self.main_window, 'monitoring_manager') and hasattr(self.main_window.monitoring_manager, 'stop_monitoring_sync'):
                     debug_print("Stopping monitoring stack...")
                     self.status_updated.emit("Stopping monitoring stack...")
-                    self.main_window.monitoring_manager.stopMonitoring()
-                    self.status_updated.emit("Monitoring stack stopped")
+                    success, message = self.main_window.monitoring_manager.stop_monitoring_sync()
+                    if success:
+                        debug_print(f"Monitoring stack stopped: {message}")
+                        self.status_updated.emit("Monitoring stack stopped")
+                    else:
+                        warning_print(f"Failed to stop monitoring stack: {message}")
+                        self.status_updated.emit("Failed to stop monitoring stack (continuing)")
             except Exception as e:
                 warning_print(f"Error stopping monitoring stack: {e}")
                 self.status_updated.emit(f"Error stopping monitoring stack: {e}")
@@ -947,7 +886,7 @@ read
                 try:
                     # Try graceful shutdown first
                     self.mininet_process.terminate()
-                    self.mininet_process.wait(timeout=20)
+                    self.mininet_process.wait(timeout=10)
                     debug_print("Mininet process terminated gracefully")
                 except subprocess.TimeoutExpired:
                     # Force kill if necessary
@@ -1013,72 +952,3 @@ read
                 self.progress_dialog = None
             debug_print("Topology cleanup completed")
             self.execution_finished.emit(True, "Topology cleanup completed")
-    
-    def _stop_all_netflux5g_containers(self):
-        """Stop and remove all NetFlux5G Docker containers comprehensively."""
-        try:
-            # Get all running containers with netflux5g prefix
-            result = subprocess.run(
-                ["docker", "ps", "-a", "--filter", "name=netflux5g", "--format", "{{.Names}}"],
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            
-            if result.returncode == 0:
-                container_names = [name.strip() for name in result.stdout.split('\n') if name.strip()]
-                
-                if container_names:
-                    debug_print(f"Found {len(container_names)} NetFlux5G containers to stop: {container_names}")
-                    
-                    for container_name in container_names:
-                        debug_print(f"Stopping and removing container: {container_name}")
-                        
-                        # Stop container
-                        success, message = DockerUtils.stop_container(container_name, timeout=15)
-                        if success:
-                            debug_print(f"Successfully stopped {container_name}")
-                        else:
-                            warning_print(f"Failed to stop {container_name}: {message}")
-                        
-                        # Remove container
-                        success, message = DockerUtils.remove_container(container_name, timeout=15)
-                        if success:
-                            debug_print(f"Successfully removed {container_name}")
-                        else:
-                            warning_print(f"Failed to remove {container_name}: {message}")
-                    
-                    self.status_updated.emit(f"Stopped and removed {len(container_names)} NetFlux5G containers")
-                else:
-                    debug_print("No NetFlux5G containers found to stop")
-                    self.status_updated.emit("No NetFlux5G containers found")
-            else:
-                warning_print(f"Failed to list NetFlux5G containers: {result.stderr}")
-                
-        except subprocess.TimeoutExpired:
-            error_print("Timeout while listing NetFlux5G containers")
-        except Exception as e:
-            error_print(f"Error stopping NetFlux5G containers: {e}")
-            
-        # Also try to stop specific known container names that might not follow the netflux5g prefix
-        known_containers = [
-            "netflux5g-webshark",
-            "netflux5g-onos-controller", 
-            "netflux5g-ryu-controller",
-            "netflux5g-mongodb",
-            "netflux5g-webui",
-            "netflux5g-prometheus",
-            "netflux5g-grafana",
-            "netflux5g-influxdb",
-            "webshark",
-            "onos-controller",
-            "ryu-controller",
-            "mongodb",
-            "webui"
-        ]
-        
-        for container_name in known_containers:
-            if DockerUtils.container_exists(container_name):
-                debug_print(f"Stopping known container: {container_name}")
-                DockerUtils.stop_container(container_name, timeout=10)
-                DockerUtils.remove_container(container_name, timeout=10)

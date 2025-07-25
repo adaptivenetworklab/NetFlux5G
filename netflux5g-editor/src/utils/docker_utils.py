@@ -161,7 +161,7 @@ class DockerUtils:
             # Remove the container
             debug_print(f"Removing container {container_name}...")
             remove_result = subprocess.run(
-                ['docker', 'rm', container_name],
+                ['docker', 'rm', '-f', container_name],
                 capture_output=True,
                 text=True,
                 timeout=timeout
@@ -361,7 +361,183 @@ class DockerUtils:
         else:
             debug_print(f"Image {image_name} not found locally, pulling...")
             return DockerUtils.pull_image(image_name, timeout)
+    
+    @staticmethod
+    def build_image(image_name, dockerfile_dir, timeout=600):
+        """
+        Build a Docker image from a Dockerfile directory.
+        
+        Args:
+            image_name (str): Name for the built image (e.g., 'myimage:latest')
+            dockerfile_dir (str): Path to the directory containing the Dockerfile
+            timeout (int): Timeout in seconds for the build operation
+            
+        Returns:
+            tuple: (success: bool, message: str)
+        """
+        try:
+            debug_print(f"Building Docker image: {image_name} from {dockerfile_dir}")
+            build_cmd = ['docker', 'build', '-t', image_name, dockerfile_dir]
+            result = subprocess.run(build_cmd, capture_output=True, text=True, timeout=timeout)
+            
+            if result.returncode == 0:
+                debug_print(f"Successfully built image: {image_name}")
+                return True, f"Successfully built {image_name}"
+            else:
+                error_print(f"Failed to build image {image_name}: {result.stderr}")
+                return False, f"Failed to build {image_name}: {result.stderr}"
+        except subprocess.TimeoutExpired:
+            error_msg = f"Timeout while building image {image_name}"
+            error_print(error_msg)
+            return False, error_msg
+        except Exception as e:
+            error_msg = f"Error building image {image_name}: {e}"
+            error_print(error_msg)
+            return False, error_msg
 
+    @staticmethod
+    def remove_container(container_name, timeout=30):
+        """
+        Remove a Docker container (force remove, does not stop if running).
+        
+        Args:
+            container_name (str): Name of the container to remove
+            timeout (int): Timeout in seconds for the operation
+            
+        Returns:
+            tuple: (success: bool, message: str)
+        """
+        try:
+            if not DockerUtils.container_exists(container_name):
+                return True, f"Container {container_name} does not exist"
+            result = subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True, text=True, timeout=timeout)
+            if result.returncode == 0:
+                return True, f"Container {container_name} removed successfully"
+            else:
+                return False, f"Failed to remove container: {result.stderr}"
+        except subprocess.TimeoutExpired:
+            return False, f"Operation timed out for container {container_name}"
+        except Exception as e:
+            return False, f"Error removing container {container_name}: {str(e)}"
+
+    @staticmethod
+    def remove_volume(volume_name, timeout=30):
+        """
+        Remove a Docker volume.
+        
+        Args:
+            volume_name (str): Name of the volume to remove
+            timeout (int): Timeout in seconds for the operation
+            
+        Returns:
+            tuple: (success: bool, message: str)
+        """
+        try:
+            if not DockerUtils.volume_exists(volume_name):
+                return True, f"Volume {volume_name} does not exist"
+            result = subprocess.run(['docker', 'volume', 'rm', volume_name], capture_output=True, text=True, timeout=timeout)
+            if result.returncode == 0:
+                return True, f"Volume {volume_name} removed successfully"
+            else:
+                return False, f"Failed to remove volume: {result.stderr}"
+        except subprocess.TimeoutExpired:
+            return False, f"Operation timed out for volume {volume_name}"
+        except Exception as e:
+            return False, f"Error removing volume {volume_name}: {str(e)}"
+
+    @staticmethod
+    def start_container(container_name, timeout=30):
+        """
+        Start a stopped Docker container.
+        
+        Args:
+            container_name (str): Name of the container to start
+            timeout (int): Timeout in seconds for the operation
+            
+        Returns:
+            tuple: (success: bool, message: str)
+        """
+        try:
+            if not DockerUtils.container_exists(container_name):
+                return False, f"Container {container_name} does not exist"
+            result = subprocess.run(['docker', 'start', container_name], capture_output=True, text=True, timeout=timeout)
+            if result.returncode == 0:
+                return True, f"Container {container_name} started successfully"
+            else:
+                return False, f"Failed to start container: {result.stderr}"
+        except subprocess.TimeoutExpired:
+            return False, f"Operation timed out for container {container_name}"
+        except Exception as e:
+            return False, f"Error starting container {container_name}: {str(e)}"
+
+    @staticmethod
+    def get_container_ip(container_name):
+        """
+        Get the IP address of a running container (first network).
+        
+        Args:
+            container_name (str): Name of the container
+            
+        Returns:
+            str: IP address or 'unknown'
+        """
+        try:
+            cmd = ['docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', container_name]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            if result.returncode == 0:
+                return result.stdout.strip() or 'unknown'
+            return 'unknown'
+        except Exception:
+            return 'unknown'
+    
+    @staticmethod
+    def create_volume(volume_name, timeout=30):
+        """
+        Create a Docker volume if it does not exist.
+        
+        Args:
+            volume_name (str): Name of the volume to create
+            timeout (int): Timeout in seconds for the operation
+            
+        Returns:
+            bool: True if volume exists or was created, False otherwise
+        """
+        try:
+            if DockerUtils.volume_exists(volume_name):
+                return True
+            result = subprocess.run(['docker', 'volume', 'create', volume_name], capture_output=True, text=True, timeout=timeout)
+            return result.returncode == 0
+        except Exception:
+            return False
+
+    @staticmethod
+    def exec_in_container(container_name, cmd_list, timeout=15):
+        """
+        Execute a command inside a running container.
+        
+        Args:
+            container_name (str): Name of the container
+            cmd_list (list): Command and arguments as list
+            timeout (int): Timeout in seconds
+            
+        Returns:
+            dict: { 'returncode': int, 'stdout': str, 'stderr': str }
+        """
+        try:
+            full_cmd = ['docker', 'exec', container_name] + cmd_list
+            result = subprocess.run(full_cmd, capture_output=True, text=True, timeout=timeout)
+            return {
+                'returncode': result.returncode,
+                'stdout': result.stdout,
+                'stderr': result.stderr
+            }
+        except Exception as e:
+            return {
+                'returncode': 1,
+                'stdout': '',
+                'stderr': str(e)
+            }
+        
 
 class DockerContainerBuilder:
     """Helper class for building Docker run commands with consistent patterns."""
@@ -374,6 +550,7 @@ class DockerContainerBuilder:
         self.env_vars = []
         self.network = None
         self.extra_args = []
+        self.command_args = []  # <-- Add this for arguments after image name
     
     def add_port(self, port_mapping):
         """Add port mapping (e.g., '8080:80')."""
@@ -398,6 +575,11 @@ class DockerContainerBuilder:
     def add_extra_arg(self, arg):
         """Add extra Docker run argument."""
         self.extra_args.append(arg)
+        return self
+
+    def add_command_arg(self, arg):
+        """Add command arguments after image name."""
+        self.command_args.append(arg)
         return self
     
     def build_command(self):
@@ -429,6 +611,9 @@ class DockerContainerBuilder:
         
         # Add image
         cmd.append(self.image)
+        
+        # Add command arguments
+        cmd.extend(self.command_args)
         
         return cmd
     
