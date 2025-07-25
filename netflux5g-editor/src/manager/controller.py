@@ -69,10 +69,17 @@ class ControllerDeploymentWorker(QThread):
         # Use netflux5g network for service deployments
         self.network_name = "netflux5g"
         self.mutex = QMutex()
+        self._cancel_requested = False
+
+    def request_cancel(self):
+        self._cancel_requested = True
         
     def run(self):
         """Execute the controller operation in background thread."""
         try:
+            if self._cancel_requested:
+                self.operation_finished.emit(False, "Operation canceled.")
+                return
             if self.operation == 'deploy':
                 if self.controller_type == 'ryu':
                     self._deploy_ryu_controller()
@@ -85,28 +92,54 @@ class ControllerDeploymentWorker(QThread):
             self.operation_finished.emit(False, str(e))
     
     def _deploy_ryu_controller(self):
-        """Deploy Ryu controller using DockerUtils and DockerContainerBuilder."""
+        """Deploy Ryu controller container using DockerUtils and DockerContainerBuilder, following ONOS logic."""
         try:
-            self.status_updated.emit("Checking if Ryu controller image exists...")
-            image_name = "ryu_controller"  # Replace with actual image name
+            self.status_updated.emit("Checking if Ryu container already exists...")
+            self.progress_updated.emit(10)
+            if DockerUtils.container_exists(self.container_name):
+                if DockerUtils.is_container_running(self.container_name):
+                    self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' is already running")
+                    return
+                else:
+                    self.status_updated.emit("Starting existing Ryu container...")
+                    self.progress_updated.emit(50)
+                    DockerUtils.start_container(self.container_name)
+                    self.progress_updated.emit(100)
+                    self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' started successfully")
+                    return
+            self.status_updated.emit("Checking Ryu controller image...")
+            self.progress_updated.emit(20)
+            image_name = 'adaptive/ryu:latest'
             if not DockerUtils.image_exists(image_name):
-                DockerUtils.pull_image(image_name)
-            builder = DockerContainerBuilder(image=image_name, container_name="ryu_controller")
-            builder.set_network("netflux5g")
-            # Add ports, volumes, env as needed
+                self.status_updated.emit("Building Ryu controller image...")
+                self.progress_updated.emit(30)
+                controller_dir = _find_ryu_controller_dockerfile()
+                if not controller_dir:
+                    raise Exception("Ryu Controller Dockerfile not found in expected locations")
+                DockerUtils.build_image(image_name, controller_dir)
+                self.progress_updated.emit(60)
+            else:
+                self.progress_updated.emit(60)
+            self.status_updated.emit("Checking network...")
+            self.progress_updated.emit(70)
+            if not DockerUtils.network_exists(self.network_name):
+                DockerUtils.create_network(self.network_name)
+            self.status_updated.emit("Creating Ryu controller container...")
+            self.progress_updated.emit(80)
+            builder = DockerContainerBuilder(image=image_name, container_name=self.container_name)
+            builder.set_network(self.network_name)
+            builder.add_port('6633:6633')
+            builder.add_port('6653:6653')
             builder.run()
-            self.operation_finished.emit(True, "Ryu controller deployed successfully.")
+            self.progress_updated.emit(90)
+            time.sleep(5)
+            if not DockerUtils.is_container_running(self.container_name):
+                raise Exception("Container started but is not running")
+            self.progress_updated.emit(100)
+            ip = DockerUtils.get_container_ip(self.container_name)
+            self.operation_finished.emit(True, f"Ryu controller '{self.container_name}' deployed successfully\nContainer IP: {ip}\nPorts: 6633, 6653 (OpenFlow)")
         except Exception as e:
             error_print(f"Failed to deploy Ryu controller: {e}")
-            self.operation_finished.emit(False, str(e))
-
-    def _stop_controller(self):
-        """Stop controller using DockerUtils."""
-        try:
-            DockerUtils.stop_container("ryu_controller")
-            self.operation_finished.emit(True, "Controller stopped successfully.")
-        except Exception as e:
-            error_print(f"Failed to stop controller: {e}")
             self.operation_finished.emit(False, str(e))
     
     def _deploy_onos_controller(self):
@@ -166,8 +199,9 @@ class ControllerDeploymentWorker(QThread):
     def _stop_controller(self):
         """Stop controller using DockerUtils."""
         try:
+            self.status_updated.emit(f"Stopping {self.controller_type} controller container...")
+            self.progress_updated.emit(30)
             DockerUtils.stop_container(self.container_name)
-            DockerUtils.remove_container(self.container_name)
             self.operation_finished.emit(True, "Controller stopped and removed successfully.")
         except Exception as e:
             error_print(f"Failed to stop controller: {e}")
@@ -310,12 +344,12 @@ class ControllerManager:
         
         self.deployment_worker.start()
     
-    def deployController(self):
+    def deployRyuController(self):
         """Deploy Ryu SDN controller container."""
         debug_print("DEBUG: Deploy Ryu Controller triggered")
         
         # Use fixed service name instead of file-based naming
-        container_name = "netflux5g-ryu-controller"
+        ryu_container_name = "netflux5g-ryu-controller"
         onos_container_name = "netflux5g-onos-controller"
         
         # Check for conflicts with ONOS controller
@@ -334,13 +368,6 @@ class ControllerManager:
             
             # Stop ONOS controller first
             self._stop_controller_sync(onos_container_name, "ONOS")
-        elif self._is_controller_running(container_name):
-            QMessageBox.information(
-                self.main_window,
-                "Controller Running",
-                f"Ryu controller '{container_name}' is already running.\n\nUse 'Stop Ryu Controller' to stop it first."
-            )
-            return
         
         # Check if Docker is available
         if not DockerUtils.check_docker_available(self.main_window, show_error=True):
@@ -354,11 +381,19 @@ class ControllerManager:
         else:
             warning_print("Docker network manager not available, proceeding without network check")
         
+        if self._is_controller_running(ryu_container_name):
+            QMessageBox.information(
+                self.main_window,
+                "Controller Running",
+                f"Ryu controller '{ryu_container_name}' is already running.\n\nUse 'Stop Ryu Controller' to stop it first."
+            )
+            return
+
         # Show confirmation dialog
         reply = QMessageBox.question(
             self.main_window,
             "Deploy Ryu Controller",
-            f"Deploy Ryu SDN Controller?\n\nContainer name: {container_name}\nPorts: 6633, 6653\n\nThis will:\n- Build adaptive/ryu:latest image if needed\n- Create controller container\n- Connect to netflux5g network",
+            f"Deploy Ryu SDN Controller?\n\nContainer name: {ryu_container_name}\nPorts: 6633, 6653\n\nThis will:\n- Build adaptive/ryu:latest image if needed\n- Create controller container\n- Connect to netflux5g network",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
         )
@@ -374,12 +409,12 @@ class ControllerManager:
             100, 
             self.main_window
         )
-        self.progress_dialog.setWindowTitle("Controller Deployment")
+        self.progress_dialog.setWindowTitle("Ryu Controller Deployment")
         self.progress_dialog.setModal(True)
         self.progress_dialog.show()
         
         # Create and start deployment worker
-        self.deployment_worker = ControllerDeploymentWorker('deploy', container_name)
+        self.deployment_worker = ControllerDeploymentWorker('deploy', ryu_container_name, 'ryu')
         self.deployment_worker.progress_updated.connect(self.progress_dialog.setValue)
         self.deployment_worker.status_updated.connect(self.progress_dialog.setLabelText)
         self.deployment_worker.operation_finished.connect(self._on_deployment_finished)
@@ -387,9 +422,9 @@ class ControllerManager:
         
         self.deployment_worker.start()
     
-    def stopController(self):
+    def stopRyuController(self):
         """Stop Ryu SDN controller container."""
-        debug_print("DEBUG: Stop Controller triggered")
+        debug_print("DEBUG: Stop Ryu Controller triggered")
         
         # Use fixed service name instead of file-based naming
         container_name = "netflux5g-ryu-controller"
@@ -423,12 +458,12 @@ class ControllerManager:
             100, 
             self.main_window
         )
-        self.progress_dialog.setWindowTitle("Controller Stop")
+        self.progress_dialog.setWindowTitle("Ryu Controller Stop")
         self.progress_dialog.setModal(True)
         self.progress_dialog.show()
         
         # Create and start stop worker
-        self.deployment_worker = ControllerDeploymentWorker('stop', container_name)
+        self.deployment_worker = ControllerDeploymentWorker('stop', container_name, 'ryu')
         self.deployment_worker.progress_updated.connect(self.progress_dialog.setValue)
         self.deployment_worker.status_updated.connect(self.progress_dialog.setLabelText)
         self.deployment_worker.operation_finished.connect(self._on_deployment_finished)
@@ -479,7 +514,6 @@ class ControllerManager:
         try:
             debug_print(f"Stopping {controller_type} controller synchronously: {container_name}")
             DockerUtils.stop_container(container_name)
-            DockerUtils.remove_container(container_name)
             debug_print(f"{controller_type} controller '{container_name}' stopped and removed")
             self.main_window.status_manager.showCanvasStatus(f"{controller_type} controller stopped to avoid conflict")
         except Exception as e:
@@ -533,14 +567,13 @@ class ControllerManager:
     
     def _on_deployment_canceled(self):
         """Handle deployment cancellation."""
-        if self.deployment_worker and self.deployment_worker.isRunning():
-            self.deployment_worker.terminate()
-            self.deployment_worker.wait()
-        
+        if self.deployment_worker:
+            self.deployment_worker.request_cancel()
+            # Wait for thread to finish gracefully
+            self.deployment_worker.wait(3000)  # Wait up to 3 seconds
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
-        
         # Determine controller type from worker
         controller_type = "Controller"
         if self.deployment_worker:
@@ -548,7 +581,6 @@ class ControllerManager:
                 controller_type = "ONOS controller"
             elif self.deployment_worker.controller_type == "ryu":
                 controller_type = "RYU controller"
-        
         self.main_window.status_manager.showCanvasStatus(f"{controller_type} operation canceled")
     
     def deploy_controller_sync(self, controller_type='ryu'):
@@ -598,7 +630,7 @@ class ControllerManager:
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_controller_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
-                DockerUtils.remove_container(container_name)
+                DockerUtils.stop_container(container_name)
             if controller_type == 'ryu':
                 debug_print("Checking Ryu controller image...")
                 if not DockerUtils.image_exists('adaptive/ryu:latest'):

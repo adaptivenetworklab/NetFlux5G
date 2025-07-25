@@ -85,7 +85,7 @@ class DatabaseDeploymentWorker(QThread):
                 DockerUtils.stop_container(self.container_name)
                 self.status_updated.emit("Removing container...")
                 self.progress_updated.emit(50)
-                DockerUtils.remove_container(self.container_name)
+                DockerUtils.stop_container(self.container_name)
             if self.volume_name and DockerUtils.volume_exists(self.volume_name):
                 self.status_updated.emit("Removing volume and all data...")
                 self.progress_updated.emit(70)
@@ -528,7 +528,7 @@ class DatabaseManager:
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_container_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
-                DockerUtils.remove_container(container_name)
+                DockerUtils.stop_container(container_name)
             # Create and run MongoDB container
             debug_print(f"Creating MongoDB container: {container_name}")
             builder = DockerContainerBuilder(image="mongo:latest", container_name=container_name)
@@ -558,7 +558,7 @@ class DatabaseManager:
             # Remove existing container if it exists but is not running
             if self._container_exists(container_name) and not self._is_container_running(container_name):
                 debug_print(f"Removing existing stopped container: {container_name}")
-                DockerUtils.remove_container(container_name)
+                DockerUtils.stop_container(container_name)
             # Create and run WebUI container
             debug_print(f"Creating WebUI container: {container_name}")
             builder = DockerContainerBuilder(image='gradiant/open5gs-webui:2.7.5', container_name=container_name)

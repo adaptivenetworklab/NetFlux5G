@@ -1042,7 +1042,7 @@ read
                             warning_print(f"Failed to stop {container_name}: {message}")
                         
                         # Remove container
-                        success, message = DockerUtils.remove_container(container_name, timeout=15)
+                        success, message = DockerUtils.stop_container(container_name, timeout=15)
                         if success:
                             debug_print(f"Successfully removed {container_name}")
                         else:
@@ -1081,4 +1081,3 @@ read
             if DockerUtils.container_exists(container_name):
                 debug_print(f"Stopping known container: {container_name}")
                 DockerUtils.stop_container(container_name, timeout=10)
-                DockerUtils.remove_container(container_name, timeout=10)

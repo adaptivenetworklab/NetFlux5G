@@ -396,31 +396,6 @@ class DockerUtils:
             return False, error_msg
 
     @staticmethod
-    def remove_container(container_name, timeout=30):
-        """
-        Remove a Docker container (force remove, does not stop if running).
-        
-        Args:
-            container_name (str): Name of the container to remove
-            timeout (int): Timeout in seconds for the operation
-            
-        Returns:
-            tuple: (success: bool, message: str)
-        """
-        try:
-            if not DockerUtils.container_exists(container_name):
-                return True, f"Container {container_name} does not exist"
-            result = subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True, text=True, timeout=timeout)
-            if result.returncode == 0:
-                return True, f"Container {container_name} removed successfully"
-            else:
-                return False, f"Failed to remove container: {result.stderr}"
-        except subprocess.TimeoutExpired:
-            return False, f"Operation timed out for container {container_name}"
-        except Exception as e:
-            return False, f"Error removing container {container_name}: {str(e)}"
-
-    @staticmethod
     def remove_volume(volume_name, timeout=30):
         """
         Remove a Docker volume.

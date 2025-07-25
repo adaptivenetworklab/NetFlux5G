@@ -50,7 +50,7 @@ class PacketAnalyzerDeploymentWorker(QThread):
                 DockerUtils.build_image(image_name, webshark_path)
             # Remove existing container if exists
             if DockerUtils.container_exists(self.container_name):
-                DockerUtils.remove_container(self.container_name)
+                DockerUtils.stop_container(self.container_name)
             builder = DockerContainerBuilder(image=image_name, container_name=self.container_name)
             builder.set_network(self.network_name)
             builder.add_port('8085:8085')
@@ -178,7 +178,7 @@ class PacketAnalyzerManager:
             DockerUtils.build_image(image_name, webshark_path)
         # Remove existing container if exists
         if DockerUtils.container_exists(container_name):
-            DockerUtils.remove_container(container_name)
+            DockerUtils.stop_container(container_name)
         builder = DockerContainerBuilder(image=image_name, container_name=container_name)
         builder.set_network("netflux5g")
         builder.add_port('8085:8085')

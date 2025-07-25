@@ -264,9 +264,9 @@ class NetFlux5GApp(QMainWindow):
 
             # Controller connections
             if hasattr(self, 'actionDeploy_Ryu_Controller'):
-                self.actionDeploy_Ryu_Controller.triggered.connect(self.controller_manager.deployController)
+                self.actionDeploy_Ryu_Controller.triggered.connect(self.controller_manager.deployRyuController)
             if hasattr(self, 'actionStop_Ryu_Controller'):
-                self.actionStop_Ryu_Controller.triggered.connect(self.controller_manager.stopController)
+                self.actionStop_Ryu_Controller.triggered.connect(self.controller_manager.stopRyuController)
             
             # ONOS Controller connections
             if hasattr(self, 'actionDeploy_ONOS_Controller'):

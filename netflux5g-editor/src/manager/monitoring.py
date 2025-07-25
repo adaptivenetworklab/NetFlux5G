@@ -146,7 +146,7 @@ class MonitoringDeploymentWorker(QThread):
                 full_container_name = f"{self.container_prefix}_{container_name}"
                 DockerUtils.stop_container(full_container_name)
                 if DockerUtils.container_exists(full_container_name):
-                    DockerUtils.remove_container(full_container_name)
+                    DockerUtils.stop_container(full_container_name)
             self.operation_finished.emit(True, "Monitoring stack completely removed")
         except Exception as e:
             self.operation_finished.emit(False, f"Cleanup failed: {str(e)}")
@@ -356,7 +356,7 @@ class MonitoringManager:
             container_name = f"{container_prefix}_{monitoring_type}"
             try:
                 DockerUtils.stop_container(container_name)
-                DockerUtils.remove_container(container_name)
+                DockerUtils.stop_container(container_name)
             except Exception:
                 pass
 
