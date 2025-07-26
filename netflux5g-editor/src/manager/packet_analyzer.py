@@ -41,12 +41,15 @@ class PacketAnalyzerDeploymentWorker(QThread):
     def _deploy_packet_analyzer(self):
         try:
             self.status_updated.emit("Checking if Webshark image exists...")
+            self.progress_updated.emit(10)
             image_name = "adaptive/netflux5g-webshark:latest"
             # Build image if not exists
             if not DockerUtils.image_exists(image_name):
                 webshark_path = self._get_webshark_path()
                 if not webshark_path:
                     raise Exception("Webshark directory not found")
+                self.status_updated.emit("Building Webshark Docker image...")
+                self.progress_updated.emit(20)
                 DockerUtils.build_image(image_name, webshark_path)
             # Remove existing container if exists
             if DockerUtils.container_exists(self.container_name):
@@ -58,6 +61,8 @@ class PacketAnalyzerDeploymentWorker(QThread):
                 builder.add_volume(f"{self.captures_path}:/captures")
             builder.add_env('SHARKD_SOCKET=/home/node/sharkd.sock')
             builder.add_env('CAPTURES_PATH=/captures/')
+            self.status_updated.emit("Deploying Webshark container...")
+            self.progress_updated.emit(50)
             success, msg = builder.run()
             if success:
                 self.operation_finished.emit(True, f"Webshark container '{self.container_name}' deployed successfully.")
@@ -69,6 +74,11 @@ class PacketAnalyzerDeploymentWorker(QThread):
 
     def _stop_packet_analyzer(self):
         try:
+            self.status_updated.emit("Stopping Webshark container...")
+            self.progress_updated.emit(10)
+            if not DockerUtils.is_container_running(self.container_name):
+                self.operation_finished.emit(True, "Webshark container is not running.")
+                return
             DockerUtils.stop_container(self.container_name)
             self.operation_finished.emit(True, f"Webshark container '{self.container_name}' stopped successfully.")
         except Exception as e:
@@ -275,7 +285,3 @@ class PacketAnalyzerManager:
         QMessageBox.information(self.main_window, "Cancelled", "Webshark operation was cancelled")
         if hasattr(self.main_window, 'status_manager'):
             self.main_window.status_manager.showCanvasStatus("Webshark operation cancelled")
-    
-    def get_packet_analyzer_container_names(self):
-        """Return a list of packet analyzer (Webshark) container names."""
-        return ["netflux5g-webshark"]

@@ -25,10 +25,17 @@ class DatabaseDeploymentWorker(QThread):
         # Use netflux5g network for service deployments
         self.network_name = "netflux5g"
         self.mutex = QMutex()
+        self._cancel_requested = False
+
+    def request_cancel(self):
+        self._cancel_requested = True
         
     def run(self):
         """Execute the database operation in background thread."""
         try:
+            if self._cancel_requested:
+                self.operation_finished.emit(False, "Operation canceled.")
+                return
             if self.operation == 'deploy':
                 self._deploy_database()
             elif self.operation == 'stop':
@@ -49,9 +56,11 @@ class DatabaseDeploymentWorker(QThread):
         """Deploy MongoDB container with DockerUtils and DockerContainerBuilder."""
         try:
             self.status_updated.emit("Checking if MongoDB image exists...")
+            self.progress_updated.emit(10)
             image_name = "mongo:latest"
             if not DockerUtils.image_exists(image_name):
                 self.status_updated.emit("Pulling MongoDB image...")
+                self.progress_updated.emit(40)
                 DockerUtils.pull_image(image_name)
             builder = DockerContainerBuilder(image=image_name, container_name=self.container_name)
             builder.set_network(self.network_name)
@@ -59,6 +68,7 @@ class DatabaseDeploymentWorker(QThread):
             builder.add_volume(f'{self.volume_name}:/data/db')
             builder.add_env('MONGO_INITDB_DATABASE=open5gs')
             self.status_updated.emit("Creating MongoDB container...")
+            self.progress_updated.emit(70)
             builder.run()
             self.operation_finished.emit(True, f"MongoDB container '{self.container_name}' deployed successfully.")
         except Exception as e:
@@ -68,6 +78,8 @@ class DatabaseDeploymentWorker(QThread):
     def _stop_database(self):
         """Stop MongoDB container using DockerUtils."""
         try:
+            self.status_updated.emit("Stopping MongoDB container...")
+            self.progress_updated.emit(50)
             DockerUtils.stop_container(self.container_name)
             self.operation_finished.emit(True, f"MongoDB container '{self.container_name}' stopped successfully.")
         except Exception as e:
@@ -448,137 +460,6 @@ class DatabaseManager:
         
         # Start stop operation (without volume removal)
         self._start_operation('stop_webui', container_name, None, None)
-    
-    def deploy_database_sync(self):
-        """Deploy MongoDB database synchronously for automation."""
-        debug_print("DEBUG: deploy_database_sync called")
-        try:
-            # Use fixed service names instead of file-based naming
-            container_name = "netflux5g-mongodb"
-            volume_name = "netflux5g-mongodb-data"
-            
-            # Check if Docker is available
-            if not self._check_docker_available():
-                error_print("Docker is not available")
-                return False
-            
-            # Ensure netflux5g network exists
-            if hasattr(self.main_window, 'docker_network_manager'):
-                if not self.main_window.docker_network_manager._network_exists("netflux5g"):
-                    debug_print("Creating netflux5g network")
-                    if not self.main_window.docker_network_manager._create_network("netflux5g"):
-                        error_print("Failed to create netflux5g network")
-                        return False
-            
-            # Check if already running
-            if self._is_container_running(container_name):
-                debug_print(f"Database container '{container_name}' is already running")
-                return True
-            
-            # Deploy directly without user prompts for automation
-            debug_print(f"Deploying MongoDB container: {container_name}")
-            return self._deploy_database_direct(container_name, volume_name, "netflux5g")
-            
-        except Exception as e:
-            error_print(f"ERROR: Failed to deploy MongoDB Database: {e}")
-            return False
-    
-    def deploy_webui_sync(self):
-        """Deploy WebUI synchronously for automation."""
-        debug_print("DEBUG: deploy_webui_sync called")
-        try:
-            # Use fixed service names
-            container_name = "netflux5g-webui"
-            
-            # Check if Docker is available
-            if not self._check_docker_available():
-                error_print("Docker is not available")
-                return False
-            
-            # Ensure netflux5g network exists
-            if hasattr(self.main_window, 'docker_network_manager'):
-                if not self.main_window.docker_network_manager._network_exists("netflux5g"):
-                    debug_print("Creating netflux5g network")
-                    if not self.main_window.docker_network_manager._create_network("netflux5g"):
-                        error_print("Failed to create netflux5g network")
-                        return False
-            
-            # Check if already running
-            if self._is_container_running(container_name):
-                debug_print(f"WebUI container '{container_name}' is already running")
-                return True
-            
-            # Deploy directly without user prompts for automation
-            debug_print(f"Deploying WebUI container: {container_name}")
-            return self._deploy_webui_direct(container_name, "netflux5g")
-            
-        except Exception as e:
-            error_print(f"ERROR: Failed to deploy WebUI: {e}")
-            return False
-
-    def _deploy_database_direct(self, container_name, volume_name, network_name):
-        """Deploy MongoDB container directly without threads, using DockerUtils."""
-        try:
-            # Create volume if it doesn't exist
-            if not self._volume_exists(volume_name):
-                debug_print(f"Creating volume: {volume_name}")
-                if not DockerUtils.create_volume(volume_name):
-                    error_print(f"Failed to create volume: {volume_name}")
-                    return False
-            # Remove existing container if it exists but is not running
-            if self._container_exists(container_name) and not self._is_container_running(container_name):
-                debug_print(f"Removing existing stopped container: {container_name}")
-                DockerUtils.stop_container(container_name)
-            # Create and run MongoDB container
-            debug_print(f"Creating MongoDB container: {container_name}")
-            builder = DockerContainerBuilder(image="mongo:latest", container_name=container_name)
-            builder.set_network(network_name)
-            builder.add_volume(f'{volume_name}:/data/db')
-            builder.add_env('MONGO_INITDB_DATABASE=open5gs')
-            builder.run()
-            # Wait for container to be ready
-            debug_print("Waiting for MongoDB to be ready...")
-            for i in range(30):  # Wait up to 30 seconds
-                if self._is_container_running(container_name):
-                    # Test connection using DockerUtils.exec_in_container
-                    exec_result = DockerUtils.exec_in_container(container_name, ['mongosh', '--eval', 'db.runCommand("ping")'])
-                    if exec_result and exec_result.get('returncode', 1) == 0:
-                        debug_print("MongoDB is ready")
-                        return True
-                time.sleep(1)
-            error_print("MongoDB container started but failed to become ready")
-            return False
-        except Exception as e:
-            error_print(f"Failed to deploy MongoDB directly: {e}")
-            return False
-
-    def _deploy_webui_direct(self, container_name, network_name):
-        """Deploy WebUI container directly without threads, using DockerUtils."""
-        try:
-            # Remove existing container if it exists but is not running
-            if self._container_exists(container_name) and not self._is_container_running(container_name):
-                debug_print(f"Removing existing stopped container: {container_name}")
-                DockerUtils.stop_container(container_name)
-            # Create and run WebUI container
-            debug_print(f"Creating WebUI container: {container_name}")
-            builder = DockerContainerBuilder(image='gradiant/open5gs-webui:2.7.5', container_name=container_name)
-            builder.set_network(network_name)
-            builder.add_port('9999:9999')
-            builder.add_env('DB_URI=mongodb://netflux5g-mongodb:27017/open5gs')
-            builder.add_env('NODE_ENV=dev')
-            builder.run()
-            # Wait for container to be ready
-            debug_print("Waiting for WebUI to be ready...")
-            for i in range(20):  # Wait up to 20 seconds
-                if self._is_container_running(container_name):
-                    debug_print("WebUI is ready")
-                    return True
-                time.sleep(1)
-            error_print("WebUI container started but failed to become ready")
-            return False
-        except Exception as e:
-            error_print(f"Failed to deploy WebUI directly: {e}")
-            return False
 
     def getContainerStatus(self):
         """Get the status of the database container using DockerUtils."""
@@ -668,10 +549,10 @@ class DatabaseManager:
             self.progress_dialog.setLabelText(status)
 
     def _cancel_operation(self):
-        """Cancel the current operation."""
-        if self.current_worker and self.current_worker.isRunning():
-            self.current_worker.terminate()
-            self.current_worker.wait(3000)  # Wait up to 3 seconds
+        """Cancel the current operation safely."""
+        if self.current_worker:
+            self.current_worker.request_cancel()
+            self.current_worker.wait(3000)  # Wait up to 3 seconds for graceful exit
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
@@ -700,17 +581,3 @@ class DatabaseManager:
         if self.current_worker:
             self.current_worker.deleteLater()
             self.current_worker = None
-    
-    def _stop_container_sync(self, container_name):
-        """Stop container synchronously (for restart scenarios) using DockerUtils."""
-        success, _ = DockerUtils.stop_container(container_name)
-        # Ignore errors for restart scenario as in original implementation
-        return success
-
-    def get_database_container_names(self):
-        """Return a list of database container names (MongoDB)."""
-        return ["netflux5g-mongodb"]
-
-    def get_webui_container_names(self):
-        """Return a list of WebUI container names."""
-        return ["netflux5g-webui"]

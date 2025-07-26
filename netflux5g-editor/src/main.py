@@ -224,9 +224,9 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionStop_All'):
                 self.actionStop_All.triggered.connect(self.automation_manager.stopAllComponents)
             if hasattr(self, 'actionRunAll'):
-                self.actionRunAll.triggered.connect(self.automation_manager.runAllComponents)
+                self.actionRunAll.triggered.connect(self.automation_manager.runTopology)
             if hasattr(self, 'actionStopAll'):
-                self.actionStopAll.triggered.connect(self.automation_manager.stopAllComponents)
+                self.actionStopAll.triggered.connect(self.automation_manager.stopTopology)
             if hasattr(self, 'actionRun'):
                 self.actionRun.triggered.connect(self.automation_manager.runTopology)
             if hasattr(self, 'actionStop'):
@@ -310,9 +310,6 @@ class NetFlux5GApp(QMainWindow):
             # Connect splitter moved signal to handler
             if hasattr(self, 'splitter'):
                 self.splitter.splitterMoved.connect(self.onSplitterMoved)
-
-            # Connect automation runner signals
-            self.automation_runner.execution_finished.connect(self.automation_manager.onAutomationFinished)
 
             debug_print("DEBUG: All connections setup successfully")
             
@@ -519,10 +516,6 @@ class NetFlux5GApp(QMainWindow):
                     event.ignore()
                     return
                 # If Discard was chosen, continue with closing
-            
-            # Stop any running automation
-            if hasattr(self, 'automation_runner'):
-                self.automation_runner.stop_all()
             
             # Clear component operations clipboard
             if hasattr(self, 'component_operations_manager'):

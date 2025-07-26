@@ -27,34 +27,41 @@ class AutomationManager:
         return None
 
     def runAllComponents(self):
-        """Run All - Deploy and start all components including controller, database, monitoring, and topology"""
+        """Run All - Deploy and start all components including controller, database, monitoring, and topology, with stepwise waiting."""
+        from PyQt5.QtCore import QEventLoop
         debug_print("DEBUG: RunAll triggered - comprehensive deployment")
-        
         # Prompt for controller type
         controller_type = self.promptControllerChoice()
         if not controller_type:
             debug_print("DEBUG: User cancelled controller selection.")
             return
-        
-        # Store controller type for this session
         self.main_window.selected_controller_type = controller_type
-        
         # Disable Run All button immediately
         if hasattr(self.main_window, 'actionRun_All'):
             self.main_window.actionRun_All.setEnabled(False)
         if hasattr(self.main_window, 'actionRunAll'):
             self.main_window.actionRunAll.setEnabled(False)
-        
-        # Start deployment sequence using individual managers
+
+        def wait_for_worker(manager, worker_attr='current_worker'):
+            """Wait for a manager's worker to finish using QEventLoop."""
+            if hasattr(manager, worker_attr):
+                worker = getattr(manager, worker_attr)
+                if worker and worker.isRunning():
+                    loop = QEventLoop()
+                    def on_finished(*_):
+                        loop.quit()
+                    worker.operation_finished.connect(on_finished)
+                    loop.exec_()
+
         try:
             self.main_window.status_manager.showCanvasStatus("Starting comprehensive deployment...")
-            
             # Step 1: Ensure Docker network exists
             debug_print("DEBUG: Step 1 - Creating Docker network")
             self.main_window.status_manager.showCanvasStatus("Creating Docker network...")
             if hasattr(self.main_window, 'docker_network_manager'):
                 self.main_window.docker_network_manager.create_netflux5g_network_if_needed()
-            
+                # No worker, so no wait needed
+
             # Step 2: Deploy Controller (Ryu or ONOS)
             debug_print(f"DEBUG: Step 2 - Deploying {controller_type.upper()} controller")
             self.main_window.status_manager.showCanvasStatus(f"Deploying {controller_type.upper()} controller...")
@@ -63,37 +70,42 @@ class AutomationManager:
                     self.main_window.controller_manager.deployOnosController()
                 else:
                     self.main_window.controller_manager.deployController()
-            
+                wait_for_worker(self.main_window.controller_manager, 'deployment_worker')
+
             # Step 3: Deploy Database (MongoDB)
             debug_print("DEBUG: Step 3 - Deploying MongoDB database")
             self.main_window.status_manager.showCanvasStatus("Deploying MongoDB database...")
             if hasattr(self.main_window, 'database_manager'):
                 self.main_window.database_manager.deployDatabase()
-            
+                wait_for_worker(self.main_window.database_manager)
+
             # Step 4: Deploy WebUI (User Manager)
             debug_print("DEBUG: Step 4 - Deploying WebUI User Manager")
             self.main_window.status_manager.showCanvasStatus("Deploying WebUI User Manager...")
             if hasattr(self.main_window, 'database_manager'):
                 self.main_window.database_manager.deployWebUI()
-            
+                wait_for_worker(self.main_window.database_manager)
+
             # Step 5: Deploy Monitoring Stack
             debug_print("DEBUG: Step 5 - Deploying Monitoring stack")
             self.main_window.status_manager.showCanvasStatus("Deploying Monitoring stack...")
             if hasattr(self.main_window, 'monitoring_manager'):
                 self.main_window.monitoring_manager.deployMonitoring()
-            
+                wait_for_worker(self.main_window.monitoring_manager)
+
             # Step 6: Deploy Packet Analyzer (Webshark)
             debug_print("DEBUG: Step 6 - Deploying Packet Analyzer")
             self.main_window.status_manager.showCanvasStatus("Deploying Packet Analyzer...")
             if hasattr(self.main_window, 'packet_analyzer_manager'):
                 self.main_window.packet_analyzer_manager.deployPacketAnalyzer()
-            
+                wait_for_worker(self.main_window.packet_analyzer_manager)
+
             # Step 7: Run Topology
             debug_print("DEBUG: Step 7 - Running topology")
             self.main_window.status_manager.showCanvasStatus("Starting topology...")
             if hasattr(self.main_window, 'automation_runner'):
                 self.main_window.automation_runner.run_topology_only()
-            
+
             # Update UI state after successful deployment
             if hasattr(self.main_window, 'actionStop_All'):
                 self.main_window.actionStop_All.setEnabled(True)
@@ -101,9 +113,9 @@ class AutomationManager:
                 self.main_window.actionStopAll.setEnabled(True)
             if hasattr(self.main_window, 'actionStop'):
                 self.main_window.actionStop.setEnabled(True)
-                
+
             self.main_window.status_manager.showCanvasStatus("All services deployed successfully!")
-            
+
             QMessageBox.information(
                 self.main_window,
                 "Services Started",
@@ -151,47 +163,40 @@ class AutomationManager:
             self._performComprehensiveStopAll(controller_type=controller_type)
 
     def _performComprehensiveStopAll(self, controller_type='ryu'):
-        """Perform cleanup for all services, using the selected controller type."""
+        """Perform cleanup for all services, using the selected controller type, with stepwise waiting."""
+        from PyQt5.QtCore import QEventLoop
         debug_print("DEBUG: Performing comprehensive stop of all services")
-        
+
+        def wait_for_worker(manager, worker_attr='current_worker'):
+            """Wait for a manager's worker to finish using QEventLoop."""
+            if hasattr(manager, worker_attr):
+                worker = getattr(manager, worker_attr)
+                if worker and worker.isRunning():
+                    loop = QEventLoop()
+                    def on_finished(*_):
+                        loop.quit()
+                    worker.operation_finished.connect(on_finished)
+                    loop.exec_()
+
         try:
             # 1. Stop Mininet first (if running)
             if self.main_window.automation_runner.is_deployment_running():
                 self.main_window.status_manager.showCanvasStatus("Stopping Mininet and cleaning up...")
-                self.main_window.automation_runner.stop_all()
+                self.main_window.automation_runner.stop_topology()
+                # If automation_runner has a worker, wait for it
+                wait_for_worker(self.main_window.automation_runner, 'current_worker')
             else:
-                # Run mininet cleanup even if automation runner isn't running
                 self.main_window.status_manager.showCanvasStatus("Cleaning up Mininet...")
                 self._cleanupMininet()
-            
+
             # 2. Stop all NetFlux5G Docker containers comprehensively
             self.main_window.status_manager.showCanvasStatus("Stopping all NetFlux5G containers...")
             self._stop_all_netflux5g_containers()
-            
-            # 3. Stop Database and WebUI (additional cleanup via managers)
-            self.main_window.status_manager.showCanvasStatus("Stopping Database and WebUI...")
-            if hasattr(self.main_window, 'database_manager'):
-                self.main_window.database_manager.stopWebUI()
-                self.main_window.database_manager.stopDatabase()
-            
-            # 4. Stop Monitoring Stack (additional cleanup via managers)
-            self.main_window.status_manager.showCanvasStatus("Stopping Monitoring Stack...")
-            if hasattr(self.main_window, 'monitoring_manager'):
-                self.main_window.monitoring_manager.stopMonitoring()
-            
-            # 5. Stop Controllers (additional cleanup via managers)
-            self.main_window.status_manager.showCanvasStatus("Stopping Controllers...")
-            if hasattr(self.main_window, 'controller_manager'):
-                if controller_type == 'onos':
-                    self.main_window.controller_manager.stopOnosController()
-                else:
-                    self.main_window.controller_manager.stopController()
-            
+
             # Reset all UI states after stopping
             self._resetAllUIStates()
-            
             self.main_window.status_manager.showCanvasStatus("All services stopped successfully")
-            
+
         except Exception as e:
             debug_print(f"ERROR: Error during comprehensive stop: {e}")
             QMessageBox.critical(
@@ -239,55 +244,6 @@ class AutomationManager:
         if hasattr(self.main_window, 'actionStop'):
             self.main_window.actionStop.setEnabled(False)
 
-    def onAutomationFinished(self, success, message):
-        """Handle automation completion."""
-        if success:
-            # Check if this is a stop/cleanup operation based on the message
-            if "cleanup" in message.lower() or "stop" in message.lower() or "terminated" in message.lower():
-                # Reset UI state after successful stop
-                self._resetAllUIStates()
-                QMessageBox.information(
-                    self.main_window,
-                    "Services Stopped",
-                    "All NetFlux5G services have been stopped successfully."
-                )
-            else:
-                # Enable stop buttons after successful start
-                if hasattr(self.main_window, 'actionStop_All'):
-                    self.main_window.actionStop_All.setEnabled(True)
-                if hasattr(self.main_window, 'actionStopAll'):
-                    self.main_window.actionStopAll.setEnabled(True)
-                if hasattr(self.main_window, 'actionStop'):
-                    self.main_window.actionStop.setEnabled(True)
-                QMessageBox.information(
-                    self.main_window,
-                    "Services Started",
-                    "All NetFlux5G services have been started successfully.\n\nYou can now use the topology."
-                )
-        else:
-            # Check if this is a stop/cleanup failure
-            if "cleanup" in message.lower() or "stop" in message.lower() or "terminated" in message.lower():
-                # Show error but reset UI anyway
-                self._resetAllUIStates()
-                QMessageBox.warning(
-                    self.main_window,
-                    "Stop Error",
-                    f"Some services may not have stopped properly:\n{message}"
-                )
-            else:
-                # Re-enable start buttons after failed start
-                if hasattr(self.main_window, 'actionRun_All'):
-                    self.main_window.actionRun_All.setEnabled(True)
-                if hasattr(self.main_window, 'actionRunAll'):
-                    self.main_window.actionRunAll.setEnabled(True)
-                if hasattr(self.main_window, 'actionRun'):
-                    self.main_window.actionRun.setEnabled(True)
-                QMessageBox.critical(
-                    self.main_window,
-                    "Start Error",
-                    f"Failed to start services:\n{message}"
-                )
-
     def stopTopology(self):
         """Stop and clean up the current topology - Simple cleanup with mn -c"""
         debug_print("DEBUG: Stop topology triggered")
@@ -304,6 +260,20 @@ class AutomationManager:
         if reply == QMessageBox.Yes:
             # Delegate to automation runner's stop_topology
             self.main_window.automation_runner.stop_topology()
+        # Update UI state
+        if hasattr(self.main_window, 'actionRun_All'):
+            self.main_window.actionRun_All.setEnabled(True)
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.setEnabled(True)
+        if hasattr(self.main_window, 'actionRun'):
+            self.main_window.actionRun.setEnabled(True)
+        if hasattr(self.main_window, 'actionStop_All'):
+            self.main_window.actionStop_All.setEnabled(False)
+        if hasattr(self.main_window, 'actionStopAll'):
+            self.main_window.actionStopAll.setEnabled(False)
+        if hasattr(self.main_window, 'actionStop'):
+            self.main_window.actionStop.setEnabled(False)
+                # Continue with other services even if one fails
 
     def runTopology(self):
         """Run the topology (actionRun) with proper UI state management."""
@@ -328,8 +298,16 @@ class AutomationManager:
         self.main_window.automation_runner.run_topology_only()
         
         # Update UI state
+        if hasattr(self.main_window, 'actionRun_All'):
+            self.main_window.actionRun_All.setEnabled(False)
+        if hasattr(self.main_window, 'actionRunAll'):
+            self.main_window.actionRunAll.setEnabled(False)
         if hasattr(self.main_window, 'actionRun'):
             self.main_window.actionRun.setEnabled(False)
+        if hasattr(self.main_window, 'actionStop_All'):
+            self.main_window.actionStop_All.setEnabled(True)
+        if hasattr(self.main_window, 'actionStopAll'):
+            self.main_window.actionStopAll.setEnabled(True)
         if hasattr(self.main_window, 'actionStop'):
             self.main_window.actionStop.setEnabled(True)
                 # Continue with other services even if one fails
@@ -378,8 +356,10 @@ class AutomationManager:
                 "netflux5g-onos-controller", 
                 "netflux5g-mongodb",
                 "netflux5g-webui",
-                "netflux5g-prometheus",
+                "netflux5g-cadvisor",
                 "netflux5g-grafana",
+                "netflux5g-prometheus",
+                "netflux5g-node-exporter",
                 "netflux5g-webshark"
             ]
             
@@ -388,6 +368,7 @@ class AutomationManager:
             
             for container_name in container_names:
                 if DockerUtils.is_container_running(container_name):
+                    self.main_window.status_manager.showCanvasStatus(f"Stopping container: {container_name}")
                     debug_print(f"DEBUG: Stopping container: {container_name}")
                     DockerUtils.stop_container(container_name)
                     

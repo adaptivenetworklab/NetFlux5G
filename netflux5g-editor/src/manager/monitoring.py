@@ -38,6 +38,47 @@ class MonitoringDeploymentWorker(QThread):
             error_print(f"Monitoring operation failed: {e}")
             self.operation_finished.emit(False, str(e))
 
+    monitoring_containers = {
+        'prometheus': {
+            'image': 'prom/prometheus',
+            'ports': ['9090:9090'],
+            'volumes': [
+                cwd + '/automation/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
+            ]
+        },
+        'grafana': {
+            'image': 'grafana/grafana',
+            'ports': ['3000:3000'],
+            'volumes': [
+                cwd + '/automation/monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml',
+                cwd + '/automation/monitoring/grafana/dashboard.json:/var/lib/grafana/dashboards/dashboard.json',
+                cwd + '/automation/monitoring/grafana/default.yaml:/etc/grafana/provisioning/dashboards/default.yaml'
+            ],
+            'env': [
+                'GF_PATHS_PROVISIONING=/etc/grafana/provisioning',
+                'DS_PROMETHEUS=prometheus'
+            ]
+        },
+        'node-exporter': {
+            'image': 'prom/node-exporter',
+            'ports': [],
+            'volumes': ['/:/host:ro,rslave'],
+            'extra_args': ['--path.rootfs=/host'],
+            'pid_mode': 'host'
+        },
+        'cadvisor': {
+            'image': 'gcr.io/cadvisor/cadvisor:latest',
+            'ports': ['8080:8080'],
+            'volumes': [
+                '/:/rootfs:ro',
+                '/var/run:/var/run:ro', 
+                '/sys:/sys:ro',
+                '/var/lib/docker/:/var/lib/docker:ro',
+                '/dev/disk/:/dev/disk:ro'
+            ]
+        }
+    }
+
     def _deploy_monitoring(self):
         try:
             self.status_updated.emit("Starting monitoring deployment...")
@@ -46,7 +87,7 @@ class MonitoringDeploymentWorker(QThread):
             progress_step = 80 // total_containers
             current_progress = 10
             for container_name, config in self.monitoring_containers.items():
-                full_container_name = f"{self.container_prefix}_{container_name}"
+                full_container_name = f"{self.container_prefix}-{container_name}"
                 
                 self.progress_updated.emit(current_progress)
                 self.status_updated.emit(f"Checking if {container_name} container exists...")
@@ -89,51 +130,14 @@ class MonitoringDeploymentWorker(QThread):
         except Exception as e:
             self.operation_finished.emit(False, f"Unexpected error: {str(e)}")
 
-    monitoring_containers = {
-        'prometheus': {
-            'image': 'prom/prometheus',
-            'ports': ['9090:9090'],
-            'volumes': [
-                cwd + '/automation/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
-            ]
-        },
-        'grafana': {
-            'image': 'grafana/grafana',
-            'ports': ['3000:3000'],
-            'volumes': [
-                cwd + '/automation/monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml',
-                cwd + '/automation/monitoring/grafana/dashboard.json:/var/lib/grafana/dashboards/dashboard.json',
-                cwd + '/automation/monitoring/grafana/default.yaml:/etc/grafana/provisioning/dashboards/default.yaml'
-            ],
-            'env': [
-                'GF_PATHS_PROVISIONING=/etc/grafana/provisioning',
-                'DS_PROMETHEUS=prometheus'
-            ]
-        },
-        'node-exporter': {
-            'image': 'prom/node-exporter',
-            'ports': [],
-            'volumes': ['/:/host:ro,rslave'],
-            'extra_args': ['--path.rootfs=/host'],
-            'pid_mode': 'host'
-        },
-        'cadvisor': {
-            'image': 'gcr.io/cadvisor/cadvisor:latest',
-            'ports': ['8080:8080'],
-            'volumes': [
-                '/:/rootfs:ro',
-                '/var/run:/var/run:ro', 
-                '/sys:/sys:ro',
-                '/var/lib/docker/:/var/lib/docker:ro',
-                '/dev/disk/:/dev/disk:ro'
-            ]
-        }
-    }
-
     def _stop_monitoring(self):
         try:
             for container_name in self.monitoring_containers:
                 full_container_name = f"{self.container_prefix}_{container_name}"
+                total_containers = len(self.monitoring_containers)
+                progress_step = 80 // total_containers
+                current_progress = 10 + (progress_step * list(self.monitoring_containers.keys()).index(container_name))
+                self.progress_updated.emit(current_progress)
                 DockerUtils.stop_container(full_container_name)
             self.operation_finished.emit(True, "All monitoring containers stopped successfully.")
         except Exception as e:
@@ -150,7 +154,6 @@ class MonitoringDeploymentWorker(QThread):
             self.operation_finished.emit(True, "Monitoring stack completely removed")
         except Exception as e:
             self.operation_finished.emit(False, f"Cleanup failed: {str(e)}")
-
 
 class MonitoringManager:
     """Manager for monitoring deployment operations."""
@@ -186,19 +189,19 @@ class MonitoringManager:
         reply = QMessageBox.question(
             self.main_window,
             "Deploy Monitoring Stack",
-            f"This will deploy the comprehensive monitoring stack using Docker :\n\n"
+            f"This will deploy the comprehensive monitoring stack using Docker\n\n"
             f"📊 Services to be deployed:\n"
             f"• Prometheus (metrics collection) - port 9090\n"
             f"• Grafana (visualization) - port 3000\n" 
             f"• Node Exporter (system metrics) - port 9100\n"
-            f"• cAdvisor (container metrics) - port 8080\n"
+            f"• cAdvisor (container metrics) - port 8080\n\n"
             f"🔧 Features included:\n"
             f"• Enhanced dashboard with 5G Core monitoring\n"
-            f"• Real-time UE status tracking\n"
-            f"• Container auto-discovery\n"
+            f"• Near Real-time UE status tracking\n"
+            f"• Container auto-discovery\n\n"
             f"🌐 Access URLs after deployment:\n"
             f"• Grafana: http://localhost:3000 (admin/admin)\n"
-            f"• Prometheus: http://localhost:9090\n"
+            f"• Prometheus: http://localhost:9090\n\n"
             f"Do you want to continue?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
@@ -233,101 +236,6 @@ class MonitoringManager:
         if reply == QMessageBox.No:
             return
         self._start_operation('stop', container_prefix, None)
-    
-    def deploy_monitoring_sync(self):
-        debug_print("Deploy Monitoring synchronously triggered")
-        container_prefix = "netflux5g"
-        network_name = "netflux5g"
-        if not self._check_docker_available():
-            return False, "Docker not available"
-        if hasattr(self.main_window, 'docker_network_manager'):
-            if not self.main_window.docker_network_manager.ensure_netflux5g_network():
-                return False, "Could not create netflux5g network"
-        else:
-            warning_print("Docker network manager not available, proceeding without network check")
-        running_containers = self._get_running_monitoring_containers(container_prefix)
-        if running_containers:
-            debug_print(f"Some monitoring containers already running: {running_containers}")
-            self._stop_containers_sync(container_prefix)
-        try:
-            monitoring_containers = {
-                'prometheus': {
-                    'image': 'prom/prometheus',
-                    'ports': ['9090:9090'],
-                    'volumes': [
-                        cwd + '/automation/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml'
-                    ]
-                },
-                'grafana': {
-                    'image': 'grafana/grafana',
-                    'ports': ['3000:3000'],
-                    'volumes': [
-                        cwd + '/automation/monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml',
-                        cwd + '/automation/monitoring/grafana/dashboard.json:/var/lib/grafana/dashboards/dashboard.json',
-                        cwd + '/automation/monitoring/grafana/default.yaml:/etc/grafana/provisioning/dashboards/default.yaml'
-                    ],
-                    'env': [
-                        'GF_PATHS_PROVISIONING=/etc/grafana/provisioning',
-                        'DS_PROMETHEUS=prometheus'
-                    ]
-                },
-                'node-exporter': {
-                    'image': 'prom/node-exporter',
-                    'ports': [],
-                    'volumes': ['/:/host:ro,rslave'],
-                    'extra_args': ['--path.rootfs=/host'],
-                    'pid_mode': 'host'
-                },
-                'cadvisor': {
-                    'image': 'gcr.io/cadvisor/cadvisor:latest',
-                    'ports': ['8080:8080'],
-                    'volumes': [
-                        '/:/rootfs:ro',
-                        '/var/run:/var/run:ro', 
-                        '/sys:/sys:ro',
-                        '/var/lib/docker/:/var/lib/docker:ro',
-                        '/dev/disk/:/dev/disk:ro'
-                    ]
-                }
-            }
-            for container_name, config in monitoring_containers.items():
-                full_container_name = f"{container_prefix}_{container_name}"
-                debug_print(f"Deploying monitoring container: {container_name}")
-                if DockerUtils.container_exists(full_container_name):
-                    if DockerUtils.is_container_running(full_container_name):
-                        debug_print(f"{full_container_name} is already running")
-                        continue
-                    else:
-                        success, msg = DockerUtils.start_container(full_container_name)
-                        if not success:
-                            debug_print(f"Failed to start existing container {full_container_name}: {msg}")
-                            return False, f"Failed to start {container_name}: {msg}"
-                        continue
-                try:
-                    if not DockerUtils.image_exists(config['image']):
-                        DockerUtils.pull_image(config['image'])
-                    builder = DockerContainerBuilder(image=config['image'], container_name=full_container_name)
-                    builder.set_network(network_name)
-                    for port in config.get('ports', []):
-                        builder.add_port(port)
-                    for volume in config.get('volumes', []):
-                        builder.add_volume(volume)
-                    for env_var in config.get('env', []):
-                        builder.add_env(env_var)
-                    if 'pid_mode' in config:
-                        builder.add_extra_arg(f'--pid={config["pid_mode"]}')
-                    for arg in config.get('extra_args', []):
-                        builder.add_extra_arg(arg)
-                    success, msg = builder.run()
-                    if not success:
-                        return False, msg
-                except Exception as e:
-                    return False, str(e)
-            time.sleep(3)
-            debug_print("Monitoring stack deployed successfully")
-            return True, "Monitoring stack deployed successfully"
-        except Exception as e:
-            return False, f"Unexpected error: {str(e)}"
 
     def _check_docker_available(self):
         return DockerUtils.check_docker_available(self.main_window, show_error=True)
@@ -361,15 +269,36 @@ class MonitoringManager:
                 pass
 
     def _start_operation(self, operation, container_prefix, network_name):
-        """Start a MonitoringDeploymentWorker thread for the given operation."""
+        """Start a MonitoringDeploymentWorker thread for the given operation, with progress dialog."""
         if self.current_worker is not None and self.current_worker.isRunning():
             warning_print("A monitoring operation is already in progress.")
             return
+        # Create progress dialog
+        self.progress_dialog = QProgressDialog(
+            "Monitoring operation in progress...",
+            "Cancel",
+            0,
+            100,
+            self.main_window
+        )
+        self.progress_dialog.setWindowTitle("Monitoring Operation")
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.show()
         self.current_worker = MonitoringDeploymentWorker(operation, container_prefix, network_name)
         self.current_worker.progress_updated.connect(self._on_progress_updated)
         self.current_worker.status_updated.connect(self._on_status_updated)
         self.current_worker.operation_finished.connect(self._on_operation_finished)
+        self.progress_dialog.canceled.connect(self._on_operation_canceled)
         self.current_worker.start()
+
+    def _on_operation_canceled(self):
+        if self.current_worker:
+            # If you add cancellation logic to MonitoringDeploymentWorker, call it here
+            self.current_worker.terminate()
+            self.current_worker.wait(3000)
+        if self.progress_dialog:
+            self.progress_dialog.close()
+            self.progress_dialog = None
 
     def _on_progress_updated(self, value):
         if self.progress_dialog:
@@ -387,12 +316,3 @@ class MonitoringManager:
             QMessageBox.information(self.main_window, "Monitoring Operation Complete", message)
         else:
             QMessageBox.critical(self.main_window, "Monitoring Operation Failed", message)
-
-    def get_monitoring_container_names(self):
-        """Return a list of monitoring container names (Prometheus, Grafana, Node Exporter, cAdvisor)."""
-        return [
-            "netflux5g-prometheus",
-            "netflux5g-grafana",
-            "netflux5g-node-exporter",
-            "netflux5g-cadvisor"
-        ]
