@@ -133,7 +133,7 @@ class MonitoringDeploymentWorker(QThread):
     def _stop_monitoring(self):
         try:
             for container_name in self.monitoring_containers:
-                full_container_name = f"{self.container_prefix}_{container_name}"
+                full_container_name = f"{self.container_prefix}-{container_name}"
                 total_containers = len(self.monitoring_containers)
                 progress_step = 80 // total_containers
                 current_progress = 10 + (progress_step * list(self.monitoring_containers.keys()).index(container_name))
@@ -147,7 +147,7 @@ class MonitoringDeploymentWorker(QThread):
     def _cleanup_monitoring(self):
         try:
             for container_name in self.monitoring_containers:
-                full_container_name = f"{self.container_prefix}_{container_name}"
+                full_container_name = f"{self.container_prefix}-{container_name}"
                 DockerUtils.stop_container(full_container_name)
                 if DockerUtils.container_exists(full_container_name):
                     DockerUtils.stop_container(full_container_name)
@@ -244,7 +244,7 @@ class MonitoringManager:
         running_containers = []
         monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor']
         for monitoring_type in monitoring_types:
-            container_name = f"{container_prefix}_{monitoring_type}"
+            container_name = f"{container_prefix}-{monitoring_type}"
             if DockerUtils.is_container_running(container_name):
                 running_containers.append(monitoring_type)
         return running_containers
@@ -253,7 +253,7 @@ class MonitoringManager:
         existing_containers = []
         monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor']
         for monitoring_type in monitoring_types:
-            container_name = f"{container_prefix}_{monitoring_type}"
+            container_name = f"{container_prefix}-{monitoring_type}"
             if DockerUtils.container_exists(container_name):
                 existing_containers.append(monitoring_type)
         return existing_containers
@@ -261,7 +261,7 @@ class MonitoringManager:
     def _stop_containers_sync(self, container_prefix):
         monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor']
         for monitoring_type in monitoring_types:
-            container_name = f"{container_prefix}_{monitoring_type}"
+            container_name = f"{container_prefix}-{monitoring_type}"
             try:
                 DockerUtils.stop_container(container_name)
                 DockerUtils.stop_container(container_name)

@@ -2118,11 +2118,11 @@
             "netflux5g-onos-controller",
             "netflux5g-webshark",
             "netflux5g-webui",
-            "netflux5g_blackbox-exporter",
-            "netflux5g_cadvisor",
-            "netflux5g_grafana",
-            "netflux5g_node-exporter",
-            "netflux5g_prometheus"
+            "netflux5g-blackbox-exporter",
+            "netflux5g-cadvisor",
+            "netflux5g-grafana",
+            "netflux5g-node-exporter",
+            "netflux5g-prometheus"
           ],
           "value": [
             "mn.GNB__1",
@@ -2149,11 +2149,11 @@
             "netflux5g-onos-controller",
             "netflux5g-webshark",
             "netflux5g-webui",
-            "netflux5g_blackbox-exporter",
-            "netflux5g_cadvisor",
-            "netflux5g_grafana",
-            "netflux5g_node-exporter",
-            "netflux5g_prometheus"
+            "netflux5g-blackbox-exporter",
+            "netflux5g-cadvisor",
+            "netflux5g-grafana",
+            "netflux5g-node-exporter",
+            "netflux5g-prometheus"
           ]
         },
         "datasource": {

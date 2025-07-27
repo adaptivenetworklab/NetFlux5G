@@ -42,7 +42,7 @@ class PacketAnalyzerDeploymentWorker(QThread):
         try:
             self.status_updated.emit("Checking if Webshark image exists...")
             self.progress_updated.emit(10)
-            image_name = "adaptive/netflux5g-webshark:latest"
+            image_name = "adaptive/webshark:latest"
             # Build image if not exists
             if not DockerUtils.image_exists(image_name):
                 webshark_path = self._get_webshark_path()

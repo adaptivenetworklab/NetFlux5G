@@ -194,7 +194,7 @@ class DatabaseManager:
                 return
             
             # Stop first, then deploy
-            self._stop_container_sync(container_name)
+            self.stopDatabase()
 
         # Show confirmation dialog
         reply = QMessageBox.question(
@@ -261,11 +261,8 @@ class DatabaseManager:
         """Completely remove MongoDB database container and volume (for complete cleanup)."""
         debug_print("Cleanup Database triggered")
         
-        # Check if file is saved to get container name
-        if not self._check_file_saved():
-            return
-        
-        container_name, volume_name = self._get_container_names()
+        container_name = "netflux5g-mongodb"
+        volume_name = "netflux5g-mongodb-data"
         
         if not container_name:
             QMessageBox.warning(
@@ -400,7 +397,7 @@ class DatabaseManager:
                 return
             
             # Stop first, then deploy
-            self._stop_container_sync(container_name)
+            self.stopDatabase()
         
         # Show confirmation dialog
         reply = QMessageBox.question(

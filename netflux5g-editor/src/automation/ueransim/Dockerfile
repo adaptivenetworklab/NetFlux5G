@@ -189,6 +189,11 @@ RUN useradd -m -s /bin/bash ueransim || true
 RUN chown -R root:root /usr/local/bin/
 RUN chown -R root:root /etc/ueransim/
 
+RUN sudo apt-get update && sudo apt-get install -y \
+    tshark net-tools iperf3 curl \
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/*
+
 # Expose common ports for 5G communication
 EXPOSE 4997 9487 38412 38472 2152
 

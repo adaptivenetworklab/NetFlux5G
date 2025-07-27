@@ -150,7 +150,7 @@ QFrame {
     <addaction name="actionStop_Packet_Analyzer"/>
     <addaction name="separator"/>
     <addaction name="actionGenerate_Load_Traffic"/>
-    <addaction name="actionClear_All_Data"/>
+    <addaction name="actionClear_DB_Data"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -438,9 +438,9 @@ QFrame {
     <string>Stop User Manager</string>
    </property>
   </action>
-  <action name="actionClear_All_Data">
+  <action name="actionClear_DB_Data">
    <property name="text">
-    <string>Clear All Data</string>
+    <string>Clear DB Data</string>
    </property>
   </action>
   <action name="actionDeploy_Monitoring">
@@ -526,6 +526,12 @@ QFrame {
    </property>
   </action>
   <action name="actionGenerate_Load_Traffic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Generate Load Traffic</string>
    </property>

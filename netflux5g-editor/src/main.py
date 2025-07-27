@@ -262,7 +262,7 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionStop_Packet_Analyzer'):
                 self.actionStop_Packet_Analyzer.triggered.connect(self.packet_analyzer_manager.stopPacketAnalyzer)
 
-            # Controller connections
+            # Ryu Controller connections
             if hasattr(self, 'actionDeploy_Ryu_Controller'):
                 self.actionDeploy_Ryu_Controller.triggered.connect(self.controller_manager.deployRyuController)
             if hasattr(self, 'actionStop_Ryu_Controller'):
@@ -273,6 +273,10 @@ class NetFlux5GApp(QMainWindow):
                 self.actionDeploy_ONOS_Controller.triggered.connect(self.controller_manager.deployOnosController)
             if hasattr(self, 'actionStop_ONOS_Controller'):
                 self.actionStop_ONOS_Controller.triggered.connect(self.controller_manager.stopOnosController)
+
+            # Clear MongoDB data
+            if hasattr(self, 'actionClear_DB_Data'):
+                self.actionClear_DB_Data.triggered.connect(self.database_manager.cleanupDatabase)
 
             # Component button connections
             if hasattr(self.component_panel_manager, 'component_widgets'):

@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QTimer
-from PyQt5.QtWidgets import QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QMessageBox, QInputDialog, QProgressDialog
 from utils.debug import debug_print, error_print, warning_print
 import os
 import subprocess
@@ -7,6 +7,7 @@ import subprocess
 class AutomationManager:
     def __init__(self, main_window):
         self.main_window = main_window
+        self.progress_dialog = None
         
     def promptControllerChoice(self):
         """Prompt the user to choose between Ryu and ONOS controller."""
@@ -167,6 +168,20 @@ class AutomationManager:
         from PyQt5.QtCore import QEventLoop
         debug_print("DEBUG: Performing comprehensive stop of all services")
 
+        # Show progress dialog for stopping services
+        self.progress_dialog = QProgressDialog(
+            "Stopping all NetFlux5G services...",
+            "Cancel",
+            0,
+            100,
+            self.main_window
+        )
+        self.progress_dialog.setWindowTitle("NetFlux5G Stop All Progress")
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.show()
+        progress = 0
+        self.progress_dialog.setValue(progress)
+
         def wait_for_worker(manager, worker_attr='current_worker'):
             """Wait for a manager's worker to finish using QEventLoop."""
             if hasattr(manager, worker_attr):
@@ -182,20 +197,29 @@ class AutomationManager:
             # 1. Stop Mininet first (if running)
             if self.main_window.automation_runner.is_deployment_running():
                 self.main_window.status_manager.showCanvasStatus("Stopping Mininet and cleaning up...")
+                self.progress_dialog.setLabelText("Stopping Mininet and cleaning up...")
+                self.progress_dialog.setValue(10)
                 self.main_window.automation_runner.stop_topology()
-                # If automation_runner has a worker, wait for it
                 wait_for_worker(self.main_window.automation_runner, 'current_worker')
             else:
                 self.main_window.status_manager.showCanvasStatus("Cleaning up Mininet...")
+                self.progress_dialog.setLabelText("Cleaning up Mininet...")
+                self.progress_dialog.setValue(20)
                 self._cleanupMininet()
 
             # 2. Stop all NetFlux5G Docker containers comprehensively
             self.main_window.status_manager.showCanvasStatus("Stopping all NetFlux5G containers...")
+            self.progress_dialog.setLabelText("Stopping all NetFlux5G containers...")
+            self.progress_dialog.setValue(60)
             self._stop_all_netflux5g_containers()
 
             # Reset all UI states after stopping
+            self.progress_dialog.setValue(90)
             self._resetAllUIStates()
             self.main_window.status_manager.showCanvasStatus("All services stopped successfully")
+            self.progress_dialog.setLabelText("All services stopped successfully!")
+            self.progress_dialog.setValue(100)
+            QTimer.singleShot(1000, self.progress_dialog.close)
 
         except Exception as e:
             debug_print(f"ERROR: Error during comprehensive stop: {e}")
@@ -204,6 +228,7 @@ class AutomationManager:
                 "Stop All Error",
                 f"An error occurred while stopping services:\n{str(e)}\n\nSome services may still be running."
             )
+            self.progress_dialog.close()
 
     def _cleanupMininet(self):
         """Clean up Mininet using sudo mn -c"""
