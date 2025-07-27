@@ -593,7 +593,7 @@ class MininetExporter:
         f.write('    \n')
         f.write('    info(f"*** Started {capture_count} packet captures\\n")\n')
         f.write('    info(f"*** Docker captures will be saved to: {netflux5g_captures_dir}\\n")\n')
-        f.write('    info(f"*** Local captures will be saved to: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \"automation\", \"webshark\") + \"/captures\"}\\n")\n\n')
+        f.write('    info(f"*** Local captures will be saved to: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \'automation\', \'webshark\', \'captures\')}")\n\n')
         
         # iPerf server management
         f.write('def start_iperf_servers(net):\n')
@@ -794,7 +794,7 @@ class MininetExporter:
         f.write('    capture_duration = TRAFFIC_CONFIG["capture_duration"]\n')
         f.write('    info(f"*** Traffic completed. Captures will continue for {capture_duration - duration} more seconds...\\n")\n')
         f.write('    info(f"*** Docker captures accessible at: {netflux5g_captures_dir}\\n")\n')
-        f.write('    info(f"*** Local captures accessible at: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \"automation\", \"webshark\") + \"/captures\"}\\n")\n\n')
+        f.write('    info(f"*** Local captures accessible at: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \'automation\', \'webshark\', \'captures\')}")\n\n')
 
     def write_topology_function(self, f, nodes, links, categorized_nodes, traffic_enabled=False):
         """Write the main topology function following mininet-wifi patterns.
