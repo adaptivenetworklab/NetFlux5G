@@ -28,6 +28,18 @@ class MininetExporter:
     def __init__(self, main_window):
         self.main_window = main_window
         
+    def is_traffic_generation_enabled(self):
+        """Check if the Generate Load Traffic action is checked in the UI."""
+        try:
+            # Access the action from the main window's UI
+            action = getattr(self.main_window, 'actionGenerate_Load_Traffic', None)
+            if action is not None:
+                return action.isChecked()
+            return False
+        except Exception as e:
+            debug_print(f"Could not check traffic generation status: {e}")
+            return False
+        
     def export_to_mininet(self, skip_save_check=False):
         """Export the current topology to a Mininet script.
         
@@ -60,6 +72,9 @@ class MininetExporter:
             self.main_window.status_manager.showCanvasStatus("No components found to export!")
             return
         
+        # Check if traffic generation is enabled
+        traffic_enabled = self.is_traffic_generation_enabled()
+        
         # Categorize nodes by type for proper script generation
         categorized_nodes = self.categorize_nodes(nodes)
         
@@ -70,8 +85,26 @@ class MininetExporter:
             with open(filename, "w") as f:
                 self.write_mininet_script(f, nodes, links, categorized_nodes)
             
-            self.main_window.status_manager.showCanvasStatus(f"Exported topology to {os.path.basename(filename)}")
-            debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links to {filename}")
+            # Create status message based on traffic automation
+            base_msg = f"Exported topology to {os.path.basename(filename)}"
+            if traffic_enabled:
+                status_msg = f"{base_msg} (with traffic automation)"
+                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with traffic automation enabled")
+            else:
+                status_msg = base_msg
+                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links without traffic automation")
+            
+            self.main_window.status_manager.showCanvasStatus(status_msg)
+            
+            # Show additional info for traffic automation
+            if traffic_enabled:
+                debug_print("Traffic automation features included:")
+                debug_print("- Automatic packet capture using tshark")
+                debug_print("- iPerf3 traffic generation (TCP/UDP)")
+                debug_print("- Ping connectivity tests")
+                debug_print("- HTTP load generation")
+                debug_print("- Captures saved to ./captures/ directory")
+                debug_print("- Use --skip-traffic flag to disable")
             
         except Exception as e:
             error_msg = f"Error exporting to Mininet: {str(e)}"
@@ -100,22 +133,29 @@ class MininetExporter:
 
     def write_mininet_script(self, f, nodes, links, categorized_nodes):
         """Write the complete Mininet-WiFi script following best practices."""
+        # Check if traffic generation is enabled
+        traffic_enabled = self.is_traffic_generation_enabled()
+        
         # Write script header
-        self.write_script_header(f)
+        self.write_script_header(f, traffic_enabled)
         
         # Write imports based on components used
-        self.write_imports(f, categorized_nodes)
+        self.write_imports(f, categorized_nodes, traffic_enabled)
         
         # Write utility functions
         self.write_utility_functions(f)
         
+        # Write traffic generation utilities if enabled
+        if traffic_enabled:
+            self.write_traffic_utilities(f)
+        
         # Write topology function
-        self.write_topology_function(f, nodes, links, categorized_nodes)
+        self.write_topology_function(f, nodes, links, categorized_nodes, traffic_enabled)
         
         # Write main execution
-        self.write_main_execution(f)
+        self.write_main_execution(f, traffic_enabled)
 
-    def write_script_header(self, f):
+    def write_script_header(self, f, traffic_enabled=False):
         """Write the script header with metadata."""
         f.write('#!/usr/bin/env python\n\n')
         f.write('"""\n')
@@ -130,6 +170,17 @@ class MininetExporter:
         f.write('\n')
         f.write('This script creates a network topology using mininet-wifi\n')
         f.write('with dynamic configuration from the NetFlux5G UI.\n')
+        
+        # Add traffic generation note if enabled
+        if traffic_enabled:
+            f.write('\n')
+            f.write('Traffic Generation & Packet Capture:\n')
+            f.write('- Automated traffic generation is ENABLED\n')
+            f.write('- Includes packet capture using tshark for all components\n')
+            f.write('- Traffic patterns: iPerf3 TCP/UDP, ping tests, HTTP load\n')
+            f.write('- Captures saved to ./captures/ directory\n')
+            f.write('- Use --skip-traffic flag to disable traffic generation\n')
+        
         f.write('\n')
         f.write('5G Configuration Files:\n')
         f.write('- Located in: ./5g-configs/ directory (relative to this script)\n')
@@ -154,10 +205,21 @@ class MininetExporter:
         
         f.write('"""\n\n')
 
-    def write_imports(self, f, categorized_nodes):
+    def write_imports(self, f, categorized_nodes, traffic_enabled=False):
         """Write necessary imports based on component types following fixed_topology-upf.py pattern."""
         f.write('import sys\n')
         f.write('import os\n')
+        f.write('import time\n')
+        f.write('import threading\n')
+        f.write('import subprocess\n')
+        f.write('import signal\n')
+        f.write('import argparse\n')
+        
+        # Add traffic generation specific imports
+        if traffic_enabled:
+            f.write('import json\n')
+            f.write('import random\n')
+            f.write('from datetime import datetime\n')
         
         # Check if we need wireless functionality
         has_wireless = (categorized_nodes['aps'] or categorized_nodes['stas'] or 
@@ -342,9 +404,399 @@ class MininetExporter:
         f.write('\n')
 
         # Add working directory variable
-        f.write(f'export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n\n')
+        f.write(f'export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n')
+        f.write(f'# Dynamic captures directory path\n')
+        f.write(f'def get_captures_host_path():\n')
+        f.write(f'    """Get the absolute path to the NetFlux5G captures directory on the host."""\n')
+        f.write(f'    # Try to find the netflux5g-editor directory dynamically\n')
+        f.write(f'    current_dir = export_dir\n')
+        f.write(f'    while current_dir != "/" and current_dir:\n')
+        f.write(f'        if "netflux5g-editor" in current_dir:\n')
+        f.write(f'            # Found netflux5g-editor directory\n')
+        f.write(f'            netflux5g_editor_dir = current_dir\n')
+        f.write(f'            if not netflux5g_editor_dir.endswith("netflux5g-editor"):\n')
+        f.write(f'                # Go up to find netflux5g-editor\n')
+        f.write(f'                while "netflux5g-editor" in netflux5g_editor_dir and not netflux5g_editor_dir.endswith("netflux5g-editor"):\n')
+        f.write(f'                    netflux5g_editor_dir = os.path.dirname(netflux5g_editor_dir)\n')
+        f.write(f'            captures_path = os.path.join(netflux5g_editor_dir, "src", "automation", "webshark", "captures")\n')
+        f.write(f'            return captures_path\n')
+        f.write(f'        current_dir = os.path.dirname(current_dir)\n')
+        f.write(f'    \n')
+        f.write(f'    # Fallback to default path\n')
+        f.write(f'    return current_dir\n')
+        f.write(f'\n')
+        f.write(f'NETFLUX5G_CAPTURES_PATH = get_captures_host_path()\n')
+        f.write(f'print(f"DEBUG: NetFlux5G captures path: {{NETFLUX5G_CAPTURES_PATH}}")  # Debug output\n\n')
 
-    def write_topology_function(self, f, nodes, links, categorized_nodes):
+    def write_traffic_utilities(self, f):
+        """Write traffic generation and packet capture utility functions."""
+        f.write('# ===============================================\n')
+        f.write('# TRAFFIC GENERATION & PACKET CAPTURE UTILITIES\n')
+        f.write('# ===============================================\n\n')
+        
+        # Global variables for traffic management
+        f.write('# Global variables for traffic control\n')
+        f.write('TRAFFIC_PROCESSES = []\n')
+        f.write('CAPTURE_PROCESSES = []\n')
+        f.write('TRAFFIC_CONFIG = {\n')
+        f.write('    "duration": 60,\n')
+        f.write('    "capture_duration": 75,\n')
+        f.write('    "bandwidth": "2000M",\n')
+        f.write('    "max_bandwidth": "5000M",\n')
+        f.write('    "streams": 2,\n')
+        f.write('    "enable_iperf": True,\n')
+        f.write('    "enable_ping": True,\n')
+        f.write('    "enable_http": True,\n')
+        f.write('    "enable_capture": True\n')
+        f.write('}\n\n')
+
+        f.write('netflux5g_captures_dir = NETFLUX5G_CAPTURES_PATH\n')
+        f.write('local_captures_dir = os.path.join(export_dir, "captures")\n\n')
+        
+        # Docker volume setup function
+        f.write('def setup_docker_captures_mount(net):\n')
+        f.write('    """Setup Docker volume mounting for packet captures."""\n')
+        f.write('    \n')
+        f.write('    info("*** Setting up Docker volume mounts for packet captures\\n")\n')
+        f.write('    info(f"*** Host captures directory: {netflux5g_captures_dir}\\n")\n')
+        f.write('    \n')
+        f.write('    # Get all Docker-based nodes (UE, gNB, 5G Core)\n')
+        f.write('    docker_nodes = []\n')
+        f.write('    for node in net.hosts:\n')
+        f.write('        node_name = node.name if hasattr(node, \'name\') else str(node)\n')
+        f.write('        is_docker = any(x in node_name.upper() for x in ["UE", "GNB", "UPF", "AMF", "SMF", "NRF", "AUSF", "UDM", "UDR", "PCF", "BSF", "NSSF"])\n')
+        f.write('        if is_docker:\n')
+        f.write('            docker_nodes.append(node_name)\n')
+        f.write('    \n')
+        f.write('    # Wait a moment for containers to be fully started\n')
+        f.write('    time.sleep(2)\n')
+        f.write('    \n')
+        f.write('    return netflux5g_captures_dir\n\n')
+        
+        # Start packet capture function
+        f.write('def start_packet_capture(node, interface, capture_file, duration=None):\n')
+        f.write('    """Start packet capture on a node interface using tshark."""\n')
+        f.write('    global CAPTURE_PROCESSES\n')
+        f.write('    \n')
+        f.write('    duration = duration or TRAFFIC_CONFIG["capture_duration"]\n')
+        f.write('    node_name = node.name if hasattr(node, \'name\') else str(node)\n')
+        f.write('    \n')
+        f.write('    # Determine if this is a Docker-based node (UE, GNB, 5G Core)\n')
+        f.write('    is_docker_node = any(x in node_name.upper() for x in ["UE", "GNB", "UPF", "AMF", "SMF", "NRF", "AUSF", "UDM", "UDR", "PCF", "BSF", "NSSF"])\n')
+        f.write('    \n')
+        f.write('    if is_docker_node:\n')
+        f.write('        # Docker container - capture inside container, save to mounted /captures\n')
+        f.write('        container_capture_file = f"/captures/{node_name}.pcapng"\n')
+        f.write('        \n')
+        f.write('        # Check if tshark is available\n')
+        f.write('        tshark_check = subprocess.run(\n')
+        f.write('            f"docker exec -u root mn.{node_name} which tshark",\n')
+        f.write('            shell=True, capture_output=True, text=True\n')
+        f.write('        )\n')
+        f.write('        \n')
+        f.write('        if tshark_check.returncode != 0:\n')
+        f.write('            # Try to install tshark\n')
+        f.write('            info(f"*** Installing tshark on {node_name}...\\n")\n')
+        f.write('            install_result = subprocess.run(\n')
+        f.write('                f"docker exec -u root mn.{node_name} apt-get update && apt-get install -y tshark",\n')
+        f.write('                shell=True, capture_output=True, text=True, timeout=60\n')
+        f.write('            )\n')
+        f.write('            if install_result.returncode != 0:\n')
+        f.write('                info(f"*** Failed to install tshark on {node_name}, skipping capture\\n")\n')
+        f.write('                return None\n')
+        f.write('        \n')
+        f.write('        cmd = f"docker exec -u root mn.{node_name} chown root:root /captures && tshark -i any -w {container_capture_file} -F pcapng -a duration:{duration}"\n')
+        f.write('        info(f"*** Starting capture on Docker container {node_name} -> {container_capture_file}\\n")\n')
+        f.write('        info(f"*** Command: {cmd}\\n")\n')
+        f.write('        \n')
+        f.write('        try:\n')
+        f.write('            proc = subprocess.Popen(\n')
+        f.write('                cmd,\n')
+        f.write('                shell=True,\n')
+        f.write('                stdout=subprocess.PIPE,\n')
+        f.write('                stderr=subprocess.PIPE\n')
+        f.write('            )\n')
+        f.write('            CAPTURE_PROCESSES.append((proc, node_name, any, "docker"))\n')
+        f.write('            \n')
+        f.write('            # Check if process started successfully\n')
+        f.write('            time.sleep(1)\n')
+        f.write('            if proc.poll() is not None:\n')
+        f.write('                # Process already terminated, check error\n')
+        f.write('                stdout, stderr = proc.communicate()\n')
+        f.write('                info(f"*** Capture failed on {node_name}: {stderr.decode()}\\n")\n')
+        f.write('                return None\n')
+        f.write('            \n')
+        f.write('            return proc\n')
+        f.write('        except Exception as e:\n')
+        f.write('            info(f"*** Failed to start Docker capture on {node_name}: {e}\\n")\n')
+        f.write('            return None\n')
+        f.write('    \n')
+        f.write('    elif hasattr(node, \'cmd\'):\n')
+        f.write('        # Regular mininet node (STA, AP, Host, Switch)\n')
+        f.write('        cmd = f"tshark -i any -w {capture_file} -F pcapng -a duration:{duration}"\n')
+        f.write('        info(f"*** Starting capture on Mininet node {node_name}:any -> {capture_file}\\n")\n')
+        f.write('        \n')
+        f.write('        try:\n')
+        f.write('            # Start capture in background using mnexec\n')
+        f.write('            proc = subprocess.Popen(\n')
+        f.write('                f"mnexec -a {node.pid} {cmd}",\n')
+        f.write('                shell=True,\n')
+        f.write('                stdout=subprocess.DEVNULL,\n')
+        f.write('                stderr=subprocess.DEVNULL\n')
+        f.write('            )\n')
+        f.write('            CAPTURE_PROCESSES.append((proc, node_name, any, "mininet"))\n')
+        f.write('            return proc\n')
+        f.write('        except Exception as e:\n')
+        f.write('            info(f"*** Failed to start Mininet capture on {node_name}: {e}\\n")\n')
+        f.write('            return None\n')
+        f.write('    else:\n')
+        f.write('        info(f"*** Unknown node type for {node_name}, skipping capture\\n")\n')
+        f.write('        return None\n\n')
+        
+        # Start captures for all nodes function
+        f.write('def start_all_captures(net, netflux5g_captures_dir):\n')
+        f.write('    """Start packet capture on all nodes in the network."""\n')
+        f.write('    if not TRAFFIC_CONFIG["enable_capture"]:\n')
+        f.write('        info("*** Packet capture disabled\\n")\n')
+        f.write('        return\n')
+        f.write('    \n')
+        f.write('    info("*** Starting packet captures on all nodes\\n")\n')
+        f.write('    \n')
+        f.write('    # Get all nodes from the network\n')
+        f.write('    all_nodes = []\n')
+        f.write('    all_nodes.extend(net.hosts)\n')
+        f.write('    all_nodes.extend(net.switches)\n')
+        f.write('    if hasattr(net, \'aps\'):\n')
+        f.write('        all_nodes.extend(net.aps)\n')
+        f.write('    if hasattr(net, \'stations\'):\n')
+        f.write('        all_nodes.extend(net.stations)\n')
+        f.write('    \n')
+        f.write('    capture_count = 0\n')
+        f.write('    for node in all_nodes:\n')
+        f.write('        node_name = node.name if hasattr(node, \'name\') else str(node)\n')
+        f.write('        \n')
+        f.write('        # Check if this is a Docker-based 5G component\n')
+        f.write('        is_docker_5g = any(x in node_name.upper() for x in ["UE", "GNB", "UPF", "AMF", "SMF", "NRF", "AUSF", "UDM", "UDR", "PCF", "BSF", "NSSF"])\n')
+        f.write('        \n')
+        f.write('        if is_docker_5g:\n')
+        f.write('            # For Docker 5G components, capture will save to /captures inside container\n')
+        f.write('            # which is mounted to host directory\n')
+        f.write('            capture_file = f"/captures/{node_name}.pcapng"  # Container path\n')
+        f.write('        else:\n')
+        f.write('            # For regular mininet nodes, save to local captures directory\n')
+        f.write('            local_captures_dir = os.path.join(export_dir, "captures")\n')
+        f.write('            capture_file = os.path.join(local_captures_dir, f"{node_name}.pcapng")\n')
+        f.write('            \n')
+        f.write('        if start_packet_capture(node, any, capture_file):\n')
+        f.write('            capture_count += 1\n')
+        f.write('        time.sleep(0.1)  # Small delay between captures\n')
+        f.write('    \n')
+        f.write('    info(f"*** Started {capture_count} packet captures\\n")\n')
+        f.write('    info(f"*** Docker captures will be saved to: {netflux5g_captures_dir}\\n")\n')
+        f.write('    info(f"*** Local captures will be saved to: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \"automation\", \"webshark\") + \"/captures\"}\\n")\n\n')
+        
+        # iPerf server management
+        f.write('def start_iperf_servers(net):\n')
+        f.write('    """Start iPerf3 servers on appropriate nodes."""\n')
+        f.write('    if not TRAFFIC_CONFIG["enable_iperf"]:\n')
+        f.write('        return []\n')
+        f.write('    \n')
+        f.write('    info("*** Starting iPerf3 servers\\n")\n')
+        f.write('    servers = []\n')
+        f.write('    \n')
+        f.write('    # Start servers on hosts, APs, and 5G core components\n')
+        f.write('    server_nodes = []\n')
+        f.write('    \n')
+        f.write('    # Add hosts\n')
+        f.write('    server_nodes.extend([h for h in net.hosts if "host" in h.name.lower()])\n')
+        f.write('    \n')
+        f.write('    # Add APs\n')
+        f.write('    if hasattr(net, \'aps\'):\n')
+        f.write('        server_nodes.extend(net.aps)\n')
+        f.write('    \n')
+        f.write('    # Add UPF nodes (important for 5G traffic)\n')
+        f.write('    upf_nodes = [h for h in net.hosts if "upf" in h.name.lower()]\n')
+        f.write('    server_nodes.extend(upf_nodes)\n')
+        f.write('    \n')
+        f.write('    port = 5001\n')
+        f.write('    for node in server_nodes:\n')
+        f.write('        try:\n')
+        f.write('            if hasattr(node, \'cmd\'):\n')
+        f.write('                # Regular mininet node\n')
+        f.write('                node.cmd(f"iperf3 -s -p {port} -D")\n')
+        f.write('            else:\n')
+        f.write('                # Docker container\n')
+        f.write('                subprocess.Popen(f"docker exec -u root mn.{node.name} iperf3 -s -p {port} -D".split())\n')
+        f.write('            \n')
+        f.write('            servers.append((node, port))\n')
+        f.write('            info(f"*** Started iPerf3 server on {node.name}:{port}\\n")\n')
+        f.write('            port += 1\n')
+        f.write('        except Exception as e:\n')
+        f.write('            info(f"*** Failed to start iPerf3 server on {node.name}: {e}\\n")\n')
+        f.write('    \n')
+        f.write('    return servers\n\n')
+        
+        # Traffic generation function
+        f.write('def generate_traffic_load(net, servers):\n')
+        f.write('    """Generate comprehensive traffic load across the network."""\n')
+        f.write('    global TRAFFIC_PROCESSES\n')
+        f.write('    \n')
+        f.write('    if not any([TRAFFIC_CONFIG["enable_iperf"], TRAFFIC_CONFIG["enable_ping"], TRAFFIC_CONFIG["enable_http"]]):\n')
+        f.write('        info("*** All traffic generation disabled\\n")\n')
+        f.write('        return\n')
+        f.write('    \n')
+        f.write('    info("*** Generating network traffic\\n")\n')
+        f.write('    \n')
+        f.write('    # Get client nodes (UEs, STAs, Hosts)\n')
+        f.write('    client_nodes = []\n')
+        f.write('    client_nodes.extend([h for h in net.hosts if any(x in h.name.lower() for x in ["ue", "sta", "host"])])\n')
+        f.write('    if hasattr(net, \'stations\'):\n')
+        f.write('        client_nodes.extend(net.stations)\n')
+        f.write('    \n')
+        f.write('    duration = TRAFFIC_CONFIG["duration"]\n')
+        f.write('    bandwidth = TRAFFIC_CONFIG["bandwidth"]\n')
+        f.write('    streams = TRAFFIC_CONFIG["streams"]\n')
+        f.write('    \n')
+        f.write('    for client in client_nodes:\n')
+        f.write('        # Select random servers for this client\n')
+        f.write('        if servers:\n')
+        f.write('            target_servers = random.sample(servers, min(2, len(servers)))\n')
+        f.write('        else:\n')
+        f.write('            # Fallback to other hosts\n')
+        f.write('            potential_targets = [h for h in net.hosts if h != client]\n')
+        f.write('            target_servers = [(random.choice(potential_targets), 5001)] if potential_targets else []\n')
+        f.write('        \n')
+        f.write('        for server_node, port in target_servers:\n')
+        f.write('            target_ip = server_node.IP() if hasattr(server_node, \'IP\') and callable(server_node.IP) else "10.0.0.1"\n')
+        f.write('            \n')
+        f.write('            # iPerf3 traffic\n')
+        f.write('            if TRAFFIC_CONFIG["enable_iperf"]:\n')
+        f.write('                # TCP upload\n')
+        f.write('                cmd = f"iperf3 -c {target_ip} -p {port} -t {duration} -b {bandwidth} -P {streams}"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('                \n')
+        f.write('                # TCP download\n')
+        f.write('                cmd = f"iperf3 -c {target_ip} -p {port} -t {duration} -b {bandwidth} -P {streams} -R"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('                \n')
+        f.write('                # UDP traffic\n')
+        f.write('                cmd = f"iperf3 -c {target_ip} -p {port} -t {duration} -b {bandwidth} -u"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('            \n')
+        f.write('            # Continuous ping\n')
+        f.write('            if TRAFFIC_CONFIG["enable_ping"]:\n')
+        f.write('                cmd = f"ping -c {duration} -i 1 {target_ip}"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('            \n')
+        f.write('            # HTTP load (if available)\n')
+        f.write('            if TRAFFIC_CONFIG["enable_http"]:\n')
+        f.write('                for _ in range(10):  # Multiple HTTP requests\n')
+        f.write('                    cmd = f"wget -q -O /dev/null --timeout=5 http://{target_ip}/ || curl -s --max-time 5 http://{target_ip}/ > /dev/null"\n')
+        f.write('                    start_traffic_command(client, cmd)\n')
+        f.write('        \n')
+        f.write('        time.sleep(0.2)  # Small delay between clients\n\n')
+        
+        # Start traffic command helper
+        f.write('def start_traffic_command(node, cmd):\n')
+        f.write('    """Start a traffic command on a node."""\n')
+        f.write('    global TRAFFIC_PROCESSES\n')
+        f.write('    \n')
+        f.write('    try:\n')
+        f.write('        if hasattr(node, \'cmd\'):\n')
+        f.write('            # Regular mininet node\n')
+        f.write('            proc = node.popen(cmd, shell=True)\n')
+        f.write('        else:\n')
+        f.write('            # Docker container\n')
+        f.write('            docker_cmd = f"docker exec -u root mn.{node.name} {cmd}"\n')
+        f.write('            proc = subprocess.Popen(docker_cmd.split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n')
+        f.write('        \n')
+        f.write('        TRAFFIC_PROCESSES.append(proc)\n')
+        f.write('        return proc\n')
+        f.write('    except Exception as e:\n')
+        f.write('        info(f"*** Failed to start traffic command on {node.name}: {e}\\n")\n')
+        f.write('        return None\n\n')
+        
+        # Cleanup function
+        f.write('def cleanup_traffic_and_captures():\n')
+        f.write('    """Clean up all traffic and capture processes."""\n')
+        f.write('    global TRAFFIC_PROCESSES, CAPTURE_PROCESSES\n')
+        f.write('    \n')
+        f.write('    info("*** Cleaning up traffic and capture processes\\n")\n')
+        f.write('    \n')
+        f.write('    # Stop traffic processes\n')
+        f.write('    for proc in TRAFFIC_PROCESSES:\n')
+        f.write('        try:\n')
+        f.write('            if proc and proc.poll() is None:  # Process is still running\n')
+        f.write('                proc.terminate()\n')
+        f.write('                proc.wait(timeout=5)  # Wait up to 5 seconds\n')
+        f.write('        except Exception:\n')
+        f.write('            try:\n')
+        f.write('                proc.kill()  # Force kill if terminate fails\n')
+        f.write('            except Exception:\n')
+        f.write('                pass\n')
+        f.write('    \n')
+        f.write('    # Stop capture processes\n')
+        f.write('    for capture_info in CAPTURE_PROCESSES:\n')
+        f.write('        try:\n')
+        f.write('            if len(capture_info) >= 4:\n')
+        f.write('                proc, node_name, any, node_type = capture_info\n')
+        f.write('            else:\n')
+        f.write('                proc, node_name, any = capture_info\n')
+        f.write('                node_type = "unknown"\n')
+        f.write('            \n')
+        f.write('            if proc and proc.poll() is None:  # Process is still running\n')
+        f.write('                proc.terminate()\n')
+        f.write('                proc.wait(timeout=5)\n')
+        f.write('                info(f"*** Stopped capture on {node_name} ({node_type})\\n")\n')
+        f.write('        except Exception as e:\n')
+        f.write('            try:\n')
+        f.write('                proc.kill()\n')
+        f.write('            except Exception:\n')
+        f.write('                pass\n')
+        f.write('    \n')
+        f.write('    # Clear lists\n')
+        f.write('    TRAFFIC_PROCESSES.clear()\n')
+        f.write('    CAPTURE_PROCESSES.clear()\n')
+        f.write('    \n')
+        f.write('    info("*** Cleanup completed\\n")\n\n')
+        
+        # Main traffic orchestration function
+        f.write('def run_traffic_automation(net):\n')
+        f.write('    """Main function to orchestrate traffic generation and capture."""\n')
+        f.write('    info("*** Starting Traffic Generation & Packet Capture Automation\\n")\n')
+        f.write('    \n')
+        f.write('    # Setup Docker volume mounts and create directories\n')
+        f.write('    netflux5g_captures_dir = setup_docker_captures_mount(net)\n')
+        f.write('    \n')
+        f.write('    # Start packet captures\n')
+        f.write('    start_all_captures(net, netflux5g_captures_dir)\n')
+        f.write('    \n')
+        f.write('    # Wait a moment for captures to initialize\n')
+        f.write('    time.sleep(3)\n')
+        f.write('    \n')
+        f.write('    # Start iPerf servers\n')
+        f.write('    servers = start_iperf_servers(net)\n')
+        f.write('    \n')
+        f.write('    # Wait for servers to start\n')
+        f.write('    time.sleep(2)\n')
+        f.write('    \n')
+        f.write('    # Generate traffic\n')
+        f.write('    generate_traffic_load(net, servers)\n')
+        f.write('    \n')
+        f.write('    # Show progress\n')
+        f.write('    duration = TRAFFIC_CONFIG["duration"]\n')
+        f.write('    info(f"*** Traffic generation running for {duration} seconds...\\n")\n')
+        f.write('    \n')
+        f.write('    # Wait for traffic to complete\n')
+        f.write('    time.sleep(duration + 10)\n')
+        f.write('    \n')
+        f.write('    # Show completion message\n')
+        f.write('    capture_duration = TRAFFIC_CONFIG["capture_duration"]\n')
+        f.write('    info(f"*** Traffic completed. Captures will continue for {capture_duration - duration} more seconds...\\n")\n')
+        f.write('    info(f"*** Docker captures accessible at: {netflux5g_captures_dir}\\n")\n')
+        f.write('    info(f"*** Local captures accessible at: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \"automation\", \"webshark\") + \"/captures\"}\\n")\n\n')
+
+    def write_topology_function(self, f, nodes, links, categorized_nodes, traffic_enabled=False):
         """Write the main topology function following mininet-wifi patterns.
         
         Network Mode Behavior:
@@ -425,9 +877,41 @@ class MininetExporter:
         # Start 5G components
         self.write_5g_startup(f, categorized_nodes)
         
+        # Traffic automation integration
+        if traffic_enabled:
+            f.write('    # Traffic generation and packet capture automation\n')
+            f.write('    if "--skip-traffic" not in sys.argv:\n')
+            f.write('        info("*** Traffic automation enabled. Use --skip-traffic to disable.\\n")\n')
+            f.write('        \n')
+            f.write('        # Run traffic automation in a separate thread\n')
+            f.write('        traffic_thread = threading.Thread(target=run_traffic_automation, args=(net,))\n')
+            f.write('        traffic_thread.daemon = True\n')
+            f.write('        traffic_thread.start()\n')
+            f.write('        \n')
+            f.write('        # Setup cleanup handler\n')
+            f.write('        def signal_handler(sig, frame):\n')
+            f.write('            info("*** Received interrupt signal. Cleaning up...\\n")\n')
+            f.write('            cleanup_traffic_and_captures()\n')
+            f.write('            net.stop()\n')
+            f.write('            sys.exit(0)\n')
+            f.write('        \n')
+            f.write('        signal.signal(signal.SIGINT, signal_handler)\n')
+            f.write('        signal.signal(signal.SIGTERM, signal_handler)\n')
+            f.write('    else:\n')
+            f.write('        info("*** Traffic automation disabled by --skip-traffic flag\\n")\n')
+            f.write('    \n')
+        
         # CLI and cleanup
         f.write('    info("*** Running CLI\\n")\n')
-        f.write('    CLI(net)\n\n')
+        
+        if traffic_enabled:
+            f.write('    try:\n')
+            f.write('        CLI(net)\n')
+            f.write('    finally:\n')
+            f.write('        cleanup_traffic_and_captures()\n\n')
+        else:
+            f.write('    CLI(net)\n\n')
+        
         f.write('    info("*** Stopping network\\n")\n')
         f.write('    net.stop()\n\n')
 
@@ -668,7 +1152,7 @@ class MininetExporter:
                 volumes = [
                     f'"/lib/modules:/lib/modules:ro"',
                     f'export_dir + "/log/:/logging/"',
-                    f'os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), "automation", "webshark") + "/captures/:/captures/"'
+                    f'NETFLUX5G_CAPTURES_PATH + ":/captures/"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -794,7 +1278,7 @@ class MininetExporter:
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
                     f'export_dir + "/log/:/logging/"',
-                    f'os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), "automation", "webshark") + "/captures/:/captures/"'
+                    f'NETFLUX5G_CAPTURES_PATH + ":/captures/"'
                 ]
                 ue_params.append(f'volumes=[{", ".join(volumes)}]')
 
@@ -1137,7 +1621,7 @@ class MininetExporter:
                     # Debug output for config file mapping
                     f.write(f'    info("      Config file: {config_filename}\\n")\n')
                     
-                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log/:/logging/", os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), "automation", "webshark") + "/captures/:/captures/"]')
+                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log/:/logging/", NETFLUX5G_CAPTURES_PATH + ":/captures/"]')
 
                     # Add environment variables for configuration
                     if 'env_vars' in config and config['env_vars']:
@@ -1622,10 +2106,47 @@ class MininetExporter:
             f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
         f.write('\n')
 
-    def write_main_execution(self, f):
+    def write_main_execution(self, f, traffic_enabled=False):
         """Write the main execution block."""
+        if traffic_enabled:
+            f.write('def parse_arguments():\n')
+            f.write('    """Parse command line arguments."""\n')
+            f.write('    parser = argparse.ArgumentParser(description="NetFlux5G Mininet-WiFi Topology")\n')
+            f.write('    parser.add_argument("--skip-traffic", action="store_true",\n')
+            f.write('                        help="Skip traffic generation and packet capture")\n')
+            f.write('    parser.add_argument("--traffic-duration", type=int, default=60,\n')
+            f.write('                        help="Traffic generation duration in seconds")\n')
+            f.write('    parser.add_argument("--capture-duration", type=int, default=75,\n')
+            f.write('                        help="Packet capture duration in seconds")\n')
+            f.write('    parser.add_argument("--bandwidth", default="100M",\n')
+            f.write('                        help="Traffic bandwidth (e.g., 100M, 1G)")\n')
+            f.write('    return parser.parse_args()\n\n')
+        
         f.write('if __name__ == \'__main__\':\n')
         f.write('    setLogLevel(\'info\')\n')
+        
+        if traffic_enabled:
+            f.write('    \n')
+            f.write('    # Parse command line arguments\n')
+            f.write('    args = parse_arguments()\n')
+            f.write('    \n')
+            f.write('    # Update traffic configuration\n')
+            f.write('    if hasattr(args, "traffic_duration"):\n')
+            f.write('        TRAFFIC_CONFIG["duration"] = args.traffic_duration\n')
+            f.write('    if hasattr(args, "capture_duration"):\n')
+            f.write('        TRAFFIC_CONFIG["capture_duration"] = args.capture_duration\n')
+            f.write('    if hasattr(args, "bandwidth"):\n')
+            f.write('        TRAFFIC_CONFIG["bandwidth"] = args.bandwidth\n')
+            f.write('    \n')
+            f.write('    # Show configuration\n')
+            f.write('    print("=== NetFlux5G Traffic Generation Configuration ===")\n')
+            f.write('    print(f"Traffic Duration: {TRAFFIC_CONFIG[\'duration\']}s")\n')
+            f.write('    print(f"Capture Duration: {TRAFFIC_CONFIG[\'capture_duration\']}s")\n')
+            f.write('    print(f"Bandwidth: {TRAFFIC_CONFIG[\'bandwidth\']}")\n')
+            f.write('    print(f"Traffic Enabled: {not args.skip_traffic}")\n')
+            f.write('    print("=" * 50)\n')
+            f.write('    \n')
+        
         f.write('    topology(sys.argv)\n')
 
     def sanitize_variable_name(self, name):
