@@ -2118,7 +2118,7 @@ class MininetExporter:
             f.write('                        help="Traffic generation duration in seconds")\n')
             f.write('    parser.add_argument("--capture-duration", type=int, default=75,\n')
             f.write('                        help="Packet capture duration in seconds")\n')
-            f.write('    parser.add_argument("--bandwidth", default="100M",\n')
+            f.write('    parser.add_argument("--bandwidth", default="2000M",\n')
             f.write('                        help="Traffic bandwidth (e.g., 100M, 1G)")\n')
             f.write('    return parser.parse_args()\n\n')
         
