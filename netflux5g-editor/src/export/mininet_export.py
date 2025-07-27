@@ -691,7 +691,7 @@ class MininetExporter:
         f.write('            # HTTP load (if available)\n')
         f.write('            if TRAFFIC_CONFIG["enable_http"]:\n')
         f.write('                for _ in range(10):  # Multiple HTTP requests\n')
-        f.write('                    cmd = f"wget -q -O /dev/null --timeout=5 http://{target_ip}/ || curl -s --max-time 5 http://{target_ip}/ > /dev/null"\n')
+        f.write('                    cmd = f"curl -s --max-time 2 http://httpbin.org/bytes/1000000 > /dev/null"\n')
         f.write('                    start_traffic_command(client, cmd)\n')
         f.write('        \n')
         f.write('        time.sleep(0.2)  # Small delay between clients\n\n')

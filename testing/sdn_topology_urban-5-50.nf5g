@@ -3,8 +3,8 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Mon Jul 28 00:00:48 2025",
-    "saved_date": "Mon Jul 28 00:00:48 2025",
+    "created_date": "Mon Jul 28 01:14:42 2025",
+    "saved_date": "Mon Jul 28 01:14:42 2025",
     "canvas_size": {
       "width": 1292,
       "height": 804
@@ -13,6 +13,286 @@
     "editor_version": "2.0"
   },
   "nodes": [
+    {
+      "name": "UE #50",
+      "type": "UE",
+      "x": -1232.9619559374999,
+      "y": -504.8506540624999,
+      "properties": {
+        "name": "UE #50",
+        "type": "UE",
+        "x": -1232.9619559374999,
+        "y": -504.8506540624999,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000050",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__50-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000050",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__50-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276541616
+    },
+    {
+      "name": "UE #49",
+      "type": "UE",
+      "x": -1170.609883125,
+      "y": -899.0766628124999,
+      "properties": {
+        "name": "UE #49",
+        "type": "UE",
+        "x": -1170.609883125,
+        "y": -899.0766628124999,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000049",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__49-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000049",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__49-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276541472
+    },
+    {
+      "name": "UE #48",
+      "type": "UE",
+      "x": -1659.3696796875,
+      "y": -1271.1777424999998,
+      "properties": {
+        "name": "UE #48",
+        "type": "UE",
+        "x": -1659.3696796875,
+        "y": -1271.1777424999998,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000048",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__48-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000048",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__48-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276541328
+    },
+    {
+      "name": "UE #47",
+      "type": "UE",
+      "x": -1946.9937574999997,
+      "y": -301.703578125,
+      "properties": {
+        "name": "UE #47",
+        "type": "UE",
+        "x": -1946.9937574999997,
+        "y": -301.703578125,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000047",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__47-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000047",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__47-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276541184
+    },
+    {
+      "name": "UE #46",
+      "type": "UE",
+      "x": -2228.58376375,
+      "y": -864.8835906250001,
+      "properties": {
+        "name": "UE #46",
+        "type": "UE",
+        "x": -2228.58376375,
+        "y": -864.8835906250001,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000046",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__46-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000046",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__46-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276541040
+    },
     {
       "name": "UE #1",
       "type": "UE",
@@ -66,8 +346,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319544048
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276536000
     },
     {
       "name": "UE #39",
@@ -122,8 +402,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543904
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276535856
     },
     {
       "name": "UE #31",
@@ -178,8 +458,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543760
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276535712
     },
     {
       "name": "UE #27",
@@ -234,8 +514,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543616
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276535568
     },
     {
       "name": "UE #15",
@@ -290,8 +570,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543472
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276535424
     },
     {
       "name": "UE #12",
@@ -346,8 +626,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543328
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276535280
     },
     {
       "name": "UE #9",
@@ -402,8 +682,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543184
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276535136
     },
     {
       "name": "UE #3",
@@ -458,8 +738,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319543040
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276534992
     },
     {
       "name": "UE #40",
@@ -514,8 +794,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542896
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276534848
     },
     {
       "name": "UE #38",
@@ -570,8 +850,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542752
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792960
     },
     {
       "name": "UE #37",
@@ -626,19 +906,19 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542608
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792816
     },
     {
       "name": "UE #36",
       "type": "UE",
-      "x": -166.11824153527334,
-      "y": -990.0593995104686,
+      "x": -166.1182415352733,
+      "y": -994.6855210417186,
       "properties": {
         "name": "UE #36",
         "type": "UE",
-        "x": -166.11824153527334,
-        "y": -990.0593995104686,
+        "x": -166.1182415352733,
+        "y": -994.6855210417186,
         "UE_Power": 20,
         "qt_spinbox_lineedit": "1",
         "UE_GNBHostName": "GNB__4",
@@ -682,8 +962,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542464
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792672
     },
     {
       "name": "UE #35",
@@ -738,8 +1018,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542320
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792528
     },
     {
       "name": "UE #34",
@@ -794,8 +1074,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542176
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792384
     },
     {
       "name": "UE #33",
@@ -850,8 +1130,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319542032
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792240
     },
     {
       "name": "UE #32",
@@ -906,8 +1186,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541888
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311792096
     },
     {
       "name": "UE #30",
@@ -962,8 +1242,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541744
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791952
     },
     {
       "name": "UE #29",
@@ -1018,19 +1298,19 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541600
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791808
     },
     {
       "name": "UE #28",
       "type": "UE",
-      "x": 1218.9830234843746,
-      "y": -994.6161292187497,
+      "x": 1214.3569019531246,
+      "y": -994.6161292187498,
       "properties": {
         "name": "UE #28",
         "type": "UE",
-        "x": 1218.9830234843746,
-        "y": -994.6161292187497,
+        "x": 1214.3569019531246,
+        "y": -994.6161292187498,
         "UE_Power": 20,
         "qt_spinbox_lineedit": "1",
         "UE_GNBHostName": "GNB__3",
@@ -1074,8 +1354,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541456
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791664
     },
     {
       "name": "UE #26",
@@ -1130,8 +1410,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541312
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791520
     },
     {
       "name": "UE #25",
@@ -1186,8 +1466,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541168
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791376
     },
     {
       "name": "UE #24",
@@ -1242,8 +1522,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319541024
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791232
     },
     {
       "name": "UE #23",
@@ -1298,8 +1578,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540880
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311791088
     },
     {
       "name": "UE #22",
@@ -1354,19 +1634,19 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540736
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790944
     },
     {
       "name": "UE #21",
       "type": "UE",
-      "x": 594.9192289187499,
-      "y": -1225.112634513281,
+      "x": 594.9192289187498,
+      "y": -1229.738756044531,
       "properties": {
         "name": "UE #21",
         "type": "UE",
-        "x": 594.9192289187499,
-        "y": -1225.112634513281,
+        "x": 594.9192289187498,
+        "y": -1229.738756044531,
         "UE_Power": 20,
         "qt_spinbox_lineedit": "1",
         "UE_GNBHostName": "GNB__3",
@@ -1410,8 +1690,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540592
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790800
     },
     {
       "name": "UE #20",
@@ -1466,8 +1746,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540448
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790656
     },
     {
       "name": "UE #19",
@@ -1522,8 +1802,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540304
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790512
     },
     {
       "name": "UE #18",
@@ -1578,8 +1858,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540160
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790368
     },
     {
       "name": "UE #17",
@@ -1634,8 +1914,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319540016
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790224
     },
     {
       "name": "UE #16",
@@ -1690,8 +1970,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539872
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311790080
     },
     {
       "name": "UE #14",
@@ -1746,8 +2026,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539728
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789936
     },
     {
       "name": "UE #13",
@@ -1802,8 +2082,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539584
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789792
     },
     {
       "name": "UE #11",
@@ -1858,8 +2138,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539440
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789648
     },
     {
       "name": "UE #10",
@@ -1914,8 +2194,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539296
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789504
     },
     {
       "name": "UE #8",
@@ -1970,8 +2250,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539152
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789360
     },
     {
       "name": "UE #7",
@@ -2026,8 +2306,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319539008
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789216
     },
     {
       "name": "UE #6",
@@ -2082,8 +2362,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538864
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311789072
     },
     {
       "name": "UE #5",
@@ -2138,8 +2418,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538720
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788928
     },
     {
       "name": "UE #4",
@@ -2194,8 +2474,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538576
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788784
     },
     {
       "name": "UE #2",
@@ -2250,8 +2530,8 @@
         "wireless_range": 116,
         "ueransim_component": "ue"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538432
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788640
     },
     {
       "name": "Switch #6",
@@ -2264,8 +2544,8 @@
         "x": 430.87624999999986,
         "y": -707.76175
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538288
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788496
     },
     {
       "name": "Controller #1",
@@ -2283,8 +2563,8 @@
         "Controller_Type": "Remote Controller",
         "Controller_ProtocolMode": "TCP"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538144
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788352
     },
     {
       "name": "Switch #5",
@@ -2297,8 +2577,8 @@
         "x": -19.426249999999968,
         "y": -711.3856249999999
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319538000
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788208
     },
     {
       "name": "Switch #4",
@@ -2311,8 +2591,8 @@
         "x": -315.9508749999998,
         "y": -717.8866250000001
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319537856
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311788064
     },
     {
       "name": "Switch #3",
@@ -2325,8 +2605,8 @@
         "x": -541.683,
         "y": -434.67287499999946
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319537712
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311787920
     },
     {
       "name": "Switch #2",
@@ -2339,8 +2619,8 @@
         "x": 476.8216259374995,
         "y": -447.8854465624997
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319537568
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311787776
     },
     {
       "name": "Switch #1",
@@ -2353,8 +2633,8 @@
         "x": -70.16662499999998,
         "y": -434.9277499999995
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319537424
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311787632
     },
     {
       "name": "VGcore #1",
@@ -3128,8 +3408,288 @@
         "ovs_bridge_priority": "32768",
         "ovs_stp_enabled": true
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319537280
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311781728
+    },
+    {
+      "name": "UE #41",
+      "type": "UE",
+      "x": -1468.290746875,
+      "y": -329.0580358749999,
+      "properties": {
+        "name": "UE #41",
+        "type": "UE",
+        "x": -1468.290746875,
+        "y": -329.0580358749999,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000041",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__41-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000041",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__41-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311781872
+    },
+    {
+      "name": "UE #42",
+      "type": "UE",
+      "x": -1910.1859209687495,
+      "y": -1088.1442384375,
+      "properties": {
+        "name": "UE #42",
+        "type": "UE",
+        "x": -1910.1859209687495,
+        "y": -1088.1442384375,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000042",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__42-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000042",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__42-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311782016
+    },
+    {
+      "name": "UE #43",
+      "type": "UE",
+      "x": -2059.6297599999994,
+      "y": -514.90744,
+      "properties": {
+        "name": "UE #43",
+        "type": "UE",
+        "x": -2059.6297599999994,
+        "y": -514.90744,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000043",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__43-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000043",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__43-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311782160
+    },
+    {
+      "name": "UE #44",
+      "type": "UE",
+      "x": -1472.3134612499998,
+      "y": -1031.8262371874998,
+      "properties": {
+        "name": "UE #44",
+        "type": "UE",
+        "x": -1472.3134612499998,
+        "y": -1031.8262371874998,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000044",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__44-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000044",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__44-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311782304
+    },
+    {
+      "name": "UE #45",
+      "type": "UE",
+      "x": -1713.67632375,
+      "y": -104.59057374999999,
+      "properties": {
+        "name": "UE #45",
+        "type": "UE",
+        "x": -1713.67632375,
+        "y": -104.59057374999999,
+        "UE_Power": 20,
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "GNB__5",
+        "UE_APN": "web2",
+        "UE_MSISDN": "0000000045",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__45-wlan0",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_SessionType": "IPv4",
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "GNB__5",
+        "5g_apn": "web2",
+        "5g_msisdn": "0000000045",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__45-wlan0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665311782448
     },
     {
       "name": "GNB #4",
@@ -3196,8 +3756,8 @@
         "ueransim_component": "gnb",
         "GNB_OVS_BridgeName": "br-gnb"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319544624
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276536720
     },
     {
       "name": "GNB #3",
@@ -3264,19 +3824,19 @@
         "ueransim_component": "gnb",
         "GNB_OVS_BridgeName": "br-gnb"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319544480
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276536576
     },
     {
       "name": "GNB #2",
       "type": "GNB",
-      "x": 719.879822585156,
-      "y": 213.91789367656253,
+      "x": 724.505944116406,
+      "y": 211.60483291093755,
       "properties": {
         "name": "GNB #2",
         "type": "GNB",
-        "x": 719.879822585156,
-        "y": 213.91789367656253,
+        "x": 724.505944116406,
+        "y": 211.60483291093755,
         "GNB_Power": 30,
         "GNB_Range": 300,
         "range": 300.0,
@@ -3332,8 +3892,8 @@
         "ueransim_component": "gnb",
         "GNB_OVS_BridgeName": "br-gnb"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319544336
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276536432
     },
     {
       "name": "GNB #1",
@@ -3400,8 +3960,76 @@
         "ueransim_component": "gnb",
         "GNB_OVS_BridgeName": "br-gnb"
       },
-      "created_date": "Mon Jul 28 00:00:48 2025",
-      "component_id": 139746319544192
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276536288
+    },
+    {
+      "name": "GNB #5",
+      "type": "GNB",
+      "x": -1707.6422521874997,
+      "y": -710.0090871875,
+      "properties": {
+        "name": "GNB #5",
+        "type": "GNB",
+        "x": -1707.6422521874997,
+        "y": -710.0090871875,
+        "GNB_Power": 30,
+        "GNB_Range": 300,
+        "range": 300.0,
+        "GNB_OVS_Controller": "tcp:netflux5g-onos-controller:6653",
+        "GNB_AP_SSID": "gnb-hotspot5",
+        "qt_spinbox_lineedit": "30 dBm",
+        "GNB_N2_Interface": "GNB__5-eth0",
+        "GNB_N3_Interface": "GNB__5-eth0",
+        "GNB_Radio_Interface": "GNB__5-eth0",
+        "GNB_AMFHostName": "amf1",
+        "GNB_GNBHostName": "GNB__5",
+        "GNB_TAC": "1",
+        "GNB_MCC": "999",
+        "GNB_MNC": "70",
+        "GNB_SST": "1",
+        "GNB_SD": "0xffffff",
+        "GNB_OVS_FailMode": "secure",
+        "GNB_OVS_Protocols": "OpenFlow13",
+        "GNB_OVS_Datapath": "kernel",
+        "GNB_AP_Mode": "g",
+        "GNB_OVS_Enabled": true,
+        "GNB_AP_Enabled": true,
+        "GNB_STP_Enabled": true,
+        "GNB_AP_Channel": 7,
+        "GNB_Bridge_Priority": 32764,
+        "ap_ap_enabled": "true",
+        "ap_ap_ssid": "gnb-hotspot5",
+        "ap_ap_channel": "7",
+        "ap_ap_mode": "g",
+        "ap_ovs_controller": "tcp:netflux5g-onos-controller:6653",
+        "ap_ap_failmode": "secure",
+        "ap_openflow_protocols": "OpenFlow13",
+        "ovs_ovs_enabled": "true",
+        "ovs_ovs_controller": "tcp:netflux5g-onos-controller:6653",
+        "ovs_ovs_bridge_name": "br-gnb",
+        "ovs_ovs_fail_mode": "secure",
+        "ovs_openflow_protocols": "OpenFlow13",
+        "ovs_ovs_datapath": "kernel",
+        "5g_amf_hostname": "amf1",
+        "5g_gnb_hostname": "GNB__5",
+        "5g_tac": "1",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "network_n2_iface": "GNB__5-eth0",
+        "network_n3_iface": "GNB__5-eth0",
+        "network_radio_iface": "GNB__5-eth0",
+        "network_bridge_priority": "32764",
+        "network_stp_enabled": "true",
+        "network_ueransim_component": "gnb",
+        "wireless_txpower": 30,
+        "ueransim_component": "gnb",
+        "GNB_OVS_BridgeName": "br-gnb"
+      },
+      "created_date": "Mon Jul 28 01:14:42 2025",
+      "component_id": 139665276536144
     }
   ],
   "links": [
@@ -3422,7 +4050,7 @@
         "enable_ip": false
       },
       "name": "link_96",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "GNB #3",
@@ -3441,7 +4069,7 @@
         "enable_ip": false
       },
       "name": "link_664",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "GNB #2",
@@ -3460,7 +4088,7 @@
         "enable_ip": false
       },
       "name": "link_808",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "GNB #1",
@@ -3479,7 +4107,7 @@
         "enable_ip": false
       },
       "name": "link_952",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #1",
@@ -3492,7 +4120,7 @@
         "destination": "Switch #6"
       },
       "name": "link_992",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #6",
@@ -3505,7 +4133,7 @@
         "destination": "Switch #2"
       },
       "name": "link_848",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #5",
@@ -3518,7 +4146,7 @@
         "destination": "Switch #6"
       },
       "name": "link_704",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #5",
@@ -3531,7 +4159,7 @@
         "destination": "Switch #2"
       },
       "name": "link_824",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #4",
@@ -3544,7 +4172,7 @@
         "destination": "Switch #5"
       },
       "name": "link_680",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #4",
@@ -3557,7 +4185,7 @@
         "destination": "VGcore #1"
       },
       "name": "link_392",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "VGcore #1",
@@ -3570,7 +4198,7 @@
         "destination": "Switch #3"
       },
       "name": "link_248",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #3",
@@ -3583,7 +4211,7 @@
         "destination": "Switch #4"
       },
       "name": "link_104",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #1",
@@ -3596,7 +4224,7 @@
         "destination": "Switch #3"
       },
       "name": "link_960",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #4",
@@ -3609,7 +4237,7 @@
         "destination": "Switch #1"
       },
       "name": "link_816",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #4",
@@ -3622,7 +4250,7 @@
         "destination": "Switch #2"
       },
       "name": "link_672",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Switch #1",
@@ -3635,7 +4263,26 @@
         "destination": "Switch #2"
       },
       "name": "link_528",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
+    },
+    {
+      "source": "GNB #5",
+      "destination": "Switch #3",
+      "type": "ethernet",
+      "properties": {
+        "name": "link_976",
+        "type": "ethernet",
+        "source": "GNB #5",
+        "destination": "Switch #3",
+        "bandwidth": "",
+        "delay": "",
+        "loss": "",
+        "source_ip": "",
+        "dest_ip": "",
+        "enable_ip": false
+      },
+      "name": "link_976",
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3648,7 +4295,7 @@
         "destination": "Switch #3"
       },
       "name": "link_640",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3661,7 +4308,7 @@
         "destination": "Switch #2"
       },
       "name": "link_752",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3674,7 +4321,7 @@
         "destination": "Switch #6"
       },
       "name": "link_136",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3687,7 +4334,7 @@
         "destination": "Switch #5"
       },
       "name": "link_832",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3700,7 +4347,7 @@
         "destination": "Switch #1"
       },
       "name": "link_688",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3713,7 +4360,7 @@
         "destination": "Switch #4"
       },
       "name": "link_544",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3726,7 +4373,7 @@
         "destination": "Switch #3"
       },
       "name": "link_400",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     },
     {
       "source": "Controller #1",
@@ -3739,7 +4386,7 @@
         "destination": "VGcore #1"
       },
       "name": "link_256",
-      "created_date": "Mon Jul 28 00:00:48 2025"
+      "created_date": "Mon Jul 28 01:14:42 2025"
     }
   ],
   "canvas_properties": {

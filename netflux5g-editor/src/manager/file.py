@@ -428,40 +428,46 @@ class FileManager:
             x = node_data.get('x', 0)
             y = node_data.get('y', 0)
             properties = node_data.get('properties', {})
-            
+
             # Validate component type
             if component_type not in self.main_window.component_icon_map:
                 warning_print(f"WARNING: Unknown component type: {component_type}")
                 return None
-            
+
             icon_path = self.main_window.component_icon_map.get(component_type)
             if not icon_path or not os.path.exists(icon_path):
                 warning_print(f"WARNING: Icon not found for {component_type} at {icon_path}")
                 return None
-            
+
             from gui.components import NetworkComponent
             component = NetworkComponent(component_type, icon_path, main_window=self.main_window)
-            
+
             # Set position
             component.setPosition(x, y)
-            
+
             # Restore name and properties
             component.display_name = name
+            # Set component_number from name if possible (e.g., 'UE #5')
+            import re
+            match = re.match(rf"{component_type} #(\d+)", name)
+            if match:
+                num = int(match.group(1))
+                component.component_number = num
             # Resolve relative config file paths before setting properties
             if component_type == 'VGcore':
                 self.resolveConfigFilePaths(properties)
             component.setProperties(properties)
-            
+
             # Add to scene
             self.main_window.canvas_view.scene.addItem(component)
-            
+
             # Special handling for 5G Core components with imported configurations
             if component_type == 'VGcore':
                 self.restore5GCoreConfigurations(component, properties)
-            
+
             debug_print(f"DEBUG: Created component {name} of type {component_type} at ({x}, {y})")
             return component
-            
+
         except Exception as e:
             error_print(f"ERROR: Failed to create component from data: {e}")
             traceback.print_exc()
