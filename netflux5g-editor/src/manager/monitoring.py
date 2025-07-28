@@ -76,6 +76,11 @@ class MonitoringDeploymentWorker(QThread):
                 '/var/lib/docker/:/var/lib/docker:ro',
                 '/dev/disk/:/dev/disk:ro'
             ]
+        },
+        'blackbox-exporter': {
+            'image': 'prom/blackbox-exporter',
+            'ports': ['9115:9115'],
+            'volumes': []
         }
     }
 
@@ -201,7 +206,8 @@ class MonitoringManager:
             f"• Container auto-discovery\n\n"
             f"🌐 Access URLs after deployment:\n"
             f"• Grafana: http://localhost:3000 (admin/admin)\n"
-            f"• Prometheus: http://localhost:9090\n\n"
+            f"• Prometheus: http://localhost:9090\n"
+            f"• Blackbox Exporter: http://localhost:9115)\n"
             f"Do you want to continue?",
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes
@@ -242,7 +248,7 @@ class MonitoringManager:
     
     def _get_running_monitoring_containers(self, container_prefix):
         running_containers = []
-        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor']
+        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor', 'blackbox-exporter']
         for monitoring_type in monitoring_types:
             container_name = f"{container_prefix}-{monitoring_type}"
             if DockerUtils.is_container_running(container_name):
@@ -251,7 +257,7 @@ class MonitoringManager:
 
     def _get_existing_monitoring_containers(self, container_prefix):
         existing_containers = []
-        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor']
+        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor', 'blackbox-exporter']
         for monitoring_type in monitoring_types:
             container_name = f"{container_prefix}-{monitoring_type}"
             if DockerUtils.container_exists(container_name):
@@ -259,7 +265,7 @@ class MonitoringManager:
         return existing_containers
     
     def _stop_containers_sync(self, container_prefix):
-        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor']
+        monitoring_types = ['prometheus', 'grafana', 'node-exporter', 'cadvisor', 'blackbox-exporter']
         for monitoring_type in monitoring_types:
             container_name = f"{container_prefix}-{monitoring_type}"
             try:

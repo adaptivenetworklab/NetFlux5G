@@ -11,7 +11,7 @@ class AutomationManager:
         
     def promptControllerChoice(self):
         """Prompt the user to choose between Ryu and ONOS controller."""
-        options = ["Ryu Controller", "ONOS Controller"]
+        options = ["ONOS Controller", "Ryu Controller"]
         choice, ok = QInputDialog.getItem(
             self.main_window,
             "Select SDN Controller",

@@ -658,9 +658,9 @@ class MininetExporter:
         f.write('    streams = TRAFFIC_CONFIG["streams"]\n')
         f.write('    \n')
         f.write('    for client in client_nodes:\n')
-        f.write('        # Select random servers for this client\n')
+        f.write('        # Use all servers for this client\n')
         f.write('        if servers:\n')
-        f.write('            target_servers = random.sample(servers, min(2, len(servers)))\n')
+        f.write('            target_servers = servers\n')
         f.write('        else:\n')
         f.write('            # Fallback to other hosts\n')
         f.write('            potential_targets = [h for h in net.hosts if h != client]\n')
@@ -768,9 +768,6 @@ class MininetExporter:
         f.write('    # Setup Docker volume mounts and create directories\n')
         f.write('    netflux5g_captures_dir = setup_docker_captures_mount(net)\n')
         f.write('    \n')
-        f.write('    # Start packet captures\n')
-        f.write('    start_all_captures(net, netflux5g_captures_dir)\n')
-        f.write('    \n')
         f.write('    # Wait a moment for captures to initialize\n')
         f.write('    time.sleep(3)\n')
         f.write('    \n')
@@ -861,7 +858,12 @@ class MininetExporter:
         # Create links
         f.write('    info("*** Creating links\\n")\n')
         self.write_links(f, links, categorized_nodes)
-        
+
+        # Start packet capture on all nodes before controller startup
+        if traffic_enabled:
+            f.write('    # Start packet capture on all nodes before controller startup\n')
+            f.write('    start_all_captures(net, NETFLUX5G_CAPTURES_PATH)\n')
+
         # Add plot for wireless networks
         self.write_plot_graph(f, categorized_nodes)
         
