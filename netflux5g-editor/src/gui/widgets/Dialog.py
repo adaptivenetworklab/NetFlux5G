@@ -1103,6 +1103,12 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     
                 # Use functools.partial to properly capture the component type
                 table.customContextMenuRequested.connect(partial(self.showTableContextMenu, comp_type))
+        
+        # Setup clickable link for Open5GS documentation
+        if hasattr(self, 'label_12'):
+            # Enable link activation for the label
+            self.label_12.setOpenExternalLinks(True)
+            self.label_12.linkActivated.connect(self.openDocumentationLink)
     
     def setupDefaultValues(self):
         """Setup default values for the enhanced 5G Core configuration"""
@@ -1927,6 +1933,22 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             debug_print(f"DEBUG: Enhanced 5G Core configuration saved for {self.component_name}")
             
         self.close()
+    
+    def openDocumentationLink(self, url):
+        """Open the Open5GS documentation link in the default browser."""
+        import webbrowser
+        try:
+            debug_print(f"DEBUG: Opening documentation link: {url}")
+            webbrowser.open(url)
+        except Exception as e:
+            error_print(f"ERROR: Failed to open documentation link: {e}")
+            # Show a message box as fallback
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(
+                self, 
+                "Open Link", 
+                f"Please visit the documentation at:\n{url}"
+            )
         
     def onCancel(self):
         self.close()

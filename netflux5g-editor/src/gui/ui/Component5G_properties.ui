@@ -623,7 +623,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_17">
@@ -669,6 +669,27 @@
        <string>UPF List:</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>10</y>
+        <width>391</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>UPF manages user plane packet forwarding and QoS enforcement, and it communicates with SMF and the data network.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="SMF_2">
      <attribute name="title">
@@ -680,7 +701,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_18">
@@ -760,6 +781,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>10</y>
+        <width>361</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>SMF is responsible for session and IP address management, and it communicates with UPF, AMF, PCF, and NRF.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_6">
      <attribute name="title">
@@ -771,7 +813,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_19">
@@ -851,6 +893,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>10</y>
+        <width>411</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>AMF handles user registration, mobility management, and access authentication, and it communicates with UE, gNB, SMF, AUSF, and NRF.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="SCP_2">
      <attribute name="title">
@@ -862,7 +925,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_20">
@@ -942,6 +1005,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>10</y>
+        <width>391</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>SCP routes service-based interface (SBI) messages between core functions, and it communicates with all NF services registered in NRF.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="AUSF_2">
      <attribute name="title">
@@ -953,7 +1037,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_21">
@@ -1033,6 +1117,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>400</x>
+        <y>10</y>
+        <width>361</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>AUSF authenticates subscriber identities using credentials stored in UDM, and it communicates with AMF and UDM.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="BSF_2">
      <attribute name="title">
@@ -1044,7 +1149,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_22">
@@ -1124,6 +1229,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>10</y>
+        <width>401</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>BSF provides binding information to network functions for accessing the correct PCF, and it communicates with PCF and UE-facing functions.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="NRF_2">
      <attribute name="title">
@@ -1135,7 +1261,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_23">
@@ -1215,6 +1341,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>10</y>
+        <width>381</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>NRF maintains a registry of available network functions and their services, and it communicates with all service-based network functions like AMF, SMF, PCF, etc.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="UDR_2">
      <attribute name="title">
@@ -1226,7 +1373,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_24">
@@ -1306,6 +1453,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>10</y>
+        <width>371</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>UDR stores structured user data used by UDM and PCF, and it communicates with UDM and PCF via UDSF or direct interfaces.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="NSSF_2">
      <attribute name="title">
@@ -1317,7 +1485,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_25">
@@ -1397,6 +1565,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>10</y>
+        <width>361</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>NSSF selects the appropriate network slice for a user request, and it communicates with AMF and NRF.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="UDM_2">
      <attribute name="title">
@@ -1408,7 +1597,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_26">
@@ -1488,6 +1677,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>10</y>
+        <width>381</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>UDM manages subscriber information, authentication, and policy data, and it communicates with AUSF, AMF, PCF, and UDR.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="PCF_2">
      <attribute name="title">
@@ -1499,7 +1709,7 @@
         <x>10</x>
         <y>10</y>
         <width>211</width>
-        <height>31</height>
+        <height>38</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_28">
@@ -1579,6 +1789,27 @@
        </property>
       </column>
      </widget>
+     <widget class="QLabel" name="label_11">
+      <property name="geometry">
+       <rect>
+        <x>400</x>
+        <y>10</y>
+        <width>351</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>PCF provides policy rules for traffic handling and QoS enforcement, and it communicates with SMF, AMF, and UDM.</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="gridLayoutWidget">
@@ -1587,7 +1818,7 @@
       <x>10</x>
       <y>560</y>
       <width>168</width>
-      <height>31</height>
+      <height>34</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -1638,6 +1869,39 @@
        </property>
        <property name="text">
         <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="formLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>560</y>
+      <width>524</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_13">
+       <property name="text">
+        <string>For more information please visit this link: </string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>https://open5gs.org/open5gs/docs/</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLabel { color: #0078d4; text-decoration: underline; }
+QLabel:hover { color: #004499; }</string>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
        </property>
       </widget>
      </item>
