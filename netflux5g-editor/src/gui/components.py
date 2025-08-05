@@ -332,6 +332,9 @@ class NetworkComponent(QGraphicsPixmapItem):
             paste_props_action.setEnabled(NetworkComponent.copied_properties is not None and (NetworkComponent.copied_properties.get('type') == self.component_type))
             copy_props_action.triggered.connect(self.copy_properties)
             paste_props_action.triggered.connect(self.paste_properties)
+            menu.addSeparator()
+            # open_analyzer_action = menu.addAction("Open Traffic Analyzer")
+            # open_analyzer_action.triggered.connect(self.open_analyzer)
         menu.exec_(event.screenPos())
         event.accept()  # Prevent further propagation and duplicate menu
         # After menu closes, ensure dragging state and offset are reset
@@ -386,7 +389,7 @@ class NetworkComponent(QGraphicsPixmapItem):
             debug_print(f"Pasted properties to {self.display_name}: {props}")
         else:
             debug_print(f"Paste failed: clipboard type {props.get('type') if props else None} does not match {self.component_type}")
-
+            
     def _cutComponent(self):
         """Cut this component via the operations manager."""
         scene = self.scene()

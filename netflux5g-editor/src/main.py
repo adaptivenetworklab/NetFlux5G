@@ -23,6 +23,7 @@ from manager.database import DatabaseManager
 from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
 from manager.packet_analyzer import PacketAnalyzerManager
+from manager.deployment_monitor import DeploymentMonitorManager
 from utils.template_updater import TemplateUpdater
 
 # Import existing modules
@@ -60,6 +61,7 @@ class NetFlux5GApp(QMainWindow):
         self.monitoring_manager = MonitoringManager(self)
         self.controller_manager = ControllerManager(self)
         self.packet_analyzer_manager = PacketAnalyzerManager(self)
+        self.deployment_monitor_manager = DeploymentMonitorManager(self)
         self.template_updater = TemplateUpdater(self)
         
         # Initialize other components
@@ -79,7 +81,7 @@ class NetFlux5GApp(QMainWindow):
         # Set up the canvas and component panel
         self.setupCanvas()
         self.component_panel_manager.setupComponentPanel()
-        self.component_panel_manager.setupComponentPanelToggle()
+        # self.component_panel_manager.setupComponentPanelToggle()
         
         # Initialize attributes
         self.current_link_source = None
@@ -278,6 +280,10 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionClear_DB_Data'):
                 self.actionClear_DB_Data.triggered.connect(self.database_manager.cleanupDatabase)
 
+            # Automation runner signal connections
+            if hasattr(self, 'automation_runner'):
+                self.automation_runner.execution_finished.connect(self.onTopologyExecutionFinished)
+
             # Component button connections
             if hasattr(self.component_panel_manager, 'component_widgets'):
                 for widget in self.component_panel_manager.component_widgets:
@@ -384,6 +390,17 @@ class NetFlux5GApp(QMainWindow):
     def pasteComponent(self):
         """Delegate to component operations manager."""
         self.component_operations_manager.pasteComponent()
+
+    def onTopologyExecutionFinished(self, success, message):
+        """Handle topology execution completion."""
+        if success:
+            # Show deployment monitoring panel after successful topology deployment
+            debug_print("Topology deployment successful, showing deployment monitor")
+            if hasattr(self, 'deployment_monitor_manager'):
+                # Small delay to ensure all containers are ready
+                QTimer.singleShot(2000, self.deployment_monitor_manager.showMonitoringPanel)
+        else:
+            error_print(f"Topology deployment failed: {message}")
 
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""

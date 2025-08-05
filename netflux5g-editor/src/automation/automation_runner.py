@@ -288,7 +288,7 @@ class AutomationRunner(QObject):
 echo "Starting Mininet topology..."
 echo "Working directory: {self.export_dir}"
 cd "{self.export_dir}"
-sudo -u root python3 "{self.mininet_script_path}"
+sudo python3 "{self.mininet_script_path}"
 echo "Mininet session ended. Press Enter to close..."
 read
 """)

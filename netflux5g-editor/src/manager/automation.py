@@ -168,6 +168,10 @@ class AutomationManager:
         from PyQt5.QtCore import QEventLoop
         debug_print("DEBUG: Performing comprehensive stop of all services")
 
+        # Hide deployment monitoring panel if active
+        if hasattr(self.main_window, 'deployment_monitor_manager'):
+            self.main_window.deployment_monitor_manager.hideMonitoringPanel()
+
         # Show progress dialog for stopping services
         self.progress_dialog = QProgressDialog(
             "Stopping all NetFlux5G services...",
@@ -272,6 +276,10 @@ class AutomationManager:
     def stopTopology(self):
         """Stop and clean up the current topology - Simple cleanup with mn -c"""
         debug_print("DEBUG: Stop topology triggered")
+        
+        # Hide deployment monitoring panel if active
+        if hasattr(self.main_window, 'deployment_monitor_manager'):
+            self.main_window.deployment_monitor_manager.hideMonitoringPanel()
         
         # Show confirmation dialog
         reply = QMessageBox.question(
