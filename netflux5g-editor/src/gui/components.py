@@ -1,9 +1,12 @@
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent, QInputDialog
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
+from .widgets.LogViewer import LogViewerDialog
 from utils.debug import debug_print, error_print, warning_print
 from utils.power_range_calculator import PowerRangeCalculator
+import subprocess
+import os
 
 
 class NetworkComponent(QGraphicsPixmapItem):
@@ -301,6 +304,16 @@ class NetworkComponent(QGraphicsPixmapItem):
             menu.addAction("Delete", lambda: self._delete_and_cleanup())
         else:
             menu.addAction("Properties", self.openPropertiesDialog)
+            
+            # Add log viewer option
+            log_viewer_action = menu.addAction("View Logs")
+            log_viewer_action.triggered.connect(self.openLogViewer)
+            
+            # Enable log viewer only if topology is running
+            if not self._isTopologyRunning():
+                log_viewer_action.setEnabled(False)
+                log_viewer_action.setToolTip("Topology must be running to view logs")
+            
             menu.addSeparator()
             # Add component operations
             cut_action = menu.addAction("Cut")
@@ -602,6 +615,190 @@ class NetworkComponent(QGraphicsPixmapItem):
             else:
                 return 30.0
         return 100.0 if self.component_type == "AP" else 300.0
+
+    def _isTopologyRunning(self):
+        """Check if there's a running topology by looking for Mininet containers."""
+        try:
+            # Check for any containers with "mn." prefix (Mininet containers)
+            cmd = ['docker', 'ps', '--format', '{{.Names}}', '--filter', 'name=mn.']
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            
+            if result.returncode == 0 and result.stdout.strip():
+                return True
+            
+            return False
+        except Exception as e:
+            debug_print(f"Error checking for running topology: {e}")
+            return False
+
+    def _getAvailableContainers(self):
+        """Get available containers for this component from the deployed topology."""
+        from .widgets.LogViewer import DeployedComponentsExtractor
+        
+        # Get all deployed components from the Mininet script
+        deployed_components = DeployedComponentsExtractor.extractDeployedComponents()
+        
+        if not deployed_components:
+            debug_print("No deployed components found")
+            return []
+        
+        # For VGCore components, find all 5G core components
+        if self.component_type == "VGcore":
+            core_types = ['AMF', 'SMF', 'UPF', 'NRF', 'UDR', 'UDM', 'AUSF', 'PCF', 'NSSF', 'BSF', 'SCP']
+            available_containers = []
+            
+            for container_name, info in deployed_components.items():
+                if info['type'] in core_types:
+                    available_containers.append(info['container_name'])
+            
+            debug_print(f"Found {len(available_containers)} 5G core containers for VGCore component")
+            return available_containers
+        
+        # For other components, find containers that match this component
+        else:
+            # Get the sanitized name (same as mininet export)
+            import re
+            sanitized_base = re.sub(r'[^a-zA-Z0-9_]', '_', self.display_name.lower())
+            if sanitized_base and sanitized_base[0].isdigit():
+                sanitized_base = '_' + sanitized_base
+            
+            # Look for containers that match this component
+            matching_containers = []
+            
+            for container_name, info in deployed_components.items():
+                container_lower = container_name.lower()
+                
+                # Check if this container matches our component
+                if self.component_type == "UE" and info['type'] == 'UE':
+                    if sanitized_base in container_lower or f"ue__{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "GNB" and info['type'] == 'GNB':
+                    if sanitized_base in container_lower or f"gnb__{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "Host" and "host" in container_lower:
+                    if sanitized_base in container_lower or f"host{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "STA" and "sta" in container_lower:
+                    if sanitized_base in container_lower or f"sta{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "AP" and "ap" in container_lower:
+                    if sanitized_base in container_lower or f"ap{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+            
+            debug_print(f"Found {len(matching_containers)} containers for {self.component_type} {self.display_name}")
+            return matching_containers
+
+    def _getContainerName(self):
+        """Get the container name for this component based on the running topology."""
+        available_containers = self._getAvailableContainers()
+        
+        if not available_containers:
+            # Fallback to old logic
+            sanitized_name = self.display_name.lower().replace(' ', '').replace('#', '')
+            return f"mn.{sanitized_name}"
+        
+        # Return the first available container
+        return available_containers[0]
+
+    def _containerExists(self, container_name):
+        """Check if a specific container exists and is running."""
+        try:
+            cmd = ['docker', 'ps', '--format', '{{.Names}}', '--filter', f'name={container_name}']
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            
+            if result.returncode == 0:
+                running_containers = result.stdout.strip().split('\n')
+                return container_name in running_containers
+            
+            return False
+        except Exception as e:
+            debug_print(f"Error checking container {container_name}: {e}")
+            return False
+
+    def openLogViewer(self):
+        """Open the log viewer for this component."""
+        if not self._isTopologyRunning():
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(
+                None,
+                "No Running Topology",
+                "No running topology detected. Please run the topology first to view component logs."
+            )
+            return
+        
+        # Get available containers for this component
+        available_containers = self._getAvailableContainers()
+        
+        if not available_containers:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "No Containers Found",
+                f"No containers found for {self.display_name} in the running topology.\n\n"
+                f"This could mean:\n"
+                f"1. The component is not part of the current topology\n"
+                f"2. The topology is not running properly\n"
+                f"3. The component was not deployed"
+            )
+            return
+        
+        # For VGCore components, show a selection dialog if multiple containers
+        selected_container = available_containers[0]
+        
+        if self.component_type == "VGcore" and len(available_containers) > 1:
+            # Create a user-friendly list with container names and types
+            container_options = []
+            for container in available_containers:
+                # Extract component type from container name
+                container_type = container.split('.')[-1].upper()  # mn.amf1 -> AMF1
+                container_options.append(f"{container_type} ({container})")
+            
+            choice, ok = QInputDialog.getItem(
+                None,
+                "Select 5G Core Component",
+                f"Multiple 5G Core components found for {self.display_name}.\nSelect which component's logs to view:",
+                container_options,
+                0,
+                False
+            )
+            
+            if not ok:
+                return  # User cancelled
+            
+            # Extract the actual container name from the selection
+            selected_index = container_options.index(choice)
+            selected_container = available_containers[selected_index]
+        
+        # Verify the selected container exists
+        if not self._containerExists(selected_container):
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "Container Not Running",
+                f"Container '{selected_container}' is not currently running.\n\n"
+                f"Please ensure the topology is properly deployed."
+            )
+            return
+        
+        # Open the log viewer dialog
+        try:
+            log_viewer = LogViewerDialog(
+                component_name=self.display_name,
+                component_type=self.component_type,
+                container_name=selected_container,
+                parent=None,  # Make it a standalone window
+                available_containers=available_containers if len(available_containers) > 1 else None
+            )
+            log_viewer.show()
+            log_viewer.exec_()  # Modal dialog
+            
+        except Exception as e:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                None,
+                "Error Opening Log Viewer",
+                f"Failed to open log viewer for {self.display_name}:\n{str(e)}"
+            )
 
     @staticmethod
     def scanAndInitializeNumbering(main_window=None):
