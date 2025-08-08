@@ -6,29 +6,28 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QCursor
 from PyQt5 import uic
 
-# Import managers
-from manager.window import WindowManager
-from manager.status import StatusManager
-from manager.component_panel import ComponentPanelManager
+# Import
+from gui.canvas import Canvas
+from gui.toolbar import ToolbarFunctions
+from gui.window import WindowManager
+from gui.status import StatusManager
+from gui.component_panel import ComponentPanelManager
+from gui.welcome import WelcomeScreenManager
 from manager.file import FileManager
 from manager.tool import ToolManager
 from manager.canvas import CanvasManager
 from manager.automation import AutomationManager
 from manager.keyboard import KeyboardManager
 from manager.component_operations import ComponentOperationsManager
-from utils.debug import debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
-from manager.welcome import WelcomeScreenManager
 from manager.docker_network import DockerNetworkManager
 from manager.database import DatabaseManager
 from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
 from manager.packet_analyzer import PacketAnalyzerManager
 from manager.deployment_monitor import DeploymentMonitorManager
+from utils.debug import debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
 from utils.template_updater import TemplateUpdater
 
-# Import existing modules
-from gui.canvas import Canvas
-from gui.toolbar import ToolbarFunctions
 from export.mininet_export import MininetExporter
 from automation.automation_runner import AutomationRunner
 

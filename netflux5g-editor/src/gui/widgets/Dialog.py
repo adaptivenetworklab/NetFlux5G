@@ -1042,6 +1042,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         self.setupConnections()
         self.setupDefaultValues()
         self.loadProperties()
+        
+        # Update configuration summary after loading properties
+        # Use QTimer to ensure UI is fully initialized first
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self.updateConfigurationSummary)
 
     def setupConnections(self):
         # Connect OK and Cancel buttons
@@ -1109,6 +1114,10 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             # Enable link activation for the label
             self.label_12.setOpenExternalLinks(True)
             self.label_12.linkActivated.connect(self.openDocumentationLink)
+            
+        # Connect tab change to update summary
+        if hasattr(self, 'Component5G'):
+            self.Component5G.currentChanged.connect(self.onTabChanged)
     
     def setupDefaultValues(self):
         """Setup default values for the enhanced 5G Core configuration"""
@@ -1314,6 +1323,31 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             
         return config
 
+    def onTabChanged(self, index):
+        """Handle tab change event - update summary when Slices tab is selected."""
+        try:
+            debug_print(f"DEBUG: Tab changed to index {index}")
+            if hasattr(self, 'Component5G'):
+                current_widget = self.Component5G.widget(index)
+                debug_print(f"DEBUG: Current widget: {current_widget}")
+                
+                if current_widget:
+                    widget_name = current_widget.objectName() if hasattr(current_widget, 'objectName') else "Unknown"
+                    debug_print(f"DEBUG: Widget object name: {widget_name}")
+                    
+                    # Check if the current tab is the summary tab (Slices)
+                    if widget_name == 'Slices':
+                        debug_print("DEBUG: Summary tab selected, updating configuration summary...")
+                        self.updateConfigurationSummary()
+                    else:
+                        debug_print(f"DEBUG: Not summary tab, widget name is '{widget_name}'")
+                else:
+                    debug_print("DEBUG: Current widget is None")
+        except Exception as e:
+            error_print(f"ERROR in onTabChanged: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
     def onTableCellDoubleClicked(self, component_type, row, column):
         """Handle double-click on table cells, especially for Import YAML column."""
         table_name = f'Component5G_{component_type}table'
@@ -1418,6 +1452,13 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             debug_print(f"DEBUG: Initialized Config Path column for {component_type} at row {row_position}")
         
         debug_print(f"DEBUG: Successfully added {component_type} component: {default_name} at row {row_position}")
+        
+        # Update configuration summary if we're on the summary tab
+        if hasattr(self, 'Component5G'):
+            current_index = self.Component5G.currentIndex()
+            current_widget = self.Component5G.widget(current_index)
+            if current_widget and hasattr(current_widget, 'objectName') and current_widget.objectName() == 'Slices':
+                self.updateConfigurationSummary()
 
     def removeComponentType(self, component_type):
         """Remove selected component instance from the corresponding table."""
@@ -1637,6 +1678,13 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     f"Remember to click 'OK' to save all changes."
                 )
                 
+                # Update configuration summary if we're on the summary tab
+                if hasattr(self, 'Component5G'):
+                    current_index = self.Component5G.currentIndex()
+                    current_widget = self.Component5G.widget(current_index)
+                    if current_widget and hasattr(current_widget, 'objectName') and current_widget.objectName() == 'Slices':
+                        self.updateConfigurationSummary()
+                
             except yaml.YAMLError as e:
                 QMessageBox.critical(
                     self,
@@ -1792,9 +1840,12 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         table = getattr(self, table_name, None)
         
         if not table:
+            debug_print(f"DEBUG: Table {table_name} not found")
             return []
             
         table_data = []
+        debug_print(f"DEBUG: Extracting data from {table_name}, rows: {table.rowCount()}")
+        
         for row in range(table.rowCount()):
             row_data = {}
             
@@ -1803,29 +1854,50 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             if name_item and name_item.text().strip():
                 row_data['name'] = name_item.text().strip()
             else:
+                debug_print(f"DEBUG: Skipping row {row} - no name")
                 continue  # Skip rows without names
             
             # Extract config file info (column 1)
             config_item = table.item(row, 1)
             if config_item:
-                config_data = config_item.data(Qt.UserRole)
-                if config_data and isinstance(config_data, dict):
-                    # Has imported configuration
-                    row_data['config_file'] = config_data.get('config_filename', f"{row_data['name']}.yaml")
-                    row_data['config_file_path'] = config_data.get('file_path', '')
-                    row_data['config_content'] = config_data.get('config_content', {})
-                    row_data['imported'] = config_data.get('imported', False)
+                # First check if config data is stored as attributes
+                if hasattr(config_item, 'config_data') and config_item.config_data:
+                    row_data['config_content'] = config_item.config_data
+                    row_data['imported'] = True
+                    row_data['config_file'] = getattr(config_item, 'config_filename', f"{row_data['name']}.yaml")
+                    row_data['config_file_path'] = getattr(config_item, 'config_file_path', '')
+                    debug_print(f"DEBUG: Found config data for {row_data['name']} via attributes")
+                # Then check UserRole data
+                elif config_item.data(Qt.UserRole):
+                    config_data = config_item.data(Qt.UserRole)
+                    if isinstance(config_data, dict):
+                        row_data['config_file'] = config_data.get('config_filename', f"{row_data['name']}.yaml")
+                        row_data['config_file_path'] = config_data.get('file_path', '')
+                        row_data['config_content'] = config_data.get('config_content', {})
+                        row_data['imported'] = config_data.get('imported', False)
+                        debug_print(f"DEBUG: Found config data for {row_data['name']} via UserRole")
+                    else:
+                        row_data['imported'] = False
                 else:
                     # Use text value or default
                     config_text = config_item.text().strip()
-                    if config_text and config_text != "(Double-click to import)":
-                        row_data['config_file'] = config_text
+                    if config_text and config_text != "(Double-click to import)" and config_text.startswith("✓"):
+                        row_data['config_file'] = config_text.replace("✓ ", "")
+                        row_data['imported'] = True
+                        debug_print(f"DEBUG: Found config file for {row_data['name']} via text: {row_data['config_file']}")
+                        # Try to get config content from attributes
+                        if hasattr(config_item, 'config_data'):
+                            row_data['config_content'] = config_item.config_data
+                        else:
+                            row_data['config_content'] = {}
                     else:
                         row_data['config_file'] = f"{row_data['name']}.yaml"
-                    row_data['imported'] = False
+                        row_data['imported'] = False
+                        row_data['config_content'] = {}
             else:
                 row_data['config_file'] = f"{row_data['name']}.yaml"
                 row_data['imported'] = False
+                row_data['config_content'] = {}
                 
             # Extract additional columns if they exist
             if table.columnCount() > 2:
@@ -1838,8 +1910,10 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             row_data['component_type'] = component_type
             row_data['volumes'] = []
             
+            debug_print(f"DEBUG: Extracted row data for {row_data['name']}: imported={row_data['imported']}, has_config={bool(row_data.get('config_content'))}")
             table_data.append(row_data)
         
+        debug_print(f"DEBUG: Extracted {len(table_data)} items from {component_type} table")
         return table_data
 
     def loadTableData(self, component_type, table_data):
@@ -1911,6 +1985,410 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 except:
                     pass
         debug_print("=== END DEBUG ===")
+
+    def updateConfigurationSummary(self):
+        """Update the configuration summary tab with current NF configurations."""
+        debug_print("DEBUG: Starting configuration summary update...")
+        
+        # Check if summary widgets exist
+        if not (hasattr(self, 'slicingConfigTree') and hasattr(self, 'sessionConfigTree') and hasattr(self, 'nfConfigTree')):
+            debug_print("DEBUG: Summary widgets not found, checking available widgets...")
+            # List all widgets for debugging
+            for attr_name in dir(self):
+                if 'Tree' in attr_name or 'tree' in attr_name:
+                    debug_print(f"DEBUG: Found tree widget: {attr_name}")
+            return
+            
+        try:
+            debug_print("DEBUG: Clearing existing summary data...")
+            # Clear existing summary data
+            self.slicingConfigTree.clear()
+            self.sessionConfigTree.clear()
+            self.nfConfigTree.clear()
+            
+            # Collect configuration data from all NF components
+            slicing_data = {}  # SST -> {SD -> {DNNs, NFs}}
+            session_data = {}  # DNN -> {subnet, gateway, upfs}
+            nf_data = {}      # NF_TYPE -> {instances}
+            
+            component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
+            
+            debug_print("DEBUG: Processing component types...")
+            for component_type in component_types:
+                debug_print(f"DEBUG: Processing {component_type}...")
+                table_data = self.extractTableData(component_type)
+                
+                if table_data:
+                    debug_print(f"DEBUG: Found {len(table_data)} items for {component_type}")
+                    nf_data[component_type] = []
+                    
+                    for component_instance in table_data:
+                        instance_name = component_instance.get('name', f"{component_type}1")
+                        debug_print(f"DEBUG: Processing instance {instance_name}")
+                        
+                        if component_instance.get('imported', False) and component_instance.get('config_content'):
+                            config = component_instance.get('config_content', {})
+                            debug_print(f"DEBUG: {instance_name} has imported config with keys: {list(config.keys())}")
+                            
+                            # Extract slicing information
+                            slicing_info = self.extractSlicingInfo(config, component_type)
+                            debug_print(f"DEBUG: Extracted slicing info for {instance_name}: {slicing_info}")
+                            
+                            for sst, sd_data in slicing_info.items():
+                                if sst not in slicing_data:
+                                    slicing_data[sst] = {}
+                                for sd, dnns in sd_data.items():
+                                    if sd not in slicing_data[sst]:
+                                        slicing_data[sst][sd] = {'dnns': set(), 'nfs': set()}
+                                    slicing_data[sst][sd]['dnns'].update(dnns)
+                                    slicing_data[sst][sd]['nfs'].add(f"{component_type}({instance_name})")
+                            
+                            # Extract session information (mainly from SMF)
+                            if component_type == 'SMF':
+                                session_info = self.extractSessionInfo(config)
+                                debug_print(f"DEBUG: Extracted session info from {instance_name}: {session_info}")
+                                session_data.update(session_info)
+                                
+                                # Extract UPF associations (for session data)
+                                upf_info = self.extractUPFAssociations(config)
+                                debug_print(f"DEBUG: Extracted UPF associations from {instance_name}: {upf_info}")
+                                for dnn, upfs in upf_info.items():
+                                    if dnn in session_data:
+                                        session_data[dnn]['upfs'] = upfs
+                            
+                            # Add NF instance info
+                            nf_status = "Configured" if component_instance.get('imported') else "Not Configured"
+                            key_configs = self.extractKeyConfigurations(config, component_type)
+                            
+                            nf_data[component_type].append({
+                                'instance': instance_name,
+                                'status': nf_status,
+                                'key_configs': key_configs
+                            })
+                        else:
+                            debug_print(f"DEBUG: {instance_name} has no imported config")
+                            # Add NF instance info for non-configured instances
+                            nf_data[component_type].append({
+                                'instance': instance_name,
+                                'status': "Not Configured",
+                                'key_configs': "No configuration imported"
+                            })
+                else:
+                    debug_print(f"DEBUG: No items found for {component_type}")
+            
+            debug_print(f"DEBUG: Final data summary:")
+            debug_print(f"  - Slicing data: {len(slicing_data)} slices")
+            debug_print(f"  - Session data: {len(session_data)} sessions")
+            debug_print(f"  - NF data: {sum(len(instances) for instances in nf_data.values())} total instances")
+            
+            # Populate slicing configuration tree
+            debug_print("DEBUG: Populating slicing configuration tree...")
+            self.populateSlicingConfigTree(slicing_data)
+            
+            # Populate session configuration tree
+            debug_print("DEBUG: Populating session configuration tree...")
+            self.populateSessionConfigTree(session_data)
+            
+            # Populate NF configuration tree
+            debug_print("DEBUG: Populating NF configuration tree...")
+            self.populateNFConfigTree(nf_data)
+            
+            debug_print("DEBUG: Configuration summary updated successfully")
+            
+        except Exception as e:
+            error_print(f"ERROR: Failed to update configuration summary: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
+    def extractSlicingInfo(self, config, nf_type):
+        """Extract slicing information (SST, SD, DNN) from NF configuration."""
+        slicing_info = {}  # SST -> {SD -> [DNNs]}
+        
+        try:
+            if nf_type == 'AMF' and 'amf' in config:
+                # Extract from AMF plmn_support
+                plmn_support = config['amf'].get('plmn_support', [])
+                for plmn in plmn_support:
+                    s_nssai_list = plmn.get('s_nssai', [])
+                    for s_nssai in s_nssai_list:
+                        sst = str(s_nssai.get('sst', '1'))
+                        sd = s_nssai.get('sd', '0xffffff')
+                        if isinstance(sd, int):
+                            sd = f"0x{sd:06x}"
+                        elif isinstance(sd, str) and not sd.startswith('0x'):
+                            try:
+                                sd = f"0x{int(sd):06x}"
+                            except:
+                                sd = str(sd)
+                        
+                        if sst not in slicing_info:
+                            slicing_info[sst] = {}
+                        if sd not in slicing_info[sst]:
+                            slicing_info[sst][sd] = set()
+                        # AMF doesn't specify DNNs directly, use default
+                        slicing_info[sst][sd].add("(Any)")
+                        
+            elif nf_type == 'SMF' and 'smf' in config:
+                # Extract from SMF info section if present
+                info_list = config['smf'].get('info', [])
+                for info in info_list:
+                    s_nssai_list = info.get('s_nssai', [])
+                    for s_nssai in s_nssai_list:
+                        sst = str(s_nssai.get('sst', '1'))
+                        sd = s_nssai.get('sd', '0xffffff')
+                        if isinstance(sd, int):
+                            sd = f"0x{sd:06x}"
+                        elif isinstance(sd, str) and not sd.startswith('0x'):
+                            try:
+                                sd = f"0x{int(sd):06x}"
+                            except:
+                                sd = str(sd)
+                        
+                        dnns = s_nssai.get('dnn', [])
+                        
+                        if sst not in slicing_info:
+                            slicing_info[sst] = {}
+                        if sd not in slicing_info[sst]:
+                            slicing_info[sst][sd] = set()
+                        
+                        if dnns:
+                            slicing_info[sst][sd].update(dnns)
+                        else:
+                            slicing_info[sst][sd].add("(Any)")
+                            
+                # Also extract from session configurations
+                sessions = config['smf'].get('session', [])
+                for session in sessions:
+                    dnn = session.get('dnn', 'internet')
+                    # Assume default slice if not specified
+                    if '1' not in slicing_info:
+                        slicing_info['1'] = {}
+                    if '0xffffff' not in slicing_info['1']:
+                        slicing_info['1']['0xffffff'] = set()
+                    slicing_info['1']['0xffffff'].add(dnn)
+            
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting slicing info from {nf_type}: {e}")
+            
+        return slicing_info
+
+    def extractSessionInfo(self, config):
+        """Extract session information from SMF configuration."""
+        session_info = {}  # DNN -> {subnet, gateway}
+        
+        try:
+            if 'smf' in config:
+                sessions = config['smf'].get('session', [])
+                for session in sessions:
+                    dnn = session.get('dnn', 'internet')
+                    subnet = session.get('subnet', '')
+                    gateway = session.get('gateway', '')
+                    
+                    session_info[dnn] = {
+                        'subnet': subnet,
+                        'gateway': gateway,
+                        'upfs': []  # Will be filled by extractUPFAssociations
+                    }
+                    
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting session info: {e}")
+            
+        return session_info
+
+    def extractUPFAssociations(self, config):
+        """Extract UPF associations from SMF configuration."""
+        upf_associations = {}  # DNN -> [UPFs]
+        
+        try:
+            if 'smf' in config and 'pfcp' in config['smf']:
+                client_config = config['smf']['pfcp'].get('client', {})
+                upf_list = client_config.get('upf', [])
+                
+                for upf in upf_list:
+                    upf_address = upf.get('address', '')
+                    dnns = upf.get('dnn', [])
+                    
+                    for dnn in dnns:
+                        if dnn not in upf_associations:
+                            upf_associations[dnn] = []
+                        upf_associations[dnn].append(upf_address)
+                        
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting UPF associations: {e}")
+            
+        return upf_associations
+
+    def extractKeyConfigurations(self, config, nf_type):
+        """Extract key configuration parameters for each NF type."""
+        key_configs = []
+        
+        try:
+            if nf_type == 'AMF' and 'amf' in config:
+                # AMF key configs
+                ngap_server = config['amf'].get('ngap', {}).get('server', [])
+                if ngap_server:
+                    key_configs.append(f"NGAP: {ngap_server[0].get('dev', 'N/A')}")
+                
+                guami = config['amf'].get('guami', [])
+                if guami:
+                    mcc = guami[0].get('plmn_id', {}).get('mcc', 'N/A')
+                    mnc = guami[0].get('plmn_id', {}).get('mnc', 'N/A')
+                    key_configs.append(f"PLMN: {mcc}-{mnc}")
+                    
+            elif nf_type == 'SMF' and 'smf' in config:
+                # SMF key configs
+                sessions = config['smf'].get('session', [])
+                key_configs.append(f"Sessions: {len(sessions)}")
+                
+                upf_clients = config['smf'].get('pfcp', {}).get('client', {}).get('upf', [])
+                key_configs.append(f"UPF Connections: {len(upf_clients)}")
+                
+            elif nf_type == 'UPF' and 'upf' in config:
+                # UPF key configs
+                gtpu = config['upf'].get('gtpu', {}).get('server', [])
+                if gtpu:
+                    key_configs.append(f"GTP-U: {gtpu[0].get('dev', 'N/A')}")
+                    
+                pfcp = config['upf'].get('pfcp', {}).get('server', [])
+                if pfcp:
+                    key_configs.append(f"PFCP: {pfcp[0].get('dev', 'N/A')}")
+                    
+            elif nf_type in ['NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']:
+                # Other NFs - typically have SBI interfaces
+                nf_config = config.get(nf_type.lower(), {})
+                sbi_server = nf_config.get('sbi', {}).get('server', [])
+                if sbi_server:
+                    port = sbi_server[0].get('port', 'N/A')
+                    key_configs.append(f"SBI Port: {port}")
+                    
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting key configs for {nf_type}: {e}")
+            
+        return "; ".join(key_configs) if key_configs else "No key configurations found"
+
+    def populateSlicingConfigTree(self, slicing_data):
+        """Populate the slicing configuration tree widget."""
+        try:
+            from PyQt5.QtWidgets import QTreeWidgetItem
+            
+            slice_count = 0
+            for sst, sd_data in slicing_data.items():
+                for sd, slice_info in sd_data.items():
+                    # Create tree item for each slice
+                    slice_item = QTreeWidgetItem(self.slicingConfigTree)
+                    slice_item.setText(0, sst)  # SST
+                    slice_item.setText(1, sd)   # SD
+                    slice_item.setText(2, ", ".join(sorted(slice_info['dnns'])))  # DNNs
+                    slice_item.setText(3, ", ".join(sorted(slice_info['nfs'])))   # Associated NFs
+                    
+                    # Color coding based on slice type
+                    if sst == '1':
+                        slice_item.setBackground(0, self.palette().highlight().color().lighter(150))
+                    elif sst == '2':
+                        slice_item.setBackground(0, self.palette().highlight().color().lighter(120))
+                        
+                    slice_count += 1
+            
+            debug_print(f"DEBUG: Populated slicing config tree with {slice_count} slices")
+            
+            # If no slices found, add an informational row
+            if slice_count == 0:
+                info_item = QTreeWidgetItem(self.slicingConfigTree)
+                info_item.setText(0, "No Slices")
+                info_item.setText(1, "")
+                info_item.setText(2, "")
+                info_item.setText(3, "Import AMF/SMF configurations to see network slices")
+                info_item.setBackground(0, self.palette().highlight().color().lighter(190))
+                        
+            # Expand all items and resize columns
+            self.slicingConfigTree.expandAll()
+            for i in range(4):
+                self.slicingConfigTree.resizeColumnToContents(i)
+                
+        except Exception as e:
+            error_print(f"ERROR: Error populating slicing config tree: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
+    def populateSessionConfigTree(self, session_data):
+        """Populate the session configuration tree widget."""
+        try:
+            from PyQt5.QtWidgets import QTreeWidgetItem
+            
+            session_count = 0
+            for dnn, session_info in session_data.items():
+                # Create tree item for each session
+                session_item = QTreeWidgetItem(self.sessionConfigTree)
+                session_item.setText(0, dnn)  # DNN
+                session_item.setText(1, session_info.get('subnet', 'N/A'))  # Subnet
+                session_item.setText(2, session_info.get('gateway', 'N/A'))  # Gateway
+                upfs = session_info.get('upfs', [])
+                session_item.setText(3, ", ".join(upfs) if upfs else 'No UPF assigned')  # UPF Assignments
+                session_count += 1
+            
+            debug_print(f"DEBUG: Populated session config tree with {session_count} sessions")
+            
+            # If no sessions found, add an informational row
+            if session_count == 0:
+                info_item = QTreeWidgetItem(self.sessionConfigTree)
+                info_item.setText(0, "No Sessions")
+                info_item.setText(1, "")
+                info_item.setText(2, "")
+                info_item.setText(3, "Import SMF configuration to see session details")
+                info_item.setBackground(0, self.palette().highlight().color().lighter(190))
+                
+            # Resize columns
+            for i in range(4):
+                self.sessionConfigTree.resizeColumnToContents(i)
+                
+        except Exception as e:
+            error_print(f"ERROR: Error populating session config tree: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
+    def populateNFConfigTree(self, nf_data):
+        """Populate the NF configuration tree widget."""
+        try:
+            from PyQt5.QtWidgets import QTreeWidgetItem
+            
+            total_instances = 0
+            for nf_type, instances in nf_data.items():
+                if instances:  # Only show NF types that have instances
+                    for instance_info in instances:
+                        # Create tree item for each NF instance
+                        nf_item = QTreeWidgetItem(self.nfConfigTree)
+                        nf_item.setText(0, nf_type)  # NF Type
+                        nf_item.setText(1, instance_info['instance'])  # Instance
+                        nf_item.setText(2, instance_info['status'])  # Status
+                        nf_item.setText(3, instance_info['key_configs'])  # Key Configurations
+                        
+                        # Color coding based on status
+                        if instance_info['status'] == 'Configured':
+                            nf_item.setBackground(2, self.palette().highlight().color().lighter(150))
+                        else:
+                            nf_item.setBackground(2, self.palette().highlight().color().lighter(180))
+                            
+                        total_instances += 1
+            
+            debug_print(f"DEBUG: Populated NF config tree with {total_instances} instances")
+            
+            # If no instances found, add an informational row
+            if total_instances == 0:
+                info_item = QTreeWidgetItem(self.nfConfigTree)
+                info_item.setText(0, "No NF Components")
+                info_item.setText(1, "")
+                info_item.setText(2, "Not Configured")
+                info_item.setText(3, "Add NF components and import YAML configurations")
+                info_item.setBackground(0, self.palette().highlight().color().lighter(190))
+                        
+            # Resize columns
+            for i in range(4):
+                self.nfConfigTree.resizeColumnToContents(i)
+                
+        except Exception as e:
+            error_print(f"ERROR: Error populating NF config tree: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
         
     def onOK(self):
         """Enhanced save that includes all new configuration options"""

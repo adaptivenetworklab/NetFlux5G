@@ -85,26 +85,33 @@ class MininetExporter:
             with open(filename, "w") as f:
                 self.write_mininet_script(f, nodes, links, categorized_nodes)
             
-            # Create status message based on traffic automation
+            # Create status message - always mention packet capture, traffic optional
             base_msg = f"Exported topology to {os.path.basename(filename)}"
+            status_msg = f"{base_msg} (with packet capture)"
             if traffic_enabled:
-                status_msg = f"{base_msg} (with traffic automation)"
-                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with traffic automation enabled")
+                status_msg = f"{base_msg} (with traffic automation & capture)"
+                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with full traffic automation and packet capture")
             else:
-                status_msg = base_msg
-                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links without traffic automation")
+                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with packet capture only")
             
             self.main_window.status_manager.showCanvasStatus(status_msg)
             
-            # Show additional info for traffic automation
+            # Show additional info
+            debug_print("Packet capture features always included:")
+            debug_print("- Automatic packet capture using tshark on all nodes")
+            debug_print("- Captures saved to ./captures/ directory")
+            debug_print("- Use --skip-capture flag to disable packet capture")
+            
             if traffic_enabled:
-                debug_print("Traffic automation features included:")
-                debug_print("- Automatic packet capture using tshark")
+                debug_print("Traffic generation features included:")
                 debug_print("- iPerf3 traffic generation (TCP/UDP)")
                 debug_print("- Ping connectivity tests")
                 debug_print("- HTTP load generation")
-                debug_print("- Captures saved to ./captures/ directory")
-                debug_print("- Use --skip-traffic flag to disable")
+                debug_print("- Use --skip-traffic flag to disable traffic generation")
+            else:
+                debug_print("Traffic generation disabled:")
+                debug_print("- Check 'Generate Load Traffic' in UI to enable")
+                debug_print("- Only packet capture will be active")
             
         except Exception as e:
             error_msg = f"Error exporting to Mininet: {str(e)}"
@@ -136,23 +143,23 @@ class MininetExporter:
         # Check if traffic generation is enabled
         traffic_enabled = self.is_traffic_generation_enabled()
         
-        # Write script header
+        # Write script header - capture is always enabled, traffic optional
         self.write_script_header(f, traffic_enabled)
         
-        # Write imports based on components used
-        self.write_imports(f, categorized_nodes, traffic_enabled)
+        # Write imports based on components used - always include capture imports
+        self.write_imports(f, categorized_nodes, True)  # Always enable imports for capture
         
         # Write utility functions
         self.write_utility_functions(f)
         
-        # Write traffic generation utilities if enabled
-        if traffic_enabled:
-            self.write_traffic_utilities(f)
+        # Always write traffic utilities (includes both capture and traffic generation)
+        # The actual enabling/disabling happens inside the functions based on config flags
+        self.write_traffic_utilities(f, traffic_enabled)
         
-        # Write topology function
+        # Write topology function - always include capture, traffic optional
         self.write_topology_function(f, nodes, links, categorized_nodes, traffic_enabled)
         
-        # Write main execution
+        # Write main execution - always include capture support
         self.write_main_execution(f, traffic_enabled)
 
     def write_script_header(self, f, traffic_enabled=False):
@@ -171,15 +178,27 @@ class MininetExporter:
         f.write('This script creates a network topology using mininet-wifi\n')
         f.write('with dynamic configuration from the NetFlux5G UI.\n')
         
+        # Always mention packet capture since it's always enabled
+        f.write('\n')
+        f.write('Packet Capture:\n')
+        f.write('- Packet capture using tshark is ALWAYS ENABLED for all components\n')
+        f.write('- Captures saved to ./captures/ directory\n')
+        f.write('- Captures network traffic regardless of traffic generation settings\n')
+        
         # Add traffic generation note if enabled
         if traffic_enabled:
             f.write('\n')
-            f.write('Traffic Generation & Packet Capture:\n')
+            f.write('Traffic Generation:\n')
             f.write('- Automated traffic generation is ENABLED\n')
-            f.write('- Includes packet capture using tshark for all components\n')
             f.write('- Traffic patterns: iPerf3 TCP/UDP, ping tests, HTTP load\n')
-            f.write('- Captures saved to ./captures/ directory\n')
-            f.write('- Use --skip-traffic flag to disable traffic generation\n')
+            f.write('- Use --skip-traffic flag to disable traffic generation only\n')
+            f.write('- Note: Packet capture will continue even if traffic generation is disabled\n')
+        else:
+            f.write('\n')
+            f.write('Traffic Generation:\n')
+            f.write('- Automated traffic generation is DISABLED\n')
+            f.write('- Only packet capture is active (tshark monitoring)\n')
+            f.write('- To enable traffic generation, check "Generate Load Traffic" in NetFlux5G UI\n')
         
         f.write('\n')
         f.write('5G Configuration Files:\n')
@@ -205,7 +224,7 @@ class MininetExporter:
         
         f.write('"""\n\n')
 
-    def write_imports(self, f, categorized_nodes, traffic_enabled=False):
+    def write_imports(self, f, categorized_nodes, capture_always_enabled=True):
         """Write necessary imports based on component types following fixed_topology-upf.py pattern."""
         f.write('import sys\n')
         f.write('import os\n')
@@ -213,10 +232,10 @@ class MininetExporter:
         f.write('import threading\n')
         f.write('import subprocess\n')
         f.write('import signal\n')
-        f.write('import argparse\n')
         
-        # Add traffic generation specific imports
-        if traffic_enabled:
+        # Always include argparse since we always have capture functionality
+        if capture_always_enabled:
+            f.write('import argparse\n')
             f.write('import json\n')
             f.write('import random\n')
             f.write('from datetime import datetime\n')
@@ -406,8 +425,13 @@ class MininetExporter:
         # Add working directory variable
         f.write(f'export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n\n')
 
-    def write_traffic_utilities(self, f):
-        """Write traffic generation and packet capture utility functions."""
+    def write_traffic_utilities(self, f, traffic_enabled=False):
+        """Write traffic generation and packet capture utility functions.
+        
+        Args:
+            traffic_enabled (bool): Whether traffic generation should be enabled.
+                                   Packet capture is always enabled.
+        """
         f.write('# ===============================================\n')
         f.write('# TRAFFIC GENERATION & PACKET CAPTURE UTILITIES\n')
         f.write('# ===============================================\n\n')
@@ -422,9 +446,11 @@ class MininetExporter:
         f.write('    "bandwidth": "2000M",\n')
         f.write('    "max_bandwidth": "5000M",\n')
         f.write('    "streams": 2,\n')
-        f.write('    "enable_iperf": True,\n')
-        f.write('    "enable_ping": True,\n')
-        f.write('    "enable_http": True,\n')
+        # Traffic generation depends on UI checkbox
+        f.write(f'    "enable_iperf": {str(traffic_enabled)},\n')
+        f.write(f'    "enable_ping": {str(traffic_enabled)},\n')
+        f.write(f'    "enable_http": {str(traffic_enabled)},\n')
+        # Packet capture is always enabled
         f.write('    "enable_capture": True\n')
         f.write('}\n\n')
 
@@ -730,9 +756,10 @@ class MininetExporter:
         self.write_links(f, links, categorized_nodes)
 
         # Start packet capture on all nodes before controller startup
-        if traffic_enabled:
-            f.write('    # Start packet capture on all nodes before controller startup\n')
-            f.write('    start_packet_captures(net)\n')
+        # Packet capture is always enabled, regardless of traffic generation setting
+        f.write('    # Start packet capture on all nodes before controller startup\n')
+        f.write('    # (Packet capture is always enabled, independent of traffic generation)\n')
+        f.write('    start_packet_captures(net)\n')
 
         # Add plot for wireless networks
         self.write_plot_graph(f, categorized_nodes)
@@ -749,40 +776,63 @@ class MininetExporter:
         # Start 5G components
         self.write_5g_startup(f, categorized_nodes)
         
-        # Traffic automation integration
+        # Traffic and capture automation integration
+        # Packet capture is always available, traffic generation is conditional
+        f.write('    # Packet capture and traffic automation\n')
+        f.write('    # Note: Packet capture is always enabled, traffic generation is optional\n')
+        f.write('    \n')
+        
         if traffic_enabled:
-            f.write('    # Traffic generation and packet capture automation\n')
+            f.write('    # Traffic generation is enabled in UI\n')
             f.write('    if "--skip-traffic" not in sys.argv:\n')
-            f.write('        info("*** Traffic automation enabled. Use --skip-traffic to disable.\\n")\n')
-            f.write('        \n')
-            f.write('        # Run traffic automation in a separate thread\n')
-            f.write('        traffic_thread = threading.Thread(target=run_traffic_automation, args=(net,))\n')
-            f.write('        traffic_thread.daemon = True\n')
-            f.write('        traffic_thread.start()\n')
-            f.write('        \n')
-            f.write('        # Setup cleanup handler\n')
-            f.write('        def signal_handler(sig, frame):\n')
-            f.write('            info("*** Received interrupt signal. Cleaning up...\\n")\n')
-            f.write('            cleanup_traffic_and_captures()\n')
-            f.write('            net.stop()\n')
-            f.write('            sys.exit(0)\n')
-            f.write('        \n')
-            f.write('        signal.signal(signal.SIGINT, signal_handler)\n')
-            f.write('        signal.signal(signal.SIGTERM, signal_handler)\n')
+            f.write('        info("*** Traffic generation enabled. Use --skip-traffic to disable.\\n")\n')
+            f.write('        traffic_automation_enabled = True\n')
             f.write('    else:\n')
-            f.write('        info("*** Traffic automation disabled by --skip-traffic flag\\n")\n')
-            f.write('    \n')
+            f.write('        info("*** Traffic generation disabled by --skip-traffic flag\\n")\n')
+            f.write('        traffic_automation_enabled = False\n')
+        else:
+            f.write('    # Traffic generation is disabled in UI (Generate Load Traffic unchecked)\n')
+            f.write('    info("*** Traffic generation disabled (not enabled in NetFlux5G UI)\\n")\n')
+            f.write('    traffic_automation_enabled = False\n')
+        
+        f.write('    \n')
+        f.write('    # Packet capture check\n')
+        f.write('    if "--skip-capture" not in sys.argv:\n')
+        f.write('        info("*** Packet capture enabled. Use --skip-capture to disable.\\n")\n')
+        f.write('        capture_enabled = True\n')
+        f.write('    else:\n')
+        f.write('        info("*** Packet capture disabled by --skip-capture flag\\n")\n')
+        f.write('        capture_enabled = False\n')
+        f.write('        TRAFFIC_CONFIG["enable_capture"] = False\n')
+        f.write('    \n')
+        f.write('    # Run automation based on what\'s enabled\n')
+        f.write('    if traffic_automation_enabled or capture_enabled:\n')
+        f.write('        # Run automation in a separate thread\n')
+        f.write('        automation_thread = threading.Thread(target=run_traffic_automation, args=(net,))\n')
+        f.write('        automation_thread.daemon = True\n')
+        f.write('        automation_thread.start()\n')
+        f.write('        \n')
+        f.write('        # Setup cleanup handler\n')
+        f.write('        def signal_handler(sig, frame):\n')
+        f.write('            info("*** Received interrupt signal. Cleaning up...\\n")\n')
+        f.write('            cleanup_traffic_and_captures()\n')
+        f.write('            net.stop()\n')
+        f.write('            sys.exit(0)\n')
+        f.write('        \n')
+        f.write('        signal.signal(signal.SIGINT, signal_handler)\n')
+        f.write('        signal.signal(signal.SIGTERM, signal_handler)\n')
+        f.write('    else:\n')
+        f.write('        info("*** Both traffic generation and packet capture are disabled\\n")\n')
+        f.write('    \n')
         
         # CLI and cleanup
         f.write('    info("*** Running CLI\\n")\n')
         
-        if traffic_enabled:
-            f.write('    try:\n')
-            f.write('        CLI(net)\n')
-            f.write('    finally:\n')
-            f.write('        cleanup_traffic_and_captures()\n\n')
-        else:
-            f.write('    CLI(net)\n\n')
+        # Always include cleanup handling since we always have capture functionality
+        f.write('    try:\n')
+        f.write('        CLI(net)\n')
+        f.write('    finally:\n')
+        f.write('        cleanup_traffic_and_captures()\n\n')
         
         f.write('    info("*** Stopping network\\n")\n')
         f.write('    net.stop()\n\n')
@@ -1980,45 +2030,59 @@ class MininetExporter:
 
     def write_main_execution(self, f, traffic_enabled=False):
         """Write the main execution block."""
+        # Always include argument parsing since we always have packet capture
+        f.write('def parse_arguments():\n')
+        f.write('    """Parse command line arguments."""\n')
+        f.write('    parser = argparse.ArgumentParser(description="NetFlux5G Mininet-WiFi Topology")\n')
         if traffic_enabled:
-            f.write('def parse_arguments():\n')
-            f.write('    """Parse command line arguments."""\n')
-            f.write('    parser = argparse.ArgumentParser(description="NetFlux5G Mininet-WiFi Topology")\n')
             f.write('    parser.add_argument("--skip-traffic", action="store_true",\n')
-            f.write('                        help="Skip traffic generation and packet capture")\n')
+            f.write('                        help="Skip traffic generation (packet capture will still run)")\n')
+        f.write('    parser.add_argument("--skip-capture", action="store_true",\n')
+        f.write('                        help="Skip packet capture")\n')
+        if traffic_enabled:
             f.write('    parser.add_argument("--traffic-duration", type=int, default=60,\n')
             f.write('                        help="Traffic generation duration in seconds")\n')
-            f.write('    parser.add_argument("--capture-duration", type=int, default=75,\n')
-            f.write('                        help="Packet capture duration in seconds")\n')
+        f.write('    parser.add_argument("--capture-duration", type=int, default=75,\n')
+        f.write('                        help="Packet capture duration in seconds")\n')
+        if traffic_enabled:
             f.write('    parser.add_argument("--bandwidth", default="2000M",\n')
             f.write('                        help="Traffic bandwidth (e.g., 100M, 1G)")\n')
-            f.write('    return parser.parse_args()\n\n')
+        f.write('    return parser.parse_args()\n\n')
         
         f.write('if __name__ == \'__main__\':\n')
         f.write('    setLogLevel(\'info\')\n')
+        f.write('    \n')
+        f.write('    # Parse command line arguments\n')
+        f.write('    args = parse_arguments()\n')
+        f.write('    \n')
+        f.write('    # Update configuration based on arguments\n')
+        f.write('    if hasattr(args, "skip_capture") and args.skip_capture:\n')
+        f.write('        TRAFFIC_CONFIG["enable_capture"] = False\n')
         
         if traffic_enabled:
-            f.write('    \n')
-            f.write('    # Parse command line arguments\n')
-            f.write('    args = parse_arguments()\n')
-            f.write('    \n')
-            f.write('    # Update traffic configuration\n')
             f.write('    if hasattr(args, "traffic_duration"):\n')
             f.write('        TRAFFIC_CONFIG["duration"] = args.traffic_duration\n')
-            f.write('    if hasattr(args, "capture_duration"):\n')
-            f.write('        TRAFFIC_CONFIG["capture_duration"] = args.capture_duration\n')
             f.write('    if hasattr(args, "bandwidth"):\n')
             f.write('        TRAFFIC_CONFIG["bandwidth"] = args.bandwidth\n')
-            f.write('    \n')
-            f.write('    # Show configuration\n')
-            f.write('    print("=== NetFlux5G Traffic Generation Configuration ===")\n')
-            f.write('    print(f"Traffic Duration: {TRAFFIC_CONFIG[\'duration\']}s")\n')
-            f.write('    print(f"Capture Duration: {TRAFFIC_CONFIG[\'capture_duration\']}s")\n')
-            f.write('    print(f"Bandwidth: {TRAFFIC_CONFIG[\'bandwidth\']}")\n')
-            f.write('    print(f"Traffic Enabled: {not args.skip_traffic}")\n')
-            f.write('    print("=" * 50)\n')
-            f.write('    \n')
         
+        f.write('    if hasattr(args, "capture_duration"):\n')
+        f.write('        TRAFFIC_CONFIG["capture_duration"] = args.capture_duration\n')
+        f.write('    \n')
+        f.write('    # Show configuration\n')
+        f.write('    print("=== NetFlux5G Configuration ===")\n')
+        if traffic_enabled:
+            f.write('    print(f"Traffic Generation: {not getattr(args, \'skip_traffic\', False)}")\n')
+            f.write('    if not getattr(args, "skip_traffic", False):\n')
+            f.write('        print(f"  Traffic Duration: {TRAFFIC_CONFIG[\'duration\']}s")\n')
+            f.write('        print(f"  Bandwidth: {TRAFFIC_CONFIG[\'bandwidth\']}")\n')
+        else:
+            f.write('    print("Traffic Generation: Disabled (not enabled in UI)")\n')
+        
+        f.write('    print(f"Packet Capture: {TRAFFIC_CONFIG[\'enable_capture\']}")\n')
+        f.write('    if TRAFFIC_CONFIG["enable_capture"]:\n')
+        f.write('        print(f"  Capture Duration: {TRAFFIC_CONFIG[\'capture_duration\']}s")\n')
+        f.write('    print("=" * 30)\n')
+        f.write('    \n')
         f.write('    topology(sys.argv)\n')
 
     def sanitize_variable_name(self, name):

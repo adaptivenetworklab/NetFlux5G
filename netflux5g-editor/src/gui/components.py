@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
 from .widgets.LogViewer import LogViewerDialog
+from .widgets.PacketCaptureViewer import PacketCaptureViewerDialog
 from utils.debug import debug_print, error_print, warning_print
 from utils.power_range_calculator import PowerRangeCalculator
 import subprocess
@@ -309,10 +310,17 @@ class NetworkComponent(QGraphicsPixmapItem):
             log_viewer_action = menu.addAction("View Logs")
             log_viewer_action.triggered.connect(self.openLogViewer)
             
-            # Enable log viewer only if topology is running
-            if not self._isTopologyRunning():
+            # Add packet capture viewer option
+            capture_viewer_action = menu.addAction("View Packet Capture")
+            capture_viewer_action.triggered.connect(self.openPacketCaptureViewer)
+            
+            # Enable viewers only if topology is running
+            topology_running = self._isTopologyRunning()
+            if not topology_running:
                 log_viewer_action.setEnabled(False)
                 log_viewer_action.setToolTip("Topology must be running to view logs")
+                capture_viewer_action.setEnabled(False)
+                capture_viewer_action.setToolTip("Topology must be running to view packet captures")
             
             menu.addSeparator()
             # Add component operations
@@ -798,6 +806,91 @@ class NetworkComponent(QGraphicsPixmapItem):
                 None,
                 "Error Opening Log Viewer",
                 f"Failed to open log viewer for {self.display_name}:\n{str(e)}"
+            )
+
+    def openPacketCaptureViewer(self):
+        """Open the packet capture viewer for this component."""
+        if not self._isTopologyRunning():
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(
+                None,
+                "No Running Topology",
+                "No running topology detected. Please run the topology first to view packet captures."
+            )
+            return
+        
+        # Get available containers for this component
+        available_containers = self._getAvailableContainers()
+        
+        if not available_containers:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "No Containers Found",
+                f"No containers found for {self.display_name} in the running topology.\n\n"
+                f"This could mean:\n"
+                f"1. The component is not part of the current topology\n"
+                f"2. The topology is not running properly\n"
+                f"3. The component was not deployed"
+            )
+            return
+        
+        # For VGCore components, show a selection dialog if multiple containers
+        selected_container = available_containers[0]
+        
+        if self.component_type == "VGcore" and len(available_containers) > 1:
+            # Create a user-friendly list with container names and types
+            container_options = []
+            for container in available_containers:
+                # Extract component type from container name
+                container_type = container.split('.')[-1].upper()  # mn.amf1 -> AMF1
+                container_options.append(f"{container_type} ({container})")
+            
+            choice, ok = QInputDialog.getItem(
+                None,
+                "Select 5G Core Component",
+                f"Multiple 5G Core components found for {self.display_name}.\nSelect which component's packet capture to view:",
+                container_options,
+                0,
+                False
+            )
+            
+            if not ok:
+                return  # User cancelled
+            
+            # Extract the actual container name from the selection
+            selected_index = container_options.index(choice)
+            selected_container = available_containers[selected_index]
+        
+        # Verify the selected container exists
+        if not self._containerExists(selected_container):
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "Container Not Running",
+                f"Container '{selected_container}' is not currently running.\n\n"
+                f"Please ensure the topology is properly deployed."
+            )
+            return
+        
+        # Open the packet capture viewer dialog
+        try:
+            capture_viewer = PacketCaptureViewerDialog(
+                component_name=self.display_name,
+                component_type=self.component_type,
+                container_name=selected_container,
+                parent=None,  # Make it a standalone window
+                available_containers=available_containers if len(available_containers) > 1 else None
+            )
+            capture_viewer.show()
+            capture_viewer.exec_()  # Modal dialog
+            
+        except Exception as e:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                None,
+                "Error Opening Packet Capture Viewer",
+                f"Failed to open packet capture viewer for {self.display_name}:\n{str(e)}"
             )
 
     @staticmethod

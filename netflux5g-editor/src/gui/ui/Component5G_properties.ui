@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>811</width>
+    <height>601</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,8 +22,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>780</width>
-      <height>540</height>
+      <width>791</width>
+      <height>541</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -579,6 +579,220 @@
       </widget>
      </widget>
     </widget>
+    <widget class="QWidget" name="Slices">
+     <attribute name="title">
+      <string>Current Summary</string>
+     </attribute>
+     <widget class="QScrollArea" name="summaryScrollArea">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>750</width>
+        <height>480</height>
+       </rect>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="summaryScrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>748</width>
+         <height>478</height>
+        </rect>
+       </property>
+       <widget class="QGroupBox" name="slicingConfigGroup">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>720</width>
+          <height>150</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Network Slicing Configuration Summary</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox { font-weight: bold; color: #2E5DBA; }</string>
+        </property>
+        <widget class="QTreeWidget" name="slicingConfigTree">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>25</y>
+           <width>700</width>
+           <height>115</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+QTreeWidget {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    selection-background-color: #e3f2fd;
+}
+QTreeWidget::item {
+    padding: 3px;
+    border-bottom: 1px solid #e0e0e0;
+}
+QTreeWidget::item:selected {
+    background-color: #bbdefb;
+}
+          </string>
+         </property>
+         <column>
+          <property name="text">
+           <string>SST</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>SD</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>DNN/APN</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Associated NFs</string>
+          </property>
+         </column>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="sessionConfigGroup">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>170</y>
+          <width>720</width>
+          <height>150</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Session Configuration Summary</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox { font-weight: bold; color: #2E5DBA; }</string>
+        </property>
+        <widget class="QTreeWidget" name="sessionConfigTree">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>25</y>
+           <width>700</width>
+           <height>115</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+QTreeWidget {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    selection-background-color: #e3f2fd;
+}
+QTreeWidget::item {
+    padding: 3px;
+    border-bottom: 1px solid #e0e0e0;
+}
+QTreeWidget::item:selected {
+    background-color: #bbdefb;
+}
+          </string>
+         </property>
+         <column>
+          <property name="text">
+           <string>DNN</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Subnet</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Gateway</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>UPF Assignments</string>
+          </property>
+         </column>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="nfConfigGroup">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>330</y>
+          <width>720</width>
+          <height>140</height>
+         </rect>
+        </property>
+        <property name="title">
+         <string>Network Function (NF) Configuration Summary</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox { font-weight: bold; color: #2E5DBA; }</string>
+        </property>
+        <widget class="QTreeWidget" name="nfConfigTree">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>25</y>
+           <width>700</width>
+           <height>105</height>
+          </rect>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+QTreeWidget {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    selection-background-color: #e3f2fd;
+}
+QTreeWidget::item {
+    padding: 3px;
+    border-bottom: 1px solid #e0e0e0;
+}
+QTreeWidget::item:selected {
+    background-color: #bbdefb;
+}
+          </string>
+         </property>
+         <column>
+          <property name="text">
+           <string>NF Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Instance</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Status</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Key Configurations</string>
+          </property>
+         </column>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
+    </widget>
     <widget class="QWidget" name="UPF_2">
      <attribute name="title">
       <string>UPF</string>
@@ -672,9 +886,9 @@
      <widget class="QLabel" name="label">
       <property name="geometry">
        <rect>
-        <x>360</x>
+        <x>350</x>
         <y>10</y>
-        <width>391</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -685,6 +899,9 @@
       </property>
       <property name="text">
        <string>UPF manages user plane packet forwarding and QoS enforcement, and it communicates with SMF and the data network.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -784,9 +1001,9 @@
      <widget class="QLabel" name="label_2">
       <property name="geometry">
        <rect>
-        <x>390</x>
+        <x>350</x>
         <y>10</y>
-        <width>361</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -797,6 +1014,9 @@
       </property>
       <property name="text">
        <string>SMF is responsible for session and IP address management, and it communicates with UPF, AMF, PCF, and NRF.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -910,6 +1130,9 @@
       <property name="text">
        <string>AMF handles user registration, mobility management, and access authentication, and it communicates with UE, gNB, SMF, AUSF, and NRF.</string>
       </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
+      </property>
       <property name="wordWrap">
        <bool>true</bool>
       </property>
@@ -1008,9 +1231,9 @@
      <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
-        <x>360</x>
+        <x>350</x>
         <y>10</y>
-        <width>391</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -1021,6 +1244,9 @@
       </property>
       <property name="text">
        <string>SCP routes service-based interface (SBI) messages between core functions, and it communicates with all NF services registered in NRF.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1120,9 +1346,9 @@
      <widget class="QLabel" name="label_5">
       <property name="geometry">
        <rect>
-        <x>400</x>
+        <x>350</x>
         <y>10</y>
-        <width>361</width>
+        <width>411</width>
         <height>51</height>
        </rect>
       </property>
@@ -1133,6 +1359,9 @@
       </property>
       <property name="text">
        <string>AUSF authenticates subscriber identities using credentials stored in UDM, and it communicates with AMF and UDM.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1232,7 +1461,7 @@
      <widget class="QLabel" name="label_6">
       <property name="geometry">
        <rect>
-        <x>360</x>
+        <x>350</x>
         <y>10</y>
         <width>401</width>
         <height>51</height>
@@ -1245,6 +1474,9 @@
       </property>
       <property name="text">
        <string>BSF provides binding information to network functions for accessing the correct PCF, and it communicates with PCF and UE-facing functions.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1344,9 +1576,9 @@
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
-        <x>370</x>
+        <x>350</x>
         <y>10</y>
-        <width>381</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -1357,6 +1589,9 @@
       </property>
       <property name="text">
        <string>NRF maintains a registry of available network functions and their services, and it communicates with all service-based network functions like AMF, SMF, PCF, etc.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1456,9 +1691,9 @@
      <widget class="QLabel" name="label_8">
       <property name="geometry">
        <rect>
-        <x>380</x>
+        <x>350</x>
         <y>10</y>
-        <width>371</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -1469,6 +1704,9 @@
       </property>
       <property name="text">
        <string>UDR stores structured user data used by UDM and PCF, and it communicates with UDM and PCF via UDSF or direct interfaces.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1568,9 +1806,9 @@
      <widget class="QLabel" name="label_9">
       <property name="geometry">
        <rect>
-        <x>390</x>
+        <x>350</x>
         <y>10</y>
-        <width>361</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -1581,6 +1819,9 @@
       </property>
       <property name="text">
        <string>NSSF selects the appropriate network slice for a user request, and it communicates with AMF and NRF.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1680,9 +1921,9 @@
      <widget class="QLabel" name="label_10">
       <property name="geometry">
        <rect>
-        <x>380</x>
+        <x>350</x>
         <y>10</y>
-        <width>381</width>
+        <width>411</width>
         <height>51</height>
        </rect>
       </property>
@@ -1693,6 +1934,9 @@
       </property>
       <property name="text">
        <string>UDM manages subscriber information, authentication, and policy data, and it communicates with AUSF, AMF, PCF, and UDR.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1792,9 +2036,9 @@
      <widget class="QLabel" name="label_11">
       <property name="geometry">
        <rect>
-        <x>400</x>
+        <x>350</x>
         <y>10</y>
-        <width>351</width>
+        <width>401</width>
         <height>51</height>
        </rect>
       </property>
@@ -1805,6 +2049,9 @@
       </property>
       <property name="text">
        <string>PCF provides policy rules for traffic handling and QoS enforcement, and it communicates with SMF, AMF, and UDM.</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignJustify|Qt::AlignVCenter</set>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -1893,15 +2140,15 @@
      </item>
      <item row="0" column="1">
       <widget class="QLabel" name="label_12">
-       <property name="text">
-        <string>https://open5gs.org/open5gs/docs/</string>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="styleSheet">
         <string notr="true">QLabel { color: #0078d4; text-decoration: underline; }
 QLabel:hover { color: #004499; }</string>
        </property>
-       <property name="cursor">
-        <cursorShape>PointingHandCursor</cursorShape>
+       <property name="text">
+        <string>https://open5gs.org/open5gs/docs/</string>
        </property>
       </widget>
      </item>

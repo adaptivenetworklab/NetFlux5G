@@ -1,24 +1,30 @@
 """
-Log Viewer Widget for NetFlux5G Components
+Packet Capture Viewer Widget for NetFlux5G Components
 
-This module provides a log viewer window that displays real-time logs
-from deployed components including 5G Core, gNBs, UEs, and other network components.
+This module provides a packet capture viewer window that displays network packets
+from deployed components using tshark to parse pcapng files. It supports:
+
+- Real-time packet capture viewing
+- Component-specific capture files
+- Filtering and search capabilities
+- Export functionality
 """
 
 from PyQt5.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTextEdit, 
                            QPushButton, QLabel, QComboBox, QCheckBox, 
                            QSpinBox, QGroupBox, QSplitter, QFileDialog,
-                           QMessageBox, QProgressBar, QFrame)
+                           QMessageBox, QProgressBar, QFrame, QLineEdit)
 from PyQt5.QtCore import Qt, QTimer, QThread, pyqtSignal, QDateTime
 from PyQt5.QtGui import QFont, QTextCursor, QIcon
 import subprocess
 import os
 import re
+import time
 from utils.debug import debug_print, error_print, warning_print
 
 
 class DeployedComponentsExtractor:
-    """Extract deployed components from the exported Mininet script."""
+    """Extract deployed components from the exported Mininet script (reused from LogViewer)."""
     
     @staticmethod
     def extractDeployedComponents():
@@ -193,58 +199,39 @@ class DeployedComponentsExtractor:
         return 'Container'
 
 
-class LogReaderWorker(QThread):
-    """Worker thread to read logs without blocking the UI."""
+class PacketReaderWorker(QThread):
+    """Worker thread to read packet captures without blocking the UI."""
     
-    new_log_data = pyqtSignal(str)  # Signal to emit new log data
-    log_error = pyqtSignal(str)     # Signal to emit error messages
+    new_packet_data = pyqtSignal(str)  # Signal to emit new packet data
+    capture_error = pyqtSignal(str)    # Signal to emit error messages
     
-    def __init__(self, container_name, component_type, follow=True, lines=100):
+    def __init__(self, container_name, component_type, follow=True, packet_count=100, display_filter=""):
         super().__init__()
         self.container_name = container_name
         self.component_type = component_type
         self.follow = follow
-        self.lines = lines
+        self.packet_count = packet_count
+        self.display_filter = display_filter
         self.running = True
-        self.log_file_path = None
+        self.capture_file_path = None
         self.process = None
+        self.last_packet_count = 0
         
-        # Determine log file path based on component type
-        self._determine_log_file_path()
+        # Determine capture file path based on component
+        self._determine_capture_file_path()
         
-    def _determine_log_file_path(self):
-        """Determine the log file path based on component type."""
+    def _determine_capture_file_path(self):
+        """Determine the capture file path based on component."""
+        # Extract the actual component name from container name (remove mn. prefix)
         actual_component_name = self.container_name.replace('mn.', '')
         
-        # Default log file path for most components
-        self.log_file_path = f"/logging/{actual_component_name}.log"
+        # Standard capture file path: /captures/{component_name}.pcapng
+        self.capture_file_path = f"/captures/{actual_component_name}.pcapng"
         
-        # Special cases for different component types
-        if self.component_type in ['AMF', 'SMF', 'UPF', 'NRF', 'UDR', 'UDM', 'AUSF', 'PCF', 'NSSF', 'BSF', 'SCP']:
-            # 5G Core components might have specific log paths
-            service_name = f"open5gs-{self.component_type.lower()}d"
-            # Try multiple possible log locations
-            possible_paths = [
-                f"/logging/{actual_component_name}.log",
-                f"/var/log/open5gs/{service_name}.log",
-                f"/tmp/{service_name}.log",
-                f"/logging/{service_name}.log"
-            ]
-            self.log_file_path = possible_paths
-        elif self.component_type in ['GNB', 'UE']:
-            # UERANSIM components
-            possible_paths = [
-                f"/logging/{actual_component_name}.log",
-                f"/tmp/ueransim-{self.component_type.lower()}.log",
-                f"/var/log/{actual_component_name}.log"
-            ]
-            self.log_file_path = possible_paths
-        else:
-            # For other components, use docker logs
-            self.log_file_path = "docker_logs"
+        debug_print(f"Capture file path for {self.container_name}: {self.capture_file_path}")
     
     def stop(self):
-        """Stop the log reading thread."""
+        """Stop the packet reading thread."""
         self.running = False
         if self.process:
             try:
@@ -258,101 +245,126 @@ class LogReaderWorker(QThread):
         self.quit()
         
     def run(self):
-        """Main log reading loop."""
-        try:
-            if self.log_file_path == "docker_logs":
-                self._read_docker_logs()
-            elif isinstance(self.log_file_path, list):
-                self._read_from_multiple_paths()
-            else:
-                self._read_from_single_path()
-        except Exception as e:
-            self.log_error.emit(f"Error reading logs: {str(e)}")
-    
-    def _read_docker_logs(self):
-        """Read logs using docker logs command."""
+        """Main packet reading loop."""
         try:
             if self.follow:
-                cmd = ['docker', 'logs', '-f', '--tail', str(self.lines), self.container_name]
+                self._follow_capture_file()
             else:
-                cmd = ['docker', 'logs', '--tail', str(self.lines), self.container_name]
-            
-            self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
-                                          universal_newlines=True, bufsize=1)
-            
-            for line in iter(self.process.stdout.readline, ''):
-                if not self.running:
-                    break
-                if line:
-                    timestamp = QDateTime.currentDateTime().toString("hh:mm:ss.zzz")
-                    formatted_line = f"[{timestamp}] {line.rstrip()}\n"
-                    self.new_log_data.emit(formatted_line)
-                    
+                self._read_static_capture()
         except Exception as e:
-            self.log_error.emit(f"Error reading docker logs: {str(e)}")
+            self.capture_error.emit(f"Error reading packet capture: {str(e)}")
     
-    def _read_from_single_path(self):
-        """Read logs from a single file path inside the container."""
+    def _read_static_capture(self):
+        """Read a static capture file (non-follow mode)."""
         try:
-            # First, try to get existing logs
-            cmd = ['docker', 'exec', self.container_name, 'tail', f'-{self.lines}', self.log_file_path]
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+            # Check if capture file exists first
+            check_cmd = ['docker', 'exec', self.container_name, 'test', '-f', self.capture_file_path]
+            result = subprocess.run(check_cmd, capture_output=True, timeout=5)
             
-            if result.returncode == 0 and result.stdout:
-                for line in result.stdout.splitlines():
-                    if not self.running:
-                        break
-                    timestamp = QDateTime.currentDateTime().toString("hh:mm:ss.zzz")
-                    formatted_line = f"[{timestamp}] {line}\n"
-                    self.new_log_data.emit(formatted_line)
+            if result.returncode != 0:
+                self.capture_error.emit(f"Capture file {self.capture_file_path} not found in container {self.container_name}")
+                return
             
-            # If follow is enabled, continue monitoring
-            if self.follow and self.running:
-                cmd = ['docker', 'exec', self.container_name, 'tail', '-f', self.log_file_path]
-                self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                              universal_newlines=True, bufsize=1)
+            # Build tshark command
+            tshark_cmd = [
+                'docker', 'exec', self.container_name, 
+                'tshark', '-r', self.capture_file_path,
+                '-c', str(self.packet_count),  # Limit packet count
+                '-T', 'text',  # Text output format
+                '-V'  # Verbose output (packet details)
+            ]
+            
+            # Add display filter if specified
+            if self.display_filter.strip():
+                tshark_cmd.extend(['-Y', self.display_filter.strip()])
+            
+            debug_print(f"Running tshark command: {' '.join(tshark_cmd)}")
+            
+            # Execute tshark
+            result = subprocess.run(tshark_cmd, capture_output=True, text=True, timeout=30)
+            
+            if result.returncode == 0:
+                if result.stdout:
+                    self.new_packet_data.emit(result.stdout)
+                else:
+                    self.capture_error.emit("No packets found matching the criteria")
+            else:
+                error_msg = f"tshark error: {result.stderr}" if result.stderr else "tshark command failed"
+                self.capture_error.emit(error_msg)
                 
-                for line in iter(self.process.stdout.readline, ''):
-                    if not self.running:
-                        break
-                    if line:
-                        timestamp = QDateTime.currentDateTime().toString("hh:mm:ss.zzz")
-                        formatted_line = f"[{timestamp}] {line.rstrip()}\n"
-                        self.new_log_data.emit(formatted_line)
-                        
+        except subprocess.TimeoutExpired:
+            self.capture_error.emit("tshark command timed out")
         except Exception as e:
-            self.log_error.emit(f"Error reading from {self.log_file_path}: {str(e)}")
+            self.capture_error.emit(f"Error running tshark: {str(e)}")
     
-    def _read_from_multiple_paths(self):
-        """Try reading from multiple possible log file paths."""
-        log_found = False
-        
-        for log_path in self.log_file_path:
-            try:
-                # Check if log file exists
-                cmd = ['docker', 'exec', self.container_name, 'test', '-f', log_path]
-                result = subprocess.run(cmd, capture_output=True, timeout=5)
+    def _follow_capture_file(self):
+        """Follow a capture file for real-time updates."""
+        try:
+            # In follow mode, we periodically check for new packets
+            while self.running:
+                # Check if capture file exists
+                check_cmd = ['docker', 'exec', self.container_name, 'test', '-f', self.capture_file_path]
+                result = subprocess.run(check_cmd, capture_output=True, timeout=5)
                 
-                if result.returncode == 0:
-                    debug_print(f"Found log file at {log_path} for {self.container_name}")
-                    self.log_file_path = log_path
-                    log_found = True
-                    self._read_from_single_path()
-                    return
+                if result.returncode != 0:
+                    # File doesn't exist yet, wait a bit
+                    time.sleep(2)
+                    continue
+                
+                # Get current packet count
+                count_cmd = [
+                    'docker', 'exec', self.container_name,
+                    'tshark', '-r', self.capture_file_path, '-T', 'fields', '-e', 'frame.number'
+                ]
+                
+                try:
+                    count_result = subprocess.run(count_cmd, capture_output=True, text=True, timeout=10)
+                    if count_result.returncode == 0:
+                        lines = count_result.stdout.strip().split('\n')
+                        current_packet_count = len([line for line in lines if line.strip()])
+                        
+                        # Check if there are new packets
+                        if current_packet_count > self.last_packet_count:
+                            # Read new packets
+                            new_packets_to_read = min(10, current_packet_count - self.last_packet_count)  # Read max 10 new packets at a time
+                            
+                            # Read the new packets
+                            tshark_cmd = [
+                                'docker', 'exec', self.container_name,
+                                'tshark', '-r', self.capture_file_path,
+                                '-T', 'text', '-V',
+                                '-c', str(new_packets_to_read),
+                                '-o', f'frame.offset:{self.last_packet_count}'
+                            ]
+                            
+                            # Add display filter if specified
+                            if self.display_filter.strip():
+                                tshark_cmd.extend(['-Y', self.display_filter.strip()])
+                            
+                            packet_result = subprocess.run(tshark_cmd, capture_output=True, text=True, timeout=15)
+                            
+                            if packet_result.returncode == 0 and packet_result.stdout:
+                                timestamp = QDateTime.currentDateTime().toString("hh:mm:ss.zzz")
+                                formatted_output = f"\n[{timestamp}] === New packets detected ===\n{packet_result.stdout}\n"
+                                self.new_packet_data.emit(formatted_output)
+                            
+                            self.last_packet_count = current_packet_count
+                
+                except subprocess.TimeoutExpired:
+                    pass  # Continue monitoring
+                except Exception as e:
+                    debug_print(f"Error checking for new packets: {e}")
+                
+                # Wait before checking again
+                if self.running:
+                    time.sleep(5)  # Check every 5 seconds
                     
-            except Exception as e:
-                debug_print(f"Failed to check log path {log_path}: {e}")
-                continue
-        
-        if not log_found:
-            # Fallback to docker logs
-            self.log_error.emit(f"No log files found in container, falling back to docker logs")
-            self.log_file_path = "docker_logs"
-            self._read_docker_logs()
+        except Exception as e:
+            self.capture_error.emit(f"Error following capture file: {str(e)}")
 
 
-class LogViewerDialog(QDialog):
-    """Dialog window for viewing component logs."""
+class PacketCaptureViewerDialog(QDialog):
+    """Dialog window for viewing packet captures."""
     
     def __init__(self, component_name, component_type, container_name, parent=None, available_containers=None):
         super().__init__(parent)
@@ -360,16 +372,16 @@ class LogViewerDialog(QDialog):
         self.component_type = component_type
         self.container_name = container_name
         self.available_containers = available_containers or [container_name]
-        self.log_worker = None
+        self.packet_worker = None
         self.auto_scroll = True
         
         self.setupUI()
         self.setupConnections()
-        self.startLogReading()
+        self.startPacketReading()
         
     def setupUI(self):
         """Setup the user interface."""
-        self.setWindowTitle(f"Log Viewer - {self.component_name} ({self.component_type})")
+        self.setWindowTitle(f"Packet Capture Viewer - {self.component_name} ({self.component_type})")
         
         # Set window icon
         try:
@@ -379,7 +391,7 @@ class LogViewerDialog(QDialog):
         except Exception:
             pass  # Icon not critical
             
-        self.resize(800, 600)
+        self.resize(1000, 700)
         
         layout = QVBoxLayout(self)
         
@@ -405,47 +417,63 @@ class LogViewerDialog(QDialog):
         layout.addWidget(header)
         
         # Control panel
-        control_panel = QGroupBox("Log Controls")
-        control_layout = QHBoxLayout(control_panel)
+        control_panel = QGroupBox("Capture Controls")
+        control_layout = QVBoxLayout(control_panel)
+        
+        # First row of controls
+        control_row1 = QHBoxLayout()
         
         # Auto-scroll checkbox
         self.auto_scroll_cb = QCheckBox("Auto-scroll")
         self.auto_scroll_cb.setChecked(True)
-        control_layout.addWidget(self.auto_scroll_cb)
+        control_row1.addWidget(self.auto_scroll_cb)
         
-        # Lines to show
-        control_layout.addWidget(QLabel("Lines:"))
-        self.lines_spinbox = QSpinBox()
-        self.lines_spinbox.setRange(10, 10000)
-        self.lines_spinbox.setValue(100)
-        control_layout.addWidget(self.lines_spinbox)
+        # Packet count
+        control_row1.addWidget(QLabel("Packets:"))
+        self.packet_count_spinbox = QSpinBox()
+        self.packet_count_spinbox.setRange(10, 10000)
+        self.packet_count_spinbox.setValue(100)
+        control_row1.addWidget(self.packet_count_spinbox)
         
-        # Follow logs checkbox
-        self.follow_logs_cb = QCheckBox("Follow logs")
-        self.follow_logs_cb.setChecked(True)
-        control_layout.addWidget(self.follow_logs_cb)
+        # Follow captures checkbox
+        self.follow_capture_cb = QCheckBox("Follow capture")
+        self.follow_capture_cb.setChecked(False)  # Default to false for better performance
+        control_row1.addWidget(self.follow_capture_cb)
         
-        control_layout.addStretch()
+        control_row1.addStretch()
+        control_layout.addLayout(control_row1)
         
-        # Control buttons
+        # Second row - Display filter
+        filter_row = QHBoxLayout()
+        filter_row.addWidget(QLabel("Display Filter:"))
+        self.filter_input = QLineEdit()
+        self.filter_input.setPlaceholderText("e.g., tcp.port == 80 or ip.addr == 192.168.1.1")
+        filter_row.addWidget(self.filter_input)
+        control_layout.addLayout(filter_row)
+        
+        # Third row - Control buttons
+        button_row = QHBoxLayout()
+        
         self.refresh_btn = QPushButton("Refresh")
         self.clear_btn = QPushButton("Clear")
         self.save_btn = QPushButton("Save to File")
         self.stop_btn = QPushButton("Stop Following")
         
-        control_layout.addWidget(self.refresh_btn)
-        control_layout.addWidget(self.clear_btn)
-        control_layout.addWidget(self.save_btn)
-        control_layout.addWidget(self.stop_btn)
+        button_row.addWidget(self.refresh_btn)
+        button_row.addWidget(self.clear_btn)
+        button_row.addWidget(self.save_btn)
+        button_row.addWidget(self.stop_btn)
+        button_row.addStretch()
         
+        control_layout.addLayout(button_row)
         layout.addWidget(control_panel)
         
-        # Log display area
-        self.log_text = QTextEdit()
-        self.log_text.setReadOnly(True)
-        font = QFont("Courier", 9)  # Monospace font for better log readability
-        self.log_text.setFont(font)
-        self.log_text.setStyleSheet("""
+        # Packet display area
+        self.packet_text = QTextEdit()
+        self.packet_text.setReadOnly(True)
+        font = QFont("Courier", 8)  # Smaller monospace font for packet data
+        self.packet_text.setFont(font)
+        self.packet_text.setStyleSheet("""
             QTextEdit {
                 background-color: #1e1e1e;
                 color: #d4d4d4;
@@ -453,7 +481,7 @@ class LogViewerDialog(QDialog):
             }
         """)
         
-        layout.addWidget(self.log_text)
+        layout.addWidget(self.packet_text)
         
         # Status bar
         self.status_label = QLabel("Ready")
@@ -462,101 +490,109 @@ class LogViewerDialog(QDialog):
     def setupConnections(self):
         """Setup signal connections."""
         self.auto_scroll_cb.toggled.connect(self.onAutoScrollToggled)
-        self.follow_logs_cb.toggled.connect(self.onFollowLogsToggled)
-        self.refresh_btn.clicked.connect(self.refreshLogs)
-        self.clear_btn.clicked.connect(self.clearLogs)
-        self.save_btn.clicked.connect(self.saveLogs)
+        self.follow_capture_cb.toggled.connect(self.onFollowCaptureToggled)
+        self.refresh_btn.clicked.connect(self.refreshCapture)
+        self.clear_btn.clicked.connect(self.clearCapture)
+        self.save_btn.clicked.connect(self.saveCapture)
         self.stop_btn.clicked.connect(self.stopFollowing)
+        self.filter_input.returnPressed.connect(self.refreshCapture)
         
         # Connect container selector if available
         if self.container_selector:
             self.container_selector.currentTextChanged.connect(self.onContainerChanged)
         
-    def startLogReading(self):
-        """Start reading logs from the container."""
-        if self.log_worker:
-            self.log_worker.stop()
-            self.log_worker.wait()
+    def startPacketReading(self):
+        """Start reading packets from the container."""
+        if self.packet_worker:
+            self.packet_worker.stop()
+            self.packet_worker.wait()
         
-        lines = self.lines_spinbox.value()
-        follow = self.follow_logs_cb.isChecked()
+        packet_count = self.packet_count_spinbox.value()
+        follow = self.follow_capture_cb.isChecked()
+        display_filter = self.filter_input.text()
         
-        self.log_worker = LogReaderWorker(self.container_name, self.component_type, follow, lines)
-        self.log_worker.new_log_data.connect(self.appendLogData)
-        self.log_worker.log_error.connect(self.showLogError)
-        self.log_worker.start()
+        self.packet_worker = PacketReaderWorker(
+            self.container_name, 
+            self.component_type, 
+            follow, 
+            packet_count,
+            display_filter
+        )
+        self.packet_worker.new_packet_data.connect(self.appendPacketData)
+        self.packet_worker.capture_error.connect(self.showCaptureError)
+        self.packet_worker.start()
         
-        self.status_label.setText(f"Reading logs from {self.container_name}...")
+        self.status_label.setText(f"Reading packet capture from {self.container_name}...")
         
-    def appendLogData(self, data):
-        """Append new log data to the text widget."""
-        self.log_text.insertPlainText(data)
+    def appendPacketData(self, data):
+        """Append new packet data to the text widget."""
+        self.packet_text.insertPlainText(data)
         
         if self.auto_scroll:
             # Scroll to the bottom
-            cursor = self.log_text.textCursor()
+            cursor = self.packet_text.textCursor()
             cursor.movePosition(QTextCursor.End)
-            self.log_text.setTextCursor(cursor)
+            self.packet_text.setTextCursor(cursor)
     
-    def showLogError(self, error_msg):
-        """Show log reading error."""
-        self.log_text.insertPlainText(f"\n[ERROR] {error_msg}\n")
+    def showCaptureError(self, error_msg):
+        """Show capture reading error."""
+        self.packet_text.insertPlainText(f"\n[ERROR] {error_msg}\n")
         self.status_label.setText(f"Error: {error_msg}")
         
     def onAutoScrollToggled(self, enabled):
         """Handle auto-scroll toggle."""
         self.auto_scroll = enabled
         
-    def onFollowLogsToggled(self, enabled):
-        """Handle follow logs toggle."""
-        if not enabled and self.log_worker:
-            self.log_worker.stop()
-            self.status_label.setText("Stopped following logs")
+    def onFollowCaptureToggled(self, enabled):
+        """Handle follow capture toggle."""
+        if not enabled and self.packet_worker:
+            self.packet_worker.stop()
+            self.status_label.setText("Stopped following capture")
         elif enabled:
-            self.refreshLogs()
+            self.refreshCapture()
     
     def onContainerChanged(self, new_container):
         """Handle container selection change."""
         self.container_name = new_container
-        self.log_text.clear()
-        self.startLogReading()
+        self.packet_text.clear()
+        self.startPacketReading()
     
-    def refreshLogs(self):
-        """Refresh the logs."""
-        self.log_text.clear()
-        self.startLogReading()
+    def refreshCapture(self):
+        """Refresh the packet capture."""
+        self.packet_text.clear()
+        self.startPacketReading()
         
-    def clearLogs(self):
-        """Clear the log display."""
-        self.log_text.clear()
+    def clearCapture(self):
+        """Clear the packet display."""
+        self.packet_text.clear()
         
-    def saveLogs(self):
-        """Save logs to a file."""
+    def saveCapture(self):
+        """Save packet capture to a file."""
         filename, _ = QFileDialog.getSaveFileName(
             self,
-            "Save Log File",
-            f"{self.component_name}_{self.component_type}_logs.txt",
-            "Text Files (*.txt);;Log Files (*.log);;All Files (*)"
+            "Save Packet Capture",
+            f"{self.component_name}_{self.component_type}_capture.txt",
+            "Text Files (*.txt);;All Files (*)"
         )
         
         if filename:
             try:
                 with open(filename, 'w') as f:
-                    f.write(self.log_text.toPlainText())
-                QMessageBox.information(self, "Success", f"Logs saved to {filename}")
+                    f.write(self.packet_text.toPlainText())
+                QMessageBox.information(self, "Success", f"Packet capture saved to {filename}")
             except Exception as e:
-                QMessageBox.warning(self, "Error", f"Failed to save logs: {str(e)}")
+                QMessageBox.warning(self, "Error", f"Failed to save capture: {str(e)}")
     
     def stopFollowing(self):
-        """Stop following logs."""
-        if self.log_worker:
-            self.log_worker.stop()
-            self.status_label.setText("Stopped following logs")
-        self.follow_logs_cb.setChecked(False)
+        """Stop following packet capture."""
+        if self.packet_worker:
+            self.packet_worker.stop()
+            self.status_label.setText("Stopped following capture")
+        self.follow_capture_cb.setChecked(False)
         
     def closeEvent(self, event):
         """Handle window close event."""
-        if self.log_worker:
-            self.log_worker.stop()
-            self.log_worker.wait()
+        if self.packet_worker:
+            self.packet_worker.stop()
+            self.packet_worker.wait()
         event.accept()
