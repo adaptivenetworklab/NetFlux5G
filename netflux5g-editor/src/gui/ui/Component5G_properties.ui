@@ -30,7 +30,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="ConfigurationTab">
      <attribute name="title">
@@ -613,11 +613,11 @@
           <height>150</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox { font-weight: bold }</string>
+        </property>
         <property name="title">
          <string>Network Slicing Configuration Summary</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QGroupBox { font-weight: bold; color: #2E5DBA; }</string>
         </property>
         <widget class="QTreeWidget" name="slicingConfigTree">
          <property name="geometry">
@@ -675,11 +675,11 @@ QTreeWidget::item:selected {
           <height>150</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox { font-weight: bold }</string>
+        </property>
         <property name="title">
          <string>Session Configuration Summary</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QGroupBox { font-weight: bold; color: #2E5DBA; }</string>
         </property>
         <widget class="QTreeWidget" name="sessionConfigTree">
          <property name="geometry">
@@ -737,11 +737,11 @@ QTreeWidget::item:selected {
           <height>140</height>
          </rect>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox { font-weight: bold }</string>
+        </property>
         <property name="title">
          <string>Network Function (NF) Configuration Summary</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QGroupBox { font-weight: bold; color: #2E5DBA; }</string>
         </property>
         <widget class="QTreeWidget" name="nfConfigTree">
          <property name="geometry">
