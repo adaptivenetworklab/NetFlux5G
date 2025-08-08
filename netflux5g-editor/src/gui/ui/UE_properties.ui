@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>550</height>
+    <width>454</width>
+    <height>546</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <x>10</x>
       <y>10</y>
       <width>430</width>
-      <height>471</height>
+      <height>481</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -42,7 +42,7 @@
         <x>10</x>
         <y>10</y>
         <width>400</width>
-        <height>416</height>
+        <height>391</height>
        </rect>
       </property>
       <layout class="QFormLayout" name="formLayout_ue">
@@ -259,6 +259,39 @@
        </item>
       </layout>
      </widget>
+     <widget class="QSpinBox" name="UE_NumberOfUE">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>410</y>
+        <width>54</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>417</y>
+        <width>131</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Number of UE</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_network_config">
      <attribute name="title">
@@ -432,11 +465,11 @@
        </item>
        <item row="1" column="1">
         <widget class="QLabel" name="UE_RangeCalculated">
-         <property name="text">
-          <string>~340m (calculated from power)</string>
-         </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(240, 240, 240); padding: 4px; border: 1px solid rgb(200, 200, 200);</string>
+         </property>
+         <property name="text">
+          <string>~340m (calculated from power)</string>
          </property>
         </widget>
        </item>

@@ -1,7 +1,7 @@
 import os
 from PyQt5.QtWidgets import QMainWindow, QLineEdit, QComboBox, QCheckBox, QTableWidget, QTableWidgetItem, QSpinBox, QDoubleSpinBox, QTextEdit, QPlainTextEdit, QPushButton, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5 import uic
 from utils.debug import debug_print, error_print, warning_print
 
@@ -790,6 +790,11 @@ class UEPropertiesWindow(BasePropertiesWindow):
         self.setupConnections()
         self.setupDefaultValues()
         self.loadProperties()
+        
+        # Update icon based on number of UEs after loading properties
+        if hasattr(self, 'UE_NumberOfUE') and self.component:
+            num_ue = self.UE_NumberOfUE.value()
+            self.onNumberOfUEChanged(num_ue)
 
     def setupConnections(self):
         # Connect OK and Cancel buttons
@@ -801,6 +806,10 @@ class UEPropertiesWindow(BasePropertiesWindow):
             self.UE_Power.valueChanged.connect(self.updateRangeDisplay)
             # Initial range calculation
             self.updateRangeDisplay()
+            
+        # Connect number of UE spinbox to icon update
+        if hasattr(self, 'UE_NumberOfUE'):
+            self.UE_NumberOfUE.valueChanged.connect(self.onNumberOfUEChanged)
             
     def updateRangeDisplay(self):
         """Update the calculated range display based on power value."""
@@ -862,6 +871,32 @@ class UEPropertiesWindow(BasePropertiesWindow):
             self.UE_Power.setValue(20)
         if hasattr(self, 'UE_Range'):
             self.UE_Range.setValue(116)
+            
+        # Set default number of UE
+        if hasattr(self, 'UE_NumberOfUE'):
+            self.UE_NumberOfUE.setValue(1)
+            
+    def onNumberOfUEChanged(self, value):
+        """Handle change in number of UE and update component icon"""
+        if self.component:
+            # Update the component's icon based on number of UEs
+            icon_base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Icon")
+            if value > 1:
+                new_icon_path = os.path.join(icon_base_path, "multiue.png")
+            else:
+                new_icon_path = os.path.join(icon_base_path, "ue.png")
+            
+            # Update the component's icon
+            if os.path.exists(new_icon_path):
+                pixmap = QPixmap(new_icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.component.setPixmap(pixmap)
+                self.component.icon_path = new_icon_path
+                
+                # Force update the canvas
+                if hasattr(self.component, 'scene') and self.component.scene():
+                    self.component.scene().update()
+                    
+                debug_print(f"DEBUG: Updated UE icon to {'multiue.png' if value > 1 else 'ue.png'} for {value} UEs")
             
     def get5GConfiguration(self):
         """Get 5G configuration parameters matching UERANSIM Docker environment"""

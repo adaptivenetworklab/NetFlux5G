@@ -1623,7 +1623,21 @@ class MininetExporter:
                     f.write(f'    info("*** Pre-configuring OVS for UE {ue_name}\\n")\n')
                     f.write(f'    # OVS_ENABLED environment variable will trigger setup in entrypoint\\n')
                 
-                f.write(f'    {ue_name}.cmd("setsid nohup /entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &")\n')
+                # Check number of UEs to determine command parameters
+                num_ue = props.get('UE_NumberOfUE', 1)
+                if isinstance(num_ue, str):
+                    try:
+                        num_ue = int(num_ue)
+                    except (ValueError, TypeError):
+                        num_ue = 1
+                
+                # Build the UE command with optional -n parameter
+                if num_ue > 1:
+                    ue_cmd = f'setsid nohup /entrypoint.sh ue -n {num_ue} 2>&1 | tee -a /logging/{ue_name}.log &'
+                else:
+                    ue_cmd = f'setsid nohup /entrypoint.sh ue 2>&1 | tee -a /logging/{ue_name}.log &'
+                    
+                f.write(f'    {ue_name}.cmd("{ue_cmd}")\n')
             f.write('\n')
             f.write('    CLI.do_sh(net, "sleep 20")  # Allow time for UE registration and OVS setup\n\n')
             
