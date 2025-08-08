@@ -1,8 +1,0 @@
-interface=ap104-wlan1
-driver=nl80211
-ssid=gnb-hotspot4
-wds_sta=1
-hw_mode=g
-channel=4
-ctrl_interface=/var/run/hostapd
-ctrl_interface_group=0
