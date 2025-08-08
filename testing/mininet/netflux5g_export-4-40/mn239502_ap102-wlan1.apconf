@@ -1,8 +1,0 @@
-interface=ap102-wlan1
-driver=nl80211
-ssid=gnb-hotspot2
-wds_sta=1
-hw_mode=g
-channel=6
-ctrl_interface=/var/run/hostapd
-ctrl_interface_group=0

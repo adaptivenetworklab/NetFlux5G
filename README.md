@@ -77,22 +77,19 @@ cd NetFlux5G
 chmod +x ./install.sh
 sudo ./install.sh
 ```
-### Build Open5Gs & UERANSIM Custom Image
-
-This image will provide a number of networking tools and additional support of OpenVSwitch & OpenFlow
-
-```sh
-cd netflux5g-editor/src/automation/open5gs/
-docker build -t adaptive/open5gs:latest .
-cd ../ueransim
-docker build -t adaptive/ueransim:latest .
-cd ../../../..
-```
 
 ### Running the GUI
 
+Source the Python venv first
+
+```sh
+cd NetFlux5G
+source venv/bin/activate
+```
+
 From the `netflux5g-editor/src/` directory, launch the application:
 ```sh
+cd netflux5g-editor/src/
 python3 main.py
 ```
 

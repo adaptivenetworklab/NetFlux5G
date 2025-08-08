@@ -4,6 +4,8 @@ __pycache__/
 */*/*/__pycache__/*
 */*/*/*/__pycache__/*
 */*/*/*/*/__pycache__/*
+venv/
 netflux5g-editor/src/export/mininet/*
+netflux5g-editor/src/automation/webshark/captures/*
 docker/export/*
 docker/logging/*

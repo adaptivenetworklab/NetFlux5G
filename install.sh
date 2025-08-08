@@ -89,7 +89,7 @@ echo "Installing Mininet-WiFi and Containernet..."
 
 cd mininet-wifi 
 git checkout 69c6251
-util/install.sh -Wlnfv6
+sudo util/install.sh -Wlnfv6
 
 cd ../containernet
 
@@ -100,9 +100,25 @@ sed -i '183a \
     cd ..\
 ' util/install.sh
 
-util/install.sh -W
+sudo util/install.sh -W
+
+echo "Build Docker images for Open5Gs and UERANSIM..."
+
+cd ../NetFlux5G/netflux5g-editor/src/automation/open5gs/
+docker build -t adaptive/open5gs:latest .
+cd ../ueransim
+docker build -t adaptive/ueransim:latest .
+cd ../../../..
 
 echo "Installing pip packages..."
 
-cd ../NetFlux5G
-pip3 install -r netflux5g-editor/requirements.txt
+# Set up Python venv if it doesn't exist
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+fi
+
+# Activate venv and install requirements
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r netflux5g-editor/requirements.txt
+deactivate
