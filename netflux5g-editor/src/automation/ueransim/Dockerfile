@@ -159,7 +159,7 @@ ENV MOBILITY_ENABLED=false
 
 # Create necessary directories
 RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /etc/openvswitch /logging
-RUN mkdir -p /var/log/ueransim /tmp/ueransim
+RUN mkdir -p /var/log/ueransim /tmp/ueransim /captures
 RUN mkdir -p /etc/ueransim
 
 # Create OVS database directory
@@ -182,12 +182,14 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /usr/local/bin/ueransim-ovs-setup.sh  
 RUN chmod +x /entrypoint.sh
 
-# Create user for running UERANSIM (optional, can run as root in container)
-RUN useradd -m -s /bin/bash ueransim || true
-
 # Set proper permissions
 RUN chown -R root:root /usr/local/bin/
 RUN chown -R root:root /etc/ueransim/
+
+RUN sudo apt-get update && sudo apt-get install -y \
+    tshark net-tools iperf3 curl \
+    && sudo apt-get clean \
+    && sudo rm -rf /var/lib/apt/lists/*
 
 # Expose common ports for 5G communication
 EXPOSE 4997 9487 38412 38472 2152

@@ -6,28 +6,28 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence, QPixmap, QCursor
 from PyQt5 import uic
 
-# Import managers
-from manager.window import WindowManager
-from manager.status import StatusManager
-from manager.component_panel import ComponentPanelManager
+# Import
+from gui.canvas import Canvas
+from gui.toolbar import ToolbarFunctions
+from gui.window import WindowManager
+from gui.status import StatusManager
+from gui.component_panel import ComponentPanelManager
+from gui.welcome import WelcomeScreenManager
 from manager.file import FileManager
 from manager.tool import ToolManager
 from manager.canvas import CanvasManager
 from manager.automation import AutomationManager
 from manager.keyboard import KeyboardManager
 from manager.component_operations import ComponentOperationsManager
-from manager.debug import DebugManager, debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
-from manager.welcome import WelcomeScreenManager
 from manager.docker_network import DockerNetworkManager
 from manager.database import DatabaseManager
 from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
 from manager.packet_analyzer import PacketAnalyzerManager
-from manager.template_updater import TemplateUpdater
+from manager.deployment_monitor import DeploymentMonitorManager
+from utils.debug import debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
+from utils.template_updater import TemplateUpdater
 
-# Import existing modules
-from gui.canvas import Canvas, MovableLabel
-from gui.toolbar import ToolbarFunctions
 from export.mininet_export import MininetExporter
 from automation.automation_runner import AutomationRunner
 
@@ -60,6 +60,7 @@ class NetFlux5GApp(QMainWindow):
         self.monitoring_manager = MonitoringManager(self)
         self.controller_manager = ControllerManager(self)
         self.packet_analyzer_manager = PacketAnalyzerManager(self)
+        self.deployment_monitor_manager = DeploymentMonitorManager(self)
         self.template_updater = TemplateUpdater(self)
         
         # Initialize other components
@@ -79,7 +80,7 @@ class NetFlux5GApp(QMainWindow):
         # Set up the canvas and component panel
         self.setupCanvas()
         self.component_panel_manager.setupComponentPanel()
-        self.component_panel_manager.setupComponentPanelToggle()
+        # self.component_panel_manager.setupComponentPanelToggle()
         
         # Initialize attributes
         self.current_link_source = None
@@ -224,9 +225,9 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionStop_All'):
                 self.actionStop_All.triggered.connect(self.automation_manager.stopAllComponents)
             if hasattr(self, 'actionRunAll'):
-                self.actionRunAll.triggered.connect(self.automation_manager.runAllComponents)
+                self.actionRunAll.triggered.connect(self.automation_manager.runTopology)
             if hasattr(self, 'actionStopAll'):
-                self.actionStopAll.triggered.connect(self.automation_manager.stopAllComponents)
+                self.actionStopAll.triggered.connect(self.automation_manager.stopTopology)
             if hasattr(self, 'actionRun'):
                 self.actionRun.triggered.connect(self.automation_manager.runTopology)
             if hasattr(self, 'actionStop'):
@@ -262,17 +263,25 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'actionStop_Packet_Analyzer'):
                 self.actionStop_Packet_Analyzer.triggered.connect(self.packet_analyzer_manager.stopPacketAnalyzer)
 
-            # Controller connections
+            # Ryu Controller connections
             if hasattr(self, 'actionDeploy_Ryu_Controller'):
-                self.actionDeploy_Ryu_Controller.triggered.connect(self.controller_manager.deployController)
+                self.actionDeploy_Ryu_Controller.triggered.connect(self.controller_manager.deployRyuController)
             if hasattr(self, 'actionStop_Ryu_Controller'):
-                self.actionStop_Ryu_Controller.triggered.connect(self.controller_manager.stopController)
+                self.actionStop_Ryu_Controller.triggered.connect(self.controller_manager.stopRyuController)
             
             # ONOS Controller connections
             if hasattr(self, 'actionDeploy_ONOS_Controller'):
                 self.actionDeploy_ONOS_Controller.triggered.connect(self.controller_manager.deployOnosController)
             if hasattr(self, 'actionStop_ONOS_Controller'):
                 self.actionStop_ONOS_Controller.triggered.connect(self.controller_manager.stopOnosController)
+
+            # Clear MongoDB data
+            if hasattr(self, 'actionClear_DB_Data'):
+                self.actionClear_DB_Data.triggered.connect(self.database_manager.cleanupDatabase)
+
+            # Automation runner signal connections
+            if hasattr(self, 'automation_runner'):
+                self.automation_runner.execution_finished.connect(self.onTopologyExecutionFinished)
 
             # Component button connections
             if hasattr(self.component_panel_manager, 'component_widgets'):
@@ -310,9 +319,6 @@ class NetFlux5GApp(QMainWindow):
             # Connect splitter moved signal to handler
             if hasattr(self, 'splitter'):
                 self.splitter.splitterMoved.connect(self.onSplitterMoved)
-
-            # Connect automation runner signals
-            self.automation_runner.execution_finished.connect(self.automation_manager.onAutomationFinished)
 
             debug_print("DEBUG: All connections setup successfully")
             
@@ -383,6 +389,17 @@ class NetFlux5GApp(QMainWindow):
     def pasteComponent(self):
         """Delegate to component operations manager."""
         self.component_operations_manager.pasteComponent()
+
+    def onTopologyExecutionFinished(self, success, message):
+        """Handle topology execution completion."""
+        if success:
+            # Show deployment monitoring panel after successful topology deployment
+            debug_print("Topology deployment successful, showing deployment monitor")
+            if hasattr(self, 'deployment_monitor_manager'):
+                # Small delay to ensure all containers are ready
+                QTimer.singleShot(2000, self.deployment_monitor_manager.showMonitoringPanel)
+        else:
+            error_print(f"Topology deployment failed: {message}")
 
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""
@@ -520,10 +537,6 @@ class NetFlux5GApp(QMainWindow):
                     return
                 # If Discard was chosen, continue with closing
             
-            # Stop any running automation
-            if hasattr(self, 'automation_runner'):
-                self.automation_runner.stop_all()
-            
             # Clear component operations clipboard
             if hasattr(self, 'component_operations_manager'):
                 self.component_operations_manager.clearClipboard()
@@ -550,7 +563,7 @@ class NetFlux5GApp(QMainWindow):
         
         event.accept()
 
-    def showCanvasStatus(self, message, timeout=0):
+    def showCanvasStatus(self, message, timeout=1):
         """Wrapper method for status manager."""
         self.status_manager.showCanvasStatus(message, timeout)
 

@@ -146,60 +146,67 @@
        <item row="5" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Signal Range:</string>
+          <string>TX Power (dBm):</string>
          </property>
         </widget>
        </item>
        <item row="6" column="0">
+        <widget class="QLabel" name="label_range_calculated">
+         <property name="text">
+          <string>Range (calculated):</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
           <string>AP Type:</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="0">
+       <item row="8" column="0">
         <widget class="QLabel" name="label_8">
          <property name="text">
           <string>DPID:</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="0">
+       <item row="9" column="0">
         <widget class="QLabel" name="label_15">
          <property name="text">
           <string>Enable NetFlow:</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="9" column="1">
         <widget class="QCheckBox" name="AP_EnableNetFlow">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="10" column="0">
         <widget class="QLabel" name="label_16">
          <property name="text">
           <string>Enable sFlow:</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="1">
+       <item row="10" column="1">
         <widget class="QCheckBox" name="AP_EnableSFlow">
          <property name="text">
           <string/>
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="11" column="0">
         <widget class="QLabel" name="label_17">
          <property name="text">
           <string>IP Address:</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="0">
+       <item row="12" column="0">
         <widget class="QLabel" name="label_18">
          <property name="text">
           <string>DPCTL port:</string>
@@ -242,13 +249,35 @@
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QLineEdit" name="AP_SignalRange">
+        <widget class="QSpinBox" name="AP_Power">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="suffix">
+          <string> dBm</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>50</number>
+         </property>
+         <property name="value">
+          <number>20</number>
          </property>
         </widget>
        </item>
        <item row="6" column="1">
+        <widget class="QLabel" name="AP_RangeCalculated">
+         <property name="text">
+          <string>~50m (calculated from power)</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(240, 240, 240); padding: 4px; border: 1px solid rgb(200, 200, 200);</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
         <widget class="QLineEdit" name="AP_Type">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -258,21 +287,21 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <widget class="QLineEdit" name="AP_DPID">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>
          </property>
         </widget>
        </item>
-       <item row="10" column="1">
+       <item row="11" column="1">
         <widget class="QLineEdit" name="AP_IPAddress">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>
          </property>
         </widget>
        </item>
-       <item row="11" column="1">
+       <item row="12" column="1">
         <widget class="QLineEdit" name="AP_DPCTLport">
          <property name="styleSheet">
           <string notr="true">background-color: rgb(255, 255, 255);</string>

@@ -3,7 +3,7 @@ import json
 import yaml
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QProgressDialog, QApplication
 from PyQt5.QtCore import QDateTime, Qt
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 import traceback
 
 class FileManager:
@@ -428,40 +428,46 @@ class FileManager:
             x = node_data.get('x', 0)
             y = node_data.get('y', 0)
             properties = node_data.get('properties', {})
-            
+
             # Validate component type
             if component_type not in self.main_window.component_icon_map:
                 warning_print(f"WARNING: Unknown component type: {component_type}")
                 return None
-            
+
             icon_path = self.main_window.component_icon_map.get(component_type)
             if not icon_path or not os.path.exists(icon_path):
                 warning_print(f"WARNING: Icon not found for {component_type} at {icon_path}")
                 return None
-            
+
             from gui.components import NetworkComponent
             component = NetworkComponent(component_type, icon_path, main_window=self.main_window)
-            
+
             # Set position
             component.setPosition(x, y)
-            
+
             # Restore name and properties
             component.display_name = name
+            # Set component_number from name if possible (e.g., 'UE #5')
+            import re
+            match = re.match(rf"{component_type} #(\d+)", name)
+            if match:
+                num = int(match.group(1))
+                component.component_number = num
             # Resolve relative config file paths before setting properties
             if component_type == 'VGcore':
                 self.resolveConfigFilePaths(properties)
             component.setProperties(properties)
-            
+
             # Add to scene
             self.main_window.canvas_view.scene.addItem(component)
-            
+
             # Special handling for 5G Core components with imported configurations
             if component_type == 'VGcore':
                 self.restore5GCoreConfigurations(component, properties)
-            
+
             debug_print(f"DEBUG: Created component {name} of type {component_type} at ({x}, {y})")
             return component
-            
+
         except Exception as e:
             error_print(f"ERROR: Failed to create component from data: {e}")
             traceback.print_exc()
@@ -627,7 +633,7 @@ class FileManager:
         return nodes, links
 
     def ensure5GCoreConfigsInProperties(self, node_data):
-        """Ensure 5G Core component configurations are properly included in properties."""
+        """Ensure 5G Core component configurations are properly structured and serializable."""
         try:
             properties = node_data.get('properties', {})
             
@@ -639,19 +645,45 @@ class FileManager:
                 if config_key in properties:
                     configs = properties[config_key]
                     if isinstance(configs, list):
-                        # Ensure all configuration data is properly serializable
+                        # Clean and validate each configuration
+                        cleaned_configs = []
                         for config in configs:
-                            if 'config_content' in config and isinstance(config['config_content'], dict):
-                                # YAML content is already in dict format, which is JSON serializable
-                                pass
-                            # Ensure all fields are present
-                            if 'imported' not in config:
-                                config['imported'] = False
-                            if 'config_file_path' not in config:
-                                config['config_file_path'] = ''
+                            if isinstance(config, dict):
+                                # Create a clean configuration with all required fields
+                                cleaned_config = {
+                                    'name': config.get('name', f"{comp_type.lower()}1"),
+                                    'config_display': config.get('config_display', '(Double-click to import)'),
+                                    'config_path': config.get('config_path', ''),
+                                    'config_file_path': config.get('config_file_path', ''),
+                                    'config_filename': config.get('config_filename', f"{comp_type.lower()}.yaml"),
+                                    'imported': bool(config.get('imported', False)),
+                                    'image': config.get('image', 'adaptive/open5gs:1.0'),
+                                    'component_type': comp_type,
+                                    'volumes': config.get('volumes', [])
+                                }
                                 
+                                # Only include config_content if it exists and is valid
+                                if 'config_content' in config and config['config_content']:
+                                    if isinstance(config['config_content'], dict):
+                                        cleaned_config['config_content'] = config['config_content']
+                                    else:
+                                        warning_print(f"WARNING: Invalid config_content for {comp_type}")
+                                
+                                # Only add if it has meaningful content
+                                if cleaned_config['imported'] or cleaned_config['config_display'] != '(Double-click to import)':
+                                    cleaned_configs.append(cleaned_config)
+                        
+                        # Update the properties with cleaned configurations
+                        if cleaned_configs:
+                            properties[config_key] = cleaned_configs
+                        else:
+                            # Remove empty configuration arrays
+                            properties.pop(config_key, None)
+                            
         except Exception as e:
             warning_print(f"WARNING: Failed to ensure 5G Core configs in properties: {e}")
+            import traceback
+            traceback.print_exc()
 
     def loadConfigurationFile(self, config_file_path):
         """Load a configuration file (YAML or JSON) and return its content."""

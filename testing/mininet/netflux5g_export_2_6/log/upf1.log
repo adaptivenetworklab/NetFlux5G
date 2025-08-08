@@ -1,0 +1,1040 @@
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-26T10:35:26Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-26T10:35:26Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-26T10:35:26Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-26T10:35:26Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-26T10:35:26Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-26T10:35:26Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+85255ee3-258d-4bd3-966f-ccddde2d7f7d
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.051s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if569
+ovs-system
+br-open5gs
+upf1-eth0@if615
+upf1-eth1@if623
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+85255ee3-258d-4bd3-966f-ccddde2d7f7d
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.049s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if569
+ovs-system
+br-open5gs
+upf1-eth0@if615
+upf1-eth1@if623
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if569: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 2e:21:ef:e0:cb:84 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 16:3d:47:80:78:9a brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 6e:b4:e1:c1:b2:48 brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+614: upf1-eth0@if615: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether f6:f4:04:fa:d8:2c brd ff:ff:ff:ff:ff:ff link-netnsid 0
+622: upf1-eth1@if623: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether ae:d9:e9:41:cf:c8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if569: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 2e:21:ef:e0:cb:84 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.10/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 16:3d:47:80:78:9a brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 6e:b4:e1:c1:b2:48 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::6cb4:e1ff:fec1:b248/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+614: upf1-eth0@if615: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether f6:f4:04:fa:d8:2c brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.1/8 scope global upf1-eth0
+       valid_lft forever preferred_lft forever
+622: upf1-eth1@if623: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether ae:d9:e9:41:cf:c8 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::acd9:e9ff:fe41:cfc8/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf1-eth0 proto kernel scope link src 10.0.0.1 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.10 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [6ede9f15-76b9-4f5b-b6aa-20222c2c23fb]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5
+
+[32m07/26 10:35:40.653[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/26 10:35:40.653[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/26 10:35:40.747[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.10]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/26 10:35:40.747[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.1]:8805 (../lib/pfcp/path.c:30)
+[32m07/26 10:35:40.747[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.1]:2152 (../lib/gtp/path.c:30)
+[32m07/26 10:35:40.747[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+[32m07/26 10:35:41.717[0m: [[33mupf[0m] [1;32mINFO[0m: PFCP associated [10.0.0.4]:8805 (../src/upf/pfcp-sm.c:168)
+[32m07/26 10:35:51.362[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:209)
+[32m07/26 10:35:51.362[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.4]:2152 (../lib/gtp/path.c:60)
+[32m07/26 10:35:51.362[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x84f CP:0xe94] APN[internet2] PDN-Type[1] IPv4[10.200.0.2] IPv6[] (../src/upf/context.c:495)
+[32m07/26 10:35:51.363[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 2 (../src/upf/context.c:209)
+[32m07/26 10:35:51.363[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x1f6 CP:0x54c] APN[internet2] PDN-Type[1] IPv4[10.200.0.3] IPv6[] (../src/upf/context.c:495)
+[32m07/26 10:35:51.369[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 3 (../src/upf/context.c:209)
+[32m07/26 10:35:51.369[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xa5a CP:0xa8c] APN[internet] PDN-Type[1] IPv4[10.100.0.2] IPv6[] (../src/upf/context.c:495)
+[32m07/26 10:35:51.372[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.13]:2152 (../lib/gtp/path.c:60)
+[32m07/26 10:35:51.374[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.14]:2152 (../lib/gtp/path.c:60)
+[32m07/26 10:35:51.382[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 4 (../src/upf/context.c:209)
+[32m07/26 10:35:51.382[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x121 CP:0x54d] APN[internet] PDN-Type[1] IPv4[10.100.0.3] IPv6[] (../src/upf/context.c:495)
+[32m07/26 10:35:51.389[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 5 (../src/upf/context.c:209)
+[32m07/26 10:35:51.389[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xadb CP:0x549] APN[internet] PDN-Type[1] IPv4[10.100.0.4] IPv6[] (../src/upf/context.c:495)
+[32m07/26 10:35:51.391[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 6 (../src/upf/context.c:209)
+[32m07/26 10:35:51.391[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x510 CP:0x622] APN[internet2] PDN-Type[1] IPv4[10.200.0.4] IPv6[] (../src/upf/context.c:495)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-27T00:25:15Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-27T00:25:15Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-27T00:25:15Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-27T00:25:15Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-27T00:25:15Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-27T00:25:15Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+065e27ad-0c30-4161-be5d-ab014781fd89
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.043s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if23
+ovs-system
+br-open5gs
+upf1-eth0@if69
+upf1-eth1@if77
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+065e27ad-0c30-4161-be5d-ab014781fd89
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.042s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if23
+ovs-system
+br-open5gs
+upf1-eth0@if69
+upf1-eth1@if77
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if23: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 8e:06:ae:ae:8f:5e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 66:33:a2:db:13:f7 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 3a:d5:06:79:e2:4c brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+68: upf1-eth0@if69: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 22:5f:2e:73:be:60 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+76: upf1-eth1@if77: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether ea:65:7e:eb:7f:08 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if23: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 8e:06:ae:ae:8f:5e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.2/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 66:33:a2:db:13:f7 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 3a:d5:06:79:e2:4c brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::38d5:6ff:fe79:e24c/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+68: upf1-eth0@if69: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 22:5f:2e:73:be:60 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.1/8 scope global upf1-eth0
+       valid_lft forever preferred_lft forever
+76: upf1-eth1@if77: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether ea:65:7e:eb:7f:08 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::e865:7eff:feeb:7f08/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf1-eth0 proto kernel scope link src 10.0.0.1 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.2 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [4b1292f1-88d3-444c-919a-a7f6cc913a20]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5
+
+[32m07/27 00:25:29.777[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/27 00:25:29.778[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/27 00:25:29.854[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.2]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/27 00:25:29.855[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.1]:8805 (../lib/pfcp/path.c:30)
+[32m07/27 00:25:29.855[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.1]:2152 (../lib/gtp/path.c:30)
+[32m07/27 00:25:29.855[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-27T00:31:20Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-27T00:31:20Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-27T00:31:20Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-27T00:31:20Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-27T00:31:20Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-27T00:31:20Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+5f20b53f-f4fd-466f-b043-236776c4e4dd
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.054s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if127
+ovs-system
+br-open5gs
+upf1-eth0@if173
+upf1-eth1@if181
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+WARNING: Controller appears unreachable, continuing anyway...
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+5f20b53f-f4fd-466f-b043-236776c4e4dd
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.053s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if127
+ovs-system
+br-open5gs
+upf1-eth0@if173
+upf1-eth1@if181
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if127: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 42:dc:cb:72:8e:c7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 3e:ed:0e:3b:d8:a5 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether b6:b3:b0:f2:e0:4d brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+172: upf1-eth0@if173: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 82:1c:5f:6f:16:53 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+180: upf1-eth1@if181: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 0a:46:7b:68:16:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if127: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 42:dc:cb:72:8e:c7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.2/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 3e:ed:0e:3b:d8:a5 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether b6:b3:b0:f2:e0:4d brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::b4b3:b0ff:fef2:e04d/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+172: upf1-eth0@if173: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 82:1c:5f:6f:16:53 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.1/8 scope global upf1-eth0
+       valid_lft forever preferred_lft forever
+180: upf1-eth1@if181: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 0a:46:7b:68:16:50 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::846:7bff:fe68:1650/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf1-eth0 proto kernel scope link src 10.0.0.1 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.2 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [9f4a3e90-75f2-45d5-81c9-a722076d29f1]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5
+
+[32m07/27 00:31:34.520[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/27 00:31:34.520[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/27 00:31:34.584[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.2]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/27 00:31:34.584[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.1]:8805 (../lib/pfcp/path.c:30)
+[32m07/27 00:31:34.584[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.1]:2152 (../lib/gtp/path.c:30)
+[32m07/27 00:31:34.585[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-27T00:42:37Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-27T00:42:37Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-27T00:42:37Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-27T00:42:37Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-27T00:42:37Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-27T00:42:37Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+aa76082a-b7f4-4135-ae65-768acd883519
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.046s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if237
+ovs-system
+br-open5gs
+upf1-eth0@if283
+upf1-eth1@if291
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+aa76082a-b7f4-4135-ae65-768acd883519
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.046s, table=0, n_packets=0, n_bytes=0, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if237
+ovs-system
+br-open5gs
+upf1-eth0@if283
+upf1-eth1@if291
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if237: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 96:fc:b2:2c:7c:59 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 0e:bd:a7:80:28:99 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether c2:0c:bd:b5:1d:4e brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+282: upf1-eth0@if283: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether d2:d6:da:74:b0:fb brd ff:ff:ff:ff:ff:ff link-netnsid 0
+290: upf1-eth1@if291: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 6e:7f:dc:f9:53:1e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if237: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 96:fc:b2:2c:7c:59 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.10/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 0e:bd:a7:80:28:99 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether c2:0c:bd:b5:1d:4e brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::c00c:bdff:feb5:1d4e/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+282: upf1-eth0@if283: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether d2:d6:da:74:b0:fb brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.1/8 scope global upf1-eth0
+       valid_lft forever preferred_lft forever
+290: upf1-eth1@if291: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 6e:7f:dc:f9:53:1e brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::6c7f:dcff:fef9:531e/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf1-eth0 proto kernel scope link src 10.0.0.1 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.10 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [7df58efc-bb7d-4197-a154-4c4da81ef3b2]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5
+
+[32m07/27 00:42:52.103[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/27 00:42:52.103[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/27 00:42:52.173[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.10]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/27 00:42:52.173[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.1]:8805 (../lib/pfcp/path.c:30)
+[32m07/27 00:42:52.173[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.1]:2152 (../lib/gtp/path.c:30)
+[32m07/27 00:42:52.174[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+[32m07/27 00:42:53.183[0m: [[33mupf[0m] [1;32mINFO[0m: PFCP associated [10.0.0.4]:8805 (../src/upf/pfcp-sm.c:168)
+[32m07/27 00:43:02.727[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:209)
+[32m07/27 00:43:02.727[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.4]:2152 (../lib/gtp/path.c:60)
+[32m07/27 00:43:02.727[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x5a7 CP:0xb00] APN[internet2] PDN-Type[1] IPv4[10.200.0.2] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:43:02.736[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.13]:2152 (../lib/gtp/path.c:60)
+[32m07/27 00:43:02.736[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 2 (../src/upf/context.c:209)
+[32m07/27 00:43:02.736[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xd3d CP:0xedc] APN[internet] PDN-Type[1] IPv4[10.100.0.2] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:43:02.743[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 3 (../src/upf/context.c:209)
+[32m07/27 00:43:02.743[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xd47 CP:0xfce] APN[internet] PDN-Type[1] IPv4[10.100.0.3] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:43:02.916[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 4 (../src/upf/context.c:209)
+[32m07/27 00:43:02.916[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xf1d CP:0xf0a] APN[internet2] PDN-Type[1] IPv4[10.200.0.3] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:43:02.919[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.14]:2152 (../lib/gtp/path.c:60)
+[32m07/27 00:43:05.186[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 5 (../src/upf/context.c:209)
+[32m07/27 00:43:05.186[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x1f3 CP:0xf72] APN[internet] PDN-Type[1] IPv4[10.100.0.4] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:43:05.201[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 6 (../src/upf/context.c:209)
+[32m07/27 00:43:05.201[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x886 CP:0x6fb] APN[internet2] PDN-Type[1] IPv4[10.200.0.4] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:50:24.330[0m: [[33mpfcp[0m] [1;33mERROR[0m: ogs_sendto(7, 0x74e6a4027528, 16, 0, 10.0.0.4:8805) failed (101:Network is unreachable) (../lib/pfcp/path.c:165)
+[32m07/27 00:50:24.330[0m: [[33mpfcp[0m] [1;33mERROR[0m: ogs_pfcp_xact_commit: Expectation `OGS_OK == ogs_pfcp_sendto(xact->node, pkbuf)' failed. (../lib/pfcp/xact.c:553)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+Starting OVS services...
+Creating OVS database...
+2025-07-27T00:56:05Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovsdb-server.log
+2025-07-27T00:56:05Z|00001|vlog|INFO|opened log file /var/log/openvswitch/ovs-vswitchd.log
+2025-07-27T00:56:05Z|00002|ovs_numa|INFO|Discovered 16 CPU cores on NUMA node 0
+2025-07-27T00:56:05Z|00003|ovs_numa|INFO|Discovered 1 NUMA nodes and 16 CPU cores
+2025-07-27T00:56:05Z|00004|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connecting...
+2025-07-27T00:56:05Z|00005|reconnect|INFO|unix:/var/run/openvswitch/db.sock: connected
+OVS services started successfully
+Setting bridge: br-open5gs
+Bridge br-open5gs created successfully
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+04f40720-8be7-4575-b224-4156a5b9bfb6
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.046s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if339
+ovs-system
+br-open5gs
+upf1-eth0@if385
+upf1-eth1@if393
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-upfd
+Setting up OpenFlow/OVS integration...
+Waiting for OVS setup to complete...
+Starting OVS setup for Open5GS container...
+OVS is enabled, setting up OpenFlow integration for Open5GS...
+OVS services already running
+Bridge br-open5gs already exists
+Setting controller: tcp:netflux5g-onos-controller:6653
+Testing controller connectivity...
+Controller is reachable
+Setting up basic flows for bridge: br-open5gs
+Using OpenFlow version: OpenFlow13
+Basic flows added to bridge: br-open5gs
+OVS bridge setup completed
+=== Open5GS OVS Status ===
+Bridges:
+br-open5gs
+
+Bridge br-open5gs details:
+04f40720-8be7-4575-b224-4156a5b9bfb6
+    Bridge br-open5gs
+        Controller "tcp:netflux5g-onos-controller:6653"
+        fail_mode: secure
+        Port br-open5gs
+            Interface br-open5gs
+                type: internal
+
+OpenFlow flows:
+Using OpenFlow version: OpenFlow13
+OFPST_FLOW reply (OF1.3) (xid=0x2):
+ cookie=0x0, duration=0.058s, table=0, n_packets=1, n_bytes=90, priority=100 actions=NORMAL
+
+Controller connection:
+tcp:netflux5g-onos-controller:6653
+
+Bridge interfaces:
+
+Network interfaces:
+lo
+eth0@if339
+ovs-system
+br-open5gs
+upf1-eth0@if385
+upf1-eth1@if393
+==========================
+Open5GS OVS setup completed successfully
+Open5GS OVS setup script completed
+OVS setup completed
+Creating ogstun device
+Creating ogstun2 device
+Creating ogstun3 device
+Creating ogstun4 device
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if339: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 7a:3f:a7:e6:eb:07 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+    link/ether 96:04:9f:c0:44:74 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 86:2e:1a:3c:63:40 brd ff:ff:ff:ff:ff:ff
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN mode DEFAULT group default qlen 500
+    link/none 
+384: upf1-eth0@if385: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 9e:d5:05:0d:22:d2 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+392: upf1-eth1@if393: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether 46:8c:3c:55:22:9f brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if339: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 7a:3f:a7:e6:eb:07 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.10/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+3: ovs-system: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 96:04:9f:c0:44:74 brd ff:ff:ff:ff:ff:ff
+4: br-open5gs: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/ether 86:2e:1a:3c:63:40 brd ff:ff:ff:ff:ff:ff
+    inet6 fe80::842e:1aff:fe3c:6340/64 scope link 
+       valid_lft forever preferred_lft forever
+5: ogstun: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.100.0.1/16 scope global ogstun
+       valid_lft forever preferred_lft forever
+6: ogstun2: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.200.0.1/16 scope global ogstun2
+       valid_lft forever preferred_lft forever
+7: ogstun3: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.51.0.1/16 scope global ogstun3
+       valid_lft forever preferred_lft forever
+8: ogstun4: <NO-CARRIER,POINTOPOINT,MULTICAST,NOARP,UP> mtu 1500 qdisc fq_codel state DOWN group default qlen 500
+    link/none 
+    inet 10.52.0.1/16 scope global ogstun4
+       valid_lft forever preferred_lft forever
+384: upf1-eth0@if385: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 9e:d5:05:0d:22:d2 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.0.0.1/8 scope global upf1-eth0
+       valid_lft forever preferred_lft forever
+392: upf1-eth1@if393: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 46:8c:3c:55:22:9f brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet6 fe80::448c:3cff:fe55:229f/64 scope link 
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+10.0.0.0/8 dev upf1-eth0 proto kernel scope link src 10.0.0.1 
+10.51.0.0/16 dev ogstun3 proto kernel scope link src 10.51.0.1 linkdown 
+10.52.0.0/16 dev ogstun4 proto kernel scope link src 10.52.0.1 linkdown 
+10.100.0.0/16 dev ogstun proto kernel scope link src 10.100.0.1 linkdown 
+10.200.0.0/16 dev ogstun2 proto kernel scope link src 10.200.0.1 linkdown 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.10 
+
+=== OVS Status Check ===
+OVS bridges:
+br-open5gs
+Bridge configuration:
+controller          : [f7d7036f-fd15-444f-9db2-cb13fa547983]
+protocols           : [OpenFlow13]
+Testing OpenFlow connectivity:
+OpenFlow OpenFlow13 connectivity: OK
+================================
+Starting Open5GS service: open5gs-upfd
+Open5GS daemon v2.7.5
+
+[32m07/27 00:56:20.161[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/upf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/27 00:56:20.162[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/upf.log' (../lib/app/ogs-init.c:147)
+[32m07/27 00:56:20.265[0m: [[33mmetrics[0m] [1;32mINFO[0m: metrics_server() [http://172.18.0.10]:9090 (../lib/metrics/prometheus/context.c:300)
+[32m07/27 00:56:20.265[0m: [[33mpfcp[0m] [1;32mINFO[0m: pfcp_server() [10.0.0.1]:8805 (../lib/pfcp/path.c:30)
+[32m07/27 00:56:20.265[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_server() [10.0.0.1]:2152 (../lib/gtp/path.c:30)
+[32m07/27 00:56:20.266[0m: [[33mapp[0m] [1;32mINFO[0m: UPF initialize...done (../src/upf/app.c:31)
+[32m07/27 00:56:21.191[0m: [[33mupf[0m] [1;32mINFO[0m: PFCP associated [10.0.0.4]:8805 (../src/upf/pfcp-sm.c:168)
+[32m07/27 00:56:30.928[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:209)
+[32m07/27 00:56:30.929[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.4]:2152 (../lib/gtp/path.c:60)
+[32m07/27 00:56:30.929[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x85 CP:0xfa7] APN[internet2] PDN-Type[1] IPv4[10.200.0.2] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:56:30.945[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.13]:2152 (../lib/gtp/path.c:60)
+[32m07/27 00:56:30.954[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 2 (../src/upf/context.c:209)
+[32m07/27 00:56:30.954[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xbb6 CP:0xd36] APN[internet] PDN-Type[1] IPv4[10.100.0.2] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:56:30.957[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 3 (../src/upf/context.c:209)
+[32m07/27 00:56:30.958[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xdf5 CP:0xc9f] APN[internet2] PDN-Type[1] IPv4[10.200.0.3] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:56:30.964[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 4 (../src/upf/context.c:209)
+[32m07/27 00:56:30.964[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x61e CP:0x48c] APN[internet] PDN-Type[1] IPv4[10.100.0.3] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:56:30.967[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 5 (../src/upf/context.c:209)
+[32m07/27 00:56:30.967[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0xc6e CP:0x95a] APN[internet2] PDN-Type[1] IPv4[10.200.0.4] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:56:30.968[0m: [[33mupf[0m] [1;32mINFO[0m: [Added] Number of UPF-Sessions is now 6 (../src/upf/context.c:209)
+[32m07/27 00:56:30.968[0m: [[33mupf[0m] [1;32mINFO[0m: UE F-SEID[UP:0x853 CP:0x585] APN[internet] PDN-Type[1] IPv4[10.100.0.4] IPv6[] (../src/upf/context.c:495)
+[32m07/27 00:56:30.968[0m: [[33mgtp[0m] [1;32mINFO[0m: gtp_connect() [10.0.0.14]:2152 (../lib/gtp/path.c:60)

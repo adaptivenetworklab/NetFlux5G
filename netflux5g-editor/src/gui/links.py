@@ -3,7 +3,7 @@ import math
 from PyQt5.QtWidgets import QGraphicsItem
 from PyQt5.QtCore import Qt, QRectF, QPointF, QLineF
 from PyQt5.QtGui import QPen, QPixmap, QTransform, QColor, QPainterPath, QPainterPathStroker
-from manager.debug import debug_print, error_print
+from utils.debug import debug_print, error_print
 
 class NetworkLink(QGraphicsItem):
     """Link/connection between two network components using a cable image"""

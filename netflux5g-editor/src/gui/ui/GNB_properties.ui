@@ -30,7 +30,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab_5g_config">
      <attribute name="title">
@@ -79,7 +79,7 @@
           <string/>
          </property>
          <property name="placeholderText">
-          <string>Optional: e.g., 192.168.1.100</string>
+          <string>Optional: e.g., 10.0.0.100</string>
          </property>
         </widget>
        </item>
@@ -188,7 +188,7 @@
        <item row="8" column="0">
         <widget class="QLabel" name="label_power">
          <property name="text">
-          <string>TX Power:</string>
+          <string>TX Power (dBm):</string>
          </property>
         </widget>
        </item>
@@ -214,26 +214,17 @@
        <item row="9" column="0">
         <widget class="QLabel" name="label_range">
          <property name="text">
-          <string>Range:</string>
+          <string>Range (calculated):</string>
          </property>
         </widget>
        </item>
        <item row="9" column="1">
-        <widget class="QSpinBox" name="GNB_Range">
+        <widget class="QLabel" name="GNB_RangeCalculated">
+         <property name="text">
+          <string>~300m (calculated from power)</string>
+         </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-         </property>
-         <property name="suffix">
-          <string> meters</string>
-         </property>
-         <property name="minimum">
-          <number>50</number>
-         </property>
-         <property name="maximum">
-          <number>1000</number>
-         </property>
-         <property name="value">
-          <number>300</number>
+          <string notr="true">background-color: rgb(240, 240, 240); padding: 4px; border: 1px solid rgb(200, 200, 200);</string>
          </property>
         </widget>
        </item>
@@ -455,29 +446,6 @@
              <string>ac</string>
             </property>
            </item>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_ap_password">
-           <property name="text">
-            <string>Password:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="GNB_AP_Password">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255); padding: 4px;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="echoMode">
-            <enum>QLineEdit::Password</enum>
-           </property>
-           <property name="placeholderText">
-            <string>Leave empty for open network</string>
-           </property>
           </widget>
          </item>
         </layout>

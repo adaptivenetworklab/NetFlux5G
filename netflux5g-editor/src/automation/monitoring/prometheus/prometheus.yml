@@ -10,7 +10,7 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-            - netflux5g_alertmanager:9093
+            - netflux5g-alertmanager:9093
 
 scrape_configs:
   - job_name: "prometheus"
@@ -19,13 +19,13 @@ scrape_configs:
 
   - job_name: "node_exporter"
     static_configs:
-      - targets: ["netflux5g_node-exporter:9100"]
+      - targets: ["netflux5g-node-exporter:9100"]
     scrape_interval: 5s
     scrape_timeout: 3s
 
   - job_name: "cadvisor"
     static_configs:
-      - targets: ["netflux5g_cadvisor:8080"]
+      - targets: ["netflux5g-cadvisor:8080"]
     scrape_interval: 5s
     scrape_timeout: 3s
     metrics_path: "/metrics"
@@ -60,7 +60,7 @@ scrape_configs:
       - source_labels: [__param_target]
         target_label: instance
       - target_label: __address__
-        replacement: netflux5g_blackbox-exporter:9115
+        replacement: netflux5g-blackbox-exporter:9115
     scrape_interval: 10s
     scrape_timeout: 5s
 
@@ -131,7 +131,7 @@ scrape_configs:
   # Custom NetFlux5G metrics exporter
   - job_name: "netflux5g-metrics"
     static_configs:
-      - targets: ["netflux5g_metrics_exporter:8000"]
+      - targets: ["netflux5g-metrics_exporter:8000"]
     scrape_interval: 10s
     scrape_timeout: 5s
     metrics_path: /metrics

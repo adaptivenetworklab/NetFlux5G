@@ -3,8 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QLineEdit, QComboBox, QCheckBox, QTable
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
-import yaml
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
 
 class BasePropertiesWindow(QMainWindow):
     """Base class for all properties windows that automatically sets the icon."""
@@ -32,7 +31,7 @@ class BasePropertiesWindow(QMainWindow):
         pass
 
     def saveProperties(self):
-        """Save all UI values to the component's properties, including 5G component tables."""
+        """Save all UI values to the component's properties with validation and cleanup."""
         if not self.component:
             warning_print("WARNING: No component reference to save properties to")
             return
@@ -43,13 +42,17 @@ class BasePropertiesWindow(QMainWindow):
         for widget in self.findChildren(QLineEdit):
             name = widget.objectName()
             if name:  # Only save if the widget has a name
-                properties[name] = widget.text()
+                value = widget.text().strip()
+                if value:  # Only save non-empty values
+                    properties[name] = value
                 
         # Collect all QComboBox values
         for widget in self.findChildren(QComboBox):
             name = widget.objectName()
             if name:
-                properties[name] = widget.currentText()
+                value = widget.currentText().strip()
+                if value:  # Only save non-empty values
+                    properties[name] = value
                 
         # Collect all QCheckBox values
         for widget in self.findChildren(QCheckBox):
@@ -61,33 +64,47 @@ class BasePropertiesWindow(QMainWindow):
         for widget in self.findChildren(QSpinBox):
             name = widget.objectName()
             if name:
-                properties[name] = widget.value()
+                value = widget.value()
+                if value != 0:  # Only save non-zero values
+                    properties[name] = value
 
         # Collect all QDoubleSpinBox values
         for widget in self.findChildren(QDoubleSpinBox):
             name = widget.objectName()
             if name:
-                properties[name] = widget.value()
+                value = widget.value()
+                if value != 0.0:  # Only save non-zero values
+                    properties[name] = value
                 
         # Collect all QTextEdit values
         for widget in self.findChildren(QTextEdit):
             name = widget.objectName()
             if name:
-                properties[name] = widget.toPlainText()
+                value = widget.toPlainText().strip()
+                if value:  # Only save non-empty values
+                    properties[name] = value
                 
         # Collect all QPlainTextEdit values
         for widget in self.findChildren(QPlainTextEdit):
             name = widget.objectName()
             if name:
-                properties[name] = widget.toPlainText()
+                value = widget.toPlainText().strip()
+                if value:  # Only save non-empty values
+                    properties[name] = value
         
         # For Component5GPropertiesWindow, also save table data
         if isinstance(self, Component5GPropertiesWindow):
             self.save5GComponentTableData(properties)
         
+        # Clean up properties - remove any None or empty string values
+        cleaned_properties = {}
+        for key, value in properties.items():
+            if value is not None and value != '':
+                cleaned_properties[key] = value
+        
         # Save to component
-        self.component.setProperties(properties)
-        debug_print(f"DEBUG: Saved properties for {self.component_name}: {len(properties)} properties")
+        self.component.setProperties(cleaned_properties)
+        debug_print(f"DEBUG: Saved {len(cleaned_properties)} properties for {self.component_name}")
         
         # Mark topology as modified when component properties are changed
         scene = self.component.scene()
@@ -97,7 +114,7 @@ class BasePropertiesWindow(QMainWindow):
                 view.app_instance.onTopologyChanged()
 
     def save5GComponentTableData(self, properties):
-        """Save data from all 5G component tables."""
+        """Save data from all 5G component tables with cleaned structure."""
         component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
         
         for component_type in component_types:
@@ -120,32 +137,40 @@ class BasePropertiesWindow(QMainWindow):
                 # Extract table data
                 table_data = []
                 for row in range(table.rowCount()):
-                    row_data = {}
+                    row_data = {
+                        'name': '',
+                        'config_display': '',
+                        'config_path': '',
+                        'config_file_path': '',
+                        'config_filename': '',
+                        'config_content': None,
+                        'imported': False,
+                        'image': 'adaptive/open5gs:1.0',
+                        'component_type': component_type,
+                        'volumes': []
+                    }
                     
                     # Name (column 0)
                     name_item = table.item(row, 0)
-                    if name_item:
-                        row_data['name'] = name_item.text()
+                    if name_item and name_item.text().strip():
+                        row_data['name'] = name_item.text().strip()
                     else:
                         row_data['name'] = f"{component_type.lower()}{row + 1}"
                     
                     # Config file info (column 1)
                     config_item = table.item(row, 1)
                     if config_item:
-                        config_text = config_item.text()
-                        row_data['config_display'] = config_text
+                        config_text = config_item.text().strip()
+                        row_data['config_display'] = config_text if config_text else "(Double-click to import)"
                         
                         # Check if this row has imported configuration data
-                        if hasattr(config_item, 'config_data'):
+                        if hasattr(config_item, 'config_data') and config_item.config_data:
                             row_data['config_content'] = config_item.config_data
                             row_data['imported'] = True
-                            row_data['config_filename'] = getattr(config_item, 'config_filename', 'imported.yaml')
+                            row_data['config_filename'] = getattr(config_item, 'config_filename', f"{component_type.lower()}.yaml")
                             # Store the file path if available
-                            if hasattr(config_item, 'config_file_path'):
-                                row_data['config_file_path'] = config_item.config_file_path
-                            else:
-                                row_data['config_file_path'] = ''
-                        elif hasattr(config_item, 'config_file_path'):
+                            row_data['config_file_path'] = getattr(config_item, 'config_file_path', '')
+                        elif hasattr(config_item, 'config_file_path') and config_item.config_file_path:
                             row_data['config_file_path'] = config_item.config_file_path
                             row_data['imported'] = True
                             row_data['config_filename'] = os.path.basename(config_item.config_file_path)
@@ -155,63 +180,73 @@ class BasePropertiesWindow(QMainWindow):
                         else:
                             row_data['imported'] = False
                             row_data['config_filename'] = f"{component_type.lower()}.yaml"
-                            row_data['config_file_path'] = ''
                     else:
                         row_data['config_display'] = "(Double-click to import)"
                         row_data['imported'] = False
                         row_data['config_filename'] = f"{component_type.lower()}.yaml"
-                        row_data['config_file_path'] = ''
                     
                     # Config Path (column 2, if exists)
                     if table.columnCount() > 2:
                         config_path_item = table.item(row, 2)
-                        if config_path_item:
-                            row_data['config_path'] = config_path_item.text()
-                        else:
-                            row_data['config_path'] = ""
-                    else:
-                        row_data['config_path'] = ""
+                        if config_path_item and config_path_item.text().strip():
+                            row_data['config_path'] = config_path_item.text().strip()
                     
-                    # Add default values
-                    row_data['image'] = 'adaptive/open5gs:1.0'
-                    row_data['component_type'] = component_type
-                    row_data['volumes'] = []
-                    
-                    table_data.append(row_data)
+                    # Only add non-empty configurations
+                    if row_data['name'] and (row_data['imported'] or row_data['config_display'] != "(Double-click to import)"):
+                        table_data.append(row_data)
                 
                 # Store in properties with a key specific to this component type
-                config_key = f"{component_type}_configs"
-                properties[config_key] = table_data
-                
-                debug_print(f"DEBUG: Saved {len(table_data)} {component_type} configurations")
+                if table_data:  # Only store if we have actual data
+                    config_key = f"{component_type}_configs"
+                    properties[config_key] = table_data
+                    debug_print(f"DEBUG: Saved {len(table_data)} {component_type} configurations")
+                else:
+                    debug_print(f"DEBUG: No valid {component_type} configurations to save")
 
     def loadProperties(self):
-        """Load component properties into UI widgets, including 5G component tables."""
+        """Load component properties into UI widgets with validation and error handling."""
         if not self.component:
+            warning_print("WARNING: No component reference to load properties from")
             return
             
         properties = self.component.getProperties()
+        if not properties:
+            debug_print("DEBUG: No properties to load")
+            return
         
         # Load values into QLineEdit widgets
         for widget in self.findChildren(QLineEdit):
             name = widget.objectName()
             if name in properties:
-                widget.setText(str(properties[name]))
+                try:
+                    widget.setText(str(properties[name]))
+                except Exception as e:
+                    warning_print(f"WARNING: Failed to load LineEdit {name}: {e}")
                 
         # Load values into QComboBox widgets
         for widget in self.findChildren(QComboBox):
             name = widget.objectName()
             if name in properties:
-                text = str(properties[name])
-                index = widget.findText(text)
-                if index >= 0:
-                    widget.setCurrentIndex(index)
+                try:
+                    text = str(properties[name])
+                    index = widget.findText(text)
+                    if index >= 0:
+                        widget.setCurrentIndex(index)
+                    else:
+                        # If exact match not found, try to add the item
+                        widget.addItem(text)
+                        widget.setCurrentText(text)
+                except Exception as e:
+                    warning_print(f"WARNING: Failed to load ComboBox {name}: {e}")
                     
         # Load values into QCheckBox widgets
         for widget in self.findChildren(QCheckBox):
             name = widget.objectName()
             if name in properties:
-                widget.setChecked(bool(properties[name]))
+                try:
+                    widget.setChecked(bool(properties[name]))
+                except Exception as e:
+                    warning_print(f"WARNING: Failed to load CheckBox {name}: {e}")
 
         # Load values into QSpinBox widgets
         for widget in self.findChildren(QSpinBox):
@@ -221,39 +256,59 @@ class BasePropertiesWindow(QMainWindow):
                     # Accept float strings by converting to float first, then int
                     value = properties[name]
                     if isinstance(value, str):
-                        value = int(float(value))
+                        if value.strip():  # Only convert non-empty strings
+                            value = int(float(value))
+                        else:
+                            continue
                     else:
                         value = int(value)
                     widget.setValue(value)
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as e:
+                    warning_print(f"WARNING: Failed to load SpinBox {name}: {e}")
 
         # Load values into QDoubleSpinBox widgets
         for widget in self.findChildren(QDoubleSpinBox):
             name = widget.objectName()
             if name in properties:
                 try:
-                    widget.setValue(float(properties[name]))
-                except (ValueError, TypeError):
-                    pass
+                    value = properties[name]
+                    if isinstance(value, str):
+                        if value.strip():  # Only convert non-empty strings
+                            value = float(value)
+                        else:
+                            continue
+                    else:
+                        value = float(value)
+                    widget.setValue(value)
+                except (ValueError, TypeError) as e:
+                    warning_print(f"WARNING: Failed to load DoubleSpinBox {name}: {e}")
                     
         # Load values into QTextEdit widgets
         for widget in self.findChildren(QTextEdit):
             name = widget.objectName()
             if name in properties:
-                widget.setPlainText(str(properties[name]))
+                try:
+                    widget.setPlainText(str(properties[name]))
+                except Exception as e:
+                    warning_print(f"WARNING: Failed to load TextEdit {name}: {e}")
                 
         # Load values into QPlainTextEdit widgets
         for widget in self.findChildren(QPlainTextEdit):
             name = widget.objectName()
             if name in properties:
-                widget.setPlainText(str(properties[name]))
+                try:
+                    widget.setPlainText(str(properties[name]))
+                except Exception as e:
+                    warning_print(f"WARNING: Failed to load PlainTextEdit {name}: {e}")
         
         # For Component5GPropertiesWindow, also load table data
-        self.load5GComponentTableData(properties)
+        if isinstance(self, Component5GPropertiesWindow):
+            self.load5GComponentTableData(properties)
+        
+        debug_print(f"DEBUG: Loaded properties for {self.component_name}")
         
     def load5GComponentTableData(self, properties):
-        """Load data into all 5G component tables."""
+        """Load data into all 5G component tables with validation."""
         component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
         
         for component_type in component_types:
@@ -263,6 +318,7 @@ class BasePropertiesWindow(QMainWindow):
                 
             table_data = properties[config_key]
             if not isinstance(table_data, list):
+                warning_print(f"WARNING: Invalid table data format for {component_type}")
                 continue
                 
             # Find the table
@@ -281,6 +337,7 @@ class BasePropertiesWindow(QMainWindow):
                     break
             
             if not table or not hasattr(table, 'setRowCount'):
+                warning_print(f"WARNING: Table not found for {component_type}")
                 continue
                 
             # Clear existing rows
@@ -288,29 +345,36 @@ class BasePropertiesWindow(QMainWindow):
             
             # Load each row
             for i, row_data in enumerate(table_data):
+                if not isinstance(row_data, dict):
+                    warning_print(f"WARNING: Invalid row data format for {component_type} row {i}")
+                    continue
+                    
                 table.insertRow(i)
                 
                 # Name (column 0)
-                name_item = QTableWidgetItem(row_data.get('name', f"{component_type.lower()}{i + 1}"))
+                name_value = row_data.get('name', f"{component_type.lower()}{i + 1}")
+                name_item = QTableWidgetItem(str(name_value))
                 table.setItem(i, 0, name_item)
                 
                 # Config file info (column 1)
-                config_item = QTableWidgetItem(row_data.get('config_display', '(Double-click to import)'))
+                config_display = row_data.get('config_display', '(Double-click to import)')
+                config_item = QTableWidgetItem(str(config_display))
                 config_item.setToolTip("Double-click to import YAML configuration file")
                 
                 # Restore imported configuration data to the item
                 if row_data.get('imported', False):
-                    if 'config_content' in row_data:
+                    if 'config_content' in row_data and row_data['config_content']:
                         config_item.config_data = row_data['config_content']
-                        config_item.config_filename = row_data.get('config_filename', 'imported.yaml')
-                    if 'config_file_path' in row_data:
+                        config_item.config_filename = row_data.get('config_filename', f"{component_type.lower()}.yaml")
+                    if 'config_file_path' in row_data and row_data['config_file_path']:
                         config_item.config_file_path = row_data['config_file_path']
                         
                 table.setItem(i, 1, config_item)
                 
                 # Config Path (column 2, if exists)
                 if table.columnCount() > 2:
-                    config_path_item = QTableWidgetItem(row_data.get('config_path', ''))
+                    config_path_value = row_data.get('config_path', '')
+                    config_path_item = QTableWidgetItem(str(config_path_value))
                     config_path_item.setToolTip("Path to imported configuration file")
                     table.setItem(i, 2, config_path_item)
             
@@ -376,6 +440,27 @@ class APPropertiesWindow(BasePropertiesWindow):
             self.AP_OKButton.clicked.connect(self.onOK)
         if hasattr(self, 'AP_CancelButton'):
             self.AP_CancelButton.clicked.connect(self.onCancel)
+        
+        # Connect power change to range calculation
+        if hasattr(self, 'AP_Power'):
+            self.AP_Power.valueChanged.connect(self.updateRangeDisplay)
+            # Initial range calculation
+            self.updateRangeDisplay()
+        
+    def updateRangeDisplay(self):
+        """Update the calculated range display based on power value."""
+        if hasattr(self, 'AP_Power') and hasattr(self, 'AP_RangeCalculated'):
+            try:
+                from utils.power_range_calculator import PowerRangeCalculator
+                power_value = self.AP_Power.value()
+                
+                # Create mock properties for calculation
+                mock_properties = {'AP_Power': power_value}
+                calculated_range = PowerRangeCalculator.get_component_range("AP", mock_properties)
+                
+                self.AP_RangeCalculated.setText(f"~{calculated_range:.0f}m (calculated from {power_value}dBm)")
+            except Exception as e:
+                self.AP_RangeCalculated.setText(f"Range calculation error: {str(e)}")
         
     def onOK(self):
         self.saveProperties()
@@ -462,6 +547,27 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         # Connect OVS enable checkbox to enable/disable OVS configuration widgets
         if hasattr(self, 'GNB_OVS_Enabled'):
             self.GNB_OVS_Enabled.toggled.connect(self.onOVSEnabledToggled)
+        
+        # Connect power change to range calculation
+        if hasattr(self, 'GNB_Power'):
+            self.GNB_Power.valueChanged.connect(self.updateRangeDisplay)
+            # Initial range calculation
+            self.updateRangeDisplay()
+            
+    def updateRangeDisplay(self):
+        """Update the calculated range display based on power value."""
+        if hasattr(self, 'GNB_Power') and hasattr(self, 'GNB_RangeCalculated'):
+            try:
+                from utils.power_range_calculator import PowerRangeCalculator
+                power_value = self.GNB_Power.value()
+                
+                # Create mock properties for calculation
+                mock_properties = {'GNB_Power': power_value}
+                calculated_range = PowerRangeCalculator.get_component_range("GNB", mock_properties)
+                
+                self.GNB_RangeCalculated.setText(f"~{calculated_range:.0f}m (calculated from {power_value}dBm)")
+            except Exception as e:
+                self.GNB_RangeCalculated.setText(f"Range calculation error: {str(e)}")
     
     def setupDefaultValues(self):
         """Setup default values for the enhanced gNB configuration"""
@@ -625,8 +731,7 @@ class GNBPropertiesWindow(BasePropertiesWindow):
         
         if hasattr(self, 'GNB_Power'):
             config['txpower'] = self.GNB_Power.value()
-        if hasattr(self, 'GNB_Range'):
-            config['range'] = self.GNB_Range.value()
+        # Range is now calculated from power, not set manually
             
         return config
         
@@ -690,6 +795,27 @@ class UEPropertiesWindow(BasePropertiesWindow):
         # Connect OK and Cancel buttons
         self.UE_OKButton.clicked.connect(self.onOK)
         self.UE_CancelButton.clicked.connect(self.onCancel)
+        
+        # Connect power change to range calculation
+        if hasattr(self, 'UE_Power'):
+            self.UE_Power.valueChanged.connect(self.updateRangeDisplay)
+            # Initial range calculation
+            self.updateRangeDisplay()
+            
+    def updateRangeDisplay(self):
+        """Update the calculated range display based on power value."""
+        if hasattr(self, 'UE_Power') and hasattr(self, 'UE_RangeCalculated'):
+            try:
+                from utils.power_range_calculator import PowerRangeCalculator
+                power_value = self.UE_Power.value()
+                
+                # Create mock properties for calculation
+                mock_properties = {'UE_Power': power_value}
+                calculated_range = PowerRangeCalculator.get_component_range("UE", mock_properties)
+                
+                self.UE_RangeCalculated.setText(f"~{calculated_range:.0f}m (calculated from {power_value}dBm)")
+            except Exception as e:
+                self.UE_RangeCalculated.setText(f"Range calculation error: {str(e)}")
     
     def setupDefaultValues(self):
         """Setup default values for the UE configuration"""
@@ -916,6 +1042,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         self.setupConnections()
         self.setupDefaultValues()
         self.loadProperties()
+        
+        # Update configuration summary after loading properties
+        # Use QTimer to ensure UI is fully initialized first
+        from PyQt5.QtCore import QTimer
+        QTimer.singleShot(100, self.updateConfigurationSummary)
 
     def setupConnections(self):
         # Connect OK and Cancel buttons
@@ -977,6 +1108,16 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     
                 # Use functools.partial to properly capture the component type
                 table.customContextMenuRequested.connect(partial(self.showTableContextMenu, comp_type))
+        
+        # Setup clickable link for Open5GS documentation
+        if hasattr(self, 'label_12'):
+            # Enable link activation for the label
+            self.label_12.setOpenExternalLinks(True)
+            self.label_12.linkActivated.connect(self.openDocumentationLink)
+            
+        # Connect tab change to update summary
+        if hasattr(self, 'Component5G'):
+            self.Component5G.currentChanged.connect(self.onTabChanged)
     
     def setupDefaultValues(self):
         """Setup default values for the enhanced 5G Core configuration"""
@@ -1182,6 +1323,31 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             
         return config
 
+    def onTabChanged(self, index):
+        """Handle tab change event - update summary when Slices tab is selected."""
+        try:
+            debug_print(f"DEBUG: Tab changed to index {index}")
+            if hasattr(self, 'Component5G'):
+                current_widget = self.Component5G.widget(index)
+                debug_print(f"DEBUG: Current widget: {current_widget}")
+                
+                if current_widget:
+                    widget_name = current_widget.objectName() if hasattr(current_widget, 'objectName') else "Unknown"
+                    debug_print(f"DEBUG: Widget object name: {widget_name}")
+                    
+                    # Check if the current tab is the summary tab (Slices)
+                    if widget_name == 'Slices':
+                        debug_print("DEBUG: Summary tab selected, updating configuration summary...")
+                        self.updateConfigurationSummary()
+                    else:
+                        debug_print(f"DEBUG: Not summary tab, widget name is '{widget_name}'")
+                else:
+                    debug_print("DEBUG: Current widget is None")
+        except Exception as e:
+            error_print(f"ERROR in onTabChanged: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
     def onTableCellDoubleClicked(self, component_type, row, column):
         """Handle double-click on table cells, especially for Import YAML column."""
         table_name = f'Component5G_{component_type}table'
@@ -1286,6 +1452,13 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             debug_print(f"DEBUG: Initialized Config Path column for {component_type} at row {row_position}")
         
         debug_print(f"DEBUG: Successfully added {component_type} component: {default_name} at row {row_position}")
+        
+        # Update configuration summary if we're on the summary tab
+        if hasattr(self, 'Component5G'):
+            current_index = self.Component5G.currentIndex()
+            current_widget = self.Component5G.widget(current_index)
+            if current_widget and hasattr(current_widget, 'objectName') and current_widget.objectName() == 'Slices':
+                self.updateConfigurationSummary()
 
     def removeComponentType(self, component_type):
         """Remove selected component instance from the corresponding table."""
@@ -1505,6 +1678,13 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     f"Remember to click 'OK' to save all changes."
                 )
                 
+                # Update configuration summary if we're on the summary tab
+                if hasattr(self, 'Component5G'):
+                    current_index = self.Component5G.currentIndex()
+                    current_widget = self.Component5G.widget(current_index)
+                    if current_widget and hasattr(current_widget, 'objectName') and current_widget.objectName() == 'Slices':
+                        self.updateConfigurationSummary()
+                
             except yaml.YAMLError as e:
                 QMessageBox.critical(
                     self,
@@ -1660,9 +1840,12 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         table = getattr(self, table_name, None)
         
         if not table:
+            debug_print(f"DEBUG: Table {table_name} not found")
             return []
             
         table_data = []
+        debug_print(f"DEBUG: Extracting data from {table_name}, rows: {table.rowCount()}")
+        
         for row in range(table.rowCount()):
             row_data = {}
             
@@ -1671,29 +1854,50 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             if name_item and name_item.text().strip():
                 row_data['name'] = name_item.text().strip()
             else:
+                debug_print(f"DEBUG: Skipping row {row} - no name")
                 continue  # Skip rows without names
             
             # Extract config file info (column 1)
             config_item = table.item(row, 1)
             if config_item:
-                config_data = config_item.data(Qt.UserRole)
-                if config_data and isinstance(config_data, dict):
-                    # Has imported configuration
-                    row_data['config_file'] = config_data.get('config_filename', f"{row_data['name']}.yaml")
-                    row_data['config_file_path'] = config_data.get('file_path', '')
-                    row_data['config_content'] = config_data.get('config_content', {})
-                    row_data['imported'] = config_data.get('imported', False)
+                # First check if config data is stored as attributes
+                if hasattr(config_item, 'config_data') and config_item.config_data:
+                    row_data['config_content'] = config_item.config_data
+                    row_data['imported'] = True
+                    row_data['config_file'] = getattr(config_item, 'config_filename', f"{row_data['name']}.yaml")
+                    row_data['config_file_path'] = getattr(config_item, 'config_file_path', '')
+                    debug_print(f"DEBUG: Found config data for {row_data['name']} via attributes")
+                # Then check UserRole data
+                elif config_item.data(Qt.UserRole):
+                    config_data = config_item.data(Qt.UserRole)
+                    if isinstance(config_data, dict):
+                        row_data['config_file'] = config_data.get('config_filename', f"{row_data['name']}.yaml")
+                        row_data['config_file_path'] = config_data.get('file_path', '')
+                        row_data['config_content'] = config_data.get('config_content', {})
+                        row_data['imported'] = config_data.get('imported', False)
+                        debug_print(f"DEBUG: Found config data for {row_data['name']} via UserRole")
+                    else:
+                        row_data['imported'] = False
                 else:
                     # Use text value or default
                     config_text = config_item.text().strip()
-                    if config_text and config_text != "(Double-click to import)":
-                        row_data['config_file'] = config_text
+                    if config_text and config_text != "(Double-click to import)" and config_text.startswith("✓"):
+                        row_data['config_file'] = config_text.replace("✓ ", "")
+                        row_data['imported'] = True
+                        debug_print(f"DEBUG: Found config file for {row_data['name']} via text: {row_data['config_file']}")
+                        # Try to get config content from attributes
+                        if hasattr(config_item, 'config_data'):
+                            row_data['config_content'] = config_item.config_data
+                        else:
+                            row_data['config_content'] = {}
                     else:
                         row_data['config_file'] = f"{row_data['name']}.yaml"
-                    row_data['imported'] = False
+                        row_data['imported'] = False
+                        row_data['config_content'] = {}
             else:
                 row_data['config_file'] = f"{row_data['name']}.yaml"
                 row_data['imported'] = False
+                row_data['config_content'] = {}
                 
             # Extract additional columns if they exist
             if table.columnCount() > 2:
@@ -1706,8 +1910,10 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             row_data['component_type'] = component_type
             row_data['volumes'] = []
             
+            debug_print(f"DEBUG: Extracted row data for {row_data['name']}: imported={row_data['imported']}, has_config={bool(row_data.get('config_content'))}")
             table_data.append(row_data)
         
+        debug_print(f"DEBUG: Extracted {len(table_data)} items from {component_type} table")
         return table_data
 
     def loadTableData(self, component_type, table_data):
@@ -1779,6 +1985,410 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                 except:
                     pass
         debug_print("=== END DEBUG ===")
+
+    def updateConfigurationSummary(self):
+        """Update the configuration summary tab with current NF configurations."""
+        debug_print("DEBUG: Starting configuration summary update...")
+        
+        # Check if summary widgets exist
+        if not (hasattr(self, 'slicingConfigTree') and hasattr(self, 'sessionConfigTree') and hasattr(self, 'nfConfigTree')):
+            debug_print("DEBUG: Summary widgets not found, checking available widgets...")
+            # List all widgets for debugging
+            for attr_name in dir(self):
+                if 'Tree' in attr_name or 'tree' in attr_name:
+                    debug_print(f"DEBUG: Found tree widget: {attr_name}")
+            return
+            
+        try:
+            debug_print("DEBUG: Clearing existing summary data...")
+            # Clear existing summary data
+            self.slicingConfigTree.clear()
+            self.sessionConfigTree.clear()
+            self.nfConfigTree.clear()
+            
+            # Collect configuration data from all NF components
+            slicing_data = {}  # SST -> {SD -> {DNNs, NFs}}
+            session_data = {}  # DNN -> {subnet, gateway, upfs}
+            nf_data = {}      # NF_TYPE -> {instances}
+            
+            component_types = ['UPF', 'AMF', 'SMF', 'NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']
+            
+            debug_print("DEBUG: Processing component types...")
+            for component_type in component_types:
+                debug_print(f"DEBUG: Processing {component_type}...")
+                table_data = self.extractTableData(component_type)
+                
+                if table_data:
+                    debug_print(f"DEBUG: Found {len(table_data)} items for {component_type}")
+                    nf_data[component_type] = []
+                    
+                    for component_instance in table_data:
+                        instance_name = component_instance.get('name', f"{component_type}1")
+                        debug_print(f"DEBUG: Processing instance {instance_name}")
+                        
+                        if component_instance.get('imported', False) and component_instance.get('config_content'):
+                            config = component_instance.get('config_content', {})
+                            debug_print(f"DEBUG: {instance_name} has imported config with keys: {list(config.keys())}")
+                            
+                            # Extract slicing information
+                            slicing_info = self.extractSlicingInfo(config, component_type)
+                            debug_print(f"DEBUG: Extracted slicing info for {instance_name}: {slicing_info}")
+                            
+                            for sst, sd_data in slicing_info.items():
+                                if sst not in slicing_data:
+                                    slicing_data[sst] = {}
+                                for sd, dnns in sd_data.items():
+                                    if sd not in slicing_data[sst]:
+                                        slicing_data[sst][sd] = {'dnns': set(), 'nfs': set()}
+                                    slicing_data[sst][sd]['dnns'].update(dnns)
+                                    slicing_data[sst][sd]['nfs'].add(f"{component_type}({instance_name})")
+                            
+                            # Extract session information (mainly from SMF)
+                            if component_type == 'SMF':
+                                session_info = self.extractSessionInfo(config)
+                                debug_print(f"DEBUG: Extracted session info from {instance_name}: {session_info}")
+                                session_data.update(session_info)
+                                
+                                # Extract UPF associations (for session data)
+                                upf_info = self.extractUPFAssociations(config)
+                                debug_print(f"DEBUG: Extracted UPF associations from {instance_name}: {upf_info}")
+                                for dnn, upfs in upf_info.items():
+                                    if dnn in session_data:
+                                        session_data[dnn]['upfs'] = upfs
+                            
+                            # Add NF instance info
+                            nf_status = "Configured" if component_instance.get('imported') else "Not Configured"
+                            key_configs = self.extractKeyConfigurations(config, component_type)
+                            
+                            nf_data[component_type].append({
+                                'instance': instance_name,
+                                'status': nf_status,
+                                'key_configs': key_configs
+                            })
+                        else:
+                            debug_print(f"DEBUG: {instance_name} has no imported config")
+                            # Add NF instance info for non-configured instances
+                            nf_data[component_type].append({
+                                'instance': instance_name,
+                                'status': "Not Configured",
+                                'key_configs': "No configuration imported"
+                            })
+                else:
+                    debug_print(f"DEBUG: No items found for {component_type}")
+            
+            debug_print(f"DEBUG: Final data summary:")
+            debug_print(f"  - Slicing data: {len(slicing_data)} slices")
+            debug_print(f"  - Session data: {len(session_data)} sessions")
+            debug_print(f"  - NF data: {sum(len(instances) for instances in nf_data.values())} total instances")
+            
+            # Populate slicing configuration tree
+            debug_print("DEBUG: Populating slicing configuration tree...")
+            self.populateSlicingConfigTree(slicing_data)
+            
+            # Populate session configuration tree
+            debug_print("DEBUG: Populating session configuration tree...")
+            self.populateSessionConfigTree(session_data)
+            
+            # Populate NF configuration tree
+            debug_print("DEBUG: Populating NF configuration tree...")
+            self.populateNFConfigTree(nf_data)
+            
+            debug_print("DEBUG: Configuration summary updated successfully")
+            
+        except Exception as e:
+            error_print(f"ERROR: Failed to update configuration summary: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
+    def extractSlicingInfo(self, config, nf_type):
+        """Extract slicing information (SST, SD, DNN) from NF configuration."""
+        slicing_info = {}  # SST -> {SD -> [DNNs]}
+        
+        try:
+            if nf_type == 'AMF' and 'amf' in config:
+                # Extract from AMF plmn_support
+                plmn_support = config['amf'].get('plmn_support', [])
+                for plmn in plmn_support:
+                    s_nssai_list = plmn.get('s_nssai', [])
+                    for s_nssai in s_nssai_list:
+                        sst = str(s_nssai.get('sst', '1'))
+                        sd = s_nssai.get('sd', '0xffffff')
+                        if isinstance(sd, int):
+                            sd = f"0x{sd:06x}"
+                        elif isinstance(sd, str) and not sd.startswith('0x'):
+                            try:
+                                sd = f"0x{int(sd):06x}"
+                            except:
+                                sd = str(sd)
+                        
+                        if sst not in slicing_info:
+                            slicing_info[sst] = {}
+                        if sd not in slicing_info[sst]:
+                            slicing_info[sst][sd] = set()
+                        # AMF doesn't specify DNNs directly, use default
+                        slicing_info[sst][sd].add("(Any)")
+                        
+            elif nf_type == 'SMF' and 'smf' in config:
+                # Extract from SMF info section if present
+                info_list = config['smf'].get('info', [])
+                for info in info_list:
+                    s_nssai_list = info.get('s_nssai', [])
+                    for s_nssai in s_nssai_list:
+                        sst = str(s_nssai.get('sst', '1'))
+                        sd = s_nssai.get('sd', '0xffffff')
+                        if isinstance(sd, int):
+                            sd = f"0x{sd:06x}"
+                        elif isinstance(sd, str) and not sd.startswith('0x'):
+                            try:
+                                sd = f"0x{int(sd):06x}"
+                            except:
+                                sd = str(sd)
+                        
+                        dnns = s_nssai.get('dnn', [])
+                        
+                        if sst not in slicing_info:
+                            slicing_info[sst] = {}
+                        if sd not in slicing_info[sst]:
+                            slicing_info[sst][sd] = set()
+                        
+                        if dnns:
+                            slicing_info[sst][sd].update(dnns)
+                        else:
+                            slicing_info[sst][sd].add("(Any)")
+                            
+                # Also extract from session configurations
+                sessions = config['smf'].get('session', [])
+                for session in sessions:
+                    dnn = session.get('dnn', 'internet')
+                    # Assume default slice if not specified
+                    if '1' not in slicing_info:
+                        slicing_info['1'] = {}
+                    if '0xffffff' not in slicing_info['1']:
+                        slicing_info['1']['0xffffff'] = set()
+                    slicing_info['1']['0xffffff'].add(dnn)
+            
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting slicing info from {nf_type}: {e}")
+            
+        return slicing_info
+
+    def extractSessionInfo(self, config):
+        """Extract session information from SMF configuration."""
+        session_info = {}  # DNN -> {subnet, gateway}
+        
+        try:
+            if 'smf' in config:
+                sessions = config['smf'].get('session', [])
+                for session in sessions:
+                    dnn = session.get('dnn', 'internet')
+                    subnet = session.get('subnet', '')
+                    gateway = session.get('gateway', '')
+                    
+                    session_info[dnn] = {
+                        'subnet': subnet,
+                        'gateway': gateway,
+                        'upfs': []  # Will be filled by extractUPFAssociations
+                    }
+                    
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting session info: {e}")
+            
+        return session_info
+
+    def extractUPFAssociations(self, config):
+        """Extract UPF associations from SMF configuration."""
+        upf_associations = {}  # DNN -> [UPFs]
+        
+        try:
+            if 'smf' in config and 'pfcp' in config['smf']:
+                client_config = config['smf']['pfcp'].get('client', {})
+                upf_list = client_config.get('upf', [])
+                
+                for upf in upf_list:
+                    upf_address = upf.get('address', '')
+                    dnns = upf.get('dnn', [])
+                    
+                    for dnn in dnns:
+                        if dnn not in upf_associations:
+                            upf_associations[dnn] = []
+                        upf_associations[dnn].append(upf_address)
+                        
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting UPF associations: {e}")
+            
+        return upf_associations
+
+    def extractKeyConfigurations(self, config, nf_type):
+        """Extract key configuration parameters for each NF type."""
+        key_configs = []
+        
+        try:
+            if nf_type == 'AMF' and 'amf' in config:
+                # AMF key configs
+                ngap_server = config['amf'].get('ngap', {}).get('server', [])
+                if ngap_server:
+                    key_configs.append(f"NGAP: {ngap_server[0].get('dev', 'N/A')}")
+                
+                guami = config['amf'].get('guami', [])
+                if guami:
+                    mcc = guami[0].get('plmn_id', {}).get('mcc', 'N/A')
+                    mnc = guami[0].get('plmn_id', {}).get('mnc', 'N/A')
+                    key_configs.append(f"PLMN: {mcc}-{mnc}")
+                    
+            elif nf_type == 'SMF' and 'smf' in config:
+                # SMF key configs
+                sessions = config['smf'].get('session', [])
+                key_configs.append(f"Sessions: {len(sessions)}")
+                
+                upf_clients = config['smf'].get('pfcp', {}).get('client', {}).get('upf', [])
+                key_configs.append(f"UPF Connections: {len(upf_clients)}")
+                
+            elif nf_type == 'UPF' and 'upf' in config:
+                # UPF key configs
+                gtpu = config['upf'].get('gtpu', {}).get('server', [])
+                if gtpu:
+                    key_configs.append(f"GTP-U: {gtpu[0].get('dev', 'N/A')}")
+                    
+                pfcp = config['upf'].get('pfcp', {}).get('server', [])
+                if pfcp:
+                    key_configs.append(f"PFCP: {pfcp[0].get('dev', 'N/A')}")
+                    
+            elif nf_type in ['NRF', 'SCP', 'AUSF', 'BSF', 'NSSF', 'PCF', 'UDM', 'UDR']:
+                # Other NFs - typically have SBI interfaces
+                nf_config = config.get(nf_type.lower(), {})
+                sbi_server = nf_config.get('sbi', {}).get('server', [])
+                if sbi_server:
+                    port = sbi_server[0].get('port', 'N/A')
+                    key_configs.append(f"SBI Port: {port}")
+                    
+        except Exception as e:
+            debug_print(f"DEBUG: Error extracting key configs for {nf_type}: {e}")
+            
+        return "; ".join(key_configs) if key_configs else "No key configurations found"
+
+    def populateSlicingConfigTree(self, slicing_data):
+        """Populate the slicing configuration tree widget."""
+        try:
+            from PyQt5.QtWidgets import QTreeWidgetItem
+            
+            slice_count = 0
+            for sst, sd_data in slicing_data.items():
+                for sd, slice_info in sd_data.items():
+                    # Create tree item for each slice
+                    slice_item = QTreeWidgetItem(self.slicingConfigTree)
+                    slice_item.setText(0, sst)  # SST
+                    slice_item.setText(1, sd)   # SD
+                    slice_item.setText(2, ", ".join(sorted(slice_info['dnns'])))  # DNNs
+                    slice_item.setText(3, ", ".join(sorted(slice_info['nfs'])))   # Associated NFs
+                    
+                    # Color coding based on slice type
+                    if sst == '1':
+                        slice_item.setBackground(0, self.palette().highlight().color().lighter(150))
+                    elif sst == '2':
+                        slice_item.setBackground(0, self.palette().highlight().color().lighter(120))
+                        
+                    slice_count += 1
+            
+            debug_print(f"DEBUG: Populated slicing config tree with {slice_count} slices")
+            
+            # If no slices found, add an informational row
+            if slice_count == 0:
+                info_item = QTreeWidgetItem(self.slicingConfigTree)
+                info_item.setText(0, "No Slices")
+                info_item.setText(1, "")
+                info_item.setText(2, "")
+                info_item.setText(3, "Import AMF/SMF configurations to see network slices")
+                info_item.setBackground(0, self.palette().highlight().color().lighter(190))
+                        
+            # Expand all items and resize columns
+            self.slicingConfigTree.expandAll()
+            for i in range(4):
+                self.slicingConfigTree.resizeColumnToContents(i)
+                
+        except Exception as e:
+            error_print(f"ERROR: Error populating slicing config tree: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
+    def populateSessionConfigTree(self, session_data):
+        """Populate the session configuration tree widget."""
+        try:
+            from PyQt5.QtWidgets import QTreeWidgetItem
+            
+            session_count = 0
+            for dnn, session_info in session_data.items():
+                # Create tree item for each session
+                session_item = QTreeWidgetItem(self.sessionConfigTree)
+                session_item.setText(0, dnn)  # DNN
+                session_item.setText(1, session_info.get('subnet', 'N/A'))  # Subnet
+                session_item.setText(2, session_info.get('gateway', 'N/A'))  # Gateway
+                upfs = session_info.get('upfs', [])
+                session_item.setText(3, ", ".join(upfs) if upfs else 'No UPF assigned')  # UPF Assignments
+                session_count += 1
+            
+            debug_print(f"DEBUG: Populated session config tree with {session_count} sessions")
+            
+            # If no sessions found, add an informational row
+            if session_count == 0:
+                info_item = QTreeWidgetItem(self.sessionConfigTree)
+                info_item.setText(0, "No Sessions")
+                info_item.setText(1, "")
+                info_item.setText(2, "")
+                info_item.setText(3, "Import SMF configuration to see session details")
+                info_item.setBackground(0, self.palette().highlight().color().lighter(190))
+                
+            # Resize columns
+            for i in range(4):
+                self.sessionConfigTree.resizeColumnToContents(i)
+                
+        except Exception as e:
+            error_print(f"ERROR: Error populating session config tree: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
+
+    def populateNFConfigTree(self, nf_data):
+        """Populate the NF configuration tree widget."""
+        try:
+            from PyQt5.QtWidgets import QTreeWidgetItem
+            
+            total_instances = 0
+            for nf_type, instances in nf_data.items():
+                if instances:  # Only show NF types that have instances
+                    for instance_info in instances:
+                        # Create tree item for each NF instance
+                        nf_item = QTreeWidgetItem(self.nfConfigTree)
+                        nf_item.setText(0, nf_type)  # NF Type
+                        nf_item.setText(1, instance_info['instance'])  # Instance
+                        nf_item.setText(2, instance_info['status'])  # Status
+                        nf_item.setText(3, instance_info['key_configs'])  # Key Configurations
+                        
+                        # Color coding based on status
+                        if instance_info['status'] == 'Configured':
+                            nf_item.setBackground(2, self.palette().highlight().color().lighter(150))
+                        else:
+                            nf_item.setBackground(2, self.palette().highlight().color().lighter(180))
+                            
+                        total_instances += 1
+            
+            debug_print(f"DEBUG: Populated NF config tree with {total_instances} instances")
+            
+            # If no instances found, add an informational row
+            if total_instances == 0:
+                info_item = QTreeWidgetItem(self.nfConfigTree)
+                info_item.setText(0, "No NF Components")
+                info_item.setText(1, "")
+                info_item.setText(2, "Not Configured")
+                info_item.setText(3, "Add NF components and import YAML configurations")
+                info_item.setBackground(0, self.palette().highlight().color().lighter(190))
+                        
+            # Resize columns
+            for i in range(4):
+                self.nfConfigTree.resizeColumnToContents(i)
+                
+        except Exception as e:
+            error_print(f"ERROR: Error populating NF config tree: {e}")
+            import traceback
+            debug_print(traceback.format_exc())
         
     def onOK(self):
         """Enhanced save that includes all new configuration options"""
@@ -1801,6 +2411,22 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
             debug_print(f"DEBUG: Enhanced 5G Core configuration saved for {self.component_name}")
             
         self.close()
+    
+    def openDocumentationLink(self, url):
+        """Open the Open5GS documentation link in the default browser."""
+        import webbrowser
+        try:
+            debug_print(f"DEBUG: Opening documentation link: {url}")
+            webbrowser.open(url)
+        except Exception as e:
+            error_print(f"ERROR: Failed to open documentation link: {e}")
+            # Show a message box as fallback
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(
+                self, 
+                "Open Link", 
+                f"Please visit the documentation at:\n{url}"
+            )
         
     def onCancel(self):
         self.close()

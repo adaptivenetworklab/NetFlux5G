@@ -3,187 +3,16 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Rab Jul 16 06:39:55 2025",
-    "saved_date": "Rab Jul 16 06:39:55 2025",
+    "created_date": "Sen Jul 28 11:20:17 2025",
+    "saved_date": "Sen Jul 28 11:20:17 2025",
     "canvas_size": {
-      "width": 1292,
-      "height": 801
+      "width": 1676,
+      "height": 905
     },
     "component_counts": {},
     "editor_version": "2.0"
   },
   "nodes": [
-    {
-      "name": "UE #1",
-      "type": "UE",
-      "x": -919.4099928124999,
-      "y": -521.0824078124998,
-      "properties": {
-        "name": "UE #1",
-        "type": "UE",
-        "x": -919.4099928124999,
-        "y": -521.0824078124998,
-        "UE_GNBHostName": "GNB__1",
-        "UE_APN": "internet",
-        "UE_MSISDN": "0000000001",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff",
-        "qt_spinbox_lineedit": "1",
-        "UE_GNB_IP": "",
-        "UE_TunnelInterface": "uesimtun0",
-        "UE_RadioInterface": "UE__1-wlan0",
-        "UE_IMEI": "356938035643803",
-        "UE_IMEISV": "4370816125816151",
-        "UE_AssociationMode": "auto",
-        "UE_SessionType": "IPv4",
-        "UE_Mobility": false,
-        "UE_Power": 20,
-        "UE_Range": 116,
-        "UE_PDUSessions": 1,
-        "ue_gnb_hostname": "GNB__1",
-        "ue_apn": "internet",
-        "ue_msisdn": "0000000001",
-        "ue_mcc": "999",
-        "ue_mnc": "70",
-        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "ue_op_type": "OPC",
-        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
-        "ue_sst": "1",
-        "ue_sd": "0xffffff",
-        "ue_imei": "356938035643803",
-        "ue_imeisv": "4370816125816151",
-        "wireless_txpower": 20,
-        "wireless_range": 116,
-        "wireless_association": "auto",
-        "wireless_mobility": false,
-        "network_gnb_ip": "",
-        "network_tunnel_iface": "uesimtun0",
-        "network_radio_iface": "UE__1-wlan0",
-        "network_pdu_sessions": "1",
-        "network_session_type": "IPv4"
-      },
-      "created_date": "Rab Jul 16 06:39:55 2025",
-      "component_id": 131457036129568
-    },
-    {
-      "name": "UE #2",
-      "type": "UE",
-      "x": -1024.6378196875003,
-      "y": 200.34138031250018,
-      "properties": {
-        "name": "UE #2",
-        "type": "UE",
-        "x": -1024.6378196875003,
-        "y": 200.34138031250018,
-        "UE_GNBHostName": "GNB__1",
-        "UE_APN": "internet",
-        "UE_MSISDN": "0000000002",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff",
-        "qt_spinbox_lineedit": "1",
-        "UE_GNB_IP": "",
-        "UE_TunnelInterface": "uesimtun0",
-        "UE_RadioInterface": "UE__2-wlan0",
-        "UE_IMEI": "356938035643803",
-        "UE_IMEISV": "4370816125816151",
-        "UE_AssociationMode": "auto",
-        "UE_SessionType": "IPv4",
-        "UE_Mobility": false,
-        "UE_Power": 20,
-        "UE_Range": 116,
-        "UE_PDUSessions": 1,
-        "ue_gnb_hostname": "GNB__1",
-        "ue_apn": "internet",
-        "ue_msisdn": "0000000002",
-        "ue_mcc": "999",
-        "ue_mnc": "70",
-        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "ue_op_type": "OPC",
-        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
-        "ue_sst": "1",
-        "ue_sd": "0xffffff",
-        "ue_imei": "356938035643803",
-        "ue_imeisv": "4370816125816151",
-        "wireless_txpower": 20,
-        "wireless_range": 116,
-        "wireless_association": "auto",
-        "wireless_mobility": false,
-        "network_gnb_ip": "",
-        "network_tunnel_iface": "uesimtun0",
-        "network_radio_iface": "UE__2-wlan0",
-        "network_pdu_sessions": "1",
-        "network_session_type": "IPv4"
-      },
-      "created_date": "Rab Jul 16 06:39:55 2025",
-      "component_id": 131457036129424
-    },
-    {
-      "name": "UE #3",
-      "type": "UE",
-      "x": -453.06712875000005,
-      "y": -133.35136062500004,
-      "properties": {
-        "name": "UE #3",
-        "type": "UE",
-        "x": -453.06712875000005,
-        "y": -133.35136062500004,
-        "UE_GNBHostName": "GNB__1",
-        "UE_APN": "internet2",
-        "UE_MSISDN": "0000000011",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OPType": "OPC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff",
-        "UE_GNB_IP": "",
-        "UE_TunnelInterface": "uesimtun0",
-        "UE_RadioInterface": "UE__3-wlan0",
-        "qt_spinbox_lineedit": "1",
-        "UE_IMEI": "356938035643803",
-        "UE_IMEISV": "4370816125816151",
-        "UE_SessionType": "IPv4",
-        "UE_AssociationMode": "auto",
-        "UE_Mobility": false,
-        "UE_PDUSessions": 1,
-        "UE_Power": 20,
-        "UE_Range": 116,
-        "ue_gnb_hostname": "GNB__1",
-        "ue_apn": "internet2",
-        "ue_msisdn": "0000000011",
-        "ue_mcc": "999",
-        "ue_mnc": "70",
-        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "ue_op_type": "OPC",
-        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
-        "ue_sst": "1",
-        "ue_sd": "0xffffff",
-        "ue_imei": "356938035643803",
-        "ue_imeisv": "4370816125816151",
-        "wireless_txpower": 20,
-        "wireless_range": 116,
-        "wireless_association": "auto",
-        "wireless_mobility": false,
-        "network_gnb_ip": "",
-        "network_tunnel_iface": "uesimtun0",
-        "network_radio_iface": "UE__3-wlan0",
-        "network_pdu_sessions": "1",
-        "network_session_type": "IPv4"
-      },
-      "created_date": "Rab Jul 16 06:39:55 2025",
-      "component_id": 131457036129280
-    },
     {
       "name": "VGcore #1",
       "type": "VGcore",
@@ -198,6 +27,13 @@
           {
             "name": "upf1",
             "config_display": "✓ upf1.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf1.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf1.yaml",
+            "config_filename": "upf1.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "UPF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -244,18 +80,18 @@
                   ]
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "upf1.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf1.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf1.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "UPF",
-            "volumes": []
+            }
           },
           {
             "name": "upf2",
             "config_display": "✓ upf2.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
+            "config_filename": "upf2.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "UPF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -300,20 +136,20 @@
                   ]
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "upf2.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/upf2.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "UPF",
-            "volumes": []
+            }
           }
         ],
         "AMF_configs": [
           {
             "name": "amf1",
             "config_display": "✓ amf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/amf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/amf.yaml",
+            "config_filename": "amf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "AMF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -409,20 +245,20 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "amf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/amf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/amf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "AMF",
-            "volumes": []
+            }
           }
         ],
         "SMF_configs": [
           {
             "name": "smf1",
             "config_display": "✓ smf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/smf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/smf.yaml",
+            "config_filename": "smf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "SMF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -524,20 +360,20 @@
                   "enabled": "auto"
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "smf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/smf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/smf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "SMF",
-            "volumes": []
+            }
           }
         ],
         "NRF_configs": [
           {
             "name": "nrf1",
             "config_display": "✓ nrf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/nrf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/nrf.yaml",
+            "config_filename": "nrf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "NRF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -563,20 +399,20 @@
                   ]
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "nrf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nrf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nrf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "NRF",
-            "volumes": []
+            }
           }
         ],
         "SCP_configs": [
           {
             "name": "scp1",
             "config_display": "✓ scp.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/scp.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/scp.yaml",
+            "config_filename": "scp.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "SCP",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -601,20 +437,20 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "scp.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/scp.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/scp.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "SCP",
-            "volumes": []
+            }
           }
         ],
         "AUSF_configs": [
           {
             "name": "ausf1",
             "config_display": "✓ ausf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/ausf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/ausf.yaml",
+            "config_filename": "ausf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "AUSF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -639,20 +475,20 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "ausf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/ausf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/ausf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "AUSF",
-            "volumes": []
+            }
           }
         ],
         "BSF_configs": [
           {
             "name": "bsf1",
             "config_display": "✓ bsf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/bsf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/bsf.yaml",
+            "config_filename": "bsf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "BSF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -677,20 +513,20 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "bsf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/bsf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/bsf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "BSF",
-            "volumes": []
+            }
           }
         ],
         "NSSF_configs": [
           {
             "name": "nssf1",
             "config_display": "✓ nssf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/nssf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/nssf.yaml",
+            "config_filename": "nssf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "NSSF",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -725,20 +561,20 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "nssf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nssf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/nssf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "NSSF",
-            "volumes": []
+            }
           }
         ],
         "PCF_configs": [
           {
             "name": "pcf1",
             "config_display": "✓ pcf.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/pcf.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/pcf.yaml",
+            "config_filename": "pcf.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "PCF",
+            "volumes": [],
             "config_content": {
               "db_uri": "mongodb://localhost/open5gs",
               "logger": {
@@ -772,14 +608,7 @@
                   ]
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "pcf.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/pcf.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/pcf.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "PCF",
-            "volumes": []
+            }
           }
         ],
         "PCRF_configs": [
@@ -810,6 +639,13 @@
           {
             "name": "udm1",
             "config_display": "✓ udm.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/udm.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/udm.yaml",
+            "config_filename": "udm.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "UDM",
+            "volumes": [],
             "config_content": {
               "logger": {
                 "file": {
@@ -866,20 +702,20 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "udm.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udm.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udm.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "UDM",
-            "volumes": []
+            }
           }
         ],
         "UDR_configs": [
           {
             "name": "udr1",
             "config_display": "✓ udr.yaml",
+            "config_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/udr.yaml",
+            "config_file_path": "/home/litfan/TA/NetFlux5G/netflux5g-editor/src/export/5g-configs/udr.yaml",
+            "config_filename": "udr.yaml",
+            "imported": true,
+            "image": "adaptive/open5gs:1.0",
+            "component_type": "UDR",
+            "volumes": [],
             "config_content": {
               "db_uri": "mongodb://localhost/open5gs",
               "logger": {
@@ -905,14 +741,7 @@
                   }
                 }
               }
-            },
-            "imported": true,
-            "config_filename": "udr.yaml",
-            "config_file_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udr.yaml",
-            "config_path": "/home/litfan/Code/NetFlux5G/netflux5g-editor/src/export/5g-configs/udr.yaml",
-            "image": "adaptive/open5gs:1.0",
-            "component_type": "UDR",
-            "volumes": []
+            }
           }
         ],
         "VGCore_DockerImage": "adaptive/open5gs:latest",
@@ -956,8 +785,179 @@
         "ovs_bridge_priority": "32768",
         "ovs_stp_enabled": true
       },
-      "created_date": "Rab Jul 16 06:39:55 2025",
-      "component_id": 131457036129136
+      "created_date": "Sen Jul 28 11:20:17 2025",
+      "component_id": 137174970015264
+    },
+    {
+      "name": "UE #3",
+      "type": "UE",
+      "x": -453.06712875000005,
+      "y": -133.35136062500004,
+      "properties": {
+        "name": "UE #3",
+        "type": "UE",
+        "x": -453.06712875000005,
+        "y": -133.35136062500004,
+        "UE_Power": 20,
+        "UE_GNBHostName": "GNB__1",
+        "UE_APN": "internet2",
+        "UE_MSISDN": "0000000011",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__3-wlan0",
+        "qt_spinbox_lineedit": "1",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_SessionType": "IPv4",
+        "UE_AssociationMode": "auto",
+        "UE_Mobility": false,
+        "UE_PDUSessions": 1,
+        "UE_Range": 116,
+        "ue_gnb_hostname": "GNB__1",
+        "ue_apn": "internet2",
+        "ue_msisdn": "0000000011",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__3-wlan0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
+      },
+      "created_date": "Sen Jul 28 11:20:17 2025",
+      "component_id": 137174969839936
+    },
+    {
+      "name": "UE #2",
+      "type": "UE",
+      "x": -1024.6378196875003,
+      "y": 200.34138031250018,
+      "properties": {
+        "name": "UE #2",
+        "type": "UE",
+        "x": -1024.6378196875003,
+        "y": 200.34138031250018,
+        "UE_Power": 20,
+        "UE_GNBHostName": "GNB__1",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000002",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__2-wlan0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "GNB__1",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000002",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__2-wlan0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
+      },
+      "created_date": "Sen Jul 28 11:20:17 2025",
+      "component_id": 137174969839792
+    },
+    {
+      "name": "UE #1",
+      "type": "UE",
+      "x": -933.489493125,
+      "y": -408.4464053124998,
+      "properties": {
+        "name": "UE #1",
+        "type": "UE",
+        "x": -933.489493125,
+        "y": -408.4464053124998,
+        "UE_Power": 20,
+        "UE_GNBHostName": "GNB__1",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000001",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OPType": "OPC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNB_IP": "",
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "UE__1-wlan0",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_AssociationMode": "auto",
+        "UE_SessionType": "IPv4",
+        "UE_Mobility": false,
+        "UE_Range": 116,
+        "UE_PDUSessions": 1,
+        "ue_gnb_hostname": "GNB__1",
+        "ue_apn": "internet",
+        "ue_msisdn": "0000000001",
+        "ue_mcc": "999",
+        "ue_mnc": "70",
+        "ue_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "ue_op_type": "OPC",
+        "ue_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "ue_sst": "1",
+        "ue_sd": "0xffffff",
+        "ue_imei": "356938035643803",
+        "ue_imeisv": "4370816125816151",
+        "wireless_txpower": 20,
+        "wireless_range": 116,
+        "wireless_association": "auto",
+        "wireless_mobility": false,
+        "network_gnb_ip": "",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "UE__1-wlan0",
+        "network_pdu_sessions": "1",
+        "network_session_type": "IPv4"
+      },
+      "created_date": "Sen Jul 28 11:20:17 2025",
+      "component_id": 137174969828416
     },
     {
       "name": "GNB #1",
@@ -969,6 +969,7 @@
         "type": "GNB",
         "x": -811.9627162499999,
         "y": -32.3562034375,
+        "GNB_Power": 24,
         "GNB_Range": 300,
         "range": 300.0,
         "GNB_AMFHostName": "amf1",
@@ -978,7 +979,6 @@
         "GNB_MNC": "70",
         "GNB_SST": "1",
         "GNB_SD": "0xffffff",
-        "GNB_Power": 24,
         "GNB_AP_SSID": "gnb-hotspot1",
         "qt_spinbox_lineedit": "11",
         "GNB_AP_Password": "",
@@ -1044,8 +1044,8 @@
         "GNB_AMF_IP": "",
         "5g_amf_ip": "10.0.0.3"
       },
-      "created_date": "Rab Jul 16 06:39:55 2025",
-      "component_id": 131457036129712
+      "created_date": "Sen Jul 28 11:20:17 2025",
+      "component_id": 137174970015408
     }
   ],
   "links": [
@@ -1066,7 +1066,7 @@
         "enable_ip": false
       },
       "name": "link_688",
-      "created_date": "Rab Jul 16 06:39:55 2025"
+      "created_date": "Sen Jul 28 11:20:17 2025"
     }
   ],
   "canvas_properties": {

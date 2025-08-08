@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>902</width>
-    <height>460</height>
+    <width>885</width>
+    <height>476</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,7 +39,7 @@
    <widget class="QLabel" name="Examples_1">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>70</x>
       <y>260</y>
       <width>191</width>
       <height>21</height>
@@ -62,10 +62,13 @@
       <x>40</x>
       <y>110</y>
       <width>261</width>
-      <height>140</height>
+      <height>121</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0,0">
+     <property name="spacing">
+      <number>7</number>
+     </property>
      <item>
       <widget class="QLabel" name="NewTopo">
        <property name="font">
@@ -114,7 +117,7 @@
    <widget class="QLabel" name="NetFluxLogo">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>460</x>
       <y>60</y>
       <width>371</width>
       <height>81</height>
@@ -133,16 +136,16 @@
    <widget class="QLabel" name="Description">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>420</x>
       <y>150</y>
-      <width>341</width>
-      <height>121</height>
+      <width>411</width>
+      <height>111</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Poppins Light</family>
-      <pointsize>8</pointsize>
+      <pointsize>9</pointsize>
      </font>
     </property>
     <property name="text">
@@ -158,16 +161,16 @@
    <widget class="QLabel" name="Start">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>450</x>
       <y>270</y>
-      <width>371</width>
+      <width>391</width>
       <height>41</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Poppins Medium</family>
-      <pointsize>12</pointsize>
+      <pointsize>13</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -182,7 +185,7 @@
    <widget class="QLabel" name="ExamplesIcon_1">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>40</x>
       <y>261</y>
       <width>21</width>
       <height>20</height>
@@ -201,9 +204,9 @@
    <widget class="QLabel" name="Examples_2">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>70</x>
       <y>290</y>
-      <width>191</width>
+      <width>251</width>
       <height>21</height>
      </rect>
     </property>
@@ -221,7 +224,7 @@
    <widget class="QLabel" name="ExamplesIcon_2">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>40</x>
       <y>291</y>
       <width>21</width>
       <height>20</height>
@@ -240,7 +243,7 @@
    <widget class="QLabel" name="Examples_3">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>70</x>
       <y>320</y>
       <width>191</width>
       <height>21</height>
@@ -260,7 +263,7 @@
    <widget class="QLabel" name="ExamplesIcon_3">
     <property name="geometry">
      <rect>
-      <x>50</x>
+      <x>40</x>
       <y>321</y>
       <width>21</width>
       <height>20</height>
@@ -280,9 +283,9 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>380</y>
-      <width>361</width>
-      <height>81</height>
+      <y>400</y>
+      <width>411</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -298,9 +301,9 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>400</y>
-      <width>361</width>
+      <x>460</x>
+      <y>397</y>
+      <width>381</width>
       <height>31</height>
      </rect>
     </property>
@@ -311,14 +314,14 @@
    <widget class="QLabel" name="linkRepo">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>420</y>
-      <width>411</width>
+      <x>537</x>
+      <y>418</y>
+      <width>301</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>https://github.com/adaptivenetworklab/Riset_23-24_SDN/tree/netflux5g</string>
+     <string>https://github.com/adaptivenetworklab/NetFlux5G</string>
     </property>
    </widget>
   </widget>

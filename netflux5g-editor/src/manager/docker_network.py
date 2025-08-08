@@ -7,7 +7,8 @@ import os
 import subprocess
 import re
 from PyQt5.QtWidgets import QMessageBox
-from manager.debug import debug_print, error_print, warning_print
+from utils.debug import debug_print, error_print, warning_print
+from utils.docker_utils import DockerUtils
 
 class DockerNetworkManager:
     """Manager for Docker network operations."""
@@ -133,64 +134,24 @@ class DockerNetworkManager:
     
     def _network_exists(self, network_name):
         """Check if a Docker network exists."""
-        try:
-            result = subprocess.run(
-                ["docker", "network", "ls", "--filter", f"name={network_name}", "--format", "{{.Name}}"],
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            
-            if result.returncode == 0:
-                networks = result.stdout.strip().split('\n')
-                return network_name in networks
-            else:
-                warning_print(f"Failed to check network existence: {result.stderr}")
-                return False
-                
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired) as e:
-            error_print(f"Error checking Docker network: {e}")
-            return False
+        return DockerUtils.network_exists(network_name)
     
     def _create_network(self, network_name):
         """Create a Docker network in bridge mode."""
-        try:
-            debug_print(f"Creating Docker network: {network_name}")
-            
-            cmd = [
-                "docker", "network", "create",
-                "--driver", "bridge",
-                "--attachable",  # Allow manual container attachment
-                network_name
-            ]
-            
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            
-            if result.returncode == 0:
-                debug_print(f"Successfully created Docker network: {network_name}")
-                return True
-            else:
-                error_print(f"Failed to create Docker network: {result.stderr}")
-                QMessageBox.critical(
-                    self.main_window,
-                    "Network Creation Failed",
-                    f"Failed to create Docker network '{network_name}':\n\n{result.stderr}"
-                )
-                return False
-                
-        except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired) as e:
-            error_print(f"Error creating Docker network: {e}")
+        debug_print(f"Creating Docker network: {network_name}")
+        success, message = DockerUtils.create_network(network_name)
+        
+        if not success:
+            error_print(f"Failed to create Docker network: {message}")
             QMessageBox.critical(
                 self.main_window,
-                "Network Creation Error",
-                f"Error creating Docker network '{network_name}':\n\n{str(e)}"
+                "Network Creation Failed",
+                f"Failed to create Docker network '{network_name}':\n\n{message}"
             )
-            return False
+        else:
+            debug_print(f"Successfully created Docker network: {network_name}")
+        
+        return success
     
     def _delete_network(self, network_name):
         """Delete a Docker network."""

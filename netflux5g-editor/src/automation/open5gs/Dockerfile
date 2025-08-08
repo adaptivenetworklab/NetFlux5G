@@ -100,7 +100,7 @@ COPY ovs-setup.sh /opt/open5gs/bin/ovs-setup.sh
 RUN chmod +x /opt/open5gs/etc/open5gs/entrypoint.sh /opt/open5gs/bin/ovs-setup.sh
 
 # Create required directories for OVS
-RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /var/log/supervisor /logging
+RUN mkdir -p /var/run/openvswitch /var/log/openvswitch /var/log/supervisor /logging /captures
 
 #Run with non-root user
 # RUN groupadd -r open5gs && useradd --no-log-init -r -g open5gs open5gs

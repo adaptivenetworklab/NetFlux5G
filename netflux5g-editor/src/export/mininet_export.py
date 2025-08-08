@@ -19,14 +19,26 @@ import re
 import traceback
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import QDateTime
-from manager.configmap import ConfigurationMapper
-from manager.debug import debug_print, error_print, warning_print
+from utils.configmap import ConfigurationMapper
+from utils.debug import debug_print, error_print, warning_print
 
 class MininetExporter:
     """Handler for exporting network topology to Mininet scripts with Level 2 features."""
     
     def __init__(self, main_window):
         self.main_window = main_window
+        
+    def is_traffic_generation_enabled(self):
+        """Check if the Generate Load Traffic action is checked in the UI."""
+        try:
+            # Access the action from the main window's UI
+            action = getattr(self.main_window, 'actionGenerate_Load_Traffic', None)
+            if action is not None:
+                return action.isChecked()
+            return False
+        except Exception as e:
+            debug_print(f"Could not check traffic generation status: {e}")
+            return False
         
     def export_to_mininet(self, skip_save_check=False):
         """Export the current topology to a Mininet script.
@@ -57,8 +69,11 @@ class MininetExporter:
         nodes, links = self.main_window.extractTopology()
         
         if not nodes:
-            self.main_window.showCanvasStatus("No components found to export!")
+            self.main_window.status_manager.showCanvasStatus("No components found to export!")
             return
+        
+        # Check if traffic generation is enabled
+        traffic_enabled = self.is_traffic_generation_enabled()
         
         # Categorize nodes by type for proper script generation
         categorized_nodes = self.categorize_nodes(nodes)
@@ -70,14 +85,38 @@ class MininetExporter:
             with open(filename, "w") as f:
                 self.write_mininet_script(f, nodes, links, categorized_nodes)
             
-            self.main_window.showCanvasStatus(f"Exported topology to {os.path.basename(filename)}")
-            debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links to {filename}")
+            # Create status message - always mention packet capture, traffic optional
+            base_msg = f"Exported topology to {os.path.basename(filename)}"
+            status_msg = f"{base_msg} (with packet capture)"
+            if traffic_enabled:
+                status_msg = f"{base_msg} (with traffic automation & capture)"
+                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with full traffic automation and packet capture")
+            else:
+                debug_print(f"DEBUG: Exported {len(nodes)} nodes and {len(links)} links with packet capture only")
+            
+            self.main_window.status_manager.showCanvasStatus(status_msg)
+            
+            # Show additional info
+            debug_print("Packet capture features always included:")
+            debug_print("- Automatic packet capture using tshark on all nodes")
+            debug_print("- Captures saved to ./captures/ directory")
+            debug_print("- Use --skip-capture flag to disable packet capture")
+            
+            if traffic_enabled:
+                debug_print("Traffic generation features included:")
+                debug_print("- iPerf3 traffic generation (TCP/UDP)")
+                debug_print("- Ping connectivity tests")
+                debug_print("- HTTP load generation")
+                debug_print("- Use --skip-traffic flag to disable traffic generation")
+            else:
+                debug_print("Traffic generation disabled:")
+                debug_print("- Check 'Generate Load Traffic' in UI to enable")
+                debug_print("- Only packet capture will be active")
             
         except Exception as e:
             error_msg = f"Error exporting to Mininet: {str(e)}"
-            self.main_window.showCanvasStatus(error_msg)
+            self.main_window.status_manager.showCanvasStatus(error_msg)
             error_print(f"ERROR: {error_msg}")
-            import traceback
             traceback.print_exc()
 
     def categorize_nodes(self, nodes):
@@ -101,22 +140,29 @@ class MininetExporter:
 
     def write_mininet_script(self, f, nodes, links, categorized_nodes):
         """Write the complete Mininet-WiFi script following best practices."""
-        # Write script header
-        self.write_script_header(f)
+        # Check if traffic generation is enabled
+        traffic_enabled = self.is_traffic_generation_enabled()
         
-        # Write imports based on components used
-        self.write_imports(f, categorized_nodes)
+        # Write script header - capture is always enabled, traffic optional
+        self.write_script_header(f, traffic_enabled)
+        
+        # Write imports based on components used - always include capture imports
+        self.write_imports(f, categorized_nodes, True)  # Always enable imports for capture
         
         # Write utility functions
         self.write_utility_functions(f)
         
-        # Write topology function
-        self.write_topology_function(f, nodes, links, categorized_nodes)
+        # Always write traffic utilities (includes both capture and traffic generation)
+        # The actual enabling/disabling happens inside the functions based on config flags
+        self.write_traffic_utilities(f, traffic_enabled)
         
-        # Write main execution
-        self.write_main_execution(f)
+        # Write topology function - always include capture, traffic optional
+        self.write_topology_function(f, nodes, links, categorized_nodes, traffic_enabled)
+        
+        # Write main execution - always include capture support
+        self.write_main_execution(f, traffic_enabled)
 
-    def write_script_header(self, f):
+    def write_script_header(self, f, traffic_enabled=False):
         """Write the script header with metadata."""
         f.write('#!/usr/bin/env python\n\n')
         f.write('"""\n')
@@ -131,6 +177,29 @@ class MininetExporter:
         f.write('\n')
         f.write('This script creates a network topology using mininet-wifi\n')
         f.write('with dynamic configuration from the NetFlux5G UI.\n')
+        
+        # Always mention packet capture since it's always enabled
+        f.write('\n')
+        f.write('Packet Capture:\n')
+        f.write('- Packet capture using tshark is ALWAYS ENABLED for all components\n')
+        f.write('- Captures saved to ./captures/ directory\n')
+        f.write('- Captures network traffic regardless of traffic generation settings\n')
+        
+        # Add traffic generation note if enabled
+        if traffic_enabled:
+            f.write('\n')
+            f.write('Traffic Generation:\n')
+            f.write('- Automated traffic generation is ENABLED\n')
+            f.write('- Traffic patterns: iPerf3 TCP/UDP, ping tests, HTTP load\n')
+            f.write('- Use --skip-traffic flag to disable traffic generation only\n')
+            f.write('- Note: Packet capture will continue even if traffic generation is disabled\n')
+        else:
+            f.write('\n')
+            f.write('Traffic Generation:\n')
+            f.write('- Automated traffic generation is DISABLED\n')
+            f.write('- Only packet capture is active (tshark monitoring)\n')
+            f.write('- To enable traffic generation, check "Generate Load Traffic" in NetFlux5G UI\n')
+        
         f.write('\n')
         f.write('5G Configuration Files:\n')
         f.write('- Located in: ./5g-configs/ directory (relative to this script)\n')
@@ -155,10 +224,21 @@ class MininetExporter:
         
         f.write('"""\n\n')
 
-    def write_imports(self, f, categorized_nodes):
+    def write_imports(self, f, categorized_nodes, capture_always_enabled=True):
         """Write necessary imports based on component types following fixed_topology-upf.py pattern."""
         f.write('import sys\n')
         f.write('import os\n')
+        f.write('import time\n')
+        f.write('import threading\n')
+        f.write('import subprocess\n')
+        f.write('import signal\n')
+        
+        # Always include argparse since we always have capture functionality
+        if capture_always_enabled:
+            f.write('import argparse\n')
+            f.write('import json\n')
+            f.write('import random\n')
+            f.write('from datetime import datetime\n')
         
         # Check if we need wireless functionality
         has_wireless = (categorized_nodes['aps'] or categorized_nodes['stas'] or 
@@ -345,7 +425,271 @@ class MininetExporter:
         # Add working directory variable
         f.write(f'export_dir = os.path.dirname(os.path.abspath(__file__))  # Current Working Directory\n\n')
 
-    def write_topology_function(self, f, nodes, links, categorized_nodes):
+    def write_traffic_utilities(self, f, traffic_enabled=False):
+        """Write traffic generation and packet capture utility functions.
+        
+        Args:
+            traffic_enabled (bool): Whether traffic generation should be enabled.
+                                   Packet capture is always enabled.
+        """
+        f.write('# ===============================================\n')
+        f.write('# TRAFFIC GENERATION & PACKET CAPTURE UTILITIES\n')
+        f.write('# ===============================================\n\n')
+        
+        # Global variables for traffic management
+        f.write('# Global variables for traffic control\n')
+        f.write('TRAFFIC_PROCESSES = []\n')
+        f.write('CAPTURE_PROCESSES = []\n')
+        f.write('TRAFFIC_CONFIG = {\n')
+        f.write('    "duration": 60,\n')
+        f.write('    "capture_duration": 75,\n')
+        f.write('    "bandwidth": "2000M",\n')
+        f.write('    "max_bandwidth": "5000M",\n')
+        f.write('    "streams": 2,\n')
+        # Traffic generation depends on UI checkbox
+        f.write(f'    "enable_iperf": {str(traffic_enabled)},\n')
+        f.write(f'    "enable_ping": {str(traffic_enabled)},\n')
+        f.write(f'    "enable_http": {str(traffic_enabled)},\n')
+        # Packet capture is always enabled
+        f.write('    "enable_capture": True\n')
+        f.write('}\n\n')
+
+        f.write('# Use local captures directory in the current export folder\n')
+        f.write('local_captures_dir = os.path.join(export_dir, "captures")\n')
+        f.write('os.makedirs(local_captures_dir, exist_ok=True)\n\n')
+        
+        # Simple packet capture startup function - following 5G component pattern
+        f.write('def start_packet_captures(net):\n')
+        f.write('    """Start packet capture on all nodes using simple background tshark."""\n')
+        f.write('    if not TRAFFIC_CONFIG["enable_capture"]:\n')
+        f.write('        info("*** Packet capture disabled\\n")\n')
+        f.write('        return\n')
+        f.write('    \n')
+        f.write('    info("*** Starting packet captures on all nodes\\n")\n')
+        f.write('    capture_duration = TRAFFIC_CONFIG["capture_duration"]\n')
+        f.write('    \n')
+        f.write('    # Get all nodes from the network\n')
+        f.write('    all_nodes = []\n')
+        f.write('    all_nodes.extend(net.hosts)\n')
+        f.write('    all_nodes.extend(net.switches)\n')
+        f.write('    if hasattr(net, \'aps\'):\n')
+        f.write('        all_nodes.extend(net.aps)\n')
+        f.write('    if hasattr(net, \'stations\'):\n')
+        f.write('        all_nodes.extend(net.stations)\n')
+        f.write('    \n')
+        f.write('    for node in all_nodes:\n')
+        f.write('        node_name = node.name if hasattr(node, \'name\') else str(node)\n')
+        f.write('        capture_file = os.path.join(local_captures_dir, f"{node_name}.pcapng")\n')
+        f.write('        \n')
+        f.write('        # Check if this is a Docker-based node (5G components)\n')
+        f.write('        is_docker_node = any(x in node_name.upper() for x in ["UE", "GNB", "UPF", "AMF", "SMF", "NRF", "AUSF", "UDM", "UDR", "PCF", "BSF", "NSSF"])\n')
+        f.write('        \n')
+        f.write('        if is_docker_node:\n')
+        f.write('            # Docker node - start tshark inside container, save to mounted /captures volume\n')
+        f.write('            container_capture_path = f"/captures/{node_name}.pcapng"\n')
+        f.write('            cmd_str = f"setsid nohup tshark -i any -w {container_capture_path} -F pcapng -a duration:{capture_duration} 2>&1 | tee -a /logging/{node_name}_capture.log &"\n')
+        f.write('            node.cmd(cmd_str)\n')
+        f.write('        elif hasattr(node, \'cmd\'):\n')
+        f.write('            # Regular mininet node - start tshark directly\n')
+        f.write('            cmd_str = f"setsid nohup tshark -i any -w {capture_file} -F pcapng -a duration:{capture_duration} 2>&1 > /dev/null &"\n')
+        f.write('            node.cmd(cmd_str)\n')
+        f.write('    \n')
+        f.write('    info("*** All packet captures started\\n")\n')
+        f.write('    info(f"*** Captures will be saved to: {local_captures_dir}\\n")\n\n')
+        
+        # iPerf server management
+        f.write('def start_iperf_servers(net):\n')
+        f.write('    """Start iPerf3 servers on appropriate nodes."""\n')
+        f.write('    if not TRAFFIC_CONFIG["enable_iperf"]:\n')
+        f.write('        return []\n')
+        f.write('    \n')
+        f.write('    info("*** Starting iPerf3 servers\\n")\n')
+        f.write('    servers = []\n')
+        f.write('    \n')
+        f.write('    # Start servers on hosts, APs, and 5G core components\n')
+        f.write('    server_nodes = []\n')
+        f.write('    \n')
+        f.write('    # Add hosts\n')
+        f.write('    server_nodes.extend([h for h in net.hosts if "host" in h.name.lower()])\n')
+        f.write('    \n')
+        f.write('    # Add APs\n')
+        f.write('    if hasattr(net, \'aps\'):\n')
+        f.write('        server_nodes.extend(net.aps)\n')
+        f.write('    \n')
+        f.write('    # Add UPF nodes (important for 5G traffic)\n')
+        f.write('    upf_nodes = [h for h in net.hosts if "upf" in h.name.lower()]\n')
+        f.write('    server_nodes.extend(upf_nodes)\n')
+        f.write('    \n')
+        f.write('    port = 5001\n')
+        f.write('    for node in server_nodes:\n')
+        f.write('        try:\n')
+        f.write('            if hasattr(node, \'cmd\'):\n')
+        f.write('                # Regular mininet node\n')
+        f.write('                node.cmd(f"iperf3 -s -p {port} -D")\n')
+        f.write('            else:\n')
+        f.write('                # Docker container\n')
+        f.write('                subprocess.Popen(f"docker exec -u root mn.{node.name} iperf3 -s -p {port} -D".split())\n')
+        f.write('            \n')
+        f.write('            servers.append((node, port))\n')
+        f.write('            info(f"*** Started iPerf3 server on {node.name}:{port}\\n")\n')
+        f.write('            port += 1\n')
+        f.write('        except Exception as e:\n')
+        f.write('            info(f"*** Failed to start iPerf3 server on {node.name}: {e}\\n")\n')
+        f.write('    \n')
+        f.write('    return servers\n\n')
+        
+        # Traffic generation function
+        f.write('def generate_traffic_load(net, servers):\n')
+        f.write('    """Generate comprehensive traffic load across the network."""\n')
+        f.write('    global TRAFFIC_PROCESSES\n')
+        f.write('    \n')
+        f.write('    if not any([TRAFFIC_CONFIG["enable_iperf"], TRAFFIC_CONFIG["enable_ping"], TRAFFIC_CONFIG["enable_http"]]):\n')
+        f.write('        info("*** All traffic generation disabled\\n")\n')
+        f.write('        return\n')
+        f.write('    \n')
+        f.write('    info("*** Generating network traffic\\n")\n')
+        f.write('    \n')
+        f.write('    # Get client nodes (UEs, STAs, Hosts)\n')
+        f.write('    client_nodes = []\n')
+        f.write('    client_nodes.extend([h for h in net.hosts if any(x in h.name.lower() for x in ["ue", "sta", "host"])])\n')
+        f.write('    if hasattr(net, \'stations\'):\n')
+        f.write('        client_nodes.extend(net.stations)\n')
+        f.write('    \n')
+        f.write('    duration = TRAFFIC_CONFIG["duration"]\n')
+        f.write('    bandwidth = TRAFFIC_CONFIG["bandwidth"]\n')
+        f.write('    streams = TRAFFIC_CONFIG["streams"]\n')
+        f.write('    \n')
+        f.write('    for client in client_nodes:\n')
+        f.write('        # Use all servers for this client\n')
+        f.write('        if servers:\n')
+        f.write('            target_servers = servers\n')
+        f.write('        else:\n')
+        f.write('            # Fallback to other hosts\n')
+        f.write('            potential_targets = [h for h in net.hosts if h != client]\n')
+        f.write('            target_servers = [(random.choice(potential_targets), 5001)] if potential_targets else []\n')
+        f.write('        \n')
+        f.write('        for server_node, port in target_servers:\n')
+        f.write('            target_ip = server_node.IP() if hasattr(server_node, \'IP\') and callable(server_node.IP) else "10.0.0.1"\n')
+        f.write('            \n')
+        f.write('            # iPerf3 traffic\n')
+        f.write('            if TRAFFIC_CONFIG["enable_iperf"]:\n')
+        f.write('                # TCP upload\n')
+        f.write('                cmd = f"iperf3 -c {target_ip} -p {port} -t {duration} -b {bandwidth} -P {streams}"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('                \n')
+        f.write('                # TCP download\n')
+        f.write('                cmd = f"iperf3 -c {target_ip} -p {port} -t {duration} -b {bandwidth} -P {streams} -R"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('                \n')
+        f.write('                # UDP traffic\n')
+        f.write('                cmd = f"iperf3 -c {target_ip} -p {port} -t {duration} -b {bandwidth} -u"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('            \n')
+        f.write('            # Continuous ping\n')
+        f.write('            if TRAFFIC_CONFIG["enable_ping"]:\n')
+        f.write('                cmd = f"ping -c {duration} -i 1 {target_ip}"\n')
+        f.write('                start_traffic_command(client, cmd)\n')
+        f.write('            \n')
+        f.write('            # HTTP load (if available)\n')
+        f.write('            if TRAFFIC_CONFIG["enable_http"]:\n')
+        f.write('                for _ in range(10):  # Multiple HTTP requests\n')
+        f.write('                    cmd = f"curl -s --max-time 2 http://httpbin.org/bytes/1000000 > /dev/null"\n')
+        f.write('                    start_traffic_command(client, cmd)\n')
+        f.write('        \n')
+        f.write('        time.sleep(0.2)  # Small delay between clients\n\n')
+        
+        # Start traffic command helper
+        f.write('def start_traffic_command(node, cmd):\n')
+        f.write('    """Start a traffic command on a node."""\n')
+        f.write('    global TRAFFIC_PROCESSES\n')
+        f.write('    \n')
+        f.write('    try:\n')
+        f.write('        if hasattr(node, \'cmd\'):\n')
+        f.write('            # Regular mininet node\n')
+        f.write('            proc = node.popen(cmd, shell=True)\n')
+        f.write('        else:\n')
+        f.write('            # Docker container\n')
+        f.write('            docker_cmd = f"docker exec -u root mn.{node.name} {cmd}"\n')
+        f.write('            proc = subprocess.Popen(docker_cmd.split(), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n')
+        f.write('        \n')
+        f.write('        TRAFFIC_PROCESSES.append(proc)\n')
+        f.write('        return proc\n')
+        f.write('    except Exception as e:\n')
+        f.write('        info(f"*** Failed to start traffic command on {node.name}: {e}\\n")\n')
+        f.write('        return None\n\n')
+        
+        # Cleanup function
+        f.write('def cleanup_traffic_and_captures():\n')
+        f.write('    """Clean up all traffic and capture processes."""\n')
+        f.write('    global TRAFFIC_PROCESSES, CAPTURE_PROCESSES\n')
+        f.write('    \n')
+        f.write('    info("*** Cleaning up traffic and capture processes\\n")\n')
+        f.write('    \n')
+        f.write('    # Stop traffic processes\n')
+        f.write('    for proc in TRAFFIC_PROCESSES:\n')
+        f.write('        try:\n')
+        f.write('            if proc and proc.poll() is None:  # Process is still running\n')
+        f.write('                proc.terminate()\n')
+        f.write('                proc.wait(timeout=5)  # Wait up to 5 seconds\n')
+        f.write('        except Exception:\n')
+        f.write('            try:\n')
+        f.write('                proc.kill()  # Force kill if terminate fails\n')
+        f.write('            except Exception:\n')
+        f.write('                pass\n')
+        f.write('    \n')
+        f.write('    # Stop capture processes\n')
+        f.write('    for capture_info in CAPTURE_PROCESSES:\n')
+        f.write('        try:\n')
+        f.write('            if len(capture_info) >= 4:\n')
+        f.write('                proc, node_name, any, node_type = capture_info\n')
+        f.write('            else:\n')
+        f.write('                proc, node_name, any = capture_info\n')
+        f.write('                node_type = "unknown"\n')
+        f.write('            \n')
+        f.write('            if proc and proc.poll() is None:  # Process is still running\n')
+        f.write('                proc.terminate()\n')
+        f.write('                proc.wait(timeout=5)\n')
+        f.write('                info(f"*** Stopped capture on {node_name} ({node_type})\\n")\n')
+        f.write('        except Exception as e:\n')
+        f.write('            try:\n')
+        f.write('                proc.kill()\n')
+        f.write('            except Exception:\n')
+        f.write('                pass\n')
+        f.write('    \n')
+        f.write('    # Clear lists\n')
+        f.write('    TRAFFIC_PROCESSES.clear()\n')
+        f.write('    CAPTURE_PROCESSES.clear()\n')
+        f.write('    \n')
+        f.write('    info("*** Cleanup completed\\n")\n\n')
+        
+        # Main traffic orchestration function
+        f.write('def run_traffic_automation(net):\n')
+        f.write('    """Main function to orchestrate traffic generation and capture."""\n')
+        f.write('    info("*** Starting Traffic Generation & Packet Capture Automation\\n")\n')
+        f.write('    \n')
+        f.write('    # Start iPerf servers\n')
+        f.write('    servers = start_iperf_servers(net)\n')
+        f.write('    \n')
+        f.write('    # Wait for servers to start\n')
+        f.write('    time.sleep(2)\n')
+        f.write('    \n')
+        f.write('    # Generate traffic\n')
+        f.write('    generate_traffic_load(net, servers)\n')
+        f.write('    \n')
+        f.write('    # Show progress\n')
+        f.write('    duration = TRAFFIC_CONFIG["duration"]\n')
+        f.write('    info(f"*** Traffic generation running for {duration} seconds...\\n")\n')
+        f.write('    \n')
+        f.write('    # Wait for traffic to complete\n')
+        f.write('    time.sleep(duration + 10)\n')
+        f.write('    \n')
+        f.write('    # Show completion message\n')
+        f.write('    capture_duration = TRAFFIC_CONFIG["capture_duration"]\n')
+        f.write('    info(f"*** Traffic completed. Captures will continue for {capture_duration - duration} more seconds...\\n")\n')
+        f.write('    info(f"*** Docker captures accessible at: {local_captures_dir}\\n")\n')
+        f.write('    info(f"*** Local captures accessible at: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \'automation\', \'webshark\', \'captures\')}")\n\n')
+
+    def write_topology_function(self, f, nodes, links, categorized_nodes, traffic_enabled=False):
         """Write the main topology function following mininet-wifi patterns.
         
         Network Mode Behavior:
@@ -410,7 +754,13 @@ class MininetExporter:
         # Create links
         f.write('    info("*** Creating links\\n")\n')
         self.write_links(f, links, categorized_nodes)
-        
+
+        # Start packet capture on all nodes before controller startup
+        # Packet capture is always enabled, regardless of traffic generation setting
+        f.write('    # Start packet capture on all nodes before controller startup\n')
+        f.write('    # (Packet capture is always enabled, independent of traffic generation)\n')
+        f.write('    start_packet_captures(net)\n')
+
         # Add plot for wireless networks
         self.write_plot_graph(f, categorized_nodes)
         
@@ -426,9 +776,64 @@ class MininetExporter:
         # Start 5G components
         self.write_5g_startup(f, categorized_nodes)
         
+        # Traffic and capture automation integration
+        # Packet capture is always available, traffic generation is conditional
+        f.write('    # Packet capture and traffic automation\n')
+        f.write('    # Note: Packet capture is always enabled, traffic generation is optional\n')
+        f.write('    \n')
+        
+        if traffic_enabled:
+            f.write('    # Traffic generation is enabled in UI\n')
+            f.write('    if "--skip-traffic" not in sys.argv:\n')
+            f.write('        info("*** Traffic generation enabled. Use --skip-traffic to disable.\\n")\n')
+            f.write('        traffic_automation_enabled = True\n')
+            f.write('    else:\n')
+            f.write('        info("*** Traffic generation disabled by --skip-traffic flag\\n")\n')
+            f.write('        traffic_automation_enabled = False\n')
+        else:
+            f.write('    # Traffic generation is disabled in UI (Generate Load Traffic unchecked)\n')
+            f.write('    info("*** Traffic generation disabled (not enabled in NetFlux5G UI)\\n")\n')
+            f.write('    traffic_automation_enabled = False\n')
+        
+        f.write('    \n')
+        f.write('    # Packet capture check\n')
+        f.write('    if "--skip-capture" not in sys.argv:\n')
+        f.write('        info("*** Packet capture enabled. Use --skip-capture to disable.\\n")\n')
+        f.write('        capture_enabled = True\n')
+        f.write('    else:\n')
+        f.write('        info("*** Packet capture disabled by --skip-capture flag\\n")\n')
+        f.write('        capture_enabled = False\n')
+        f.write('        TRAFFIC_CONFIG["enable_capture"] = False\n')
+        f.write('    \n')
+        f.write('    # Run automation based on what\'s enabled\n')
+        f.write('    if traffic_automation_enabled or capture_enabled:\n')
+        f.write('        # Run automation in a separate thread\n')
+        f.write('        automation_thread = threading.Thread(target=run_traffic_automation, args=(net,))\n')
+        f.write('        automation_thread.daemon = True\n')
+        f.write('        automation_thread.start()\n')
+        f.write('        \n')
+        f.write('        # Setup cleanup handler\n')
+        f.write('        def signal_handler(sig, frame):\n')
+        f.write('            info("*** Received interrupt signal. Cleaning up...\\n")\n')
+        f.write('            cleanup_traffic_and_captures()\n')
+        f.write('            net.stop()\n')
+        f.write('            sys.exit(0)\n')
+        f.write('        \n')
+        f.write('        signal.signal(signal.SIGINT, signal_handler)\n')
+        f.write('        signal.signal(signal.SIGTERM, signal_handler)\n')
+        f.write('    else:\n')
+        f.write('        info("*** Both traffic generation and packet capture are disabled\\n")\n')
+        f.write('    \n')
+        
         # CLI and cleanup
         f.write('    info("*** Running CLI\\n")\n')
-        f.write('    CLI(net)\n\n')
+        
+        # Always include cleanup handling since we always have capture functionality
+        f.write('    try:\n')
+        f.write('        CLI(net)\n')
+        f.write('    finally:\n')
+        f.write('        cleanup_traffic_and_captures()\n\n')
+        
         f.write('    info("*** Stopping network\\n")\n')
         f.write('    net.stop()\n\n')
 
@@ -495,11 +900,12 @@ class MininetExporter:
             ap_params.append(f"mode='{mode}'")
             ap_params.append(f"position='{position}'")
             
-            # Add power configuration for radio propagation
-            from manager.configmap import ConfigurationMapper
+            # Add power configuration for radio propagation (power-based approach)
+            from utils.configmap import ConfigurationMapper
             ap_config_opts = ConfigurationMapper.map_ap_config(props)
             for opt in ap_config_opts:
-                if 'txpower=' in opt or 'range=' in opt:
+                # Only add txpower, not explicit range - let mininet-wifi calculate range from power
+                if 'txpower=' in opt:
                     ap_params.append(opt)
             
             ap_params.append('protocols="OpenFlow13"')
@@ -524,7 +930,7 @@ class MininetExporter:
             sta_params.append(f"position='{position}'")
             
             # Add configuration options from ConfigurationMapper
-            from manager.configmap import ConfigurationMapper
+            from utils.configmap import ConfigurationMapper
             sta_opts = ConfigurationMapper.map_sta_config(props)
             sta_params.extend(sta_opts)
             
@@ -545,7 +951,7 @@ class MininetExporter:
             
             # Add IP if specified
             ip_addr = props.get('Host_IPAddress', props.get('lineEdit_2'))
-            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "192.168.1.1":
+            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "10.0.0.1":
                 host_params.append(f"ip='{ip_addr}'")
             
             # Add MAC if specified
@@ -619,7 +1025,7 @@ class MininetExporter:
             
             # Add IP if specified
             ip_addr = props.get('DockerHost_IPAddress', props.get('lineEdit_2'))
-            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "192.168.1.1":
+            if ip_addr and str(ip_addr).strip() and str(ip_addr).strip() != "10.0.0.1":
                 host_params.append(f"ip='{ip_addr}'")
             
             # Add MAC if specified
@@ -667,7 +1073,8 @@ class MininetExporter:
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
                     f'"/lib/modules:/lib/modules:ro"',
-                    f'export_dir + "/log-{gnb_name}/:/logging/"'
+                    f'export_dir + "/log/:/logging/"',
+                    f'export_dir + "/captures/:/captures/"'
                 ]
                 gnb_params.append(f'volumes=[{", ".join(volumes)}]')
                 
@@ -676,7 +1083,7 @@ class MininetExporter:
                 gnb_params.append(f"position='{position}'")
                 
                 # Get enhanced configuration from ConfigurationMapper
-                from manager.configmap import ConfigurationMapper
+                from utils.configmap import ConfigurationMapper
                 gnb_config = ConfigurationMapper.map_gnb_config(props)
                 
                 # Add txpower if specified (default 30)
@@ -731,13 +1138,19 @@ class MininetExporter:
                 
                 # Create separate AP node if AP functionality is enabled
                 if ap_config.get('AP_ENABLED') == 'true':
-                    ap_name = f"ap{100 + i}"  # ap101, ap102, etc.
+                    # Extract number from gNB name (e.g., GNB__4 -> 4, GNB__2 -> 2)
+                    import re
+                    gnb_number_match = re.search(r'(\d+)', gnb_name)
+                    if gnb_number_match:
+                        gnb_number = gnb_number_match.group(1)
+                        ap_name = f"ap{100 + int(gnb_number)}"  # ap104, ap102, etc.
+                    else:
+                        ap_name = f"ap{100 + i}"  # fallback to original logic
                     
-                    # Extract AP parameters from configuration
+                    # Extract AP parameters from configuration (power-based approach)
                     ap_ssid = ap_config.get('AP_SSID', f'{gnb_config.get("gnb_hostname", f"gnb{i}")}-ssid')
                     ap_channel = ap_config.get('AP_CHANNEL', '36')
                     ap_mode = ap_config.get('AP_MODE', 'a')
-                    ap_range = ap_config.get('AP_RANGE', 600.0)
                     ap_txpower = ap_config.get('AP_TXPOWER', 24.0)
                     
                     # Use OVS configuration for AP if OVS is enabled
@@ -751,10 +1164,11 @@ class MininetExporter:
                         protocols = 'OpenFlow13'
                     
                     # Create AP with same position as gNB (slightly offset)
-                    ap_position = f"{gnb.get('x', 0) - 2.3:.1f},{gnb.get('y', 0):.1f},0"
+                    ap_position = f"{gnb.get('x', 0):.1f},{gnb.get('y', 0):.1f},0"
                     
+                    # Generate AP without explicit range - let mininet-wifi calculate from txpower
                     f.write(f'    {ap_name} = net.addAccessPoint(\'{ap_name}\', cls=OVSKernelAP, ssid=\'{ap_ssid}\', failMode=\'{fail_mode}\', datapath=\'{datapath}\',\n')
-                    f.write(f'                             channel=\'{ap_channel}\', mode=\'{ap_mode}\', position=\'{ap_position}\', range={ap_range}, txpower={ap_txpower}, protocols="{protocols}")\n')
+                    f.write(f'                             channel=\'{ap_channel}\', mode=\'{ap_mode}\', position=\'{ap_position}\', txpower={ap_txpower}, protocols="{protocols}")\n')
                     f.write('\n')
                     
                     # Store AP information for later use in link creation
@@ -785,19 +1199,16 @@ class MininetExporter:
 
                 # Add volumes for host hardware access and OVS functionality
                 volumes = [
-                    f'export_dir + "/log-{ue_name}/:/logging/"'
+                    f'export_dir + "/log/:/logging/"',
+                    f'export_dir + "/captures/:/captures/"'
                 ]
                 ue_params.append(f'volumes=[{", ".join(volumes)}]')
 
-                # Add enhanced power and range configuration from ConfigurationMapper
-                from manager.configmap import ConfigurationMapper
+                # Add power-based configuration (remove explicit range)
+                from utils.configmap import ConfigurationMapper
                 ue_config = ConfigurationMapper.map_ue_config(props)
                 
-                # Add range (default 116 if not specified)
-                range_val = ue_config.get('range', 116)
-                ue_params.append(f'range={range_val}')
-                
-                # Add txpower if specified
+                # Add txpower - let mininet-wifi calculate range from power
                 if 'txpower' in ue_config:
                     ue_params.append(f"txpower={ue_config['txpower']}")
                 
@@ -897,7 +1308,7 @@ class MininetExporter:
         core_components = self.extract_5g_components_by_type(categorized_nodes['core5g'])
         
         # Import configuration mapper for VGcore properties
-        from manager.configmap import ConfigurationMapper
+        from utils.configmap import ConfigurationMapper
         
         # Get VGcore component configuration (if available)
         vgcore_config = {}
@@ -1131,8 +1542,8 @@ class MininetExporter:
                     debug_print(f"DEBUG: {comp_type} index {i} -> filename: {config_filename}")
                     # Debug output for config file mapping
                     f.write(f'    info("      Config file: {config_filename}\\n")\n')
-                    
-                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log-{comp_name.lower()}/:/logging/"]')
+
+                    comp_params.append(f'volumes=[export_dir + "/5g-configs/{config_filename}:/opt/open5gs/etc/open5gs/{comp_type.lower()}.yaml", export_dir + "/log/:/logging/", export_dir + "/captures/:/captures/"]')
 
                     # Add environment variables for configuration
                     if 'env_vars' in config and config['env_vars']:
@@ -1617,15 +2028,65 @@ class MininetExporter:
             f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
         f.write('\n')
 
-    def write_main_execution(self, f):
+    def write_main_execution(self, f, traffic_enabled=False):
         """Write the main execution block."""
+        # Always include argument parsing since we always have packet capture
+        f.write('def parse_arguments():\n')
+        f.write('    """Parse command line arguments."""\n')
+        f.write('    parser = argparse.ArgumentParser(description="NetFlux5G Mininet-WiFi Topology")\n')
+        if traffic_enabled:
+            f.write('    parser.add_argument("--skip-traffic", action="store_true",\n')
+            f.write('                        help="Skip traffic generation (packet capture will still run)")\n')
+        f.write('    parser.add_argument("--skip-capture", action="store_true",\n')
+        f.write('                        help="Skip packet capture")\n')
+        if traffic_enabled:
+            f.write('    parser.add_argument("--traffic-duration", type=int, default=60,\n')
+            f.write('                        help="Traffic generation duration in seconds")\n')
+        f.write('    parser.add_argument("--capture-duration", type=int, default=75,\n')
+        f.write('                        help="Packet capture duration in seconds")\n')
+        if traffic_enabled:
+            f.write('    parser.add_argument("--bandwidth", default="2000M",\n')
+            f.write('                        help="Traffic bandwidth (e.g., 100M, 1G)")\n')
+        f.write('    return parser.parse_args()\n\n')
+        
         f.write('if __name__ == \'__main__\':\n')
         f.write('    setLogLevel(\'info\')\n')
+        f.write('    \n')
+        f.write('    # Parse command line arguments\n')
+        f.write('    args = parse_arguments()\n')
+        f.write('    \n')
+        f.write('    # Update configuration based on arguments\n')
+        f.write('    if hasattr(args, "skip_capture") and args.skip_capture:\n')
+        f.write('        TRAFFIC_CONFIG["enable_capture"] = False\n')
+        
+        if traffic_enabled:
+            f.write('    if hasattr(args, "traffic_duration"):\n')
+            f.write('        TRAFFIC_CONFIG["duration"] = args.traffic_duration\n')
+            f.write('    if hasattr(args, "bandwidth"):\n')
+            f.write('        TRAFFIC_CONFIG["bandwidth"] = args.bandwidth\n')
+        
+        f.write('    if hasattr(args, "capture_duration"):\n')
+        f.write('        TRAFFIC_CONFIG["capture_duration"] = args.capture_duration\n')
+        f.write('    \n')
+        f.write('    # Show configuration\n')
+        f.write('    print("=== NetFlux5G Configuration ===")\n')
+        if traffic_enabled:
+            f.write('    print(f"Traffic Generation: {not getattr(args, \'skip_traffic\', False)}")\n')
+            f.write('    if not getattr(args, "skip_traffic", False):\n')
+            f.write('        print(f"  Traffic Duration: {TRAFFIC_CONFIG[\'duration\']}s")\n')
+            f.write('        print(f"  Bandwidth: {TRAFFIC_CONFIG[\'bandwidth\']}")\n')
+        else:
+            f.write('    print("Traffic Generation: Disabled (not enabled in UI)")\n')
+        
+        f.write('    print(f"Packet Capture: {TRAFFIC_CONFIG[\'enable_capture\']}")\n')
+        f.write('    if TRAFFIC_CONFIG["enable_capture"]:\n')
+        f.write('        print(f"  Capture Duration: {TRAFFIC_CONFIG[\'capture_duration\']}s")\n')
+        f.write('    print("=" * 30)\n')
+        f.write('    \n')
         f.write('    topology(sys.argv)\n')
 
     def sanitize_variable_name(self, name):
         """Convert display name to valid Python variable name."""
-        import re
         # Remove special characters and spaces
         clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', str(name))
         # Ensure it starts with a letter or underscore

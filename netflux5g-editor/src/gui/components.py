@@ -1,10 +1,13 @@
-import os
-from .links import NetworkLink
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent
-from PyQt5.QtCore import Qt, QRectF, QPoint, QPointF
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsItem, QMenu, QGraphicsSceneContextMenuEvent, QInputDialog
+from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPixmap, QPen, QColor
 from .widgets.Dialog import *
-from manager.debug import debug_print, error_print, warning_print
+from .widgets.LogViewer import LogViewerDialog
+from .widgets.PacketCaptureViewer import PacketCaptureViewerDialog
+from utils.debug import debug_print, error_print, warning_print
+from utils.power_range_calculator import PowerRangeCalculator
+import subprocess
+import os
 
 
 class NetworkComponent(QGraphicsPixmapItem):
@@ -59,13 +62,17 @@ class NetworkComponent(QGraphicsPixmapItem):
             "y": 0,  # Initial y position
         }
         
-        # Set default range for wireless components (matching mininet-wifi defaults)
+        # Set default power and range for wireless components (matching mininet-wifi defaults)
         if self.component_type == "AP":
-            self.properties["AP_SignalRange"] = "100"  # Default AP range in meters (as string for dialog compatibility)
+            self.properties["AP_Power"] = 20  # Default AP power in dBm
+            self.properties["AP_SignalRange"] = "100"  # Legacy field for backwards compatibility
             self.properties["range"] = 100.0  # Also set as float for calculations
         elif self.component_type == "GNB":
-            self.properties["GNB_Range"] = 300  # Default gNB range in meters (as int for SpinBox compatibility)
+            self.properties["GNB_Power"] = 30  # Default gNB power in dBm
+            self.properties["GNB_Range"] = 300  # Legacy field for backwards compatibility
             self.properties["range"] = 300.0  # Also set as float for calculations
+        elif self.component_type == "UE":
+            self.properties["UE_Power"] = 20  # Default UE power in dBm
     
         # Set the pixmap for the item (increase icon size to 80x80)
         pixmap = QPixmap(self.icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -111,9 +118,9 @@ class NetworkComponent(QGraphicsPixmapItem):
         if "x" in properties_dict and "y" in properties_dict:
             self.setPos(properties_dict["x"], properties_dict["y"])
         
-        # Update coverage radius if range-related properties changed
-        range_fields = ["AP_SignalRange", "GNB_Range", "range", "lineEdit_range"]
-        if any(field in properties_dict for field in range_fields):
+        # Update coverage radius if power-related properties changed
+        power_fields = ["AP_Power", "GNB_Power", "UE_Power", "AP_SignalRange", "GNB_Range", "range", "lineEdit_range"]
+        if any(field in properties_dict for field in power_fields):
             self.updateCoverageRadius()
 
     def getProperties(self):
@@ -298,6 +305,23 @@ class NetworkComponent(QGraphicsPixmapItem):
             menu.addAction("Delete", lambda: self._delete_and_cleanup())
         else:
             menu.addAction("Properties", self.openPropertiesDialog)
+            
+            # Add log viewer option
+            log_viewer_action = menu.addAction("View Logs")
+            log_viewer_action.triggered.connect(self.openLogViewer)
+            
+            # Add packet capture viewer option
+            capture_viewer_action = menu.addAction("View Packet Capture")
+            capture_viewer_action.triggered.connect(self.openPacketCaptureViewer)
+            
+            # Enable viewers only if topology is running
+            topology_running = self._isTopologyRunning()
+            if not topology_running:
+                log_viewer_action.setEnabled(False)
+                log_viewer_action.setToolTip("Topology must be running to view logs")
+                capture_viewer_action.setEnabled(False)
+                capture_viewer_action.setToolTip("Topology must be running to view packet captures")
+            
             menu.addSeparator()
             # Add component operations
             cut_action = menu.addAction("Cut")
@@ -329,6 +353,9 @@ class NetworkComponent(QGraphicsPixmapItem):
             paste_props_action.setEnabled(NetworkComponent.copied_properties is not None and (NetworkComponent.copied_properties.get('type') == self.component_type))
             copy_props_action.triggered.connect(self.copy_properties)
             paste_props_action.triggered.connect(self.paste_properties)
+            menu.addSeparator()
+            # open_analyzer_action = menu.addAction("Open Traffic Analyzer")
+            # open_analyzer_action.triggered.connect(self.open_analyzer)
         menu.exec_(event.screenPos())
         event.accept()  # Prevent further propagation and duplicate menu
         # After menu closes, ensure dragging state and offset are reset
@@ -383,7 +410,7 @@ class NetworkComponent(QGraphicsPixmapItem):
             debug_print(f"Pasted properties to {self.display_name}: {props}")
         else:
             debug_print(f"Paste failed: clipboard type {props.get('type') if props else None} does not match {self.component_type}")
-
+            
     def _cutComponent(self):
         """Cut this component via the operations manager."""
         scene = self.scene()
@@ -515,54 +542,48 @@ class NetworkComponent(QGraphicsPixmapItem):
         super().keyPressEvent(event)
 
     def calculateCoverageRadius(self):
-        """Calculate coverage radius based on component range settings (in meters).
+        """Calculate coverage radius based on transmission power (dBm) following Mininet-WiFi methodology.
         
-        This method aligns with mininet-wifi's plotGraph behavior, where coverage
-        circles are drawn based on the 'range' property of wireless interfaces.
+        This method uses the same propagation models as Mininet-WiFi to ensure that coverage
+        visualization in the GUI matches the actual wireless range in the simulation.
         """
         if self.component_type not in ["AP", "GNB"]:
             return 0
         
-        # Get range from properties (in meters)
-        range_meters = None
-        range_fields = []
-        
-        if self.component_type == "AP":
-            range_fields = ["AP_SignalRange", "range", "lineEdit_range"]
-        elif self.component_type == "GNB":
-            range_fields = ["GNB_Range", "range", "lineEdit_range"]
-        
-        # Try to get range value from properties
-        for field in range_fields:
-            if self.properties.get(field):
-                try:
-                    range_meters = float(str(self.properties[field]).strip())
-                    if range_meters > 0:
-                        break
-                except (ValueError, TypeError):
-                    continue
-        
-        # Use mininet-wifi defaults if not specified
-        if range_meters is None or range_meters <= 0:
+        # Calculate range based on power using Mininet-WiFi propagation models
+        try:
+            range_meters = PowerRangeCalculator.get_component_range(
+                self.component_type, self.properties
+            )
+            
+            debug_print(f"DEBUG: {self.component_type} {self.display_name} calculated range: {range_meters:.1f}m")
+            
+            # Convert meters to pixels for GUI display
+            # Use a configurable scale: 1 meter = 1 pixel (matches typical mininet-wifi plot scales)
+            # This ensures that the GUI scale is consistent with mininet-wifi's meter-based plots
+            meters_to_pixels = 1.0
+            radius_pixels = range_meters * meters_to_pixels
+            
+            # Clamp radius to reasonable visual limits for GUI display
+            min_radius = 10.0   # Minimum visual radius (10m range)
+            max_radius = 1000.0  # Maximum visual radius (1000m range)
+            
+            final_radius = max(min_radius, min(radius_pixels, max_radius))
+            
+            debug_print(f"DEBUG: {self.component_type} {self.display_name} visual radius: {final_radius:.1f}px")
+            
+            return final_radius
+            
+        except Exception as e:
+            error_print(f"Failed to calculate coverage radius for {self.display_name}: {e}")
+            
+            # Fallback to default values
             if self.component_type == "AP":
-                # Default AP range based on 802.11g mode (from mininet-wifi devices.py)
-                range_meters = 100.0
+                return 50.0  # ~50m default for AP
             elif self.component_type == "GNB":
-                # Default gNB range (5G base station typically has longer range)
-                range_meters = 300.0
-        
-        # Convert meters to pixels for GUI display
-        # Use a configurable scale: 1 meter = 2 pixels (reasonable for typical canvas sizes)
-        # This ensures that the GUI scale is consistent with mininet-wifi's meter-based plots
-        # You can adjust this scale factor to match your canvas size preferences
-        meters_to_pixels = 2.0
-        radius_pixels = range_meters * meters_to_pixels
-        
-        # Clamp radius to reasonable visual limits (but allow larger ranges than before)
-        min_radius = 20.0   # Minimum visual radius (10m range)
-        max_radius = 800.0  # Maximum visual radius (400m range)
-        
-        return max(min_radius, min(radius_pixels, max_radius))
+                return 100.0  # ~100m default for gNB
+            else:
+                return 30.0
 
     def updateCoverageRadius(self):
         """Update the coverage radius and trigger a repaint."""
@@ -576,29 +597,301 @@ class NetworkComponent(QGraphicsPixmapItem):
                 self.update()
 
     def getCurrentRange(self):
-        """Get the current range setting for this component (in meters)."""
+        """Get the current range setting for this component (in meters) calculated from power.
+        
+        Returns the actual wireless range based on transmission power using the same
+        propagation models as Mininet-WiFi.
+        """
         if self.component_type not in ["AP", "GNB"]:
             return 0
         
-        # Get range from properties
-        range_fields = []
-        if self.component_type == "AP":
-            range_fields = ["AP_SignalRange", "range", "lineEdit_range"]
-        elif self.component_type == "GNB":
-            range_fields = ["GNB_Range", "range", "lineEdit_range"]
-        
-        # Try to get range value from properties
-        for field in range_fields:
-            if self.properties.get(field):
-                try:
-                    range_meters = float(str(self.properties[field]).strip())
-                    if range_meters > 0:
-                        return range_meters
-                except (ValueError, TypeError):
-                    continue
-        
-        # Return default range if not specified
+        try:
+            # Calculate range based on power using Mininet-WiFi propagation models
+            range_meters = PowerRangeCalculator.get_component_range(
+                self.component_type, self.properties
+            )
+            return range_meters
+            
+        except Exception as e:
+            error_print(f"Failed to calculate range for {self.display_name}: {e}")
+            
+            # Fallback to default ranges
+            if self.component_type == "AP":
+                return 50.0  # ~50m default for AP
+            elif self.component_type == "GNB":
+                return 100.0  # ~100m default for gNB
+            else:
+                return 30.0
         return 100.0 if self.component_type == "AP" else 300.0
+
+    def _isTopologyRunning(self):
+        """Check if there's a running topology by looking for Mininet containers."""
+        try:
+            # Check for any containers with "mn." prefix (Mininet containers)
+            cmd = ['docker', 'ps', '--format', '{{.Names}}', '--filter', 'name=mn.']
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            
+            if result.returncode == 0 and result.stdout.strip():
+                return True
+            
+            return False
+        except Exception as e:
+            debug_print(f"Error checking for running topology: {e}")
+            return False
+
+    def _getAvailableContainers(self):
+        """Get available containers for this component from the deployed topology."""
+        from .widgets.LogViewer import DeployedComponentsExtractor
+        
+        # Get all deployed components from the Mininet script
+        deployed_components = DeployedComponentsExtractor.extractDeployedComponents()
+        
+        if not deployed_components:
+            debug_print("No deployed components found")
+            return []
+        
+        # For VGCore components, find all 5G core components
+        if self.component_type == "VGcore":
+            core_types = ['AMF', 'SMF', 'UPF', 'NRF', 'UDR', 'UDM', 'AUSF', 'PCF', 'NSSF', 'BSF', 'SCP']
+            available_containers = []
+            
+            for container_name, info in deployed_components.items():
+                if info['type'] in core_types:
+                    available_containers.append(info['container_name'])
+            
+            debug_print(f"Found {len(available_containers)} 5G core containers for VGCore component")
+            return available_containers
+        
+        # For other components, find containers that match this component
+        else:
+            # Get the sanitized name (same as mininet export)
+            import re
+            sanitized_base = re.sub(r'[^a-zA-Z0-9_]', '_', self.display_name.lower())
+            if sanitized_base and sanitized_base[0].isdigit():
+                sanitized_base = '_' + sanitized_base
+            
+            # Look for containers that match this component
+            matching_containers = []
+            
+            for container_name, info in deployed_components.items():
+                container_lower = container_name.lower()
+                
+                # Check if this container matches our component
+                if self.component_type == "UE" and info['type'] == 'UE':
+                    if sanitized_base in container_lower or f"ue__{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "GNB" and info['type'] == 'GNB':
+                    if sanitized_base in container_lower or f"gnb__{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "Host" and "host" in container_lower:
+                    if sanitized_base in container_lower or f"host{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "STA" and "sta" in container_lower:
+                    if sanitized_base in container_lower or f"sta{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+                elif self.component_type == "AP" and "ap" in container_lower:
+                    if sanitized_base in container_lower or f"ap{self.component_number}" in container_lower:
+                        matching_containers.append(info['container_name'])
+            
+            debug_print(f"Found {len(matching_containers)} containers for {self.component_type} {self.display_name}")
+            return matching_containers
+
+    def _getContainerName(self):
+        """Get the container name for this component based on the running topology."""
+        available_containers = self._getAvailableContainers()
+        
+        if not available_containers:
+            # Fallback to old logic
+            sanitized_name = self.display_name.lower().replace(' ', '').replace('#', '')
+            return f"mn.{sanitized_name}"
+        
+        # Return the first available container
+        return available_containers[0]
+
+    def _containerExists(self, container_name):
+        """Check if a specific container exists and is running."""
+        try:
+            cmd = ['docker', 'ps', '--format', '{{.Names}}', '--filter', f'name={container_name}']
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            
+            if result.returncode == 0:
+                running_containers = result.stdout.strip().split('\n')
+                return container_name in running_containers
+            
+            return False
+        except Exception as e:
+            debug_print(f"Error checking container {container_name}: {e}")
+            return False
+
+    def openLogViewer(self):
+        """Open the log viewer for this component."""
+        if not self._isTopologyRunning():
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(
+                None,
+                "No Running Topology",
+                "No running topology detected. Please run the topology first to view component logs."
+            )
+            return
+        
+        # Get available containers for this component
+        available_containers = self._getAvailableContainers()
+        
+        if not available_containers:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "No Containers Found",
+                f"No containers found for {self.display_name} in the running topology.\n\n"
+                f"This could mean:\n"
+                f"1. The component is not part of the current topology\n"
+                f"2. The topology is not running properly\n"
+                f"3. The component was not deployed"
+            )
+            return
+        
+        # For VGCore components, show a selection dialog if multiple containers
+        selected_container = available_containers[0]
+        
+        if self.component_type == "VGcore" and len(available_containers) > 1:
+            # Create a user-friendly list with container names and types
+            container_options = []
+            for container in available_containers:
+                # Extract component type from container name
+                container_type = container.split('.')[-1].upper()  # mn.amf1 -> AMF1
+                container_options.append(f"{container_type} ({container})")
+            
+            choice, ok = QInputDialog.getItem(
+                None,
+                "Select 5G Core Component",
+                f"Multiple 5G Core components found for {self.display_name}.\nSelect which component's logs to view:",
+                container_options,
+                0,
+                False
+            )
+            
+            if not ok:
+                return  # User cancelled
+            
+            # Extract the actual container name from the selection
+            selected_index = container_options.index(choice)
+            selected_container = available_containers[selected_index]
+        
+        # Verify the selected container exists
+        if not self._containerExists(selected_container):
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "Container Not Running",
+                f"Container '{selected_container}' is not currently running.\n\n"
+                f"Please ensure the topology is properly deployed."
+            )
+            return
+        
+        # Open the log viewer dialog
+        try:
+            log_viewer = LogViewerDialog(
+                component_name=self.display_name,
+                component_type=self.component_type,
+                container_name=selected_container,
+                parent=None,  # Make it a standalone window
+                available_containers=available_containers if len(available_containers) > 1 else None
+            )
+            log_viewer.show()
+            log_viewer.exec_()  # Modal dialog
+            
+        except Exception as e:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                None,
+                "Error Opening Log Viewer",
+                f"Failed to open log viewer for {self.display_name}:\n{str(e)}"
+            )
+
+    def openPacketCaptureViewer(self):
+        """Open the packet capture viewer for this component."""
+        if not self._isTopologyRunning():
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.information(
+                None,
+                "No Running Topology",
+                "No running topology detected. Please run the topology first to view packet captures."
+            )
+            return
+        
+        # Get available containers for this component
+        available_containers = self._getAvailableContainers()
+        
+        if not available_containers:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "No Containers Found",
+                f"No containers found for {self.display_name} in the running topology.\n\n"
+                f"This could mean:\n"
+                f"1. The component is not part of the current topology\n"
+                f"2. The topology is not running properly\n"
+                f"3. The component was not deployed"
+            )
+            return
+        
+        # For VGCore components, show a selection dialog if multiple containers
+        selected_container = available_containers[0]
+        
+        if self.component_type == "VGcore" and len(available_containers) > 1:
+            # Create a user-friendly list with container names and types
+            container_options = []
+            for container in available_containers:
+                # Extract component type from container name
+                container_type = container.split('.')[-1].upper()  # mn.amf1 -> AMF1
+                container_options.append(f"{container_type} ({container})")
+            
+            choice, ok = QInputDialog.getItem(
+                None,
+                "Select 5G Core Component",
+                f"Multiple 5G Core components found for {self.display_name}.\nSelect which component's packet capture to view:",
+                container_options,
+                0,
+                False
+            )
+            
+            if not ok:
+                return  # User cancelled
+            
+            # Extract the actual container name from the selection
+            selected_index = container_options.index(choice)
+            selected_container = available_containers[selected_index]
+        
+        # Verify the selected container exists
+        if not self._containerExists(selected_container):
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                None,
+                "Container Not Running",
+                f"Container '{selected_container}' is not currently running.\n\n"
+                f"Please ensure the topology is properly deployed."
+            )
+            return
+        
+        # Open the packet capture viewer dialog
+        try:
+            capture_viewer = PacketCaptureViewerDialog(
+                component_name=self.display_name,
+                component_type=self.component_type,
+                container_name=selected_container,
+                parent=None,  # Make it a standalone window
+                available_containers=available_containers if len(available_containers) > 1 else None
+            )
+            capture_viewer.show()
+            capture_viewer.exec_()  # Modal dialog
+            
+        except Exception as e:
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                None,
+                "Error Opening Packet Capture Viewer",
+                f"Failed to open packet capture viewer for {self.display_name}:\n{str(e)}"
+            )
 
     @staticmethod
     def scanAndInitializeNumbering(main_window=None):

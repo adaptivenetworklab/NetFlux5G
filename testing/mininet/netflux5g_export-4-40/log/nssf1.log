@@ -1,0 +1,264 @@
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-nssfd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1237: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 06:9c:1f:90:27:71 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1237: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 06:9c:1f:90:27:71 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.19/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.19 
+
+================================
+Starting Open5GS service: open5gs-nssfd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/16 21:55:49.017[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/nssf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/16 21:55:49.017[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/nssf.log' (../lib/app/ogs-init.c:147)
+[32m07/16 21:55:49.021[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/16 21:55:49.021[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1994)
+[32m07/16 21:55:49.024[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.19]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/16 21:55:49.025[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m07/16 21:55:49.027[0m: [[33msbi[0m] [1;36mWARNING[0m: Couldn't connect to server (7): Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/16 21:55:49.027[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/16 21:56:00.033[0m: [[33msbi[0m] [1;36mWARNING[0m: [a23c7e14-628f-41f0-a89f-d71d0188a7f6] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/16 21:56:00.037[0m: [[33msbi[0m] [1;32mINFO[0m: [a23c7e14-628f-41f0-a89f-d71d0188a7f6] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/16 21:56:00.040[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/16 21:56:00.040[0m: [[33msbi[0m] [1;32mINFO[0m: [a8cdbef0-628f-41f0-a264-7dc53375e4ad] Subscription created until 2025-07-17T21:56:00.038702+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-nssfd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1457: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 36:33:ce:4f:58:d7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1457: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 36:33:ce:4f:58:d7 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.19/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.19 
+
+================================
+Starting Open5GS service: open5gs-nssfd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/16 22:32:34.955[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/nssf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/16 22:32:34.955[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/nssf.log' (../lib/app/ogs-init.c:147)
+[32m07/16 22:32:34.959[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/16 22:32:34.959[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1994)
+[32m07/16 22:32:34.960[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.19]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/16 22:32:34.960[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m07/16 22:32:34.962[0m: [[33msbi[0m] [1;36mWARNING[0m: Couldn't connect to server (7): Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/16 22:32:34.962[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/16 22:32:45.971[0m: [[33msbi[0m] [1;36mWARNING[0m: [c51412d0-6294-41f0-8e6e-d1eadb7dbf1a] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/16 22:32:45.974[0m: [[33msbi[0m] [1;32mINFO[0m: [c51412d0-6294-41f0-8e6e-d1eadb7dbf1a] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/16 22:32:45.975[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/16 22:32:45.975[0m: [[33msbi[0m] [1;32mINFO[0m: [cba4dc24-6294-41f0-b5fd-37985fc155fb] Subscription created until 2025-07-17T22:32:45.974681+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-nssfd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if1862: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 02:35:5c:84:f9:cb brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if1862: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 02:35:5c:84:f9:cb brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.19/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.19 
+
+================================
+Starting Open5GS service: open5gs-nssfd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/17 00:50:27.845[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/nssf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/17 00:50:27.845[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/nssf.log' (../lib/app/ogs-init.c:147)
+[32m07/17 00:50:27.848[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/17 00:50:27.848[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1994)
+[32m07/17 00:50:27.850[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.19]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/17 00:50:27.850[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m07/17 00:50:27.851[0m: [[33msbi[0m] [1;36mWARNING[0m: Couldn't connect to server (7): Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/17 00:50:27.852[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/17 00:50:38.860[0m: [[33msbi[0m] [1;36mWARNING[0m: [081ac69c-62a8-41f0-8683-695841b794c6] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/17 00:50:38.868[0m: [[33msbi[0m] [1;32mINFO[0m: [081ac69c-62a8-41f0-8683-695841b794c6] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/17 00:50:38.869[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/17 00:50:38.869[0m: [[33msbi[0m] [1;32mINFO[0m: [0eac5e1c-62a8-41f0-a7d3-b59f12afdff3] Subscription created until 2025-07-18T00:50:38.869090+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-nssfd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if2218: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 86:54:f9:44:50:f3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if2218: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 86:54:f9:44:50:f3 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.19/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.19 
+
+================================
+Starting Open5GS service: open5gs-nssfd
+Open5GS daemon v2.7.5-58-gfc38ede
+
+[32m07/17 01:17:12.165[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/nssf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/17 01:17:12.165[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/nssf.log' (../lib/app/ogs-init.c:147)
+[32m07/17 01:17:12.169[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/17 01:17:12.169[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1994)
+[32m07/17 01:17:12.173[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.19]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/17 01:17:12.174[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m07/17 01:17:12.176[0m: [[33msbi[0m] [1;36mWARNING[0m: Couldn't connect to server (7): Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/17 01:17:12.176[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/17 01:17:23.181[0m: [[33msbi[0m] [1;36mWARNING[0m: [c45aa77a-62ab-41f0-8335-67b8b11c14ac] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/17 01:17:23.183[0m: [[33msbi[0m] [1;32mINFO[0m: [c45aa77a-62ab-41f0-8335-67b8b11c14ac] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/17 01:17:23.186[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.15:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/17 01:17:23.186[0m: [[33msbi[0m] [1;32mINFO[0m: [caeb7f7e-62ab-41f0-aeee-2946d4054edb] Subscription created until 2025-07-18T01:17:23.184695+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-nssfd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if714: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether fe:36:fe:b7:f1:e0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if714: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether fe:36:fe:b7:f1:e0 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.18/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.18 
+
+================================
+Starting Open5GS service: open5gs-nssfd
+Open5GS daemon v2.7.5
+
+[32m07/26 11:15:05.807[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/nssf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/26 11:15:05.807[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/nssf.log' (../lib/app/ogs-init.c:147)
+[32m07/26 11:15:05.813[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/26 11:15:05.813[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1994)
+[32m07/26 11:15:05.817[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.18]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/26 11:15:05.817[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m07/26 11:15:05.821[0m: [[33msbi[0m] [1;36mWARNING[0m: [7] Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/26 11:15:05.821[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/26 11:15:16.819[0m: [[33msbi[0m] [1;36mWARNING[0m: [c86df2b4-6a11-41f0-9705-85a0626b9edb] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/26 11:15:16.822[0m: [[33msbi[0m] [1;32mINFO[0m: [c86df2b4-6a11-41f0-9705-85a0626b9edb] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/26 11:15:16.831[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.14:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/26 11:15:16.831[0m: [[33msbi[0m] [1;32mINFO[0m: [cefee034-6a11-41f0-a0a6-016d9d797bcf] Subscription created until 2025-07-27T11:15:16.828444+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)
+nohup: ignoring input
+Starting OVS setup for Open5GS container...
+OVS is disabled, skipping OpenFlow setup
+Open5GS OVS setup script completed
+Initializing Open5GS container with command: open5gs-nssfd
+=== Network Configuration ===
+Network interfaces:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0@if934: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 4e:2f:4f:d6:da:81 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+IP addresses:
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0@if934: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default 
+    link/ether 4e:2f:4f:d6:da:81 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 172.18.0.18/16 brd 172.18.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+Routing table:
+default via 172.18.0.1 dev eth0 
+172.18.0.0/16 dev eth0 proto kernel scope link src 172.18.0.18 
+
+================================
+Starting Open5GS service: open5gs-nssfd
+Open5GS daemon v2.7.5
+
+[32m07/26 11:22:12.190[0m: [[33mapp[0m] [1;32mINFO[0m: Configuration: '/opt/open5gs/etc/open5gs/nssf.yaml' (../lib/app/ogs-init.c:144)
+[32m07/26 11:22:12.190[0m: [[33mapp[0m] [1;32mINFO[0m: File Logging: '/opt/open5gs/var/log/open5gs/nssf.log' (../lib/app/ogs-init.c:147)
+[32m07/26 11:22:12.195[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(fqdn) [mn.scp1:7777] (../lib/sbi/context.c:507)
+[32m07/26 11:22:12.196[0m: [[33msbi[0m] [1;32mINFO[0m: NF Service [nnssf-nsselection] (../lib/sbi/context.c:1994)
+[32m07/26 11:22:12.196[0m: [[33msbi[0m] [1;32mINFO[0m: nghttp2_server() [http://172.18.0.18]:7777 (../lib/sbi/nghttp2-server.c:439)
+[32m07/26 11:22:12.196[0m: [[33mapp[0m] [1;32mINFO[0m: NSSF initialize...done (../src/nssf/app.c:31)
+[32m07/26 11:22:12.199[0m: [[33msbi[0m] [1;36mWARNING[0m: [7] Failed to connect to mn.scp1 port 7777: Connection refused (../lib/sbi/client.c:757)
+[32m07/26 11:22:12.199[0m: [[33msbi[0m] [1;36mWARNING[0m: ogs_sbi_client_handler() failed [-1] (../lib/sbi/path.c:62)
+[32m07/26 11:22:23.206[0m: [[33msbi[0m] [1;36mWARNING[0m: [c692db0c-6a12-41f0-90d9-71e020bb6247] Retry registration with NRF (../lib/sbi/nf-sm.c:256)
+[32m07/26 11:22:23.209[0m: [[33msbi[0m] [1;32mINFO[0m: [c692db0c-6a12-41f0-90d9-71e020bb6247] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:295)
+[32m07/26 11:22:23.210[0m: [[33msbi[0m] [1;32mINFO[0m: Setup NF EndPoint(addr) [172.18.0.14:7777] (../lib/sbi/nnrf-handler.c:955)
+[32m07/26 11:22:23.210[0m: [[33msbi[0m] [1;32mINFO[0m: [cd2383e0-6a12-41f0-b328-399afeb27493] Subscription created until 2025-07-27T11:22:23.209926+00:00 [duration:86400000000,validity:86400.000000,patch:43200.000000] (../lib/sbi/nnrf-handler.c:874)

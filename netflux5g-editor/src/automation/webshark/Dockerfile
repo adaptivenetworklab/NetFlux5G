@@ -14,7 +14,8 @@ WORKDIR /usr/src/wireshark
 RUN git reset --hard b8047ad279b8d4123f9844b268bfcb884680fc40
 
 COPY ./build.sh /usr/src/node-webshark/sharkd/build.sh
-RUN ../node-webshark/sharkd/build.sh
+RUN chmod +x /usr/src/node-webshark/sharkd/build.sh
+RUN /usr/src/node-webshark/sharkd/build.sh
 
 WORKDIR /usr/src
 RUN mkdir web \
