@@ -85,7 +85,7 @@ services:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-pcfd"
     privileged: true
     environment:
-      DB_URI: mongodb://netflux5g-mongo/open5gs   
+      DB_URI: mongodb://netflux5g-mongodb/open5gs   
     restart: on-failure
     volumes:
       - type: bind
@@ -148,7 +148,7 @@ services:
         condition: service_started
     restart: on-failure
     environment:
-      DB_URI: mongodb://netflux5g-mongo/open5gs
+      DB_URI: mongodb://netflux5g-mongodb/open5gs
     privileged: true      
     command:
     - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-udrd"
@@ -156,6 +156,38 @@ services:
       - type: bind
         source: ./config/udr.yaml
         target: /opt/open5gs/etc/open5gs/udr.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
+
+  upf:
+    image: adaptive/open5gs:latest
+    depends_on:
+      - scp
+    restart: on-failure
+    command:
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-upfd"
+    privileged: true
+    volumes:
+      - type: bind
+        source: ./config/upf.yaml
+        target: /opt/open5gs/etc/open5gs/upf.yaml
+      - type: bind
+        source: ./config/entrypoint.sh
+        target: /opt/open5gs/etc/open5gs/entrypoint.sh
+
+  upf2:
+    image: adaptive/open5gs:latest
+    depends_on:
+      - scp
+    restart: on-failure
+    command:
+    - "/opt/open5gs/etc/open5gs/entrypoint.sh open5gs-upfd"
+    privileged: true
+    volumes:
+      - type: bind
+        source: ./config/upf2.yaml
+        target: /opt/open5gs/etc/open5gs/upf.yaml
       - type: bind
         source: ./config/entrypoint.sh
         target: /opt/open5gs/etc/open5gs/entrypoint.sh

@@ -549,6 +549,13 @@ class MininetExporter:
         f.write('    \n')
         f.write('    info("*** Generating network traffic\\n")\n')
         f.write('    \n')
+        f.write('    # Show progress\n')
+        f.write('    duration = TRAFFIC_CONFIG["duration"]\n')
+        f.write('    info(f"*** Traffic generation running for {duration} seconds...\\n")\n')
+        f.write('    \n')
+        f.write('    # Wait for traffic to complete\n')
+        f.write('    time.sleep(duration + 10)\n')
+        f.write('    \n')
         f.write('    # Get client nodes (UEs, STAs, Hosts)\n')
         f.write('    client_nodes = []\n')
         f.write('    client_nodes.extend([h for h in net.hosts if any(x in h.name.lower() for x in ["ue", "sta", "host"])])\n')
@@ -597,6 +604,10 @@ class MininetExporter:
         f.write('                    start_traffic_command(client, cmd)\n')
         f.write('        \n')
         f.write('        time.sleep(0.2)  # Small delay between clients\n\n')
+        f.write('    # Show completion message\n')
+        f.write('    capture_duration = TRAFFIC_CONFIG["capture_duration"]\n')
+        f.write('    info(f"*** Traffic completed. Captures will continue for {capture_duration - duration} more seconds...\\n")\n')
+        f.write('    info(f"*** Captures accessible at: {local_captures_dir}\\n")\n')
         
         # Start traffic command helper
         f.write('def start_traffic_command(node, cmd):\n')
@@ -676,18 +687,6 @@ class MininetExporter:
         f.write('    # Generate traffic\n')
         f.write('    generate_traffic_load(net, servers)\n')
         f.write('    \n')
-        f.write('    # Show progress\n')
-        f.write('    duration = TRAFFIC_CONFIG["duration"]\n')
-        f.write('    info(f"*** Traffic generation running for {duration} seconds...\\n")\n')
-        f.write('    \n')
-        f.write('    # Wait for traffic to complete\n')
-        f.write('    time.sleep(duration + 10)\n')
-        f.write('    \n')
-        f.write('    # Show completion message\n')
-        f.write('    capture_duration = TRAFFIC_CONFIG["capture_duration"]\n')
-        f.write('    info(f"*** Traffic completed. Captures will continue for {capture_duration - duration} more seconds...\\n")\n')
-        f.write('    info(f"*** Docker captures accessible at: {local_captures_dir}\\n")\n')
-        f.write('    info(f"*** Local captures accessible at: {os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(export_dir))), \'automation\', \'webshark\', \'captures\')}")\n\n')
 
     def write_topology_function(self, f, nodes, links, categorized_nodes, traffic_enabled=False):
         """Write the main topology function following mininet-wifi patterns.

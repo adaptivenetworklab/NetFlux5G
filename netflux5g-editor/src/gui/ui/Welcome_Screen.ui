@@ -149,7 +149,7 @@
      </font>
     </property>
     <property name="text">
-     <string>NetFlux 5G is a visual simulation and planning tool for 5G network topologies. Designed for researchers, students, and network professionals, it allows you to build, configure, and emulate 5G infrastructures. NetFlux 5G offers a flexible and powerful platform to bring your designs to life.</string>
+     <string>NetFlux5G is a visual simulation and planning tool for 5G network topologies. Designed for researchers, students, and network professionals, it allows you to build, configure, and emulate 5G infrastructures. NetFlux 5G offers a flexible and powerful platform to bring your designs to life.</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

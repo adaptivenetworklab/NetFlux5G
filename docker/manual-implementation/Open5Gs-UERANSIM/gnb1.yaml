@@ -1,6 +1,6 @@
 services: 
   gnb1:
-    image: gradiant/ueransim:3.2.6
+    image: adaptive/ueransim:latest
     container_name: gnb1
     command: 
       - gnb
@@ -12,8 +12,9 @@ services:
       MNC: '70'
       SST: '1'
       SD: '0xffffff'
+
   ues1:
-    image: gradiant/ueransim:3.2.6
+    image: adaptive/ueransim:latest
     command: ['ue','-n','3']
     cap_add:
       - all
@@ -29,3 +30,8 @@ services:
       OP: 'E8ED289DEBA952E4283B54E88E6183CA'
       SST: '1'
       SD: '0xffffff'
+
+networks:
+  default:
+    external: true
+    name: netflux5g
