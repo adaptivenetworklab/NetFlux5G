@@ -30,7 +30,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="ConfigurationTab">
      <attribute name="title">
@@ -90,7 +90,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>adaptive/open5gs:1.0</string>
+        <string>adaptive/open5gs:latest</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_docker_network">
@@ -142,237 +142,7 @@
         </rect>
        </property>
        <property name="text">
-        <string>mongodb://mongo/open5gs</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="CoreConfigGroup">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>140</y>
-        <width>750</width>
-        <height>160</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QGroupBox { font-weight: bold; }</string>
-      </property>
-      <property name="title">
-       <string>5G Core Configuration</string>
-      </property>
-      <widget class="QLabel" name="label_network_interface">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>25</y>
-         <width>120</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Network Interface:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_NetworkInterface">
-       <property name="geometry">
-        <rect>
-         <x>140</x>
-         <y>25</y>
-         <width>100</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>eth0</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_mcc">
-       <property name="geometry">
-        <rect>
-         <x>260</x>
-         <y>25</y>
-         <width>40</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>MCC:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_MCC">
-       <property name="geometry">
-        <rect>
-         <x>310</x>
-         <y>25</y>
-         <width>60</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>999</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_mnc">
-       <property name="geometry">
-        <rect>
-         <x>380</x>
-         <y>25</y>
-         <width>40</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>MNC:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_MNC">
-       <property name="geometry">
-        <rect>
-         <x>430</x>
-         <y>25</y>
-         <width>60</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>70</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_tac">
-       <property name="geometry">
-        <rect>
-         <x>500</x>
-         <y>25</y>
-         <width>40</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>TAC:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_TAC">
-       <property name="geometry">
-        <rect>
-         <x>550</x>
-         <y>25</y>
-         <width>60</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>1</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_sst">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>60</y>
-         <width>40</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>SST:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_SST">
-       <property name="geometry">
-        <rect>
-         <x>60</x>
-         <y>60</y>
-         <width>60</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>1</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_sd">
-       <property name="geometry">
-        <rect>
-         <x>140</x>
-         <y>60</y>
-         <width>30</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>SD:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_SD">
-       <property name="geometry">
-        <rect>
-         <x>180</x>
-         <y>60</y>
-         <width>100</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>0xffffff</string>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="VGCore_EnableNAT">
-       <property name="geometry">
-        <rect>
-         <x>300</x>
-         <y>60</y>
-         <width>100</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable NAT</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_bridge_priority">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>95</y>
-         <width>100</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Bridge Priority:</string>
-       </property>
-      </widget>
-      <widget class="QLineEdit" name="VGCore_BridgePriority">
-       <property name="geometry">
-        <rect>
-         <x>120</x>
-         <y>95</y>
-         <width>80</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>32768</string>
-       </property>
-      </widget>
-      <widget class="QCheckBox" name="VGCore_STPEnabled">
-       <property name="geometry">
-        <rect>
-         <x>220</x>
-         <y>95</y>
-         <width>120</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Enable STP</string>
-       </property>
-       <property name="checked">
-        <bool>false</bool>
+        <string>mongodb://netflux5g-mongodb/open5gs</string>
        </property>
       </widget>
      </widget>
@@ -380,9 +150,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>310</y>
+        <y>140</y>
         <width>750</width>
-        <height>180</height>
+        <height>211</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -425,7 +195,7 @@
         <rect>
          <x>120</x>
          <y>55</y>
-         <width>200</width>
+         <width>281</width>
          <height>25</height>
         </rect>
        </property>
@@ -436,8 +206,8 @@
       <widget class="QLabel" name="label_controller_port">
        <property name="geometry">
         <rect>
-         <x>340</x>
-         <y>55</y>
+         <x>420</x>
+         <y>60</y>
          <width>80</width>
          <height>20</height>
         </rect>
@@ -449,8 +219,8 @@
       <widget class="QLineEdit" name="VGCore_ControllerPort">
        <property name="geometry">
         <rect>
-         <x>430</x>
-         <y>55</y>
+         <x>510</x>
+         <y>60</y>
          <width>80</width>
          <height>25</height>
         </rect>
@@ -488,8 +258,8 @@
       <widget class="QLabel" name="label_fail_mode">
        <property name="geometry">
         <rect>
-         <x>290</x>
-         <y>90</y>
+         <x>420</x>
+         <y>95</y>
          <width>80</width>
          <height>20</height>
         </rect>
@@ -501,8 +271,8 @@
       <widget class="QComboBox" name="VGCore_OVSFailMode">
        <property name="geometry">
         <rect>
-         <x>380</x>
-         <y>90</y>
+         <x>510</x>
+         <y>95</y>
          <width>120</width>
          <height>25</height>
         </rect>
@@ -547,8 +317,8 @@
       <widget class="QLabel" name="label_datapath">
        <property name="geometry">
         <rect>
-         <x>290</x>
-         <y>125</y>
+         <x>420</x>
+         <y>130</y>
          <width>80</width>
          <height>20</height>
         </rect>
@@ -560,8 +330,8 @@
       <widget class="QComboBox" name="VGCore_OVSDatapath">
        <property name="geometry">
         <rect>
-         <x>380</x>
-         <y>125</y>
+         <x>510</x>
+         <y>130</y>
          <width>120</width>
          <height>25</height>
         </rect>
@@ -576,6 +346,64 @@
          <string>user</string>
         </property>
        </item>
+      </widget>
+      <widget class="QLabel" name="label_bridge_priority">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>160</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Bridge Priority:</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="VGCore_BridgePriority">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>160</y>
+         <width>80</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>32768</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="VGCore_STPEnabled">
+       <property name="geometry">
+        <rect>
+         <x>284</x>
+         <y>93</y>
+         <width>120</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable STP</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="VGCore_EnableNAT">
+       <property name="geometry">
+        <rect>
+         <x>284</x>
+         <y>126</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Enable NAT</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
       </widget>
      </widget>
     </widget>

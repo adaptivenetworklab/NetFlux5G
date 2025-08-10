@@ -73,10 +73,24 @@ class NetworkComponent(QGraphicsPixmapItem):
             self.properties["range"] = 300.0  # Also set as float for calculations
         elif self.component_type == "UE":
             self.properties["UE_Power"] = 20  # Default UE power in dBm
+            self.properties["UE_NumberOfUE"] = 1  # Default number of UEs
     
         # Set the pixmap for the item (increase icon size to 80x80)
-        pixmap = QPixmap(self.icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # For UE components, check if we should use multi-UE icon
+        actual_icon_path = self.icon_path
+        if self.component_type == "UE":
+            num_ue = self.properties.get("UE_NumberOfUE", 1)
+            if num_ue > 1:
+                # Use multi-UE icon
+                icon_base_path = os.path.dirname(self.icon_path)
+                multi_ue_icon = os.path.join(icon_base_path, "multiue.png")
+                if os.path.exists(multi_ue_icon):
+                    actual_icon_path = multi_ue_icon
+        
+        pixmap = QPixmap(actual_icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         self.setPixmap(pixmap)
+        # Store the actual icon path being used
+        self.icon_path = actual_icon_path
     
         # Make the item draggable and selectable
         self.setFlag(QGraphicsPixmapItem.ItemIsMovable)
@@ -118,10 +132,38 @@ class NetworkComponent(QGraphicsPixmapItem):
         if "x" in properties_dict and "y" in properties_dict:
             self.setPos(properties_dict["x"], properties_dict["y"])
         
+        # Update UE icon if number of UEs changed
+        if self.component_type == "UE" and "UE_NumberOfUE" in properties_dict:
+            self.updateUEIcon()
+        
         # Update coverage radius if power-related properties changed
         power_fields = ["AP_Power", "GNB_Power", "UE_Power", "AP_SignalRange", "GNB_Range", "range", "lineEdit_range"]
         if any(field in properties_dict for field in power_fields):
             self.updateCoverageRadius()
+            
+    def updateUEIcon(self):
+        """Update UE icon based on number of UEs"""
+        if self.component_type != "UE":
+            return
+            
+        num_ue = self.properties.get("UE_NumberOfUE", 1)
+        icon_base_path = os.path.dirname(self.icon_path)
+        
+        if num_ue > 1:
+            new_icon_path = os.path.join(icon_base_path, "multiue.png")
+        else:
+            new_icon_path = os.path.join(icon_base_path, "ue.png")
+            
+        if os.path.exists(new_icon_path) and new_icon_path != self.icon_path:
+            pixmap = QPixmap(new_icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.setPixmap(pixmap)
+            self.icon_path = new_icon_path
+            
+            # Force scene update
+            if hasattr(self, 'scene') and self.scene():
+                self.scene().update()
+                
+            debug_print(f"DEBUG: Updated UE icon to {'multiue.png' if num_ue > 1 else 'ue.png'} for {num_ue} UEs")
 
     def getProperties(self):
         """Get the current properties including updated position."""

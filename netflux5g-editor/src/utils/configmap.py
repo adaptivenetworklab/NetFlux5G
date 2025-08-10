@@ -228,44 +228,44 @@ class ConfigurationMapper:
         component_configs = {
             'UPF': {
                 'privileged': True,
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'AMF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'SMF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'NRF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'SCP': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'AUSF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'BSF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'NSSF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'PCF': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'UDM': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'UDR': {
-                'dimage': 'adaptive/open5gs:1.0'
+                'dimage': 'adaptive/open5gs:latest'
             },
             'GNB': {
-                'dimage': 'gradiant/ueransim:3.2.6'
+                'dimage': 'adaptive/ueransim:latest'
             },
             'UE': {
                 'devices': ["/dev/net/tun"],
-                'dimage': 'gradiant/ueransim:3.2.6'
+                'dimage': 'adaptive/ueransim:latest'
             }
         }
         
@@ -343,6 +343,13 @@ class ConfigurationMapper:
             except (ValueError, TypeError):
                 pass
         
+        # Controller Type - standardized field mapping
+        controller_type = properties.get('Controller_Type', 'OVS Controller')
+        if controller_type == 'Remote Controller':
+            opts.append("controller_class='RemoteController'")
+        else:  # Default to OVS Controller
+            opts.append("controller_class='OVSController'")
+        
         return opts
     
     @staticmethod
@@ -408,9 +415,9 @@ class ConfigurationMapper:
         
         # Docker configuration - standardized field mapping
         config['docker_enabled'] = properties.get('VGCore_DockerEnabled', True)
-        config['docker_image'] = properties.get('VGCore_DockerImage', 'adaptive/open5gs:1.0')
+        config['docker_image'] = properties.get('VGCore_DockerImage', 'adaptive/open5gs:latest')
         config['docker_network'] = properties.get('VGCore_DockerNetwork', 'netflux5g')
-        config['database_uri'] = properties.get('VGCore_DatabaseURI', 'mongodb://mongo/open5gs')
+        config['database_uri'] = properties.get('VGCore_DatabaseURI', 'mongodb://netflux5g-mongodb/open5gs')
         
         # 5G Core network configuration - standardized field mapping
         config['network_interface'] = properties.get('VGCore_NetworkInterface', 'eth0')

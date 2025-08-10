@@ -1,7 +1,7 @@
 import os
 from PyQt5.QtWidgets import QMainWindow, QLineEdit, QComboBox, QCheckBox, QTableWidget, QTableWidgetItem, QSpinBox, QDoubleSpinBox, QTextEdit, QPlainTextEdit, QPushButton, QFileDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5 import uic
 from utils.debug import debug_print, error_print, warning_print
 
@@ -145,7 +145,7 @@ class BasePropertiesWindow(QMainWindow):
                         'config_filename': '',
                         'config_content': None,
                         'imported': False,
-                        'image': 'adaptive/open5gs:1.0',
+                        'image': 'adaptive/open5gs:latest',
                         'component_type': component_type,
                         'volumes': []
                     }
@@ -790,6 +790,11 @@ class UEPropertiesWindow(BasePropertiesWindow):
         self.setupConnections()
         self.setupDefaultValues()
         self.loadProperties()
+        
+        # Update icon based on number of UEs after loading properties
+        if hasattr(self, 'UE_NumberOfUE') and self.component:
+            num_ue = self.UE_NumberOfUE.value()
+            self.onNumberOfUEChanged(num_ue)
 
     def setupConnections(self):
         # Connect OK and Cancel buttons
@@ -801,6 +806,10 @@ class UEPropertiesWindow(BasePropertiesWindow):
             self.UE_Power.valueChanged.connect(self.updateRangeDisplay)
             # Initial range calculation
             self.updateRangeDisplay()
+            
+        # Connect number of UE spinbox to icon update
+        if hasattr(self, 'UE_NumberOfUE'):
+            self.UE_NumberOfUE.valueChanged.connect(self.onNumberOfUEChanged)
             
     def updateRangeDisplay(self):
         """Update the calculated range display based on power value."""
@@ -862,6 +871,32 @@ class UEPropertiesWindow(BasePropertiesWindow):
             self.UE_Power.setValue(20)
         if hasattr(self, 'UE_Range'):
             self.UE_Range.setValue(116)
+            
+        # Set default number of UE
+        if hasattr(self, 'UE_NumberOfUE'):
+            self.UE_NumberOfUE.setValue(1)
+            
+    def onNumberOfUEChanged(self, value):
+        """Handle change in number of UE and update component icon"""
+        if self.component:
+            # Update the component's icon based on number of UEs
+            icon_base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Icon")
+            if value > 1:
+                new_icon_path = os.path.join(icon_base_path, "multiue.png")
+            else:
+                new_icon_path = os.path.join(icon_base_path, "ue.png")
+            
+            # Update the component's icon
+            if os.path.exists(new_icon_path):
+                pixmap = QPixmap(new_icon_path).scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                self.component.setPixmap(pixmap)
+                self.component.icon_path = new_icon_path
+                
+                # Force update the canvas
+                if hasattr(self.component, 'scene') and self.component.scene():
+                    self.component.scene().update()
+                    
+                debug_print(f"DEBUG: Updated UE icon to {'multiue.png' if value > 1 else 'ue.png'} for {value} UEs")
             
     def get5GConfiguration(self):
         """Get 5G configuration parameters matching UERANSIM Docker environment"""
@@ -1123,11 +1158,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         """Setup default values for the enhanced 5G Core configuration"""
         # Set default Docker configuration values
         if hasattr(self, 'VGCore_DockerImage'):
-            self.VGCore_DockerImage.setText("adaptive/open5gs:1.0")
+            self.VGCore_DockerImage.setText("adaptive/open5gs:latest")
         if hasattr(self, 'VGCore_DockerNetwork'):
             self.VGCore_DockerNetwork.setText("netflux5g")
         if hasattr(self, 'VGCore_DatabaseURI'):
-            self.VGCore_DatabaseURI.setText("mongodb://mongo/open5gs")
+            self.VGCore_DatabaseURI.setText("mongodb://netflux5g-mongodb/open5gs")
         if hasattr(self, 'VGCore_DockerEnabled'):
             self.VGCore_DockerEnabled.setChecked(True)
             
@@ -1199,7 +1234,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'VGCore_DockerImage'):
             config['DOCKER_IMAGE'] = self.VGCore_DockerImage.text()
         else:
-            config['DOCKER_IMAGE'] = 'adaptive/open5gs:1.0'
+            config['DOCKER_IMAGE'] = 'adaptive/open5gs:latest'
             
         if hasattr(self, 'VGCore_DockerNetwork'):
             config['DOCKER_NETWORK'] = self.VGCore_DockerNetwork.text()
@@ -1209,7 +1244,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'VGCore_DatabaseURI'):
             config['DATABASE_URI'] = self.VGCore_DatabaseURI.text()
         else:
-            config['DATABASE_URI'] = 'mongodb://mongo/open5gs'
+            config['DATABASE_URI'] = 'mongodb://netflux5g-mongodb/open5gs'
             
         return config
     
@@ -1906,7 +1941,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     row_data['settings'] = settings_item.text().strip()
             
             # Add default values
-            row_data['image'] = 'adaptive/open5gs:1.0'
+            row_data['image'] = 'adaptive/open5gs:latest'
             row_data['component_type'] = component_type
             row_data['volumes'] = []
             
@@ -2125,8 +2160,6 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                             slicing_info[sst] = {}
                         if sd not in slicing_info[sst]:
                             slicing_info[sst][sd] = set()
-                        # AMF doesn't specify DNNs directly, use default
-                        slicing_info[sst][sd].add("(Any)")
                         
             elif nf_type == 'SMF' and 'smf' in config:
                 # Extract from SMF info section if present
@@ -2150,11 +2183,8 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                             slicing_info[sst] = {}
                         if sd not in slicing_info[sst]:
                             slicing_info[sst][sd] = set()
-                        
                         if dnns:
                             slicing_info[sst][sd].update(dnns)
-                        else:
-                            slicing_info[sst][sd].add("(Any)")
                             
                 # Also extract from session configurations
                 sessions = config['smf'].get('session', [])
