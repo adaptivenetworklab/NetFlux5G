@@ -1,6 +1,15 @@
 # NetFlux5G
 
+![alt text](./netflux5g-editor/assets/Overview.png)
+
 NetFlux5G is an interactive graphical application for designing, simulating, and exporting 5G, wireless, and container-based network topologies. It provides a drag-and-drop GUI for building complex networks, configuring properties, and exporting Mininet scripts for deployment and emulation.
+
+### Disclaimer
+This application is in its early development stage and has planned integrations and enhancements for the future. Please note the following:
+
+- The app is built on Mininet-WiFi, a Software-Defined Networking (SDN) emulator that relies on Linux operating system kernel modules and Python dependencies.
+- Currently, the 5G network functionality is implemented using Open5Gs and UERANSIM to deploy and simulate the 5G Core. As a result, the app’s similarity to real-world 5G scenarios and network protocols is limited to these tools.
+- This app is designed for users interested in learning and exploring SDN, 5G, or SDN-based 5G networks, aligning with its intended purpose.
 
 ---
 

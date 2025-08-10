@@ -145,7 +145,7 @@ class BasePropertiesWindow(QMainWindow):
                         'config_filename': '',
                         'config_content': None,
                         'imported': False,
-                        'image': 'adaptive/open5gs:1.0',
+                        'image': 'adaptive/open5gs:latest',
                         'component_type': component_type,
                         'volumes': []
                     }
@@ -1158,11 +1158,11 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         """Setup default values for the enhanced 5G Core configuration"""
         # Set default Docker configuration values
         if hasattr(self, 'VGCore_DockerImage'):
-            self.VGCore_DockerImage.setText("adaptive/open5gs:1.0")
+            self.VGCore_DockerImage.setText("adaptive/open5gs:latest")
         if hasattr(self, 'VGCore_DockerNetwork'):
             self.VGCore_DockerNetwork.setText("netflux5g")
         if hasattr(self, 'VGCore_DatabaseURI'):
-            self.VGCore_DatabaseURI.setText("mongodb://mongo/open5gs")
+            self.VGCore_DatabaseURI.setText("mongodb://netflux5g-mongodb/open5gs")
         if hasattr(self, 'VGCore_DockerEnabled'):
             self.VGCore_DockerEnabled.setChecked(True)
             
@@ -1234,7 +1234,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'VGCore_DockerImage'):
             config['DOCKER_IMAGE'] = self.VGCore_DockerImage.text()
         else:
-            config['DOCKER_IMAGE'] = 'adaptive/open5gs:1.0'
+            config['DOCKER_IMAGE'] = 'adaptive/open5gs:latest'
             
         if hasattr(self, 'VGCore_DockerNetwork'):
             config['DOCKER_NETWORK'] = self.VGCore_DockerNetwork.text()
@@ -1244,7 +1244,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
         if hasattr(self, 'VGCore_DatabaseURI'):
             config['DATABASE_URI'] = self.VGCore_DatabaseURI.text()
         else:
-            config['DATABASE_URI'] = 'mongodb://mongo/open5gs'
+            config['DATABASE_URI'] = 'mongodb://netflux5g-mongodb/open5gs'
             
         return config
     
@@ -1941,7 +1941,7 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                     row_data['settings'] = settings_item.text().strip()
             
             # Add default values
-            row_data['image'] = 'adaptive/open5gs:1.0'
+            row_data['image'] = 'adaptive/open5gs:latest'
             row_data['component_type'] = component_type
             row_data['volumes'] = []
             
@@ -2160,8 +2160,6 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                             slicing_info[sst] = {}
                         if sd not in slicing_info[sst]:
                             slicing_info[sst][sd] = set()
-                        # AMF doesn't specify DNNs directly, use default
-                        slicing_info[sst][sd].add("(Any)")
                         
             elif nf_type == 'SMF' and 'smf' in config:
                 # Extract from SMF info section if present
@@ -2185,11 +2183,8 @@ class Component5GPropertiesWindow(BasePropertiesWindow):
                             slicing_info[sst] = {}
                         if sd not in slicing_info[sst]:
                             slicing_info[sst][sd] = set()
-                        
                         if dnns:
                             slicing_info[sst][sd].update(dnns)
-                        else:
-                            slicing_info[sst][sd].add("(Any)")
                             
                 # Also extract from session configurations
                 sessions = config['smf'].get('session', [])

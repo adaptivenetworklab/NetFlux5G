@@ -856,22 +856,29 @@ class MininetExporter:
 
     def write_controllers(self, f, categorized_nodes):
         """Write controller creation code following fixed_topology-upf.py pattern."""
-        f.write('    info("*** Adding controller\\n")\n')
+
         if categorized_nodes['controllers']:
+            f.write('    info("*** Adding controller\\n")\n')
             for controller in categorized_nodes['controllers']:
                 props = controller.get('properties', {})
                 ctrl_name = self.sanitize_variable_name(controller['name'])
                 ctrl_ip = props.get('Controller_IPAddress', '127.0.0.1')
                 ctrl_port = props.get('Controller_Port', 6633)
                 
+                # Determine controller type based on UI selection
+                controller_type = props.get('Controller_Type', 'OVS Controller')
+                if controller_type == 'Remote Controller':
+                    controller_class = 'RemoteController'
+                else:  # Default to OVS Controller
+                    controller_class = 'OVSController'
+                
                 f.write(f'    {ctrl_name} = net.addController(name=\'{ctrl_name}\',\n')
-                f.write(f'                                   controller=RemoteController,\n')
+                f.write(f'                                   controller={controller_class},\n')
                 f.write(f'                                   ip=\'{ctrl_ip}\',\n')
                 f.write(f'                                   port={ctrl_port})\n')
         else:
             # Add default controller like in the original
-            f.write('    c0 = net.addController(name=\'c0\',\n')
-            f.write('                           controller=OVSController)\n')
+            f.write('    info("*** No Controller Added\\n")\n')
         f.write('\n')
 
     def write_access_points(self, f, categorized_nodes):
@@ -1335,7 +1342,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': True,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'ENABLE_NAT': 'true' if vgcore_config.get('enable_nat', True) else 'false',
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0'),
                     'OVS_ENABLED': 'true' if vgcore_config.get('ovs_enabled', False) else 'false',
@@ -1357,7 +1364,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': True,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0'),
                     'MCC': vgcore_config.get('mcc', '999'),
                     'MNC': vgcore_config.get('mnc', '70'),
@@ -1383,7 +1390,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0'),
                     'OVS_ENABLED': 'true' if vgcore_config.get('ovs_enabled', False) else 'false',
                     'OVS_CONTROLLER': vgcore_config.get('ovs_controller', ''),
@@ -1404,7 +1411,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1416,7 +1423,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1428,7 +1435,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1440,7 +1447,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1452,7 +1459,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1464,7 +1471,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1476,7 +1483,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             },
@@ -1488,7 +1495,7 @@ class MininetExporter:
                 'requires_tun': False,
                 'terminal_startup': False,
                 'env_vars': {
-                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://mongo/open5gs'),
+                    'DB_URI': vgcore_config.get('database_uri', 'mongodb://netflux5g-mongodb/open5gs'),
                     'NETWORK_INTERFACE': vgcore_config.get('network_interface', 'eth0')
                 }
             }
@@ -2000,8 +2007,6 @@ class MininetExporter:
             for controller in categorized_nodes['controllers']:
                 ctrl_name = self.sanitize_variable_name(controller['name'])
                 f.write(f'    {ctrl_name}.start()\n')
-        else:
-            f.write('    c0.start()\n')
         f.write('\n')
 
     def write_ap_startup(self, f, categorized_nodes):
@@ -2021,25 +2026,21 @@ class MininetExporter:
         if not all_aps:
             return
             
-        controller_name = 'c0'
         if categorized_nodes['controllers']:
             controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
-            
-        f.write('    info("*** Starting APs\\n")\n')
-        for ap_name in all_aps:
-            f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
+            f.write('    info("*** Starting APs\\n")\n')
+            for ap_name in all_aps:
+                f.write(f'    net.get("{ap_name}").start([{controller_name}])\n')
         f.write('\n')
 
     def write_switch_startup(self, f, categorized_nodes):
         """Write switch startup code."""
 
-        controller_name = 'c0'
         if categorized_nodes['controllers']:
             controller_name = self.sanitize_variable_name(categorized_nodes['controllers'][0]['name'])
-
-        for switch in categorized_nodes['switches']:
-            switch_name = self.sanitize_variable_name(switch['name'])
-            f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
+            for switch in categorized_nodes['switches']:
+                switch_name = self.sanitize_variable_name(switch['name'])
+                f.write(f'    net.get("{switch_name}").start([{controller_name}])\n')
         f.write('\n')
 
     def write_main_execution(self, f, traffic_enabled=False):

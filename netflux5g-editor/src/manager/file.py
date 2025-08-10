@@ -657,7 +657,7 @@ class FileManager:
                                     'config_file_path': config.get('config_file_path', ''),
                                     'config_filename': config.get('config_filename', f"{comp_type.lower()}.yaml"),
                                     'imported': bool(config.get('imported', False)),
-                                    'image': config.get('image', 'adaptive/open5gs:1.0'),
+                                    'image': config.get('image', 'adaptive/open5gs:latest'),
                                     'component_type': comp_type,
                                     'volumes': config.get('volumes', [])
                                 }
