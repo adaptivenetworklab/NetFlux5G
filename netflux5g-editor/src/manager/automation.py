@@ -291,6 +291,10 @@ class AutomationManager:
         )
         
         if reply == QMessageBox.Yes:
+            # Notify challenge system that topology is being stopped
+            if hasattr(self.main_window, 'challenge_manager'):
+                self.main_window.challenge_manager.onTopologyStopped()
+                
             # Delegate to automation runner's stop_topology
             self.main_window.automation_runner.stop_topology()
         # Update UI state

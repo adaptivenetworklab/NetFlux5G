@@ -25,6 +25,7 @@ from manager.monitoring import MonitoringManager
 from manager.controller import ControllerManager
 from manager.packet_analyzer import PacketAnalyzerManager
 from manager.deployment_monitor import DeploymentMonitorManager
+from manager.challenge import ChallengeManager
 from utils.debug import debug_print, error_print, warning_print, set_debug_enabled, is_debug_enabled
 from utils.template_updater import TemplateUpdater
 
@@ -61,6 +62,7 @@ class NetFlux5GApp(QMainWindow):
         self.controller_manager = ControllerManager(self)
         self.packet_analyzer_manager = PacketAnalyzerManager(self)
         self.deployment_monitor_manager = DeploymentMonitorManager(self)
+        self.challenge_manager = ChallengeManager(self)
         self.template_updater = TemplateUpdater(self)
         
         # Initialize other components
@@ -108,6 +110,13 @@ class NetFlux5GApp(QMainWindow):
             debug_print("Template configuration paths updated successfully")
         else:
             warning_print("Failed to update some template configuration paths")
+
+        # Setup challenge directories
+        debug_print("Setting up challenge system...")
+        if self.challenge_manager.setupChallengeDirectories():
+            debug_print("Challenge system setup completed")
+        else:
+            warning_print("Failed to setup challenge directories")
 
         # Initialize window title
         self.updateWindowTitle()
@@ -398,8 +407,16 @@ class NetFlux5GApp(QMainWindow):
             if hasattr(self, 'deployment_monitor_manager'):
                 # Small delay to ensure all containers are ready
                 QTimer.singleShot(2000, self.deployment_monitor_manager.showMonitoringPanel)
+            
+            # Notify challenge system of successful topology deployment
+            if hasattr(self, 'challenge_manager'):
+                self.challenge_manager.onTopologyDeployed()
         else:
             error_print(f"Topology deployment failed: {message}")
+            
+            # Notify challenge system of deployment failure
+            if hasattr(self, 'challenge_manager'):
+                self.challenge_manager.onTopologyDeploymentFailed(message)
 
     def setupDebugMenu(self):
         """Create and setup the Debug menu"""
