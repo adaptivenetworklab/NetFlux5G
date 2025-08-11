@@ -3,16 +3,70 @@
   "type": "NetFlux5G_Topology",
   "metadata": {
     "created_with": "NetFlux5G Editor",
-    "created_date": "Mon Aug 11 05:29:57 2025",
-    "saved_date": "Mon Aug 11 05:29:57 2025",
+    "created_date": "Mon Aug 11 20:14:38 2025",
+    "saved_date": "Mon Aug 11 20:14:38 2025",
     "canvas_size": {
-      "width": 1292,
+      "width": 826,
       "height": 805
     },
     "component_counts": {},
     "editor_version": "2.0"
   },
   "nodes": [
+    {
+      "name": "UE #1",
+      "type": "UE",
+      "x": 54.21919374999999,
+      "y": -92.69733125000002,
+      "properties": {
+        "name": "UE #1",
+        "type": "UE",
+        "x": 54.21919374999999,
+        "y": -92.69733125000002,
+        "UE_Power": 20,
+        "UE_NumberOfUE": 1,
+        "UE_TunnelInterface": "uesimtun0",
+        "UE_RadioInterface": "eth0",
+        "qt_spinbox_lineedit": "1",
+        "UE_GNBHostName": "mn.GNB__1",
+        "UE_APN": "internet",
+        "UE_MSISDN": "0000000001",
+        "UE_MCC": "999",
+        "UE_MNC": "70",
+        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
+        "UE_SST": "1",
+        "UE_SD": "0xffffff",
+        "UE_IMEI": "356938035643803",
+        "UE_IMEISV": "4370816125816151",
+        "UE_SessionType": "IPv4",
+        "UE_AssociationMode": "auto",
+        "UE_OPType": "OPC",
+        "UE_PDUSessions": 1,
+        "5g_gnb_hostname": "mn.GNB__1",
+        "5g_apn": "internet",
+        "5g_msisdn": "0000000001",
+        "5g_mcc": "999",
+        "5g_mnc": "70",
+        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
+        "5g_op_type": "OPC",
+        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
+        "5g_sst": "1",
+        "5g_sd": "0xffffff",
+        "5g_imei": "356938035643803",
+        "5g_imeisv": "4370816125816151",
+        "network_tunnel_iface": "uesimtun0",
+        "network_radio_iface": "eth0",
+        "network_session_type": "IPv4",
+        "network_pdu_sessions": "1",
+        "network_ueransim_component": "ue",
+        "wireless_association": "auto",
+        "wireless_txpower": 20,
+        "ueransim_component": "ue"
+      },
+      "created_date": "Mon Aug 11 20:14:38 2025",
+      "component_id": 139720050147392
+    },
     {
       "name": "VGcore #1",
       "type": "VGcore",
@@ -669,62 +723,8 @@
         "VGCore_STPEnabled": true,
         "VGCore_EnableNAT": true
       },
-      "created_date": "Mon Aug 11 05:29:57 2025",
-      "component_id": 140074970608640
-    },
-    {
-      "name": "UE #1",
-      "type": "UE",
-      "x": 54.21919374999999,
-      "y": -92.69733125000002,
-      "properties": {
-        "name": "UE #1",
-        "type": "UE",
-        "x": 54.21919374999999,
-        "y": -92.69733125000002,
-        "UE_Power": 20,
-        "UE_NumberOfUE": 1,
-        "UE_TunnelInterface": "uesimtun0",
-        "UE_RadioInterface": "eth0",
-        "qt_spinbox_lineedit": "1",
-        "UE_GNBHostName": "mn.GNB__1",
-        "UE_APN": "internet",
-        "UE_MSISDN": "0000000001",
-        "UE_MCC": "999",
-        "UE_MNC": "70",
-        "UE_KEY": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "UE_OP": "E8ED289DEBA952E4283B54E88E6183CA",
-        "UE_SST": "1",
-        "UE_SD": "0xffffff",
-        "UE_IMEI": "356938035643803",
-        "UE_IMEISV": "4370816125816151",
-        "UE_SessionType": "IPv4",
-        "UE_AssociationMode": "auto",
-        "UE_OPType": "OPC",
-        "UE_PDUSessions": 1,
-        "5g_gnb_hostname": "mn.GNB__1",
-        "5g_apn": "internet",
-        "5g_msisdn": "0000000001",
-        "5g_mcc": "999",
-        "5g_mnc": "70",
-        "5g_key": "465B5CE8B199B49FAA5F0A2EE238A6BC",
-        "5g_op_type": "OPC",
-        "5g_op": "E8ED289DEBA952E4283B54E88E6183CA",
-        "5g_sst": "1",
-        "5g_sd": "0xffffff",
-        "5g_imei": "356938035643803",
-        "5g_imeisv": "4370816125816151",
-        "network_tunnel_iface": "uesimtun0",
-        "network_radio_iface": "eth0",
-        "network_session_type": "IPv4",
-        "network_pdu_sessions": "1",
-        "network_ueransim_component": "ue",
-        "wireless_association": "auto",
-        "wireless_txpower": 20,
-        "ueransim_component": "ue"
-      },
-      "created_date": "Mon Aug 11 05:29:57 2025",
-      "component_id": 140074970608496
+      "created_date": "Mon Aug 11 20:14:38 2025",
+      "component_id": 139720160834416
     },
     {
       "name": "GNB #1",
@@ -785,8 +785,8 @@
         "wireless_txpower": 30,
         "ueransim_component": "gnb"
       },
-      "created_date": "Mon Aug 11 05:29:57 2025",
-      "component_id": 140074970609072
+      "created_date": "Mon Aug 11 20:14:38 2025",
+      "component_id": 139720050158624
     }
   ],
   "links": [
@@ -807,7 +807,7 @@
         "enable_ip": false
       },
       "name": "link_896",
-      "created_date": "Mon Aug 11 05:29:57 2025"
+      "created_date": "Mon Aug 11 20:14:38 2025"
     }
   ],
   "canvas_properties": {

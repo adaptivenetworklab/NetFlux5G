@@ -6,9 +6,8 @@ It provides the interface between the challenge system and the main GUI.
 """
 
 import os
-from PyQt5.QtWidgets import QDockWidget, QAction, QMenuBar, QMenu
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QDockWidget
+from PyQt5.QtCore import Qt
 from utils.debug import debug_print, error_print, warning_print
 from challenges.topology_challenge import TopologyChallengePanel
 
@@ -51,57 +50,35 @@ class ChallengeManager:
             error_print(f"Failed to setup challenge system: {e}")
     
     def addChallengeMenu(self):
-        """Add challenge menu to the main menu bar."""
+        """Connect challenge menu actions to their handlers."""
         try:
-            # Get or create Tools menu
-            menubar = self.main_window.menuBar()
-            tools_menu = None
-            
-            # Look for existing Tools menu
-            for action in menubar.actions():
-                if action.text() == "Tools":
-                    tools_menu = action.menu()
-                    break
-            
-            # Create Tools menu if it doesn't exist
-            if not tools_menu:
-                tools_menu = menubar.addMenu("Tools")
-            
-            # Add challenge submenu
-            challenge_menu = tools_menu.addMenu("Challenges")
-            
-            # Show/Hide Challenges Panel
-            self.show_challenges_action = QAction("Show Challenge Panel", self.main_window)
-            self.show_challenges_action.setCheckable(True)
-            self.show_challenges_action.triggered.connect(self.toggleChallengePanel)
-            challenge_menu.addAction(self.show_challenges_action)
-            
-            challenge_menu.addSeparator()
-            
-            # Quick access to challenge types
-            basic_challenge_action = QAction("Start Basic 5G Core Challenge", self.main_window)
-            basic_challenge_action.triggered.connect(self.startBasicChallenge)
-            challenge_menu.addAction(basic_challenge_action)
-            
-            # Create challenge
-            create_challenge_action = QAction("Create Custom Challenge", self.main_window)
-            create_challenge_action.triggered.connect(self.createCustomChallenge)
-            challenge_menu.addAction(create_challenge_action)
-            
-            debug_print("Challenge menu added successfully")
+            # Connect the UI-defined actions to their handlers
+            if hasattr(self.main_window, 'actionShowChallengePanel'):
+                self.main_window.actionShowChallengePanel.triggered.connect(self.toggleChallengePanel)
+                self.show_challenges_action = self.main_window.actionShowChallengePanel
+                
+            if hasattr(self.main_window, 'actionStartBasicChallenge'):
+                self.main_window.actionStartBasicChallenge.triggered.connect(self.startBasicChallenge)
+                
+            if hasattr(self.main_window, 'actionCreateCustomChallenge'):
+                self.main_window.actionCreateCustomChallenge.triggered.connect(self.createCustomChallenge)
+                
+            debug_print("Challenge menu actions connected successfully")
             
         except Exception as e:
-            error_print(f"Failed to add challenge menu: {e}")
+            error_print(f"Failed to connect challenge menu actions: {e}")
     
     def toggleChallengePanel(self):
         """Toggle the challenge panel visibility."""
         try:
             if self.challenge_dock.isVisible():
                 self.challenge_dock.hide()
-                self.show_challenges_action.setChecked(False)
+                if hasattr(self, 'show_challenges_action') and self.show_challenges_action:
+                    self.show_challenges_action.setChecked(False)
             else:
                 self.challenge_dock.show()
-                self.show_challenges_action.setChecked(True)
+                if hasattr(self, 'show_challenges_action') and self.show_challenges_action:
+                    self.show_challenges_action.setChecked(True)
                 
                 # Bring to front and resize appropriately
                 self.challenge_dock.raise_()
@@ -114,7 +91,8 @@ class ChallengeManager:
         """Show the challenge panel."""
         try:
             self.challenge_dock.show()
-            self.show_challenges_action.setChecked(True)
+            if hasattr(self, 'show_challenges_action') and self.show_challenges_action:
+                self.show_challenges_action.setChecked(True)
             self.challenge_dock.raise_()
             self.challenge_dock.activateWindow()
         except Exception as e:
@@ -124,7 +102,8 @@ class ChallengeManager:
         """Hide the challenge panel."""
         try:
             self.challenge_dock.hide()
-            self.show_challenges_action.setChecked(False)
+            if hasattr(self, 'show_challenges_action') and self.show_challenges_action:
+                self.show_challenges_action.setChecked(False)
         except Exception as e:
             error_print(f"Failed to hide challenge panel: {e}")
     

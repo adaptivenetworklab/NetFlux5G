@@ -152,6 +152,21 @@ QFrame {
     <addaction name="actionGenerate_Load_Traffic"/>
     <addaction name="actionClear_DB_Data"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <widget class="QMenu" name="menuChallenges">
+     <property name="title">
+      <string>Challenges</string>
+     </property>
+     <addaction name="actionShowChallengePanel"/>
+     <addaction name="separator"/>
+     <addaction name="actionStartBasicChallenge"/>
+     <addaction name="actionCreateCustomChallenge"/>
+    </widget>
+    <addaction name="menuChallenges"/>
+   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -161,6 +176,7 @@ QFrame {
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuRun"/>
+   <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
@@ -534,6 +550,33 @@ QFrame {
    </property>
    <property name="text">
     <string>Generate Load Traffic</string>
+   </property>
+  </action>
+  <action name="actionShowChallengePanel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Challenge Panel</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the topology challenge panel</string>
+   </property>
+  </action>
+  <action name="actionStartBasicChallenge">
+   <property name="text">
+    <string>Start Basic 5G Core Challenge</string>
+   </property>
+   <property name="toolTip">
+    <string>Start the basic 5G core setup challenge</string>
+   </property>
+  </action>
+  <action name="actionCreateCustomChallenge">
+   <property name="text">
+    <string>Create Custom Challenge</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the custom challenge creator dialog</string>
    </property>
   </action>
  </widget>
