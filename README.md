@@ -122,7 +122,7 @@ This will install the latest compatible version of:
 
 Clone the repository:
 ```sh
-git clone -b netflux5g https://github.com/adaptivenetworklab/Riset_23-24_SDN.git NetFlux5G
+git clone -b netflux5g https://github.com/adaptivenetworklab/NetFlux5G.git NetFlux5G
 ```
 
 Run the installation script (this will set up a Python venv and install all requirements inside it):
